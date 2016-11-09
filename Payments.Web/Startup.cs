@@ -30,7 +30,7 @@ namespace Payments.Web
             // Add framework services.
             services.AddMvc();
 
-            var connection = @"Server=(localdb)\sqlexpress;Database=Payments;Trusted_Connection=True;";
+            var connection = @"Server=.\sqlexpress;Database=Payments;Trusted_Connection=True;";
             services
                 .AddEntityFramework()
                 .AddEntityFrameworkSqlServer()
