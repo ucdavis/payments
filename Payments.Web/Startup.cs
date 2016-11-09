@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Payments.Core;
 
 namespace Payments.Web
 {
@@ -29,6 +29,12 @@ namespace Payments.Web
         {
             // Add framework services.
             services.AddMvc();
+
+            var connection = @"Server=(localdb)\sqlexpress;Database=Payments;Trusted_Connection=True;";
+            services
+                .AddEntityFramework()
+                .AddEntityFrameworkSqlServer()
+                .AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
