@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,9 @@ namespace Payments.Web
                 .AddEntityFramework()
                 .AddEntityFrameworkSqlServer()
                 .AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
+
+            // automapper services
+            services.AddAutoMapper();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
