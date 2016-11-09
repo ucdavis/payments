@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Payments.Core.Models;
 using Payments.Web.ViewModels;
 
@@ -52,7 +54,7 @@ namespace Payments.Web.Controllers
             if (id == null)
                 return BadRequest();
 
-            var invoice = await _context.Invoices.FindAsync(id);
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
             if (invoice == null)
                 return NotFound();
 
@@ -67,7 +69,7 @@ namespace Payments.Web.Controllers
             if (id == null)
                 return BadRequest();
 
-            var invoice = await _context.Invoices.FindAsync(id);
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
             if (invoice == null)
                 return NotFound();
 
@@ -82,7 +84,7 @@ namespace Payments.Web.Controllers
             if (id == null)
                 return BadRequest();
 
-            var invoice = await _context.Invoices.FindAsync(id);
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
             if (invoice == null)
                 return NotFound();
 
