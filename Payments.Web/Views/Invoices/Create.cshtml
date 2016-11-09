@@ -1,0 +1,19 @@
+﻿@model Payments.Web.ViewModels.InvoiceViewModel
+
+@{
+    ViewBag.Title = "Create new invoice";
+}
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="TotalAmount"></label>
+        <div class="input-group">
+            <span class="input-group-addon">$</span>
+            <input asp-for="TotalAmount" class="form-control" />
+        </div>
+        <span asp-validation-for="TotalAmount" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-default" />
+    </div>
+</form>
