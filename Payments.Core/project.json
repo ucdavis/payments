@@ -1,0 +1,14 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1"
+  },
+
+  "tools": {
+  },
+
+  "frameworks": {
+    "net452": {}
+  }
+}
