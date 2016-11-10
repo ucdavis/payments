@@ -1,11 +1,9 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Payments.Web;
 
-namespace Payments.Web.Migrations
+namespace Payments.Core.Migrations
 {
     [DbContext(typeof(PaymentsContext))]
     [Migration("20161109000341_InvoiceModel")]
