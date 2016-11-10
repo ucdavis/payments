@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Payments.Core.Models;
 
-namespace Payments.Web
+namespace Payments.Core
 {
     public class PaymentsContext : DbContext
     {
