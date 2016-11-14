@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Payments.Core;
 
 namespace Payments.Web
 {
@@ -32,8 +33,8 @@ namespace Payments.Web
 
             var connection = @"Server=.\sqlexpress;Database=Payments;Trusted_Connection=True;";
             services
-                .AddEntityFramework()
-                .AddEntityFrameworkSqlServer()
+                //.AddEntityFramework()
+                //.AddEntityFrameworkSqlServer()
                 .AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
 
             // automapper services
