@@ -38,7 +38,8 @@ namespace Payments.Web
                 .AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
 
             // automapper services
-            services.AddAutoMapper();
+            services.AddAutoMapper(typeof(Startup));
+            Mapper.AssertConfigurationIsValid();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
