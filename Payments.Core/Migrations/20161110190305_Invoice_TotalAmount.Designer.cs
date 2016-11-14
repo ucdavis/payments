@@ -3,13 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Payments.Core;
 
 namespace Payments.Core.Migrations
 {
     [DbContext(typeof(PaymentsContext))]
-    partial class PaymentsContextModelSnapshot : ModelSnapshot
+    [Migration("20161110190305_Invoice_TotalAmount")]
+    partial class Invoice_TotalAmount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.1")
