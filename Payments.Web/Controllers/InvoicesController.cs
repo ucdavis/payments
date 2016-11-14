@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Payments.Core;
 using Payments.Core.Models;
 using Payments.Web.ViewModels;
 
@@ -10,10 +13,12 @@ namespace Payments.Web.Controllers
     public class InvoicesController : Controller
     {
         private readonly PaymentsContext _context;
+        private readonly IMapper _mapper;
 
-        public InvoicesController(PaymentsContext context)
+        public InvoicesController(PaymentsContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public IActionResult Index()
@@ -28,15 +33,52 @@ namespace Payments.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(InvoiceViewModel invoice)
+        public async Task<IActionResult> Create(InvoiceEditViewModel model)
         {
             if (!ModelState.IsValid)
-                return View(invoice);
+                return View(model);
 
-            var target = new Invoice();
-            _context.Invoices.Add(target);
+            // create and track
+            var invoice = new Invoice();
+            _context.Invoices.Add(invoice);
 
-            return RedirectToAction("details", new {target.Id});
+            // update and save
+            _mapper.Map(model, invoice);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { invoice.Id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return BadRequest();
+
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
+            if (invoice == null)
+                return NotFound();
+
+            var model = _mapper.Map<Invoice, InvoiceEditViewModel>(invoice);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int? id, InvoiceEditViewModel model)
+        {
+            if (id == null)
+                return BadRequest();
+
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
+            if (invoice == null)
+                return NotFound();
+
+            // update
+            _mapper.Map(model, invoice);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new {invoice.Id});
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -44,7 +86,7 @@ namespace Payments.Web.Controllers
             if (id == null)
                 return BadRequest();
 
-            var invoice = await _context.Invoices.FindAsync(id);
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
             if (invoice == null)
                 return NotFound();
 
