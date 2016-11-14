@@ -20,7 +20,12 @@
     "Microsoft.Extensions.Logging.Debug": "1.0.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
-    "Payments.Core": "1.0.0-*"
+    "Payments.Core": "1.0.0-*",
+    "Serilog.Sinks.Stackify": "1.25.2",
+    "Serilog": "2.3.0",
+    "Serilog.Extensions.Logging": "1.2.0",
+    "Destructurama.Attributed": "1.0.7",
+    "Serilog.Exceptions": "2.2.1",
   },
 
   "tools": {

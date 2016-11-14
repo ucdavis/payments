@@ -1,13 +1,13 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Payments.Core;
+using Payments.Web.Infrastructure;
+using Serilog;
 
 namespace Payments.Web
 {
@@ -15,6 +15,8 @@ namespace Payments.Web
     {
         public Startup(IHostingEnvironment env)
         {
+            Logging.ConfigureLogging();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -47,6 +49,10 @@ namespace Payments.Web
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            loggerFactory.AddSerilog();
+
+            // log a correlation id
+            app.UseMiddleware<RequestContextMiddleware>("HttpRequestId");
 
             if (env.IsDevelopment())
             {
