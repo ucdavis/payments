@@ -27,6 +27,7 @@
     "Serilog.Extensions.Logging": "1.2.0",
     "Destructurama.Attributed": "1.0.7",
     "Serilog.Exceptions": "2.2.1",
+    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0"
   },
 
   "tools": {
