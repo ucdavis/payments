@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Payments.Core;
 using Payments.Core.Models;
 using Payments.Web.ViewModels;
 
@@ -33,7 +33,7 @@ namespace Payments.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(InvoiceEditViewModel model)
+        public async Task<IActionResult> Create(InvoiceEditViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -42,10 +42,11 @@ namespace Payments.Web.Controllers
             var invoice = new Invoice();
             _context.Invoices.Add(invoice);
 
-            // update
+            // update and save
             _mapper.Map(model, invoice);
+            await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", new { invoice.Id});
+            return RedirectToAction("Details", new { invoice.Id });
         }
 
         [HttpGet]
@@ -75,6 +76,7 @@ namespace Payments.Web.Controllers
 
             // update
             _mapper.Map(model, invoice);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Details", new {invoice.Id});
         }
