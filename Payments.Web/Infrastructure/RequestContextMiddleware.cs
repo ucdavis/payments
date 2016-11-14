@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 
 namespace Payments.Web.Infrastructure
@@ -12,7 +13,7 @@ namespace Payments.Web.Infrastructure
         /// </summary>
         public const string DefaultRequestIdPropertyName = "HttpRequestId";
 
-        private readonly Func<IDictionary<string, object>, Task> _next;
+        private readonly RequestDelegate _next;
         private readonly string _propertyName;
 
         /// <summary>
@@ -21,7 +22,7 @@ namespace Payments.Web.Infrastructure
         /// <param name="next"></param>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public RequestContextMiddleware(Func<IDictionary<string, object>, Task> next, string propertyName = DefaultRequestIdPropertyName)
+        public RequestContextMiddleware(RequestDelegate next, string propertyName = DefaultRequestIdPropertyName)
         {
             if (next == null)
             {
@@ -34,15 +35,14 @@ namespace Payments.Web.Infrastructure
         /// <summary>
         /// Process a request.
         /// </summary>
-        /// <param name="environment"></param>
         /// <returns></returns>
-        public async Task Invoke(IDictionary<string, object> environment)
+        public async Task Invoke(HttpContext context)
         {
             // There is not yet a standard way to uniquely identify and correlate an owin request
             // ... hence 'RequestId' https://github.com/owin/owin/issues/21
             using (LogContext.PushProperty(_propertyName, Guid.NewGuid()))
             {
-                await _next(environment);
+                await _next(context);
             }
         }
     }
