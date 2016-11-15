@@ -15,8 +15,6 @@ namespace Payments.Web
     {
         public Startup(IHostingEnvironment env)
         {
-            Logging.ConfigureLogging();
-
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -56,8 +54,12 @@ namespace Payments.Web
             // trace logging
             app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
 
+            // local logging
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            // remote logging
+            Logging.ConfigureLogging(Configuration);
             loggerFactory.AddSerilog();
 
             // log a correlation id
