@@ -1,13 +1,13 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Payments.Core;
+using Payments.Web.Infrastructure;
+using Serilog;
 
 namespace Payments.Web
 {
@@ -20,6 +20,12 @@ namespace Payments.Web
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets();
+            }
+
             Configuration = builder.Build();
         }
 
@@ -45,8 +51,19 @@ namespace Payments.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            // trace logging
+            app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
+
+            // local logging
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            // remote logging
+            Logging.ConfigureLogging(Configuration);
+            loggerFactory.AddSerilog();
+
+            // log a correlation id
+            app.UseMiddleware<RequestContextMiddleware>("HttpRequestId");
 
             if (env.IsDevelopment())
             {

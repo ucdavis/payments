@@ -9,7 +9,8 @@ namespace Payments.Web.Mappings
     {
         public InvoiceMappingProfile()
         {
-            CreateMap<InvoiceEditViewModel, Invoice>();
+            CreateMap<InvoiceEditViewModel, Invoice>()
+                .ForMember(d => d.Id, opt => opt.Ignore());
         }
     }
 }
