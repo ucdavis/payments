@@ -1,4 +1,4 @@
-﻿@model Payments.Web.ViewModels.InvoiceEditViewModel
+﻿@model Payments.Models.InvoiceEditViewModel
 
 @{
     ViewBag.Title = "Create new invoice";
@@ -9,7 +9,7 @@
         <label asp-for="TotalAmount"></label>
         <div class="input-group">
             <span class="input-group-addon">$</span>
-            <input asp-for="TotalAmount" class="form-control" />
+            <input asp-for="TotalAmount" class="form-control"/>
         </div>
         <span asp-validation-for="TotalAmount" class="text-danger"></span>
     </div>

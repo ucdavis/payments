@@ -37,11 +37,12 @@ namespace Payments
             // Add framework services.
             services.AddMvc();
 
-            var connection = @"Server=.\sqlexpress;Database=Payments;Trusted_Connection=True;";
+            // var connection = @"Server=.\sqlexpress;Database=Payments;Trusted_Connection=True;";
             services
                 //.AddEntityFramework()
                 //.AddEntityFrameworkSqlServer()
-                .AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
+                .AddDbContext<PaymentsContext>(options => options.UseInMemoryDatabase("payments"));
+                //.AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
 
             // automapper services
             services.AddAutoMapper(typeof(Startup));

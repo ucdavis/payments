@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,8 @@ namespace Payments.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var invoices = _context.Invoices.ToArray();
+            return View(invoices);
         }
 
         [HttpGet]
@@ -39,12 +41,12 @@ namespace Payments.Controllers
             // create and track
             var invoice = new Invoice();
             _context.Invoices.Add(invoice);
-
+            
             // update and save
             _mapper.Map(model, invoice);
             await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", new { invoice.Id });
+            
+            return RedirectToAction("Index", new { invoice.Id });
         }
 
         [HttpGet]
