@@ -5,7 +5,7 @@ namespace Payments.Core
 {
     public class PaymentsContext : DbContext
     {
-        public PaymentsContext(DbContextOptions options) : base(options)
+        public PaymentsContext(DbContextOptions<PaymentsContext> options) : base(options)
         {
             
         }
