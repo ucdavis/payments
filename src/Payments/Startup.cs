@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using Payments.Core;
+using Payments.Infrastructure;
+using Serilog;
 
 namespace Payments
 {
@@ -19,6 +20,12 @@ namespace Payments
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets();
+            }
+
             Configuration = builder.Build();
         }
 
@@ -29,13 +36,34 @@ namespace Payments
         {
             // Add framework services.
             services.AddMvc();
+
+            var connection = @"Server=.\sqlexpress;Database=Payments;Trusted_Connection=True;";
+            services
+                //.AddEntityFramework()
+                //.AddEntityFrameworkSqlServer()
+                .AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
+
+            // automapper services
+            services.AddAutoMapper(typeof(Startup));
+            Mapper.AssertConfigurationIsValid();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            // trace logging
+            app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
+
+            // local logging
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            // remote logging
+            Logging.ConfigureLogging(Configuration);
+            loggerFactory.AddSerilog();
+
+            // log a correlation id
+            app.UseMiddleware<RequestContextMiddleware>("HttpRequestId");
 
             if (env.IsDevelopment())
             {
