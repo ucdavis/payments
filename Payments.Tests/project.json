@@ -1,0 +1,18 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "xunit": "2.2.0-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      }
+    }
+  }
+}
