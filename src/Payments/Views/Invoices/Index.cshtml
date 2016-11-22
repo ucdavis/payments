@@ -1,0 +1,12 @@
+﻿@model Payments.Core.Models.Invoice[]
+
+@{
+    ViewBag.Title = "All Invoices";
+}
+
+<ul>
+@foreach (var invoice in Model)
+{
+    <li>@invoice.TotalAmount</li>
+}    
+</ul>

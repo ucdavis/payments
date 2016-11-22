@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 
-namespace Payments.Web.Infrastructure
+namespace Payments.Infrastructure
 {
     public class RequestContextMiddleware
     {

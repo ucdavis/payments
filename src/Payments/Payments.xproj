@@ -6,8 +6,8 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>a54df60f-db24-4bb5-a519-b1208c46ed10</ProjectGuid>
-    <RootNamespace>Payments.Web</RootNamespace>
+    <ProjectGuid>46376895-bba5-4019-b6eb-f2ceccd53a3b</ProjectGuid>
+    <RootNamespace>Payments</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>

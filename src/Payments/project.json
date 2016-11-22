@@ -1,4 +1,4 @@
-{
+﻿{
   "dependencies": {
     "Microsoft.AspNetCore.Razor.Tools": {
       "version": "1.0.0-preview2-final",
@@ -39,7 +39,7 @@
   },
 
   "frameworks": {
-    "net452": { }
+    "net452": {}
   },
 
   "buildOptions": {

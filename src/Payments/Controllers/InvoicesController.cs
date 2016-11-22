@@ -1,14 +1,13 @@
-﻿using System;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core;
 using Payments.Core.Models;
-using Payments.Web.ViewModels;
+using Payments.Models;
 
-
-namespace Payments.Web.Controllers
+namespace Payments.Controllers
 {
     public class InvoicesController : Controller
     {
@@ -23,7 +22,8 @@ namespace Payments.Web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var invoices = _context.Invoices.ToArray();
+            return View(invoices);
         }
 
         [HttpGet]
@@ -41,12 +41,12 @@ namespace Payments.Web.Controllers
             // create and track
             var invoice = new Invoice();
             _context.Invoices.Add(invoice);
-
+            
             // update and save
             _mapper.Map(model, invoice);
             await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", new { invoice.Id });
+            
+            return RedirectToAction("Index", new { invoice.Id });
         }
 
         [HttpGet]
@@ -78,7 +78,7 @@ namespace Payments.Web.Controllers
             _mapper.Map(model, invoice);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", new {invoice.Id});
+            return RedirectToAction("Details", new { invoice.Id });
         }
 
         public async Task<IActionResult> Details(int? id)

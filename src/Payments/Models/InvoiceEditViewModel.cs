@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Payments.Web.ViewModels
+﻿namespace Payments.Models
 {
     public class InvoiceEditViewModel
     {

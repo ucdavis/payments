@@ -1,10 +1,9 @@
 ﻿using Destructurama;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Exceptions;
 
-namespace Payments.Web.Infrastructure
+namespace Payments.Infrastructure
 {
     /// <summary>
     /// Configure Application Logging

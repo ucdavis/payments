@@ -1,9 +1,8 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Payments.Core.Models;
-using Payments.Web.ViewModels;
+using Payments.Models;
 
-namespace Payments.Web.Mappings
+namespace Payments.Mappings
 {
     public class InvoiceMappingProfile : Profile
     {

@@ -6,10 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core;
-using Payments.Web.Infrastructure;
+using Payments.Infrastructure;
 using Serilog;
 
-namespace Payments.Web
+namespace Payments
 {
     public class Startup
     {
@@ -37,11 +37,12 @@ namespace Payments.Web
             // Add framework services.
             services.AddMvc();
 
-            var connection = @"Server=.\sqlexpress;Database=Payments;Trusted_Connection=True;";
+            // var connection = @"Server=.\sqlexpress;Database=Payments;Trusted_Connection=True;";
             services
                 //.AddEntityFramework()
                 //.AddEntityFrameworkSqlServer()
-                .AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
+                .AddDbContext<PaymentsContext>(options => options.UseInMemoryDatabase("payments"));
+                //.AddDbContext<PaymentsContext>(options => options.UseSqlServer(connection));
 
             // automapper services
             services.AddAutoMapper(typeof(Startup));
