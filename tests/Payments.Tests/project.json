@@ -1,0 +1,17 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "System.Runtime": "4.0.10",
+    "xunit": "2.2.0-*",
+    "dotnet-test-xunit": "2.2.0-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "net452": {
+      "dependencies": {
+        "Microsoft.NETCore.Platforms": "1.1.0"
+      }
+    }
+  }
+}
