@@ -16,7 +16,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Payments.Core", "src\Paymen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{23C564E0-2F45-44FA-AD39-B8305EEBDEBF}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Payments.Tests", "Payments.Tests\Payments.Tests.xproj", "{3987A5F6-74D3-42FE-916E-421E3202F6AD}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Payments.Tests", "tests\Payments.Tests\Payments.Tests.xproj", "{3987A5F6-74D3-42FE-916E-421E3202F6AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
