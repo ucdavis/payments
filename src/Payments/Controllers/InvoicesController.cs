@@ -66,6 +66,9 @@ namespace Payments.Controllers
             if (id == null)
                 return BadRequest();
 
+            if (!ModelState.IsValid)
+                return View(model);
+
             var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
             if (invoice == null)
                 return NotFound();
@@ -74,7 +77,7 @@ namespace Payments.Controllers
             _mapper.Map(model, invoice);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", new { invoice.Id });
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Details(int? id)
