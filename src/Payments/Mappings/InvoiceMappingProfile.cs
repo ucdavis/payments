@@ -10,6 +10,8 @@ namespace Payments.Mappings
         {
             CreateMap<InvoiceEditViewModel, Invoice>()
                 .ForMember(d => d.Id, opt => opt.Ignore());
+
+            CreateMap<Invoice, InvoiceEditViewModel>();
         }
     }
 }

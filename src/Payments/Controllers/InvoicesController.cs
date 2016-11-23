@@ -37,16 +37,12 @@ namespace Payments.Controllers
         {
             if (!ModelState.IsValid)
                 return View(model);
-
-            // create and track
-            var invoice = new Invoice();
-            _context.Invoices.Add(invoice);
             
-            // update and save
-            _mapper.Map(model, invoice);
+            // add new invoice mapped from user input
+            _context.Invoices.Add(_mapper.Map<Invoice>(model));            
             await _context.SaveChangesAsync();
             
-            return RedirectToAction("Index", new { invoice.Id });
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -70,6 +66,9 @@ namespace Payments.Controllers
             if (id == null)
                 return BadRequest();
 
+            if (!ModelState.IsValid)
+                return View(model);
+
             var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
             if (invoice == null)
                 return NotFound();
@@ -78,7 +77,7 @@ namespace Payments.Controllers
             _mapper.Map(model, invoice);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", new { invoice.Id });
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Details(int? id)
