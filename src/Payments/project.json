@@ -1,4 +1,4 @@
-﻿{
+{
   "dependencies": {
     "Microsoft.AspNetCore.Razor.Tools": {
       "version": "1.0.0-preview2-final",
@@ -30,7 +30,8 @@
     "Microsoft.Extensions.Logging.Console": "1.1.0",
     "Microsoft.Extensions.Logging.Debug": "1.1.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.1.0"
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.1.0",
+    "xunit.runner.visualstudio": "2.1.0"
   },
 
   "tools": {
