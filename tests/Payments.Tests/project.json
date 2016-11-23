@@ -6,7 +6,8 @@
     "xunit": "2.2.0-*",
     "dotnet-test-xunit": "2.2.0-*",
     "xunit.runner.visualstudio": "2.1.0",
-    "Payments": "1.0.0-*"
+    "Payments": "1.0.0-*",
+    "Moq": "4.5.28"
   },
   "testRunner": "xunit",
   "frameworks": {
