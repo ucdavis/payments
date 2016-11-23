@@ -13,5 +13,11 @@ namespace Payments.Tests
         {
             Assert.Equal(4, 2 + 2);
         }
+
+        [Fact]
+        public void BadMath()
+        {
+            Assert.Equal(4, 1+1);
+        }
     }
 }
