@@ -9,12 +9,12 @@ using Payments.Models;
 
 namespace Payments.Controllers
 {
-    public class InvoicesController : Controller
+    public class InvoiceController : Controller
     {
         private readonly PaymentsContext _context;
         private readonly IMapper _mapper;
 
-        public InvoicesController(PaymentsContext context, IMapper mapper)
+        public InvoiceController(PaymentsContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
