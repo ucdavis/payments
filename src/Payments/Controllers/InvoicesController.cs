@@ -37,16 +37,12 @@ namespace Payments.Controllers
         {
             if (!ModelState.IsValid)
                 return View(model);
-
-            // create and track
-            var invoice = new Invoice();
-            _context.Invoices.Add(invoice);
             
-            // update and save
-            _mapper.Map(model, invoice);
+            // add new invoice mapped from user input
+            _context.Invoices.Add(_mapper.Map<Invoice>(model));            
             await _context.SaveChangesAsync();
             
-            return RedirectToAction("Index", new { invoice.Id });
+            return RedirectToAction("Index");
         }
 
         [HttpGet]

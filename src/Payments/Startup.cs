@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core;
+using Payments.Core.Models;
 using Payments.Infrastructure;
 using Serilog;
 
@@ -70,6 +71,8 @@ namespace Payments
             {
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
+
+                SeedDatabase(app);
             }
             else
             {
@@ -84,6 +87,15 @@ namespace Payments
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void SeedDatabase(IApplicationBuilder app)
+        {
+            var context = app.ApplicationServices.GetService<PaymentsContext>();
+
+            context.Invoices.Add(new Invoice { Title = "Lab Work", TotalAmount = 78.90M});
+
+            context.SaveChanges();
         }
     }
 }

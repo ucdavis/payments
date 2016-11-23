@@ -4,9 +4,12 @@
     ViewBag.Title = "All Invoices";
 }
 
+<h2>Invoices</h2>
 <ul>
-@foreach (var invoice in Model)
-{
-    <li>@invoice.TotalAmount</li>
-}    
+    @foreach (var invoice in Model)
+    {
+        <li>@invoice.Title (@invoice.TotalAmount.ToString("C"))</li>
+    }    
 </ul>
+
+@Html.ActionLink("Create Invoice", "Create")
