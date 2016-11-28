@@ -82,7 +82,7 @@ namespace Payments.Tests.ControllerTests
             Assert.Equal(null, redirectResult.ControllerName);
 
             mockSet.Verify(a => a.Add(It.IsAny<Invoice>()), Times.Once());
-            mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Exactly(1));
+            mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Once);
         }
 
     }
