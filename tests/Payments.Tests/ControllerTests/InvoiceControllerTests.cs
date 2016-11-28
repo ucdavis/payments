@@ -32,9 +32,8 @@ namespace Payments.Tests.ControllerTests
                 CreateValidEntities.Invoice(3),
             }.AsQueryable();
             
-            var mockSet = MockInvoice(data);
             var mockContext = new Mock<PaymentsContext>();
-            mockContext.Setup(m => m.Invoices).Returns(mockSet.Object);
+            mockContext.Setup(m => m.Invoices).Returns(data.MockDbSet().Object);
 
 
 
@@ -84,15 +83,5 @@ namespace Payments.Tests.ControllerTests
             var result = await controller.Create(data);
         }
 
-        private static Mock<DbSet<Invoice>> MockInvoice(IQueryable<Invoice> data)
-        {
-            var mockSet = new Mock<DbSet<Invoice>>();
-
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-            return mockSet;
-        }
     }
 }
