@@ -26,14 +26,49 @@ namespace Payments.Tests.ControllerTests
         //   _mapper = new Mock<IMapper>();
         //}
 
+        public class MyDbContext : DbContext
+        {
+            public MyDbContext()
+            {
+            }
+
+            public MyDbContext(DbContextOptions options)
+                : base(options)
+            {
+             
+            }
+
+
+        }
+
         [Fact]
         public void Test1()
         {
-            //var xxx = new Mock<DbContextOptions<PaymentsContext>>();
-            var context = new Mock<PaymentsContext>();
-            //context.Setup
-            var mapper = new Mock<IMapper>();
-            var controller = new InvoiceController(context.Object, mapper.Object);
+            var data = new List<Invoice>
+            {
+                new Invoice { Title = "BBB" },
+                new Invoice { Title = "ZZZ" },
+                new Invoice { Title = "AAA" },
+            }.AsQueryable();
+
+
+
+            //var optionsBuilder = new DbContextOptionsBuilder<MyDbContext>();
+            var mockSet = new Mock<DbSet<Invoice>>();
+
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Provider).Returns(data.Provider);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Expression).Returns(data.Expression);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.ElementType).Returns(data.ElementType);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            var mockContext = new Mock<PaymentsContext>();
+            mockContext.Setup(m => m.Invoices).Returns(mockSet.Object);
+
+
+
+            var mapper = new Mock<IMapper>(); //Probably don't want to mock this. Maybe assign it directly?
+            var controller = new InvoiceController(mockContext.Object, mapper.Object);
+
+            var result = controller.Index();
         }
 
     }
