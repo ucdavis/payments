@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ namespace Payments.Tests.ControllerTests
 
 
 
-            var mapper = new Mock<IMapper>(); //Probably don't want to mock this. Maybe assign it directly?
+            var mapper = new Mock<IMapper>(); 
             var controller = new InvoiceController(mockContext.Object, mapper.Object);
 
             var result = controller.Index();
@@ -52,35 +53,36 @@ namespace Payments.Tests.ControllerTests
         public void TestCreateGetReturnView()
         {
             var mockContext = new Mock<PaymentsContext>();
-            var mapper = new Mock<IMapper>(); //Probably don't want to mock this. Maybe assign it directly?
+            var mapper = new Mock<IMapper>(); 
             var controller = new InvoiceController(mockContext.Object, mapper.Object);
 
             var result = controller.Create();
             Assert.IsType<ViewResult>(result);
         }
 
-        [Fact] //Test is failing need to fix
-        public async Task TestCreateAddsSomethin()
+        [Fact]
+        public async Task TestCreateAddsInvoiceAndRedirectsToIndex()
         {
-
-            //IServiceCollection testServices = new ServiceCollection();
-            //testServices.AddAutoMapper(typeof(InvoiceMappingProfile));
-
-            //var xxx = testServices.Single(t => t.ServiceType == typeof(IMapper));
-            
-
-
-
             var data = new InvoiceEditViewModel() {Title = "Jason", TotalAmount = 14.2m};
+            var mockSet = new Mock<DbSet<Invoice>>();
+
 
             var mockContext = new Mock<PaymentsContext>();
-            var mapper = new Mock<IMapper>(); //Probably don't want to mock this. Maybe assign it directly?
+            mockContext.Setup(a => a.Invoices).Returns(mockSet.Object);
+           
+            var mapper = new Mock<IMapper>();
             mapper.Setup(a => a.Map<Invoice>(It.IsAny<InvoiceEditViewModel>())).Returns(CreateValidEntities.Invoice(5));
             
             
             var controller = new InvoiceController(mockContext.Object, mapper.Object);
 
             var result = await controller.Create(data);
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Index", redirectResult.ActionName);
+            Assert.Equal(null, redirectResult.ControllerName);
+
+            mockSet.Verify(a => a.Add(It.IsAny<Invoice>()), Times.Once());
+            mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Exactly(1));
         }
 
     }
