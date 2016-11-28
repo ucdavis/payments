@@ -42,6 +42,7 @@ namespace Payments.Tests.TestsController
             var model = Assert.IsType<Invoice[]>(viewResult.Model);
             Assert.Equal(3, model.Count());
             Assert.Equal("Title2", model[1].Title);
+            
         }
 
         [Fact]
