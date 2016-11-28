@@ -11,6 +11,7 @@ using Moq;
 using Payments.Core;
 using Payments.Controllers;
 using Payments.Core.Models;
+using Payments.Tests.Helpers;
 using Xunit;
 
 namespace Payments.Tests.ControllerTests
@@ -47,20 +48,15 @@ namespace Payments.Tests.ControllerTests
         {
             var data = new List<Invoice>
             {
-                new Invoice { Title = "BBB" },
-                new Invoice { Title = "ZZZ" },
-                new Invoice { Title = "AAA" },
+                CreateValidEntities.Invoice(1),
+                CreateValidEntities.Invoice(2),
+                CreateValidEntities.Invoice(3),
             }.AsQueryable();
 
 
 
             //var optionsBuilder = new DbContextOptionsBuilder<MyDbContext>();
-            var mockSet = new Mock<DbSet<Invoice>>();
-
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Provider).Returns(data.Provider);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            var mockSet = MockInvoice(data);
             var mockContext = new Mock<PaymentsContext>();
             mockContext.Setup(m => m.Invoices).Returns(mockSet.Object);
 
@@ -74,8 +70,18 @@ namespace Payments.Tests.ControllerTests
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsType<Invoice[]>(viewResult.Model);
             Assert.Equal(3, model.Count());
-            
+
         }
 
+        private static Mock<DbSet<Invoice>> MockInvoice(IQueryable<Invoice> data)
+        {
+            var mockSet = new Mock<DbSet<Invoice>>();
+
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Provider).Returns(data.Provider);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Expression).Returns(data.Expression);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.ElementType).Returns(data.ElementType);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            return mockSet;
+        }
     }
 }
