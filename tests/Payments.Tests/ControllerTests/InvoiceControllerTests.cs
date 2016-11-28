@@ -18,33 +18,9 @@ namespace Payments.Tests.ControllerTests
 {
     public class InvoiceControllerTests
     {
-        //private readonly Mock<PaymentsContext> _context;
-        //private readonly Mock<IMapper> _mapper;
-
-        //public InvoiceControllerTests()
-        //{
-
-        //   _context = new Mock<PaymentsContext>();
-        //   _mapper = new Mock<IMapper>();
-        //}
-
-        public class MyDbContext : DbContext
-        {
-            public MyDbContext()
-            {
-            }
-
-            public MyDbContext(DbContextOptions options)
-                : base(options)
-            {
-             
-            }
-
-
-        }
 
         [Fact]
-        public void Test1()
+        public void TestIndexReturnViewWithData()
         {
             var data = new List<Invoice>
             {
@@ -52,10 +28,7 @@ namespace Payments.Tests.ControllerTests
                 CreateValidEntities.Invoice(2),
                 CreateValidEntities.Invoice(3),
             }.AsQueryable();
-
-
-
-            //var optionsBuilder = new DbContextOptionsBuilder<MyDbContext>();
+            
             var mockSet = MockInvoice(data);
             var mockContext = new Mock<PaymentsContext>();
             mockContext.Setup(m => m.Invoices).Returns(mockSet.Object);
@@ -70,7 +43,7 @@ namespace Payments.Tests.ControllerTests
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsType<Invoice[]>(viewResult.Model);
             Assert.Equal(3, model.Count());
-
+            Assert.Equal("Title2", model[1].Title);
         }
 
         private static Mock<DbSet<Invoice>> MockInvoice(IQueryable<Invoice> data)
