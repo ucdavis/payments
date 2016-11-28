@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Shouldly;
 using Xunit;
 
 namespace Payments.Tests.Helpers
@@ -27,11 +28,13 @@ namespace Payments.Tests.Helpers
             #endregion Act
 
             #region Assert
-            Assert.Equal(expectedFields.Count, propertyInfos.Count());//, "Found:" + propertyInfos.ParseList());
+            propertyInfos.Count().ShouldBe(expectedFields.Count, "Found:" + propertyInfos.ParseList());
+
             for (int i = 0; i < propertyInfos.Count(); i++)
             {
-                Assert.Equal(expectedFields[i].Name, propertyInfos[i].Name);
-                Assert.Equal(expectedFields[i].Property, propertyInfos[i].PropertyType.ToString());//, "For Field: " + propertyInfos[i].Name);
+                propertyInfos[i].Name.ShouldBe(expectedFields[i].Name);
+                propertyInfos[i].PropertyType.ToString().ShouldBe(expectedFields[i].Property, "For Field: " + propertyInfos[i].Name);
+
                 if (expectedFields[i].Attributes != null)
                 {
                     CompareOldWay(expectedFields[i], propertyInfos[i]);
@@ -65,11 +68,12 @@ namespace Payments.Tests.Helpers
                 for (int j = 0; j < foundAttributes.Count(); j++)
                 {
                     //Assert.AreEqual(expectedField.Attributes[j], foundAttributes[j].ToString(), "For Field: " + propertyInfo.Name);
-                    Assert.True(
-                        foundAttributes[j].ToString().StartsWith(
+                    Assert.True(foundAttributes[j].ToString().StartsWith(
                             expectedField.ParameterAttributes[j].AttributeNameStartsWith));
                     var namedParameters = foundAttributes[j].NamedArguments.ToList();
-                    Assert.Equal(expectedField.ParameterAttributes[j].NamedParameters.Count, namedParameters.Count);//,"For Field: " + propertyInfo.Name + " For Attribute: " + foundAttributes[j]);
+
+                    namedParameters.Count.ShouldBe(expectedField.ParameterAttributes[j].NamedParameters.Count, "For Field: " + propertyInfo.Name + " For Attribute: " + foundAttributes[j]);
+                    
                     if (namedParameters.Count > 0)
                     {
                         var namedParametersAsStrings = new List<string>();
@@ -90,12 +94,13 @@ namespace Payments.Tests.Helpers
         {
             var foundAttributes = CustomAttributeData.GetCustomAttributes(propertyInfo)
                 .AsQueryable().OrderBy(a => a.ToString()).ToList();
-            Assert.Equal(expectedField.Attributes.Count, foundAttributes.Count());//, "For Field: " + propertyInfo.Name);
+            foundAttributes.Count().ShouldBe(expectedField.Attributes.Count, "For Field: " + propertyInfo.Name);
+
             if (foundAttributes.Count() > 0)
             {
                 for (int j = 0; j < foundAttributes.Count(); j++)
                 {
-                    Assert.Equal(expectedField.Attributes[j], foundAttributes[j].ToString());//, "For Field: " + propertyInfo.Name);
+                    foundAttributes[j].ToString().ShouldBe(expectedField.Attributes[j], "For Field: " + propertyInfo.Name);
                 }
             }
         }
