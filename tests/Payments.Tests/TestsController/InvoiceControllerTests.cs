@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Payments.Core;
 using Payments.Controllers;
+using Payments.Core;
 using Payments.Core.Models;
-using Payments.Mappings;
 using Payments.Models;
 using Payments.Tests.Helpers;
 using Xunit;
 
-namespace Payments.Tests.ControllerTests
+namespace Payments.Tests.TestsController
 {
     public class InvoiceControllerTests
     {
@@ -83,6 +78,32 @@ namespace Payments.Tests.ControllerTests
 
             mockSet.Verify(a => a.Add(It.IsAny<Invoice>()), Times.Once());
             mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Once);
+        }
+
+        [Fact]
+        public async Task TestCreateReturnsModelWhenModelStateInvalid()
+        {
+            var data = new InvoiceEditViewModel() { Title = "Jason", TotalAmount = 2.00m };
+            var mockSet = new Mock<DbSet<Invoice>>();
+
+
+            var mockContext = new Mock<PaymentsContext>();
+            mockContext.Setup(a => a.Invoices).Returns(mockSet.Object);
+
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(a => a.Map<Invoice>(It.IsAny<InvoiceEditViewModel>())).Returns(CreateValidEntities.Invoice(5));
+
+
+            var controller = new InvoiceController(mockContext.Object, mapper.Object);
+            controller.ModelState.AddModelError("Fake", "Error");
+
+            var result = await controller.Create(data);
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Equal(data, viewResult.Model);
+
+
+            mockSet.Verify(a => a.Add(It.IsAny<Invoice>()), Times.Never);
+            mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Never);
         }
 
     }
