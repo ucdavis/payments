@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -69,6 +70,11 @@ namespace Payments.Tests.ControllerTests
             var controller = new InvoiceController(mockContext.Object, mapper.Object);
 
             var result = controller.Index();
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsType<Invoice[]>(viewResult.Model);
+            Assert.Equal(3, model.Count());
+            
         }
 
     }
