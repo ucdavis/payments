@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Payments.Core.Models;
 
 namespace Payments.Core
@@ -10,6 +11,12 @@ namespace Payments.Core
             
         }
 
-        public DbSet<Invoice> Invoices { get; set; }
+        [Obsolete("Just use for tests")]
+        public PaymentsContext()
+        {
+
+        }
+
+        public virtual DbSet<Invoice> Invoices { get; set; }
     }
 }
