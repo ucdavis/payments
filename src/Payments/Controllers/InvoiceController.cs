@@ -9,7 +9,7 @@ using Payments.Models;
 
 namespace Payments.Controllers
 {
-    public class InvoiceController : Controller
+    public class InvoiceController : ApplicationController
     {
         private readonly PaymentsContext _context;
         private readonly IMapper _mapper;

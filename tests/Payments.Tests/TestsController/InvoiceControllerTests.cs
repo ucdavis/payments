@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -14,6 +17,7 @@ using Payments.Models;
 using Payments.Tests.Helpers;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Payments.Tests.TestsController
 {
@@ -141,5 +145,218 @@ namespace Payments.Tests.TestsController
             mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Never);
         }
 
+
+
+
+    }
+
+    [Trait("Category", "Controller Reflection")]
+    public class InvoiceReflectionTests
+    {
+        private readonly ITestOutputHelper output;
+        public InvoiceReflectionTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
+        #region Reflection Tests
+        protected readonly Type ControllerClass = typeof(InvoiceController);
+
+        #region Controller Class Tests
+        
+        [Fact]
+        public void TestControllerInheritsFromApplicationController()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            #endregion Arrange
+
+            #region Act
+            controllerClass.BaseType.ShouldNotBe(null);
+            var result = controllerClass.BaseType.Name;
+            #endregion Act
+
+            #region Assert
+            result.ShouldBe("ApplicationController");
+
+            #endregion Assert
+        }
+        [Fact]
+        public void TestControllerExpectedNumberOfAttributes()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            #endregion Arrange
+
+            #region Act
+            var result = controllerClass.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var o in result)
+            {
+                output.WriteLine(o.ToString()); //Output shows if the test fails
+            }
+            result.Count().ShouldBe(1);
+
+            #endregion Assert
+        }
+        [Fact]
+        public void TestControllerHasControllerAttribute()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            #endregion Arrange
+
+            #region Act
+            var result = controllerClass.GetCustomAttributes(true).OfType<ControllerAttribute>();
+            #endregion Act
+
+            #region Assert
+            result.Count().ShouldBeGreaterThan(0, "ControllerAttribute not found.");
+
+            #endregion Assert
+        }
+        #endregion Controller Class Tests
+
+        #region Controller Method Tests
+        [Fact(Skip = "Tests are still being written. When done, remove this line.")]
+        public void TestControllerContainsExpectedNumberOfPublicMethods()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            #endregion Arrange
+
+            #region Act
+            var result = controllerClass.GetMethods().Where(a => a.DeclaringType == controllerClass);
+            #endregion Act
+
+            #region Assert
+            result.Count().ShouldBe(3);
+
+            #endregion Assert
+        }
+        [Fact]
+        public void TestControllerMethodIndexContainsExpectedAttributes()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethod("Index");
+            #endregion Arrange
+
+            #region Act
+            //var expectedAttribute = controllerMethod.GetCustomAttributes(true).OfType<SomeAttribute>();
+            var allAttributes = controllerMethod.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var o in allAttributes)
+            {
+                output.WriteLine(o.ToString()); //Output shows if the test fails
+            }
+            allAttributes.Count().ShouldBe(0, "No Attributes");
+            //Assert.AreEqual(1, expectedAttribute.Count(), "AllowGiftTeamAndResearchAccess not found");
+            //Assert.AreEqual(1, allAttributes.Count());
+            #endregion Assert
+        }
+        [Fact]
+        public void TestControllerMethodCreateContainsExpectedAttributes1()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Create");
+            var element = controllerMethod.ElementAt(0);
+            #endregion Arrange
+
+            #region Act
+            var expectedAttribute = element.GetCustomAttributes(true).OfType<HttpGetAttribute>();
+            var allAttributes = element.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var attribute in allAttributes)
+            {
+                output.WriteLine(attribute.ToString());
+            }
+            expectedAttribute.Count().ShouldBe(1, "HttpGetAttribute not found");
+            allAttributes.Count().ShouldBe(1);
+            #endregion Assert
+        }
+
+        [Fact]
+        public void TestControllerMethodCreateContainsExpectedAttributes2()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Create");
+            var element = controllerMethod.ElementAt(1);
+            #endregion Arrange
+
+            #region Act
+            var expectedAttribute = element.GetCustomAttributes(true).OfType<HttpPostAttribute>();
+            var allAttributes = element.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var attribute in allAttributes)
+            {
+                output.WriteLine(attribute.ToString());
+            }
+            expectedAttribute.Count().ShouldBe(1, "HttpPostAttribute not found");
+            allAttributes.Count().ShouldBe(3);
+            #endregion Assert
+        }
+
+        [Fact]
+        public void TestControllerMethodCreateContainsExpectedAttributes3()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Create");
+            var element = controllerMethod.ElementAt(1);
+            #endregion Arrange
+
+            #region Act
+            var expectedAttribute = element.GetCustomAttributes(true).OfType<AsyncStateMachineAttribute>();
+            var allAttributes = element.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var attribute in allAttributes)
+            {
+                output.WriteLine(attribute.ToString());
+            }
+            expectedAttribute.Count().ShouldBe(1, "AsyncStateMachineAttribute not found");
+            allAttributes.Count().ShouldBe(3);
+            #endregion Assert
+        }
+
+        [Fact]
+        public void TestControllerMethodCreateContainsExpectedAttributes4()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Create");
+            var element = controllerMethod.ElementAt(1);
+            #endregion Arrange
+
+            #region Act
+            var expectedAttribute = element.GetCustomAttributes(true).OfType<DebuggerStepThroughAttribute>();
+            var allAttributes = element.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var attribute in allAttributes)
+            {
+                output.WriteLine(attribute.ToString());
+            }
+            expectedAttribute.Count().ShouldBe(1, "DebuggerStepThroughAttribute not found");
+            allAttributes.Count().ShouldBe(3);
+            #endregion Assert
+        }
+
+        #endregion Controller Method Tests
+
+        #endregion Reflection Tests
     }
 }
