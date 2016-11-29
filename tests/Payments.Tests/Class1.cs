@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shouldly;
 using Xunit;
 
 namespace Payments.Tests
@@ -21,5 +22,20 @@ namespace Payments.Tests
         {
             Assert.Equal(4, 1+1);
         }
+
+        [Theory]
+        [InlineData(3, true)]
+        [InlineData(5, true)]
+        [InlineData(6, false)]
+        public void MyFirstTheory(int value, bool expected)
+        {
+            IsOdd(value).ShouldBe(expected);
+        }
+
+        bool IsOdd(int value)
+        {
+            return value % 2 == 1;
+        }
+
     }
 }
