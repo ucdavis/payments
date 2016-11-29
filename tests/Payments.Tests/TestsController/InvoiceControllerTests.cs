@@ -9,8 +9,10 @@ using Moq;
 using Payments.Controllers;
 using Payments.Core;
 using Payments.Core.Models;
+using Payments.Mappings;
 using Payments.Models;
 using Payments.Tests.Helpers;
+using Shouldly;
 using Xunit;
 
 namespace Payments.Tests.TestsController
@@ -79,6 +81,38 @@ namespace Payments.Tests.TestsController
 
             mockSet.Verify(a => a.Add(It.IsAny<Invoice>()), Times.Once());
             mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Once);
+        }
+
+        [Fact]
+        public async Task TestCreateWithRealMapping()
+        {
+            var data = new InvoiceEditViewModel() { Title = "Jason", TotalAmount = 14.2m };
+            var mockSet = new Mock<DbSet<Invoice>>();
+            
+            var mockContext = new Mock<PaymentsContext>();
+            mockContext.Setup(a => a.Invoices).Returns(mockSet.Object);
+
+            Invoice savedResult = null;
+            mockSet.Setup(a => a.Add(It.IsAny<Invoice>())).Callback<Invoice>(r => savedResult = r);
+
+            Mapper.Initialize(a => a.AddProfile(typeof(InvoiceMappingProfile)));
+            Mapper.Configuration.AssertConfigurationIsValid();
+
+
+            var controller = new InvoiceController(mockContext.Object, Mapper.Instance);
+
+            var result = await controller.Create(data);
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Index", redirectResult.ActionName);
+            Assert.Equal(null, redirectResult.ControllerName);
+
+            mockSet.Verify(a => a.Add(It.IsAny<Invoice>()), Times.Once());
+            mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Once);
+
+            savedResult.ShouldNotBe(null);
+            savedResult.Title.ShouldBe("Jason");
+            savedResult.TotalAmount.ShouldBe(14.2m);
+            savedResult.Id.ShouldBe(0); //Well, this is what it is, it would be incremented in the DB I guess
         }
 
         [Fact]
