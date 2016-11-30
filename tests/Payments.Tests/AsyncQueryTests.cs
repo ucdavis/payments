@@ -46,9 +46,9 @@ namespace Payments.Tests
             mockSet.As<IDbAsyncEnumerable<Invoice>>()
                 .Setup(m => m.GetAsyncEnumerator())
                 .Returns(new TestDbAsyncEnumerator<Invoice>(data.GetEnumerator()));
-            mockSet.As<IAsyncEnumerable<Invoice>>()
-                .Setup(a => a.GetEnumerator())
-                .Returns(new TestDbAsyncEnumerator<Invoice>(data.GetEnumerator()));
+            //mockSet.As<IAsyncEnumerable<Invoice>>()
+            //    .Setup(a => a.GetEnumerator())
+            //    .Returns(new TestDbAsyncEnumerator<Invoice>(data.GetEnumerator()));
 
             mockSet.As<IQueryable<Invoice>>()
                 .Setup(m => m.Provider)
