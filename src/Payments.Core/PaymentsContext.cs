@@ -18,5 +18,10 @@ namespace Payments.Core
         }
 
         public virtual DbSet<Invoice> Invoices { get; set; }
+        public virtual DbSet<LineItem> LineItems { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Team> Teams { get; set; }
+        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<Account> Accounts { get; set; }
     }
 }
