@@ -4,10 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Payments.Tests.Helpers
 {
-    internal class TestDbAsyncQueryProvider<TEntity> : IDbAsyncQueryProvider
+    internal class TestDbAsyncQueryProvider<TEntity> : IAsyncQueryProvider
     {
         private readonly IQueryProvider _inner;
 
@@ -41,13 +42,18 @@ namespace Payments.Tests.Helpers
             return Task.FromResult(Execute(expression));
         }
 
+        public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             return Task.FromResult(Execute<TResult>(expression));
         }
     }
 
-    internal class TestDbAsyncEnumerable<T> : EnumerableQuery<T>, IDbAsyncEnumerable<T>, IQueryable<T>
+    internal class TestDbAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerable<T>, IQueryable<T>
     {
         public TestDbAsyncEnumerable(IEnumerable<T> enumerable)
             : base(enumerable)
@@ -57,23 +63,25 @@ namespace Payments.Tests.Helpers
             : base(expression)
         { }
 
-        public IDbAsyncEnumerator<T> GetAsyncEnumerator()
+        public IAsyncEnumerator<T> GetAsyncEnumerator()
         {
             return new TestDbAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
         }
 
-        IDbAsyncEnumerator IDbAsyncEnumerable.GetAsyncEnumerator()
-        {
-            return GetAsyncEnumerator();
-        }
+
 
         IQueryProvider IQueryable.Provider
         {
             get { return new TestDbAsyncQueryProvider<T>(this); }
         }
+
+        public IAsyncEnumerator<T> GetEnumerator()
+        {
+            return new TestDbAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
+        }
     }
 
-    internal class TestDbAsyncEnumerator<T> : IDbAsyncEnumerator<T>
+    internal class TestDbAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
         private readonly IEnumerator<T> _inner;
 
@@ -92,14 +100,16 @@ namespace Payments.Tests.Helpers
             return Task.FromResult(_inner.MoveNext());
         }
 
+        public Task<bool> MoveNext(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_inner.MoveNext());
+        }
+
         public T Current
         {
             get { return _inner.Current; }
         }
 
-        object IDbAsyncEnumerator.Current
-        {
-            get { return Current; }
-        }
+ 
     }
 }
