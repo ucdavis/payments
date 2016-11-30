@@ -9,5 +9,12 @@ namespace Payments.Models
         public string Title { get; set; }
         [Range(0.01, int.MaxValue, ErrorMessage = "Must be great than $0.00")]
         public decimal TotalAmount { get; set; }
+        [Required]
+        [StringLength(255)]
+        public string ClientName { get; set; }
+        [Required]
+        [EmailAddress]
+        [StringLength(255)]
+        public string ClientEmail { get; set; }
     }
 }
