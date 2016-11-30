@@ -30,5 +30,8 @@ namespace Payments.Core.Models
 
         [Required]
         public ICollection<LineItem> LineItems { get; set; }
+        public ICollection<Scrubber> Scrubbers { get; set; }
+        public ICollection<History> History { get; set; }
+
     }
 }
