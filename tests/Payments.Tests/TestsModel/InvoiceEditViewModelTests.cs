@@ -16,6 +16,17 @@ namespace Payments.Tests.TestsModel
         {
             #region Arrange
             var expectedFields = new List<NameAndType>();
+            expectedFields.Add(new NameAndType("ClientEmail", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.EmailAddressAttribute()]",
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)255)]"
+            }));
+            expectedFields.Add(new NameAndType("ClientName", "System.String", new List<string>
+            {
+                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)255)]"
+            }));
             expectedFields.Add(new NameAndType("Title", "System.String", new List<string>
             {
                  "[System.ComponentModel.DataAnnotations.RequiredAttribute()]"
