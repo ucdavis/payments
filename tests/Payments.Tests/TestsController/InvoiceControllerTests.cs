@@ -145,10 +145,10 @@ namespace Payments.Tests.TestsController
             mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Never);
         }
 
-
         [Fact]
-        public async Task test2()
+        public async Task EditReturnsBadRequestWhenIdIsNull()
         {
+            //Arrange
             var data = new List<Invoice>
             {
                 CreateValidEntities.Invoice(1),
@@ -159,15 +159,76 @@ namespace Payments.Tests.TestsController
             var mockContext = new Mock<PaymentsContext>();
             mockContext.Setup(m => m.Invoices).Returns(data.MockAsyncDbSet().Object);
 
-            var query = from b in mockContext.Object.Invoices
-                        orderby b.Title
-                        select b;
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(a => a.Map<Invoice>(It.IsAny<InvoiceEditViewModel>())).Returns(CreateValidEntities.Invoice(5));
 
-            var invoice = await query.ToListAsync();
+            var controller = new InvoiceController(mockContext.Object, mapper.Object);
 
-            //var invoice = await mockContext.Object.Invoices.FirstOrDefaultAsync(i => i.Id == 2);
+            //Act
+            var controllerResult = await controller.Edit(null);
 
-            invoice.ShouldNotBe(null);
+            //Assert
+            var result = Assert.IsType<BadRequestResult>(controllerResult);
+
+            result.StatusCode.ShouldBe(400);
+        }
+
+        [Fact]
+        public async Task EditReturnsNotFound()
+        {
+            //Arrange
+            var data = new List<Invoice>
+            {
+                CreateValidEntities.Invoice(1),
+                CreateValidEntities.Invoice(2),
+                CreateValidEntities.Invoice(3),
+            }.AsQueryable();
+
+            var mockContext = new Mock<PaymentsContext>();
+            mockContext.Setup(m => m.Invoices).Returns(data.MockAsyncDbSet().Object);
+
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(a => a.Map<Invoice>(It.IsAny<InvoiceEditViewModel>())).Returns(CreateValidEntities.Invoice(5));
+
+            var controller = new InvoiceController(mockContext.Object, mapper.Object);
+
+            //Act
+            var controllerResult = await controller.Edit(4);
+
+            //Assert
+            var result = Assert.IsType<NotFoundResult>(controllerResult);
+
+            result.StatusCode.ShouldBe(404);
+        }
+
+        [Fact]
+        public async Task EditReturnsViewModelWhenInvoiceFound()
+        {
+            //Arrange
+            var data = new List<Invoice>
+            {
+                CreateValidEntities.Invoice(1),
+                CreateValidEntities.Invoice(2),
+                CreateValidEntities.Invoice(3),
+            }.AsQueryable();
+            
+            var mockContext = new Mock<PaymentsContext>();
+            mockContext.Setup(m => m.Invoices).Returns(data.MockAsyncDbSet().Object);
+            Invoice savedResult = null;
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(a => a.Map<Invoice, InvoiceEditViewModel>(It.IsAny<Invoice>())).Returns(CreateValidEntities.InvoiceEditViewModel(5)).Callback<Invoice>(r => savedResult = r); ;
+
+            var controller = new InvoiceController(mockContext.Object, mapper.Object);
+
+            //Act
+            var controllerResult = await controller.Edit(2);
+
+            //Assert
+            var result = Assert.IsType<ViewResult>(controllerResult);
+            var model = Assert.IsType<InvoiceEditViewModel>(result.Model);
+            model.Title.ShouldBe("Title5");
+            savedResult.ShouldNotBe(null);
+            savedResult.Title.ShouldBe("Title2");
         }
 
     }
@@ -254,7 +315,7 @@ namespace Payments.Tests.TestsController
             #endregion Act
 
             #region Assert
-            result.Count().ShouldBe(3);
+            result.Count().ShouldBe(4);
 
             #endregion Assert
         }
@@ -360,6 +421,80 @@ namespace Payments.Tests.TestsController
             var controllerClass = ControllerClass;
             var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Create");
             var element = controllerMethod.ElementAt(1);
+            #endregion Arrange
+
+            #region Act
+            var expectedAttribute = element.GetCustomAttributes(true).OfType<DebuggerStepThroughAttribute>();
+            var allAttributes = element.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var attribute in allAttributes)
+            {
+                output.WriteLine(attribute.ToString());
+            }
+            expectedAttribute.Count().ShouldBe(1, "DebuggerStepThroughAttribute not found");
+            allAttributes.Count().ShouldBe(3);
+            #endregion Assert
+        }
+
+        [Fact]
+        public void TestControllerMethodEditContainsExpectedAttributes1()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Edit");
+            var element = controllerMethod.ElementAt(0);
+            #endregion Arrange
+
+            #region Act
+            var expectedAttribute = element.GetCustomAttributes(true).OfType<HttpGetAttribute>();
+            var allAttributes = element.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var attribute in allAttributes)
+            {
+                output.WriteLine(attribute.ToString());
+            }
+            expectedAttribute.Count().ShouldBe(1, "HttpGetAttribute not found");
+            allAttributes.Count().ShouldBe(3);
+            #endregion Assert
+        }
+
+
+        [Fact]
+        public void TestControllerMethodEditContainsExpectedAttributes2()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Edit");
+            var element = controllerMethod.ElementAt(0);
+            #endregion Arrange
+
+            #region Act
+            var expectedAttribute = element.GetCustomAttributes(true).OfType<AsyncStateMachineAttribute>();
+            var allAttributes = element.GetCustomAttributes(true);
+            #endregion Act
+
+            #region Assert
+            foreach (var attribute in allAttributes)
+            {
+                output.WriteLine(attribute.ToString());
+            }
+            expectedAttribute.Count().ShouldBe(1, "AsyncStateMachineAttribute not found");
+            allAttributes.Count().ShouldBe(3);
+            #endregion Assert
+        }
+
+
+        [Fact]
+        public void TestControllerMethodEditContainsExpectedAttributes3()
+        {
+            #region Arrange
+            var controllerClass = ControllerClass;
+            var controllerMethod = controllerClass.GetMethods().Where(a => a.Name == "Edit");
+            var element = controllerMethod.ElementAt(0);
             #endregion Arrange
 
             #region Act
