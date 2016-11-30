@@ -12,10 +12,16 @@ namespace Payments.Tests.Helpers
         public static Invoice Invoice(int? counter, bool populateAllFields = false)
         {
             var rtValue = new Invoice();
+            rtValue.ClientName = String.Format("ClientName{0}", counter);
+            rtValue.ClientEmail = String.Format("clientemail{0}@test.com", counter);
+            rtValue.Status = InvoiceStatus.Created;
+            rtValue.LineItems = new List<LineItem>();            
             rtValue.Title = string.Format("Title{0}", counter);
             if (populateAllFields)
             {
                 rtValue.TotalAmount = counter.HasValue? counter.Value: 99.9m;
+                rtValue.Scrubbers = new List<Scrubber>();
+                rtValue.History = new List<History>();
             }
             rtValue.Id = counter ?? 99;
 
