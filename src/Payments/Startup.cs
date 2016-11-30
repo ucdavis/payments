@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -47,7 +49,7 @@ namespace Payments
 
             // automapper services
             services.AddAutoMapper(typeof(Startup));
-            Mapper.AssertConfigurationIsValid();
+            //Mapper.AssertConfigurationIsValid();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,9 +94,18 @@ namespace Payments
         private void SeedDatabase(IApplicationBuilder app)
         {
             var context = app.ApplicationServices.GetService<PaymentsContext>();
+            var user = new User { Id = "postit", DisplayName = "Scott Kirkland"};
+            var team = new Team
+            {
+                Name = "Team1",
+                Accounts = new List<Account> {new Account {AccountNumber = "test"}}
+            };
 
             context.Invoices.Add(new Invoice { Title = "Lab Work", TotalAmount = 78.90M});
-
+            context.Users.Add(user);
+            context.Teams.Add(team);
+            context.Roles.Add(new Role {Team = team, User = user, TeamRole = TeamRoles.Billing});
+            
             context.SaveChanges();
         }
     }

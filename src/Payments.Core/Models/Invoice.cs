@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Payments.Core.Models
@@ -26,5 +27,8 @@ namespace Payments.Core.Models
 
         [Required]
         public InvoiceStatus Status { get; set; }
+
+        [Required]
+        public ICollection<LineItem> LineItems { get; set; }
     }
 }
