@@ -155,21 +155,9 @@ namespace Payments.Tests.TestsController
                 CreateValidEntities.Invoice(2),
                 CreateValidEntities.Invoice(3),
             }.AsQueryable();
-            var mockSet = new Mock<DbSet<Invoice>>();
-            mockSet.As<IAsyncEnumerable<Invoice>>()
-                .Setup(m => m.GetEnumerator())
-                .Returns(new TestAsyncEnumerator<Invoice>(data.GetEnumerator()));
 
-
-            mockSet.As<IQueryable<Invoice>>()
-                .Setup(m => m.Provider)
-                .Returns(new TestAsyncQueryProvider<Invoice>(data.Provider));
-
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSet.As<IQueryable<Invoice>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
             var mockContext = new Mock<PaymentsContext>();
-            mockContext.Setup(m => m.Invoices).Returns(mockSet.Object);
+            mockContext.Setup(m => m.Invoices).Returns(data.MockAsyncDbSet().Object);
 
             var query = from b in mockContext.Object.Invoices
                         orderby b.Title
