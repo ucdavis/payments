@@ -14,7 +14,7 @@ namespace Payments.Core.Models
         [StringLength(255)]
         public string Note { get; set; }
 
-        [Range(0, int.MaxValue)]
+        [Range(1, int.MaxValue)]
         public int Quantity { get; set; }
 
         [Range(0.01, int.MaxValue, ErrorMessage = "Must be at least $0.01")]
