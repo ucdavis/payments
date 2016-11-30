@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -43,12 +42,10 @@ namespace Payments.Tests
                 CreateValidEntities.Invoice(3),
             }.AsQueryable();
             var mockSet = new Mock<DbSet<Invoice>>();
-            mockSet.As<IDbAsyncEnumerable<Invoice>>()
-                .Setup(m => m.GetAsyncEnumerator())
+            mockSet.As<IAsyncEnumerable<Invoice>>()
+                .Setup(m => m.GetEnumerator())
                 .Returns(new TestDbAsyncEnumerator<Invoice>(data.GetEnumerator()));
-            //mockSet.As<IAsyncEnumerable<Invoice>>()
-            //    .Setup(a => a.GetEnumerator())
-            //    .Returns(new TestDbAsyncEnumerator<Invoice>(data.GetEnumerator()));
+
 
             mockSet.As<IQueryable<Invoice>>()
                 .Setup(m => m.Provider)
