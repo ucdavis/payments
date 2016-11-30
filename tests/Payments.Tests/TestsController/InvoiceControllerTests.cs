@@ -145,7 +145,40 @@ namespace Payments.Tests.TestsController
             mockContext.Verify(a => a.SaveChangesAsync(new CancellationToken()), Times.Never);
         }
 
+        [Fact]
+        public async Task TestEdit()
+        {
+            var data = new List<Invoice>
+            {
+                CreateValidEntities.Invoice(1),
+                CreateValidEntities.Invoice(2),
+                CreateValidEntities.Invoice(3),
+            }.AsQueryable();
+            var mockSet = new Mock<DbSet<Invoice>>();
+            mockSet.As<IAsyncEnumerable<Invoice>>()
+                .Setup(m => m.GetEnumerator())
+                .Returns(new TestAsyncEnumerator<Invoice>(data.GetEnumerator()));
 
+
+            mockSet.As<IQueryable<Invoice>>()
+                .Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<Invoice>(data.Provider));
+
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.Expression).Returns(data.Expression);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.ElementType).Returns(data.ElementType);
+            mockSet.As<IQueryable<Invoice>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            var mockContext = new Mock<PaymentsContext>();
+            mockContext.Setup(m => m.Invoices).Returns(mockSet.Object);
+
+            var mapper = new Mock<IMapper>();
+            mapper.Setup(a => a.Map<Invoice>(It.IsAny<InvoiceEditViewModel>())).Returns(CreateValidEntities.Invoice(5));
+
+            var controller = new InvoiceController(mockContext.Object, mapper.Object);
+
+            var result = await controller.Edit(2);
+
+            result.ShouldNotBe(null);
+        }
 
 
     }

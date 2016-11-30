@@ -7,23 +7,23 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Payments.Tests.Helpers
 {
-    internal class TestDbAsyncQueryProvider<TEntity> : IAsyncQueryProvider
+    internal class TestAsyncQueryProvider<TEntity> : IAsyncQueryProvider
     {
         private readonly IQueryProvider _inner;
 
-        internal TestDbAsyncQueryProvider(IQueryProvider inner)
+        internal TestAsyncQueryProvider(IQueryProvider inner)
         {
             _inner = inner;
         }
 
         public IQueryable CreateQuery(Expression expression)
         {
-            return new TestDbAsyncEnumerable<TEntity>(expression);
+            return new TestAsyncEnumerable<TEntity>(expression);
         }
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return new TestDbAsyncEnumerable<TElement>(expression);
+            return new TestAsyncEnumerable<TElement>(expression);
         }
 
         public object Execute(Expression expression)
@@ -43,7 +43,7 @@ namespace Payments.Tests.Helpers
 
         public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
         {
-            throw new System.NotImplementedException();
+            return new TestAsyncEnumerable<TResult>(expression);
         }
 
         public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
@@ -52,39 +52,39 @@ namespace Payments.Tests.Helpers
         }
     }
 
-    internal class TestDbAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerable<T>, IQueryable<T>
+    internal class TestAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerable<T>, IQueryable<T>
     {
-        public TestDbAsyncEnumerable(IEnumerable<T> enumerable)
+        public TestAsyncEnumerable(IEnumerable<T> enumerable)
             : base(enumerable)
         { }
 
-        public TestDbAsyncEnumerable(Expression expression)
+        public TestAsyncEnumerable(Expression expression)
             : base(expression)
         { }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator()
         {
-            return new TestDbAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
+            return new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
         }
 
 
 
         IQueryProvider IQueryable.Provider
         {
-            get { return new TestDbAsyncQueryProvider<T>(this); }
+            get { return new TestAsyncQueryProvider<T>(this); }
         }
 
         public IAsyncEnumerator<T> GetEnumerator()
         {
-            return new TestDbAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
+            return new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
         }
     }
 
-    internal class TestDbAsyncEnumerator<T> : IAsyncEnumerator<T>
+    internal class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
         private readonly IEnumerator<T> _inner;
 
-        public TestDbAsyncEnumerator(IEnumerator<T> inner)
+        public TestAsyncEnumerator(IEnumerator<T> inner)
         {
             _inner = inner;
         }
