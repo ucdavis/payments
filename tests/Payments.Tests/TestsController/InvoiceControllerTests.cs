@@ -100,7 +100,7 @@ namespace Payments.Tests.TestsController
             mockSet.Setup(a => a.Add(It.IsAny<Invoice>())).Callback<Invoice>(r => savedResult = r);
 
             Mapper.Initialize(a => a.AddProfile(typeof(InvoiceMappingProfile)));
-            Mapper.Configuration.AssertConfigurationIsValid();
+            //Mapper.Configuration.AssertConfigurationIsValid();
 
 
             var controller = new InvoiceController(mockContext.Object, Mapper.Instance);

@@ -14,12 +14,22 @@ namespace Payments.Tests.TestsMapper
 {
     public class AutoMapperTests
     {
+
+        [Fact]
+        public void TestInvoiceConfigIsValid()
+        {
+            //Arrange
+            Mapper.Initialize(a => a.AddProfile(typeof(InvoiceMappingProfile)));
+
+            //Assert
+            Mapper.Configuration.AssertConfigurationIsValid();
+        }
         [Fact]
         public void TestInvoiceEditViewModelMapsToInvoiceForTitle()
         {
             //Arrange
             Mapper.Initialize(a => a.AddProfile(typeof(InvoiceMappingProfile)));
-            Mapper.Configuration.AssertConfigurationIsValid();
+            //Mapper.Configuration.AssertConfigurationIsValid();
             var source = CreateValidEntities.InvoiceEditViewModel(3, true);
 
             //Act
@@ -34,7 +44,7 @@ namespace Payments.Tests.TestsMapper
         {
             //Arrange
             Mapper.Initialize(a => a.AddProfile(typeof(InvoiceMappingProfile)));
-            Mapper.Configuration.AssertConfigurationIsValid();
+            //Mapper.Configuration.AssertConfigurationIsValid();
             var source = CreateValidEntities.InvoiceEditViewModel(3, true);
 
             //Act
@@ -49,7 +59,7 @@ namespace Payments.Tests.TestsMapper
         {
             //Arrange
             Mapper.Initialize(a => a.AddProfile(typeof(InvoiceMappingProfile)));
-            Mapper.Configuration.AssertConfigurationIsValid();
+            //Mapper.Configuration.AssertConfigurationIsValid();
             var source = CreateValidEntities.Invoice(3, true);
 
             //Act
@@ -64,7 +74,7 @@ namespace Payments.Tests.TestsMapper
         {
             //Arrange
             Mapper.Initialize(a => a.AddProfile(typeof(InvoiceMappingProfile)));
-            Mapper.Configuration.AssertConfigurationIsValid();
+            //Mapper.Configuration.AssertConfigurationIsValid();
             var source = CreateValidEntities.Invoice(3, true);
 
             //Act
