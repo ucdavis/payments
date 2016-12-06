@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Payments.Controllers;
 using Payments.Core;
@@ -21,9 +23,9 @@ using Xunit.Abstractions;
 
 namespace Payments.Tests.TestsController
 {
+    
     public class InvoiceControllerTests
     {
-
         [Fact]
         public void TestIndexReturnViewWithData()
         {

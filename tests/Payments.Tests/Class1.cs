@@ -37,5 +37,41 @@ namespace Payments.Tests
             return value % 2 == 1;
         }
 
+
+        [Fact]
+        public void TestExceptionExample()
+        {
+            // Arrange
+
+            // Act
+            var ex = Assert.Throws<NotImplementedException>(() => ExceptionTest());
+
+            // Assert
+            ex.ShouldBeOfType<NotImplementedException>();
+            ex.Message.ShouldBe("Party on dude!");
+        }
+
+        [Fact]
+        public void TestBetterExceptionTest()
+        {
+            // Arrange
+            
+
+
+            // Act
+            var ex = Record.Exception(() => ExceptionTest());
+
+            // Assert
+            ex.ShouldNotBeNull();
+            ex.ShouldBeOfType<NotImplementedException>();
+            ex.Message.ShouldBe("Party on dude!");
+        }
+
+        private void ExceptionTest()
+        {
+            throw new NotImplementedException("Party on dude!");
+        }
     }
 }
+
+
