@@ -1,7 +1,11 @@
 {
-  "name": "Payments.Mvc",
+  "name": "payments.mvc",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "ASPNETCORE_ENVIRONMENT=Development dotnet watch run",
+    "webpack": "node node_modules/webpack/bin/webpack.js --env.dev --watch"
+  },
   "devDependencies": {
     "@types/history": "4.6.2",
     "@types/react": "16.3.11",
