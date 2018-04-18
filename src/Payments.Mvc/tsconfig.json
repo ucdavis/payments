@@ -7,7 +7,6 @@
     "jsx": "react",
     "sourceMap": true,
     "skipDefaultLibCheck": true,
-    "typings": ["node", "webpack-env"]
   },
   "exclude": ["bin", "node_modules"]
 }
