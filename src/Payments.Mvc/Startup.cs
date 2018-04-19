@@ -41,7 +41,7 @@ namespace Payments.Mvc
             services.AddAuthentication()
                 .AddCAS("UCDavis", options =>
                 {
-                    options.CasServerUrlBase = Configuration["AppSettings:CasBaseUrl"];
+                    options.CasServerUrlBase = Configuration["Settings:CasBaseUrl"];
                 });
 
             services.AddMvc();
