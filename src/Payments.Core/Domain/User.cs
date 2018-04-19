@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace Payments.Core.Domain
 {
-    public class User
+    public class User : IdentityUser
     {
         // IAM (campus identity) ID
         [Key]
