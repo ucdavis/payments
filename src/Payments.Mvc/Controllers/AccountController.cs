@@ -54,7 +54,7 @@ namespace Payments.Mvc.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] 
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -358,9 +358,7 @@ namespace Payments.Mvc.Controllers
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
-                        //return RedirectToLocal(returnUrl);
-                        TempData["Message"] = "Please update you profile before continuing.";
-                        return this.RedirectToAction("Edit", "Profile");
+                        return RedirectToLocal(returnUrl);
                     }
                 }
 
