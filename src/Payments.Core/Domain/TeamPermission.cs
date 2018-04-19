@@ -19,7 +19,7 @@ namespace Payments.Core.Domain
         public string UserId { get; set; }
 
         [Required]
-        public Role Role { get; set; }
+        public TeamRole Role { get; set; }
         public int RoleId { get; set; }
 
     }

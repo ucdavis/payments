@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Payments.Core.Domain;
 
 namespace Payments.Core.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -14,9 +15,9 @@ namespace Payments.Core.Data
         public virtual DbSet<Invoice> Invoice { get; set; }
         public virtual DbSet<LineItem> LineItems { get; set; }
         public virtual DbSet<PaymentEvent> PaymentEvents { get; set; }
-        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<TeamRole> TeamRoles { get; set; }
         public virtual DbSet<TeamPermission> TeamPermissions { get; set; }
-        public virtual DbSet<User> Users { get; set; }
+        public new virtual DbSet<User> Users { get; set; }
 
     }
 }
