@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payments.Core.Data;
+using Payments.Core.Domain;
 
 namespace Payments.Mvc
 {
@@ -27,6 +29,16 @@ namespace Payments.Mvc
             // setup entity framework
             services.AddDbContextPool<ApplicationDbContext>(o => o.UseSqlite("Data Source=payments.db"));
 
+            services.AddIdentity<User, IdentityRole>()
+                .AddDefaultTokenProviders();
+
+            // services.AddAuthentication()
+            //     .AddCAS("UCDavis", options =>
+            //     {
+            //         options.CasServerUrlBase = Configuration["AppSettings:CasBaseUrl"];
+            //         // options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //     });
+
             services.AddMvc();
         }
 
@@ -36,6 +48,7 @@ namespace Payments.Mvc
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
                     // HotModuleReplacement = true,
@@ -48,6 +61,8 @@ namespace Payments.Mvc
             }
 
             app.UseStaticFiles();
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
