@@ -7,6 +7,11 @@ namespace Payments.Core.Domain
 {
     public class Team
     {
+        public Team()
+        {
+            Accounts = new List<FinancialAccount>();
+        }
+
         [Key]
         public int Id { get; set; }
 
@@ -14,7 +19,8 @@ namespace Payments.Core.Domain
         [Display(Name = "Team Name")]
         public string Name { get; set; }
 
-        public Accounts DefaultAccount { get; set; }
-        public List<Accounts> Accounts { get; set; }
+        // public FinancialAccount DefaultAccount { get; set; }
+        // public int DefaultAccountId { get; set; }
+        public List<FinancialAccount> Accounts { get; set; }
     }
 }
