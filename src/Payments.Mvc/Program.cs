@@ -19,12 +19,12 @@ namespace Payments.Mvc
         {
             var host = BuildWebHost(args);
 #if DEBUG
-            using (var scope = host.Services.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var dbInitilizer = new DbInitializer(context);
-                Task.Run(() => dbInitilizer.RecreateAndInitialize()).Wait();
-            }
+            //using (var scope = host.Services.CreateScope())
+            //{
+            //    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            //    var dbInitilizer = new DbInitializer(context);
+            //    Task.Run(() => dbInitilizer.RecreateAndInitialize()).Wait();
+            //}
 #endif
 
             host.Run();
