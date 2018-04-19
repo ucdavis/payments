@@ -17,7 +17,7 @@ namespace Payments.Core.Domain
 
         public decimal Amount { get; set; }
         
-        public Decimal Total { get; set; }
+        public decimal Total { get; set; }
 
         [Required]
         public Invoice Invoice { get; set; }

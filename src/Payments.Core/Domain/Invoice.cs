@@ -19,11 +19,11 @@ namespace Payments.Core.Domain
         [EmailAddress]
         public string CustomerEmail { get; set; }
 
-        public Decimal Subtotal { get; set; }
-        public Decimal Discount { get; set; }
-        public Decimal TaxPercent { get; set; }
-        public Decimal TaxAmount { get; set; }
-        public Decimal Total { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal Discount { get; set; }
+        public decimal TaxPercent { get; set; }
+        public decimal TaxAmount { get; set; }
+        public decimal Total { get; set; }
         public string Status { get; set; }
 
         public Accounts Account { get; set; }
