@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCore.Security.CAS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -32,12 +33,12 @@ namespace Payments.Mvc
             services.AddIdentity<User, IdentityRole>()
                 .AddDefaultTokenProviders();
 
-            // services.AddAuthentication()
-            //     .AddCAS("UCDavis", options =>
-            //     {
-            //         options.CasServerUrlBase = Configuration["AppSettings:CasBaseUrl"];
-            //         // options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //     });
+            services.AddAuthentication()
+                .AddCAS("UCDavis", options =>
+                {
+                    options.CasServerUrlBase = Configuration["AppSettings:CasBaseUrl"];
+                    // options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                });
 
             services.AddMvc();
         }
@@ -69,10 +70,6 @@ namespace Payments.Mvc
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
-
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
             });
         }
     }

@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.Security.CAS" Version="2.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.7" />
   </ItemGroup>
 
