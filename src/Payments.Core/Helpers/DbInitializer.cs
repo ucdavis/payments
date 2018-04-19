@@ -39,13 +39,14 @@ namespace Payments.Core.Helpers
             _context.Users.Add(jason);
 
             var team1 = new Team {
-                Name = "Team1"
+                Name = "Team1",
             };
 
             team1.Accounts.Add(new FinancialAccount {
                 Chart = "3",
                 Account = "OTHER",
-                Name = "Other Acct"
+                Name = "Other Acct",
+                IsDefault = true
             });
 
             _context.Teams.Add(team1);

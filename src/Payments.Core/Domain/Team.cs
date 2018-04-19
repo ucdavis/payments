@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 
 namespace Payments.Core.Domain
@@ -19,8 +20,12 @@ namespace Payments.Core.Domain
         [Display(Name = "Team Name")]
         public string Name { get; set; }
 
-        // public FinancialAccount DefaultAccount { get; set; }
-        // public int DefaultAccountId { get; set; }
         public List<FinancialAccount> Accounts { get; set; }
+
+        public FinancialAccount DefaultAccount {
+            get {
+                return Accounts.FirstOrDefault(a => a.IsDefault);
+            }
+        }
     }
 }

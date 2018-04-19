@@ -26,5 +26,10 @@ namespace Payments.Core.Domain
 
         [StringLength(5)]
         public string SubAccount { get; set; }
+
+        public bool IsDefault { get; set; }
+
+        public Team Team { get; set; }
+        public int TeamId { get; set; }
     }
 }
