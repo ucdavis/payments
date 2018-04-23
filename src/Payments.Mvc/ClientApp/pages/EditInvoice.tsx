@@ -3,8 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom'; 
 import { AppContainer } from 'react-hot-loader'; 
 import EditInvoiceContainer from '../containers/EditInvoiceContainer';
+import { Invoice } from '../models/Invoice';
 
-const invoice = {};
+const invoice: Invoice = {
+    items: []
+};
 
 function renderApp() { 
     // This code starts up the React app when it runs in a browser. It sets up the routing 
