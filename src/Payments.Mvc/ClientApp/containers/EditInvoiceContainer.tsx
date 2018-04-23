@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Invoice } from '../models/Invoice';
+import { InvoiceItem } from '../models/InvoiceItem';
 
 interface IProps {
     invoice: Invoice;
@@ -10,6 +11,8 @@ interface IState {
 }
 
 export default class EditInvoiceContainer extends React.Component<IProps, IState> {
+    
+
     public render() {
         const { invoice } = this.props;
 
@@ -54,14 +57,47 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         );
     }
 
-    public renderItem(item) {
+    public renderItem(item: InvoiceItem) {
+        const { description, quantity, price } = item;
+
         return (
             <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder=""
+                    />
+                </td>
+                <td>
+                <input
+                        type="text"
+                        className="form-control"
+                        placeholder="0"
+                    />
+                </td>
+                <td>
+                    <div className="input-group">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">$</span>
+                        </div>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="0.00"
+                        />
+                    </div>
+                </td>
+                <td>
+                    ${ (quantity * price).toFixed(2) }
+                </td>
             </tr>
         );
+    }
+
+    private updateProperty = () => {
+    }
+
+    private updateItemProperty = () => {
     }
 }

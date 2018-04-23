@@ -6,7 +6,11 @@ import EditInvoiceContainer from '../containers/EditInvoiceContainer';
 import { Invoice } from '../models/Invoice';
 
 const invoice: Invoice = {
-    items: []
+    items: [{
+        description: '',
+        price: 0,
+        quantity: 0,
+    }],
 };
 
 function renderApp() { 
