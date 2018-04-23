@@ -5,13 +5,13 @@ using System.Text;
 
 namespace Payments.Core.Domain
 {
-    public class Accounts
+    public class FinancialAccount
     {
         [Key]
         public int Id { get; set; }
 
         [StringLength(128)]
-        [Required] //?
+        [Required]
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -27,7 +27,8 @@ namespace Payments.Core.Domain
         [StringLength(5)]
         public string SubAccount { get; set; }
 
-        [Required]
+        public bool IsDefault { get; set; }
+
         public Team Team { get; set; }
         public int TeamId { get; set; }
     }

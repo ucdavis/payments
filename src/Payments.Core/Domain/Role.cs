@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Payments.Core.Domain
 {
-    public class Role
+    public class TeamRole
     {
         [Key]
         public int Id { get; set; }

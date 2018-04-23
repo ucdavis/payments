@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Payments.Mvc.Controllers
@@ -18,6 +19,11 @@ namespace Payments.Mvc.Controllers
         {
             ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
             return View();
+        }
+
+        [Authorize]
+        public IActionResult Secure() {
+            return Content("Logged in");
         }
     }
 }

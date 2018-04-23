@@ -33,9 +33,23 @@ namespace Payments.Core.Helpers
                 Id = "jason1",
                 Email = "jason@ucdavis.edu",
                 FirstName = "Jason",
-                LastName = "Sylvestre"
+                LastName = "Sylvestre",
+                Name = "Jason Sylvestre"
             };
             _context.Users.Add(jason);
+
+            var team1 = new Team {
+                Name = "Team1",
+            };
+
+            team1.Accounts.Add(new FinancialAccount {
+                Chart = "3",
+                Account = "OTHER",
+                Name = "Other Acct",
+                IsDefault = true
+            });
+
+            _context.Teams.Add(team1);
 
 
 

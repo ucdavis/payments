@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace Payments.Core.Domain
 {
-    public class User
+    public class User : IdentityUser
     {
-        // IAM (campus identity) ID
-        [Key]
-        public string Id { get; set; }
-
         [StringLength(50)]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
@@ -27,7 +24,10 @@ namespace Payments.Core.Domain
         [Required]
         [StringLength(256)]
         [EmailAddress]
-        public string Email { get; set; }
+        public override string Email { get; set; }
+
+        [StringLength(50)] // cache for campus kerb, also providerKey for the UCD login provider
+        public string CampusKerberos { get; set; }
 
         public List<TeamPermission> TeamPermissions { get; set; }
     }

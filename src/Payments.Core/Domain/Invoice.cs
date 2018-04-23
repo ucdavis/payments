@@ -26,7 +26,7 @@ namespace Payments.Core.Domain
         public decimal Total { get; set; }
         public string Status { get; set; }
 
-        public Accounts Account { get; set; }
+        public FinancialAccount Account { get; set; }
         public int AccountId { get; set; }
         public PaymentEvent Payment { get; set; }
         public string PaymentId { get; set; }
