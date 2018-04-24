@@ -7,6 +7,7 @@ import { Invoice } from '../models/Invoice';
 
 const invoice: Invoice = {
     items: [{
+        id: 1,
         description: '',
         price: 0,
         quantity: 0,

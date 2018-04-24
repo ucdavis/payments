@@ -7,14 +7,37 @@ interface IProps {
 }
 
 interface IState {
-    title: string;
+    items: {
+        byId: number[];
+        byHash: {
+            [key: number]: InvoiceItem;
+        }
+    };
 }
 
 export default class EditInvoiceContainer extends React.Component<IProps, IState> {
-    
+    constructor(props: IProps) {
+        super(props);
+
+        // map array to object
+        const items: IState["items"] = {
+            byHash: {},
+            byId: [],
+        };
+        props.invoice.items.forEach((item, index) => {
+            const id = item.id;
+            items.byId.push(id);
+            items.byHash[id] = item;
+        });
+
+        this.state = {
+            items
+        };
+    }
 
     public render() {
         const { invoice } = this.props;
+        const { items } = this.state;
 
         return (
             <div className="container">
@@ -32,12 +55,52 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                                 <th>Qty</th>
                                 <th>Price</th>
                                 <th>Amount</th>
+                                <th />
                             </tr>
                         </thead>
                         <tbody>
-                            { invoice.items.map(this.renderItem) }
+                            { items.byId.map((id) => this.renderItem(id, items.byHash[id])) }
                         </tbody>
-                        
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <button className="btn btn-link" onClick={this.createNewItem}>
+                                        <i className="fa fa-plus" /> Add another item
+                                    </button>
+                                </td>
+                                <td>Subtotal</td>
+                                <td />
+                                <td>${ (0).toFixed(2) }</td>
+                                <td />
+                            </tr>
+                            <tr>
+                                <td />
+                                <td>Discount</td>
+                                <td>
+                                    <button className="btn btn-link"><i className="fa fa-plus" /> Add coupon</button>
+                                </td>
+                                <td>${ (0).toFixed(2) }</td>
+                                <td />
+                            </tr>
+                            <tr>
+                                <td />
+                                <td>Tax</td>
+                                <td>
+                                    <button className="btn btn-link"><i className="fa fa-plus" /> Add tax</button>
+                                </td>
+                                <td>${ (0).toFixed(2) }</td>
+                                <td />
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td />
+                                <td>Total</td>
+                                <td />
+                                <td>${ (0).toFixed(2) }</td>
+                                <td />
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
                 <div className="">
@@ -57,11 +120,11 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         );
     }
 
-    public renderItem(item: InvoiceItem) {
+    private renderItem(id: number, item: InvoiceItem) {
         const { description, quantity, price } = item;
 
         return (
-            <tr>
+            <tr key={id}>
                 <td>
                     <input
                         type="text"
@@ -91,6 +154,11 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 <td>
                     ${ (quantity * price).toFixed(2) }
                 </td>
+                <td>
+                    <button className="btn btn-link" onClick={() => this.removeItem(id)}>
+                        <i className="fa fa-times" />
+                    </button>
+                </td>
             </tr>
         );
     }
@@ -98,6 +166,49 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     private updateProperty = () => {
     }
 
-    private updateItemProperty = () => {
+    private createNewItem = () => {
+        const items = this.state.items;
+        // needs new id logic
+        const id = items.byId.reduce((max, value) => Math.max(max, value), 0) + 1;
+        this.setState({
+            items: {
+                byHash: {
+                    ...items.byHash,
+                    [id]: {
+                        description: '',
+                        id,
+                        price: 0,
+                        quantity: 0,
+                    },
+                },
+                byId: [...items.byId, id],
+            },
+        });
+    }
+
+    private removeItem = (id) => {
+        const items = this.state.items;
+        const newHash = {...items.byHash};
+        delete newHash[id];
+
+        this.setState({
+            items: {
+                byHash: newHash,
+                byId: items.byId.filter(i => i !== id),
+            },
+        });
+    }
+
+    private updateItem = (id, item) => {
+        const items = this.state.items;
+        const newHash = {...items.byHash};
+        newHash[id] = item;
+
+        this.setState({
+            items: {
+                byHash: newHash,
+                byId: items.byId,
+            },
+        });
     }
 }
