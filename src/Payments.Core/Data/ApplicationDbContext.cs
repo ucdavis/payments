@@ -12,12 +12,18 @@ namespace Payments.Core.Data
 
         public virtual DbSet<Team> Teams { get; set; }
         public virtual DbSet<History> History { get; set; }
-        public virtual DbSet<Invoice> Invoice { get; set; }
+        public virtual DbSet<Invoice> Invoices { get; set; }
         public virtual DbSet<LineItem> LineItems { get; set; }
         public virtual DbSet<PaymentEvent> PaymentEvents { get; set; }
         public virtual DbSet<TeamRole> TeamRoles { get; set; }
         public virtual DbSet<TeamPermission> TeamPermissions { get; set; }
         public new virtual DbSet<User> Users { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            Invoice.OnModelCreating(builder);
+        }
     }
 }
