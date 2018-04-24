@@ -19,12 +19,15 @@ namespace Payments.Mvc
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+
+        public Startup(IHostingEnvironment environment, IConfiguration configuration)
         {
+            _environment = environment;
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
+        private readonly IHostingEnvironment _environment;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -32,7 +35,18 @@ namespace Payments.Mvc
             services.Configure<Settings>(Configuration.GetSection("Settings"));
 
             // setup entity framework
-            services.AddDbContextPool<ApplicationDbContext>(o => o.UseSqlite("Data Source=payments.db"));
+            if (!_environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
+            {
+                services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                );
+            }
+            else
+            {
+                services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlite("Data Source=payments.db")
+                );
+            }
 
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
