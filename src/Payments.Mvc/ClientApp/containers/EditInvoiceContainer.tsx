@@ -36,7 +36,6 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     public render() {
-        const { invoice } = this.props;
         const { items } = this.state;
 
         return (
@@ -97,7 +96,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                                 <td />
                                 <td>Total</td>
                                 <td />
-                                <td>${ (0).toFixed(2) }</td>
+                                <td>${ this.calculateTotal().toFixed(2) }</td>
                                 <td />
                             </tr>
                         </tfoot>
@@ -130,6 +129,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         type="text"
                         className="form-control"
                         placeholder=""
+                        value={description}
+                        onChange={(e) => { this.updateItemProperty(id, 'description', e.target.value) }}
                     />
                 </td>
                 <td>
@@ -137,6 +138,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         type="text"
                         className="form-control"
                         placeholder="0"
+                        value={quantity}
+                        onChange={(e) => { this.updateItemProperty(id, 'quantity', e.target.value) }}
                     />
                 </td>
                 <td>
@@ -148,6 +151,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             type="text"
                             className="form-control"
                             placeholder="0.00"
+                            value={price}
+                            onChange={(e) => { this.updateItemProperty(id, 'price', e.target.value) }}
                         />
                     </div>
                 </td>
@@ -163,7 +168,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         );
     }
 
-    private updateProperty = () => {
+    private updateProperty = (name, value) => {
     }
 
     private createNewItem = () => {
@@ -210,5 +215,21 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 byId: items.byId,
             },
         });
+    }
+
+    private updateItemProperty = (id, name, value) => {
+        const item = this.state.items.byHash[id];
+        item[name] = value;
+        this.updateItem(id, item);
+    }
+
+    private calculateTotal = () => {
+        const items = this.state.items;
+        const sum = items.byId.reduce((prev, id) => {
+            const item = items.byHash[id];
+            return prev + (item.quantity * item.price);
+        }, 0);
+
+        return sum;
     }
 }
