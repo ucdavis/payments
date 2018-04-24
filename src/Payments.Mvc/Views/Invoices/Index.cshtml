@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Invoice>
+
+@{
+    ViewBag.Title = "Invoices";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+    </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.Id</td>
+            </tr>
+        }
+    </tbody>
+</table>

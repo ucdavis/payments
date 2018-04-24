@@ -1,12 +1,18 @@
+import "isomorphic-fetch";
 import * as React from 'react';
 import { Invoice } from '../models/Invoice';
 import { InvoiceItem } from '../models/InvoiceItem';
+
+declare var antiForgeryToken: string;
 
 interface IProps {
     invoice: Invoice;
 }
 
 interface IState {
+    customerName: string;
+    customerEmail: string;
+    customerAddress: string;
     items: {
         byId: number[];
         byHash: {
@@ -18,12 +24,25 @@ interface IState {
 export default class EditInvoiceContainer extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
+        console.log("props:", props);
+        const { invoice } = this.props;
 
         // map array to object
         const items: IState["items"] = {
             byHash: {},
             byId: [],
         };
+
+        // require at least one item
+        if (!invoice.items || invoice.items.length < 1) {
+            invoice.items = [{
+                description: '',
+                id: 0,
+                price: 0,
+                quantity: 0,
+            }];
+        }
+
         props.invoice.items.forEach((item, index) => {
             const id = item.id;
             items.byId.push(id);
@@ -31,6 +50,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         });
 
         this.state = {
+            customerAddress: "",
+            customerEmail: "",
+            customerName: "",
             items
         };
     }
@@ -43,7 +65,33 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 <h1>Edit Invoice</h1>
                 <div className="">
                     <h2>Customer Info</h2>
-                    Scott Kirkland
+                    <div className="form-group">
+                        <label>Customer Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="John Doe"
+                            onChange={(e) => { this.updateProperty("customerName", e.target.value) }}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Customer Email</label>
+                        <input
+                            type="email"
+                            className="form-control"
+                            placeholder="johndoe@example.com"
+                            onChange={(e) => { this.updateProperty("customerEmail", e.target.value) }}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Customer Adress</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="123 Street, Davis, CA 95616"
+                            onChange={(e) => { this.updateProperty("customerAddress", e.target.value) }}
+                        />
+                    </div>
                 </div>
                 <div className="">
                     <h2>Invoice Items</h2>
@@ -113,7 +161,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 </div>
                 <div className="">
                     <button className="btn btn-default">Cancel</button>
-                    <button className="btn btn-success">Save</button>
+                    <button className="btn btn-success" onClick={this.onSubmit}>Save</button>
                 </div>
             </div>
         );
@@ -134,7 +182,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     />
                 </td>
                 <td>
-                <input
+                    <input
                         type="text"
                         className="form-control"
                         placeholder="0"
@@ -168,7 +216,12 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         );
     }
 
-    private updateProperty = (name, value) => {
+    private updateProperty = (name: string, value: string) => {
+        // https://github.com/Microsoft/TypeScript/issues/13948
+        // computed key has to be cast as any
+        this.setState({
+            [name as any]: value
+        });
     }
 
     private createNewItem = () => {
@@ -196,12 +249,19 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const newHash = {...items.byHash};
         delete newHash[id];
 
+        const newItems = {
+            byHash: newHash,
+            byId: items.byId.filter(i => i !== id),
+        };
+
         this.setState({
-            items: {
-                byHash: newHash,
-                byId: items.byId.filter(i => i !== id),
-            },
+            items: newItems,
         });
+
+        // if this would set the list empty, add an empty one back
+        if (newItems.byId.length < 1) {
+            this.createNewItem();
+        }
     }
 
     private updateItem = (id, item) => {
@@ -231,5 +291,44 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         }, 0);
 
         return sum;
+    }
+
+    private onSubmit = async () => {
+        const { id } = this.props.invoice;
+        const { customerName, customerEmail, customerAddress, items } = this.state;
+
+        const invoiceItems = items.byId.map(itemId => items.byHash[itemId]);
+
+        // create submit object
+        const invoice = {
+            customerAddress,
+            customerEmail,
+            customerName,
+            items: invoiceItems,
+        };
+
+        // set save url
+        let url = "/invoices/create";
+        if (id) {
+            url = `/invoices/edit/${id}`;
+        }
+
+        // fetch 
+        const response = await fetch(url, {
+            // body: JSON.stringify({
+            //     __RequestVerificationToken: antiForgeryToken,
+            //     model: invoice,
+            // }),
+            body: JSON.stringify(invoice),
+            credentials: "include",
+            headers: new Headers({
+                "Content-Type": "application/json",
+                "RequestVerificationToken": antiForgeryToken
+            }),
+            method: "POST"
+        });
+        console.log(await response.json());
+
+        // redirect to invoices
     }
 }
