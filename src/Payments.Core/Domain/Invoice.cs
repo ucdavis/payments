@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,11 +26,10 @@ namespace Payments.Core.Domain
         [EmailAddress]
         public string CustomerEmail { get; set; }
 
-        public decimal Subtotal { get; set; }
         public decimal Discount { get; set; }
+
         public decimal TaxPercent { get; set; }
-        public decimal TaxAmount { get; set; }
-        public decimal Total { get; set; }
+        
         public string Status { get; set; }
 
         public FinancialAccount Account { get; set; }
@@ -40,6 +40,20 @@ namespace Payments.Core.Domain
         public Team Team { get; set; }
 
         public List<LineItem> Items { get; set; }
+
+        // ----------------------
+        // Calculated Values
+        // ----------------------
+        public decimal Subtotal { get; private set; }
+        public decimal TaxAmount { get; private set; }
+        public decimal Total { get; private set; }
+
+        public void UpdateCalculatedValues()
+        {
+            Subtotal = Items.Sum(i => i.Total);
+            TaxAmount = (Subtotal - Discount) * TaxPercent;
+            Total = Subtotal - Discount + TaxAmount;
+        }
 
         protected internal static void OnModelCreating(ModelBuilder builder)
         {
