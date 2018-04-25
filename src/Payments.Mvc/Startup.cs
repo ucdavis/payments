@@ -34,7 +34,7 @@ namespace Payments.Mvc
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<Settings>(Configuration.GetSection("Settings"));
-            services.Configure<CyberSourceSettings>(Configuration.GetSection("CyberSourceSettings"));
+            services.Configure<CyberSourceSettings>(Configuration.GetSection("CyberSource"));
 
             // setup entity framework
             if (!_environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
