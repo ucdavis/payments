@@ -54,19 +54,21 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         });
 
         this.state = {
-            customerAddress: "",
-            customerEmail: "",
-            customerName: "",
-            discount: 0,
-            hasDiscount: false,
-            hasTax: false,
+            customerAddress: invoice.customerAddress,
+            customerEmail: invoice.customerEmail,
+            customerName: invoice.customerName,
+            discount: invoice.discount,
+            hasDiscount: !!invoice.discount,
+            hasTax: !!invoice.taxPercent,
             items,
-            taxRate: 0,
+            taxRate: invoice.taxPercent,
         };
+
+        console.log(this.state);
     }
 
     public render() {
-        const { items, discount, taxRate } = this.state;
+        const { items, discount, taxRate, customerAddress, customerEmail, customerName } = this.state;
         const subtotal = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         const total = this.calculateTotal();
@@ -83,6 +85,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             className="form-control"
                             placeholder="John Doe"
                             onChange={(e) => { this.updateProperty("customerName", e.target.value) }}
+                            value={customerName}
                         />
                     </div>
                     <div className="form-group">
@@ -92,6 +95,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             className="form-control"
                             placeholder="johndoe@example.com"
                             onChange={(e) => { this.updateProperty("customerEmail", e.target.value) }}
+                            value={customerEmail}
                         />
                     </div>
                     <div className="form-group">
@@ -101,6 +105,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             className="form-control"
                             placeholder="123 Street, Davis, CA 95616"
                             onChange={(e) => { this.updateProperty("customerAddress", e.target.value) }}
+                            value={customerAddress}
                         />
                     </div>
                 </div>
@@ -185,7 +190,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         
         return (
             <input
-                type="text"
+                type="number"
+                min="0"
+                step="0.01"
                 className="form-control"
                 placeholder="0.00"
                 value={this.state.discount}
@@ -205,7 +212,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         return (
             <input
-                type="text"
+                type="number"
+                min="0"
+                step="0.01"
                 className="form-control"
                 placeholder="0.00"
                 value={this.state.taxRate}
@@ -215,7 +224,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private renderItem(id: number, item: InvoiceItem) {
-        const { description, quantity, price } = item;
+        const { description, quantity, amount } = item;
 
         return (
             <tr key={id}>
@@ -230,7 +239,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 </td>
                 <td>
                     <input
-                        type="text"
+                        type="number"
+                        min="0"
                         className="form-control"
                         placeholder="0"
                         value={quantity}
@@ -243,16 +253,18 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             <span className="input-group-text">$</span>
                         </div>
                         <input
-                            type="text"
+                            type="number"
+                            min="0"
+                            step="0.01"
                             className="form-control"
                             placeholder="0.00"
-                            value={price}
-                            onChange={(e) => { this.updateItemProperty(id, 'price', e.target.value) }}
+                            value={amount}
+                            onChange={(e) => { this.updateItemProperty(id, 'amount', e.target.value) }}
                         />
                     </div>
                 </td>
                 <td>
-                    ${ (quantity * price).toFixed(2) }
+                    ${ (quantity * amount).toFixed(2) }
                 </td>
                 <td>
                     <button className="btn btn-link" onClick={() => this.removeItem(id)}>
@@ -288,9 +300,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 byHash: {
                     ...items.byHash,
                     [id]: {
+                        amount: 0,
                         description: '',
                         id,
-                        price: 0,
                         quantity: 0,
                     },
                 },
@@ -342,7 +354,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const items = this.state.items;
         const sum = items.byId.reduce((prev, id) => {
             const item = items.byHash[id];
-            return prev + (item.quantity * item.price);
+            return prev + (item.quantity * item.amount);
         }, 0);
 
         return sum;
@@ -377,18 +389,10 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             tax: taxRate,
         };
 
-        // set save url
-        let url = "/invoices/create";
-        if (id) {
-            url = `/invoices/edit/${id}`;
-        }
+        const url = `/invoices/save/${id}`;
 
         // fetch 
         const response = await fetch(url, {
-            // body: JSON.stringify({
-            //     __RequestVerificationToken: antiForgeryToken,
-            //     model: invoice,
-            // }),
             body: JSON.stringify(invoice),
             credentials: "include",
             headers: new Headers({

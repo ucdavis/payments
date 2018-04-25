@@ -42,68 +42,63 @@ namespace Payments.Mvc.Controllers
             return View("Edit", invoice);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody]EditInvoiceViewModel model)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            var team = await _dbContext.Teams.FirstAsync();
-
-            // create line items
-            var items = model.Items.Select(i => new LineItem()
-            {
-                Description = i.Description,
-                Amount = i.Amount,
-                Quantity = i.Quantity,
-            });
-
-            // create invoice
-            var invoice = new Invoice()
-            {
-                Creator = user,
-                CustomerAddress = model.CustomerAddress,
-                CustomerEmail = model.CustomerEmail,
-                CustomerName = model.CustomerName,
-                Items = items.ToList(),
-                Team = team,
-            };
-
-            // save to db
-            _dbContext.Invoices.Add(invoice);
-            _dbContext.SaveChanges();
-
-            return new JsonResult(new
-            {
-                id = invoice.Id,
-                success = true
-            });
-        }
-
         [HttpGet]
-        public IActionResult Edit(string id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var invoice = _dbContext.Invoices.Find(id);
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
             return View(invoice);
         }
 
         [HttpPost]
-        public IActionResult Edit(string id, EditInvoiceViewModel model)
+        public async Task<IActionResult> Save(int id, [FromBody]EditInvoiceViewModel model)
         {
-            var invoice = _dbContext.Invoices.Find(id);
+            var user = await _userManager.GetUserAsync(User);
+            var team = await _dbContext.Teams.FirstAsync();
+
+            // setup model target
+            Invoice invoice;
+            if (id == 0)
+            {
+                // create new object, track it
+                invoice = new Invoice()
+                {
+                    Creator = user,
+                    Team = team,
+                };
+                _dbContext.Invoices.Add(invoice);
+            }
+            else
+            {
+                // find item
+                invoice = await _dbContext.Invoices
+                    .Include(i => i.Items)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+
+                if (invoice == null)
+                {
+                    return NotFound();
+                }
+
+                // remove old items
+                _dbContext.LineItems.RemoveRange(invoice.Items);
+            }
 
             // update invoice
             invoice.CustomerAddress = model.CustomerAddress;
-            invoice.CustomerEmail = model.CustomerEmail;
-            invoice.CustomerName = model.CustomerName;
+            invoice.CustomerEmail   = model.CustomerEmail;
+            invoice.CustomerName    = model.CustomerName;
+            invoice.Discount        = model.Discount;
+            invoice.TaxPercent      = model.Tax;
 
-            // remove old items
-            _dbContext.LineItems.RemoveRange(invoice.Items);
-
-            // add new items
+            // add line items
             var items = model.Items.Select(i => new LineItem()
             {
+                Amount      = i.Amount,
                 Description = i.Description,
-                Amount = i.Amount,
-                Quantity = i.Quantity,
+                Quantity    = i.Quantity,
             });
             invoice.Items = items.ToList();
 
