@@ -38,6 +38,17 @@ namespace Payments.Core.Helpers
             };
             _context.Users.Add(jason);
 
+            var john = new User
+            {
+                Email = "jpknoll@ucdavis.edu",
+                UserName = "jpknoll@ucdavis.edu",
+                FirstName = "John",
+                LastName = "Knoll",
+                Name = "John Knoll",
+                CampusKerberos = "jpknoll",
+            };
+            _context.Users.Add(john);
+
             var team1 = new Team {
                 Name = "Team1",
             };
@@ -51,10 +62,7 @@ namespace Payments.Core.Helpers
 
             _context.Teams.Add(team1);
 
-
-
             await _context.SaveChangesAsync();
-
         }
     }
 }

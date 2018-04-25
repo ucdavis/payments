@@ -10,7 +10,7 @@ module.exports = env => {
     {
       stats: { modules: false },
       entry: {
-        main: "./ClientApp/boot.tsx",
+        'edit-invoice': "./ClientApp/pages/EditInvoice.tsx",
         vendor: [
           "event-source-polyfill",
           "isomorphic-fetch",

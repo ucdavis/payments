@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
 
 namespace Payments.Core.Domain
 {
@@ -22,6 +22,7 @@ namespace Payments.Core.Domain
 
         public List<FinancialAccount> Accounts { get; set; }
 
+        [NotMapped]
         public FinancialAccount DefaultAccount {
             get {
                 return Accounts.FirstOrDefault(a => a.IsDefault);
