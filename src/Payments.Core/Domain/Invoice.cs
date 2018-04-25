@@ -18,7 +18,6 @@ namespace Payments.Core.Domain
 
         [Required]
         public User Creator { get; set; }
-        public string CreatorId { get; set; }
 
         public string CustomerName { get; set; }
         public string CustomerAddress { get; set; }
