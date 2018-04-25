@@ -99,10 +99,12 @@ namespace Payments.Mvc.Controllers
                 Amount      = i.Amount,
                 Description = i.Description,
                 Quantity    = i.Quantity,
+                Total       = i.Quantity * i.Amount,
             });
             invoice.Items = items.ToList();
 
             // save to db
+            invoice.UpdateCalculatedValues();
             _dbContext.SaveChanges();
 
             return new JsonResult(new
