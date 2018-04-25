@@ -13,6 +13,10 @@ interface IState {
     customerName: string;
     customerEmail: string;
     customerAddress: string;
+    discount: number;
+    hasDiscount: boolean;
+    taxRate: number;
+    hasTax: boolean;
     items: {
         byId: number[];
         byHash: {
@@ -53,12 +57,19 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             customerAddress: "",
             customerEmail: "",
             customerName: "",
-            items
+            discount: 0,
+            hasDiscount: false,
+            hasTax: false,
+            items,
+            taxRate: 0,
         };
     }
 
     public render() {
-        const { items } = this.state;
+        const { items, discount, taxRate } = this.state;
+        const subtotal = this.calculateSubTotal();
+        const tax = this.calculateTaxAmount();
+        const total = this.calculateTotal();
 
         return (
             <div className="container">
@@ -117,25 +128,21 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                                 </td>
                                 <td>Subtotal</td>
                                 <td />
-                                <td>${ (0).toFixed(2) }</td>
+                                <td>${ subtotal.toFixed(2) }</td>
                                 <td />
                             </tr>
                             <tr>
                                 <td />
                                 <td>Discount</td>
-                                <td>
-                                    <button className="btn btn-link"><i className="fa fa-plus" /> Add coupon</button>
-                                </td>
-                                <td>${ (0).toFixed(2) }</td>
+                                <td>{ this.renderDiscountControl() }</td>
+                                <td>$({ (Number(discount)).toFixed(2) })</td>
                                 <td />
                             </tr>
                             <tr>
                                 <td />
                                 <td>Tax</td>
-                                <td>
-                                    <button className="btn btn-link"><i className="fa fa-plus" /> Add tax</button>
-                                </td>
-                                <td>${ (0).toFixed(2) }</td>
+                                <td>{ this.renderTaxControl() }</td>
+                                <td>${ tax.toFixed(2) }</td>
                                 <td />
                             </tr>
                         </tbody>
@@ -144,7 +151,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                                 <td />
                                 <td>Total</td>
                                 <td />
-                                <td>${ this.calculateTotal().toFixed(2) }</td>
+                                <td>${ total.toFixed(2) }</td>
                                 <td />
                             </tr>
                         </tfoot>
@@ -164,6 +171,46 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <button className="btn btn-success" onClick={this.onSubmit}>Save</button>
                 </div>
             </div>
+        );
+    }
+
+    private renderDiscountControl() {
+        if (!this.state.hasDiscount) {
+            return (
+                <button className="btn btn-link" onClick={this.addDiscount}>
+                    <i className="fa fa-plus" /> Add coupon
+                </button>
+            );
+        }
+        
+        return (
+            <input
+                type="text"
+                className="form-control"
+                placeholder="0.00"
+                value={this.state.discount}
+                onChange={(e) => { this.updateProperty('discount', e.target.value) }}
+            />
+        );
+    }
+
+    private renderTaxControl() {
+        if (!this.state.hasTax) {
+            return (
+                <button className="btn btn-link" onClick={this.addTax}>
+                    <i className="fa fa-plus" /> Add tax
+                </button>
+            );
+        }
+
+        return (
+            <input
+                type="text"
+                className="form-control"
+                placeholder="0.00"
+                value={this.state.taxRate}
+                onChange={(e) => { this.updateProperty('taxRate', e.target.value) }}
+            />
         );
     }
 
@@ -214,6 +261,14 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 </td>
             </tr>
         );
+    }
+
+    private addDiscount = () => {
+        this.setState({ hasDiscount: true });
+    }
+
+    private addTax = () => {
+        this.setState({ hasTax: true });
     }
 
     private updateProperty = (name: string, value: string) => {
@@ -283,7 +338,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         this.updateItem(id, item);
     }
 
-    private calculateTotal = () => {
+    private calculateSubTotal = () => {
         const items = this.state.items;
         const sum = items.byId.reduce((prev, id) => {
             const item = items.byHash[id];
@@ -293,9 +348,22 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         return sum;
     }
 
+    private calculateTaxAmount = () => {
+        const { discount, taxRate } = this.state;
+        const sub = this.calculateSubTotal();
+        return (sub - discount) * taxRate;
+    }
+
+    private calculateTotal = () => {
+        const { discount } = this.state;
+        const sub = this.calculateSubTotal();
+        const tax = this.calculateTaxAmount();
+        return sub - discount + tax;
+    }
+
     private onSubmit = async () => {
         const { id } = this.props.invoice;
-        const { customerName, customerEmail, customerAddress, items } = this.state;
+        const { customerName, customerEmail, customerAddress, discount, taxRate, items } = this.state;
 
         const invoiceItems = items.byId.map(itemId => items.byHash[itemId]);
 
@@ -304,7 +372,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             customerAddress,
             customerEmail,
             customerName,
+            discount,
             items: invoiceItems,
+            tax: taxRate,
         };
 
         // set save url
