@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc
@@ -33,6 +34,7 @@ namespace Payments.Mvc
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<Settings>(Configuration.GetSection("Settings"));
+            services.Configure<CyberSourceSettings>(Configuration.GetSection("CyberSourceSettings"));
 
             // setup entity framework
             if (!_environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -61,6 +63,7 @@ namespace Payments.Mvc
             services.AddMvc();
 
             // application services
+            services.AddTransient<IDataSigningService, DataSigningService>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IDirectorySearchService, IetWsSearchService>();
         }
