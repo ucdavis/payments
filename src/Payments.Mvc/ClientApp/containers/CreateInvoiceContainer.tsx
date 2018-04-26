@@ -279,13 +279,11 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
     private onSubmit = async () => {
         const { customers, discount, taxRate, items } = this.state;
 
-        const customerItems = customers.map(c => ({ email: c }));
-
         const invoiceItems = items.byId.map(itemId => items.byHash[itemId]);
 
         // create submit object
         const invoice = {
-            customers: customerItems,
+            customers,
             discount,
             items: invoiceItems,
             tax: taxRate,
