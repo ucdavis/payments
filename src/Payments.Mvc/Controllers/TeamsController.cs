@@ -84,7 +84,7 @@ namespace Payments.Mvc.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Team team)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,IsActive,Name")] Team team)
         {
             if (id != team.Id)
             {
@@ -190,6 +190,76 @@ namespace Payments.Mvc.Controllers
             }
 
             return View(financialAccount);
+        }
+
+        // GET: FinancialAccounts/Edit/5
+        public async Task<IActionResult> EditAccount(int? id, int? teamId)
+        {
+            if (id == null || teamId == null)
+            {
+                return NotFound();
+            }
+
+            var financialAccount = await _context.FinancialAccounts.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            if (financialAccount == null)
+            {
+                return NotFound();
+            }
+            return View(financialAccount);
+        }
+
+        // POST: FinancialAccounts/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAccount(int id, int teamId, FinancialAccount financialAccount)
+        {
+            if (id != financialAccount.Id || teamId != financialAccount.TeamId)
+            {
+                return NotFound();
+            }
+            var financialAccountToUpdate = await _context.FinancialAccounts.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            if (financialAccountToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            financialAccountToUpdate.Name = financialAccount.Name;
+            financialAccountToUpdate.Description = financialAccount.Description;
+            financialAccountToUpdate.IsDefault = financialAccount.IsDefault;
+            financialAccountToUpdate.IsActive = financialAccount.IsActive;
+
+            ModelState.Clear();
+            TryValidateModel(financialAccountToUpdate);
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    //TODO: Check IsActive and IsDefault so at least 1 active FA is defaulted 
+                    _context.Update(financialAccountToUpdate);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!FinancialAccountExists(financialAccountToUpdate.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("Details", new {id = teamId});
+            }
+
+            return View(financialAccountToUpdate);
+        }
+        private bool FinancialAccountExists(int id)
+        {
+            return _context.FinancialAccounts.Any(e => e.Id == id);
         }
 
     }
