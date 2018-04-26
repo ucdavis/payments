@@ -2,8 +2,7 @@ version: 1.0.0.{build}
 
 environment:
   configuration: Release
-  matrix:
-    - node_version: "7"
+  node_version: "7"
 
 branches:
   except:
@@ -13,7 +12,7 @@ image: Visual Studio 2017
 
 install:
 - ps: |
-    Install-Product node $env:nodejs_version
+    Install-Product node $env:node_version
     appveyor-retry choco install octopustools
     appveyor-retry dotnet restore
 
@@ -40,6 +39,8 @@ after_build:
     octo pack --id Payments.Mvc --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Mvc\ --outFolder .\artifacts\
 
 test_script:
+    - node --version
+    - npm --version
 # - ps: dotnet test .\test
 
 artifacts:
