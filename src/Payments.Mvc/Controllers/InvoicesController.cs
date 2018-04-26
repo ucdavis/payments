@@ -38,8 +38,7 @@ namespace Payments.Mvc.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var invoice = new Invoice();
-            return View("Edit", invoice);
+            return View();
         }
 
         [HttpGet]
@@ -53,43 +52,69 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Save(int id, [FromBody]EditInvoiceViewModel model)
+        public async Task<IActionResult> Create([FromBody] CreateInvoiceViewModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             var team = await _dbContext.Teams.FirstAsync();
 
-            // setup model target
-            Invoice invoice;
-            if (id == 0)
+            // manage multiple customer scenario
+            foreach (var customer in model.Customers)
             {
                 // create new object, track it
-                invoice = new Invoice()
+                var invoice = new Invoice
                 {
-                    Creator = user,
-                    Team = team,
+                    Creator         = user,
+                    Team            = team,
+                    Discount        = model.Discount,
+                    TaxPercent      = model.Tax,
+                    CustomerAddress = customer.Address,
+                    CustomerEmail   = customer.Email,
+                    CustomerName    = customer.Name,
                 };
+
+                // add line items
+                var items = model.Items.Select(i => new LineItem()
+                {
+                    Amount      = i.Amount,
+                    Description = i.Description,
+                    Quantity    = i.Quantity,
+                    Total       = i.Quantity * i.Amount,
+                });
+                invoice.Items = items.ToList();
+
+                // start tracking for db
+                invoice.UpdateCalculatedValues();
                 _dbContext.Invoices.Add(invoice);
             }
-            else
+
+            _dbContext.SaveChanges();
+
+            return new JsonResult(new
             {
-                // find item
-                invoice = await _dbContext.Invoices
-                    .Include(i => i.Items)
-                    .FirstOrDefaultAsync(i => i.Id == id);
+                success = true
+            });
+        }
 
-                if (invoice == null)
-                {
-                    return NotFound();
-                }
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, [FromBody]EditInvoiceViewModel model)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
 
-                // remove old items
-                _dbContext.LineItems.RemoveRange(invoice.Items);
+            if (invoice == null)
+            {
+                return NotFound();
             }
 
+            // remove old items
+            _dbContext.LineItems.RemoveRange(invoice.Items);
+
             // update invoice
-            invoice.CustomerAddress = model.CustomerAddress;
-            invoice.CustomerEmail   = model.CustomerEmail;
-            invoice.CustomerName    = model.CustomerName;
+            invoice.CustomerAddress = model.Customer.Address;
+            invoice.CustomerEmail   = model.Customer.Email;
+            invoice.CustomerName    = model.Customer.Name;
             invoice.Discount        = model.Discount;
             invoice.TaxPercent      = model.Tax;
 
