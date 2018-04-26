@@ -10,7 +10,7 @@ using Payments.Core.Domain;
 
 namespace Payments.Mvc.Controllers
 {
-    public class TeamsController : Controller
+    public class TeamsController : SuperController
     {
         private readonly ApplicationDbContext _context;
 
@@ -33,7 +33,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var team = await _context.Teams
+            var team = await _context.Teams.Include(a => a.Accounts)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (team == null)
             {
@@ -53,8 +53,7 @@ namespace Payments.Mvc.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Team team)
+        public async Task<IActionResult> Create([Bind("Name")] Team team)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +84,6 @@ namespace Payments.Mvc.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Team team)
         {
             if (id != team.Id)
@@ -136,11 +134,11 @@ namespace Payments.Mvc.Controllers
 
         // POST: Teams/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Teams.Remove(team);
+            team.IsActive = false;
+            //_context.Teams.Remove(team);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -149,5 +147,50 @@ namespace Payments.Mvc.Controllers
         {
             return _context.Teams.Any(e => e.Id == id);
         }
+
+
+        // GET: FinancialAccounts/Create
+        public IActionResult CreateAccount(int id)
+        {
+            var model = new FinancialAccount();
+            model.TeamId = id;
+            model.Team = _context.Teams.Single(a => a.Id == id);
+            return View(model);
+        }
+
+        // POST: FinancialAccounts/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
+        {
+            if (ModelState.IsValid)
+            {
+                if (financialAccount.IsDefault)
+                {
+                    var accountToUpdate =
+                        await _context.FinancialAccounts.SingleOrDefaultAsync(a =>
+                            a.TeamId == financialAccount.TeamId && a.IsDefault && a.IsActive);
+                    if (accountToUpdate != null)
+                    {
+                        accountToUpdate.IsDefault = false;
+                        _context.FinancialAccounts.Update(accountToUpdate);
+                    }
+                }
+                else
+                {
+                    if (! await _context.FinancialAccounts.AnyAsync(a =>(a.TeamId == financialAccount.TeamId && a.IsDefault && a.IsActive)))
+                    {
+                        financialAccount.IsDefault = true;
+                    }
+                }
+                _context.Add(financialAccount);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", new {id=financialAccount.TeamId});
+            }
+
+            return View(financialAccount);
+        }
+
     }
 }

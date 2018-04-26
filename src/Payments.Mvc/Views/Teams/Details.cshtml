@@ -17,8 +17,84 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
     </dl>
+    <hr />
+    <p>
+        <a asp-action="CreateAccount" asp-route-id="@Model.Id">Create New Account</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.DefaultAccount.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DefaultAccount.Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DefaultAccount.Chart)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DefaultAccount.Account)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DefaultAccount.SubAccount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DefaultAccount.IsDefault)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Accounts)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Chart)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Account)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SubAccount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsDefault)
+                    </td>
+
+                    <td>
+                        <a asp-action="EditAccount" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="AccountDetails" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="DeleteAccount" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section AdditionalStyles
+    {
+    @{ await Html.RenderPartialAsync("_DataTableStylePartial"); }
+}
+
+@section scripts
+    {
+    @{ await Html.RenderPartialAsync("_DataTableScriptsPartial"); }
+
+    <script type="text/javascript">
+        $(function() {
+            $(".table").DataTable();
+        });
+    </script>
+}
