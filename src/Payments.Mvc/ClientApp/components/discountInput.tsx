@@ -11,6 +11,14 @@ interface IState {
 
 export default class DiscountInput extends React.Component<IProps, IState> {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            hasDiscount: !!props.value,
+        };
+    }
+
     public render() {
         const { value, onChange } = this.props;
 

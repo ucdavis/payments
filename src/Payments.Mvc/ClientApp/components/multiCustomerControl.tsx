@@ -17,8 +17,12 @@ export default class DiscountInput extends React.Component<IProps, IState> {
 
     constructor(props) {
         super(props);
+        const { customers } = props;
 
-
+        this.state = {
+            hasMultipleCustomers: customers && customers.length,
+            multiCustomerInput: "",
+        }
     }
 
     public render() {
@@ -86,7 +90,7 @@ export default class DiscountInput extends React.Component<IProps, IState> {
         return (
             <span className="badge badge-primary" key={customer.email}>
                 {customer.email}
-                <button className="btn btn-link" onClick={() => this.removeCustomer(customer)}><i className="fa fa-times" /></button>
+                <button className="btn btn-link" onClick={() => this.removeCustomer(customer.email)}><i className="fa fa-times" /></button>
             </span>
         );
     }
@@ -109,6 +113,7 @@ export default class DiscountInput extends React.Component<IProps, IState> {
         });
     }
 
+    // TODO: manage duplicates
     private updateCustomerList = (value: string) => {
         const { customers, onChange } = this.props;
 
@@ -130,8 +135,8 @@ export default class DiscountInput extends React.Component<IProps, IState> {
         });
     }
 
-    private removeCustomer = (customer: string) => {
+    private removeCustomer = (email: string) => {
         const { customers, onChange } = this.props;
-        onChange(customers.filter(c => c !== customer));
+        onChange(customers.filter(c => c.email !== email));
     }
 }
