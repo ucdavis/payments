@@ -21,6 +21,8 @@ namespace Payments.Core.Domain
         [Required]
         public string Name { get; set; }
 
+        public bool IsActive { get; set; } = true;
+
         public List<FinancialAccount> Accounts { get; set; }
 
         [NotMapped]
