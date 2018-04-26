@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
- 
+import * as ArrayUtils from '../utils/array.js'; 
+
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 interface IProps {
@@ -113,11 +114,14 @@ export default class DiscountInput extends React.Component<IProps, IState> {
         });
     }
 
-    // TODO: manage duplicates
     private updateCustomerList = (value: string) => {
         const { customers, onChange } = this.props;
 
-        const emails = value.split(/[,;\r\n]+/).filter(e => e.length);
+        const emails = value
+            .split(/[,;\r\n]+/)
+            .filter(e => e.length)
+            .map(e => e.trim());
+
         const validCustomers = [...customers];
         const invalidEmails = [];
 
@@ -129,7 +133,11 @@ export default class DiscountInput extends React.Component<IProps, IState> {
             }
         });
 
-        onChange(validCustomers);
+        // remove duplicates, map to customer
+        const distinctCustomers = ArrayUtils.distinct(validCustomers, c => c.email);
+        const sortedCustomers = distinctCustomers.sort((c1, c2) => c1.email > c2.email);
+
+        onChange(sortedCustomers);
         this.setState({
             multiCustomerInput: invalidEmails.join("\n"),
         });
