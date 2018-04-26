@@ -1,0 +1,64 @@
+version: 1.0.0.{build}
+
+environment:
+  configuration: Release
+  node_version: "7"
+
+branches:
+  except:
+  - design
+
+image: Visual Studio 2017
+
+install:
+- ps: |
+    Install-Product node $env:node_version
+    appveyor-retry choco install octopustools
+    appveyor-retry dotnet restore
+
+cache:
+- C:\ProgramData\chocolatey\bin -> appveyor.yml
+- C:\ProgramData\chocolatey\lib -> appveyor.yml
+- '%USERPROFILE%\.nuget\packages -> **\*.csproj'
+- '%LOCALAPPDATA%\yarn -> **\package.json'
+
+# before_build:
+# - ps: |
+#     $path = (Get-Item .\src\Payments.Mvc\Payments.Mvc.csproj).FullName
+#     $csproj = [xml](Get-Content $path)
+#     $csproj.Project.PropertyGroup.Version = $Env:APPVEYOR_BUILD_VERSION
+#     $csproj.Save($path)
+
+build_script:
+- ps: |
+    dotnet build .\src\Payments.Mvc\ --configuration $Env:configuration
+
+after_build:
+- ps: |
+    dotnet publish .\src\Payments.Mvc\ --output ..\..\publish\Payments.Mvc --configuration $Env:configuration
+    octo pack --id Payments.Mvc --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Mvc\ --outFolder .\artifacts\
+
+test_script:
+    - node --version
+    - npm --version
+# - ps: dotnet test .\test
+
+artifacts:
+- path: artifacts\**\*.nupkg
+  name: nugetweb
+
+deploy:
+- provider: NuGet
+  server: https://scruffy.caes.ucdavis.edu/nuget/packages
+  api_key:
+    secure: 0bPmdZ5IVKjvNHKPjW4pNSmM223U0YV/oQKJ/NdN/CE=
+  on:
+    branch: master
+
+notifications:
+- provider: Slack
+  incoming_webhook: https://hooks.slack.com/services/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
+  channel: caes-development
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
