@@ -40,9 +40,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         // require at least one item
         if (!invoice.items || invoice.items.length < 1) {
             invoice.items = [{
+                amount: 0,
                 description: '',
                 id: 0,
-                price: 0,
                 quantity: 0,
             }];
         }
