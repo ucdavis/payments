@@ -1,34 +1,36 @@
 import "isomorphic-fetch";
 import * as React from 'react';
 import { Invoice } from '../models/Invoice';
+import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 
+import DiscountInput from '../components/discountInput';
+import TaxInput from '../components/taxInput';
+
 declare var antiForgeryToken: string;
+
+const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 interface IProps {
     invoice: Invoice;
 }
 
 interface IState {
-    customerName: string;
-    customerEmail: string;
-    customerAddress: string;
+    customer: InvoiceCustomer;
     discount: number;
-    hasDiscount: boolean;
     taxRate: number;
-    hasTax: boolean;
     items: {
         byId: number[];
         byHash: {
             [key: number]: InvoiceItem;
-        }
+        };
     };
 }
 
 export default class EditInvoiceContainer extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
-        console.log("props:", props);
+
         const { invoice } = this.props;
 
         // map array to object
@@ -54,21 +56,19 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         });
 
         this.state = {
-            customerAddress: invoice.customerAddress,
-            customerEmail: invoice.customerEmail,
-            customerName: invoice.customerName,
-            discount: invoice.discount,
-            hasDiscount: !!invoice.discount,
-            hasTax: !!invoice.taxPercent,
+            customer: {
+                address: invoice.customerAddress || "",
+                email: invoice.customerEmail || "",
+                name: invoice.customerName || "",
+            },
+            discount: invoice.discount || 0,
             items,
-            taxRate: invoice.taxPercent,
+            taxRate: invoice.taxPercent || 0,
         };
-
-        console.log(this.state);
     }
 
     public render() {
-        const { items, discount, taxRate, customerAddress, customerEmail, customerName } = this.state;
+        const { customer, items, discount, taxRate } = this.state;
         const subtotal = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         const total = this.calculateTotal();
@@ -76,38 +76,16 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         return (
             <div className="container">
                 <h1>Edit Invoice</h1>
-                <div className="">
-                    <h2>Customer Info</h2>
-                    <div className="form-group">
-                        <label>Customer Name</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="John Doe"
-                            onChange={(e) => { this.updateProperty("customerName", e.target.value) }}
-                            value={customerName}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Customer Email</label>
-                        <input
-                            type="email"
-                            className="form-control"
-                            placeholder="johndoe@example.com"
-                            onChange={(e) => { this.updateProperty("customerEmail", e.target.value) }}
-                            value={customerEmail}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Customer Adress</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="123 Street, Davis, CA 95616"
-                            onChange={(e) => { this.updateProperty("customerAddress", e.target.value) }}
-                            value={customerAddress}
-                        />
-                    </div>
+                <h2>Customer Info</h2>
+                <div className="form-group">
+                    <label>Customer Email</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        placeholder="johndoe@example.com"
+                        onChange={(e) => { this.updateProperty("customer", { email: e.target.value }) }}
+                        value={customer.email}
+                    />
                 </div>
                 <div className="">
                     <h2>Invoice Items</h2>
@@ -139,14 +117,14 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             <tr>
                                 <td />
                                 <td>Discount</td>
-                                <td>{ this.renderDiscountControl() }</td>
+                                <td><DiscountInput value={discount} onChange={(v) => this.updateProperty('discount', v)} /></td>
                                 <td>$({ (Number(discount)).toFixed(2) })</td>
                                 <td />
                             </tr>
                             <tr>
                                 <td />
                                 <td>Tax</td>
-                                <td>{ this.renderTaxControl() }</td>
+                                <td><TaxInput value={taxRate} onChange={(v) => this.updateProperty('taxRate', v)} /></td>
                                 <td>${ tax.toFixed(2) }</td>
                                 <td />
                             </tr>
@@ -176,50 +154,6 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <button className="btn btn-success" onClick={this.onSubmit}>Save</button>
                 </div>
             </div>
-        );
-    }
-
-    private renderDiscountControl() {
-        if (!this.state.hasDiscount) {
-            return (
-                <button className="btn btn-link" onClick={this.addDiscount}>
-                    <i className="fa fa-plus" /> Add coupon
-                </button>
-            );
-        }
-        
-        return (
-            <input
-                type="number"
-                min="0"
-                step="0.01"
-                className="form-control"
-                placeholder="0.00"
-                value={this.state.discount}
-                onChange={(e) => { this.updateProperty('discount', e.target.value) }}
-            />
-        );
-    }
-
-    private renderTaxControl() {
-        if (!this.state.hasTax) {
-            return (
-                <button className="btn btn-link" onClick={this.addTax}>
-                    <i className="fa fa-plus" /> Add tax
-                </button>
-            );
-        }
-
-        return (
-            <input
-                type="number"
-                min="0"
-                step="0.01"
-                className="form-control"
-                placeholder="0.00"
-                value={this.state.taxRate}
-                onChange={(e) => { this.updateProperty('taxRate', e.target.value) }}
-            />
         );
     }
 
@@ -275,19 +209,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         );
     }
 
-    private addDiscount = () => {
-        this.setState({ hasDiscount: true });
-    }
-
-    private addTax = () => {
-        this.setState({ hasTax: true });
-    }
-
-    private updateProperty = (name: string, value: string) => {
-        // https://github.com/Microsoft/TypeScript/issues/13948
-        // computed key has to be cast as any
+    private updateProperty = (name: any, value: any) => {
         this.setState({
-            [name as any]: value
+            [name]: value
         });
     }
 
@@ -375,21 +299,20 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
     private onSubmit = async () => {
         const { id } = this.props.invoice;
-        const { customerName, customerEmail, customerAddress, discount, taxRate, items } = this.state;
+        const { customer, discount, taxRate, items } = this.state;
 
         const invoiceItems = items.byId.map(itemId => items.byHash[itemId]);
 
         // create submit object
         const invoice = {
-            customerAddress,
-            customerEmail,
-            customerName,
+            customer,
             discount,
             items: invoiceItems,
             tax: taxRate,
         };
 
-        const url = `/invoices/save/${id}`;
+        // create save url
+        const url = `/invoices/edit/${id}`;
 
         // fetch 
         const response = await fetch(url, {
