@@ -6,15 +6,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 {
     public class EditInvoiceViewModel
     {
-        [MaxLength(100)]
-        public string CustomerName { get; set; }
-
-        [MaxLength(100)]
-        public string CustomerAddress { get; set; }
-
-        [MaxLength(100)]
-        [EmailAddress]
-        public string CustomerEmail { get; set; }
+        public EditInvoiceCustomerViewModel Customer { get; set; }
 
         [Range(0, int.MaxValue)]
         public decimal Discount { get; set; }
@@ -23,6 +15,19 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public decimal Tax { get; set; }
 
         public IList<EditInvoiceItemViewModel> Items { get; set; }
+    }
+
+    public class EditInvoiceCustomerViewModel
+    {
+        [MaxLength(100)]
+        public string Name { get; set; }
+
+        [MaxLength(100)]
+        public string Address { get; set; }
+
+        [MaxLength(100)]
+        [EmailAddress]
+        public string Email { get; set; }
     }
 
     public class EditInvoiceItemViewModel
