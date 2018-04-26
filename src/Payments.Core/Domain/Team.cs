@@ -18,6 +18,7 @@ namespace Payments.Core.Domain
 
         [StringLength(128)]
         [Display(Name = "Team Name")]
+        [Required]
         public string Name { get; set; }
 
         public List<FinancialAccount> Accounts { get; set; }
