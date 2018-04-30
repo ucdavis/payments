@@ -17,7 +17,18 @@
     @RenderSection("AdditionalStyles", required: false)
 </head>
 <body>
-    @RenderBody()
+    <div class="container">
+        @await Html.PartialAsync("_TopNavPartial")
+    
+        <div class="row">
+            <div class="col-sm-3">
+                @Html.Partial("_LeftNavPartial")
+            </div>
+            <div class="col-sm-9">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
 
     <environment names="Development">
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -31,8 +42,7 @@
     </environment>
 
     <script src="~/dist/vendor.js" asp-append-version="true"></script>
-
-    <script src="~/dist/main.js" asp-append-version="true"></script>
+    <script src="~/dist/root.js" asp-append-version="true"></script>
 
     @RenderSection("scripts", required: false)
 </body>
