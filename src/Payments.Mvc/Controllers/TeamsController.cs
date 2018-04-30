@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
 {
     public class TeamsController : SuperController
     {
         private readonly ApplicationDbContext _context;
+        private readonly IFinancialService _financialService;
 
-        public TeamsController(ApplicationDbContext context)
+        public TeamsController(ApplicationDbContext context, IFinancialService financialService)
         {
             _context = context;
+            _financialService = financialService;
         }
 
         // GET: Teams
@@ -168,7 +171,22 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
         {
+            string kfsResult = null;
             //TODO Kfs look/validation (Maybe on form?)
+            try
+            {
+                kfsResult = await GetAccountInfo(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+            }
+            catch (Exception e)
+            {
+                //Log?
+            }
+
+            if (string.IsNullOrWhiteSpace(kfsResult))
+            {
+                ModelState.AddModelError("Account", "Valid Account Not Found.");
+            }
+
             if (ModelState.IsValid)
             {
                 if (financialAccount.IsDefault)
@@ -193,7 +211,7 @@ namespace Payments.Mvc.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", new {id=financialAccount.TeamId});
             }
-
+            financialAccount.Team = _context.Teams.Single(a => a.Id == financialAccount.TeamId);
             return View(financialAccount);
         }
 
@@ -314,6 +332,14 @@ namespace Payments.Mvc.Controllers
             financialAccount.IsActive = false;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet("financial/info")]
+        public async Task<string> GetAccountInfo(string chart, string account, string subAccount)
+        {
+            var result = await _financialService.GetAccountName(chart, account, subAccount);
+
+            return result;
         }
 
         private bool FinancialAccountExists(int id)
