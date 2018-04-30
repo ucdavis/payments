@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Payments.Core.Data;
+using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 using Payments.Jobs.Core;
@@ -31,7 +34,7 @@ namespace Payments.Jobs.MoneyMovement
             DbContext = provider.GetService<ApplicationDbContext>();
 
             // call methods
-            FindBankReconcileTransactions();
+            FindBankReconcileTransactions().RunSynchronously();
         }
 
         private static ServiceProvider ConfigureServices()
@@ -50,8 +53,24 @@ namespace Payments.Jobs.MoneyMovement
         public static ISlothService SlothService { get; private set; }
         public static ApplicationDbContext DbContext { get; private set; }
 
-        public static void FindBankReconcileTransactions()
+        public static async Task FindBankReconcileTransactions()
         {
+            // get all invoices that are waiting for reconcile
+            var invoices = DbContext.Invoices
+                .Where(i => i.Status == Invoice.StatusCodes.Paid)
+                .Include(i => i.Payment)
+                .ToList();
+
+            foreach (var invoice in invoices)
+            {
+                var transaction = await SlothService.GetTransactionsByProcessorId(invoice.Payment.Transaction_Id);
+                if (transaction == null) continue;
+
+                // transaction found, bank reconcile was successful
+                invoice.Status = Invoice.StatusCodes.Completed;
+            }
+
+            await DbContext.SaveChangesAsync();
         }
     }
 }
