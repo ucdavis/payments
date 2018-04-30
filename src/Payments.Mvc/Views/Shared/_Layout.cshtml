@@ -18,11 +18,11 @@
 </head>
 <body>
     <div class="container">
-        @Html.Partial("_TopNav")
+        @await Html.PartialAsync("_TopNavPartial")
     
         <div class="row">
             <div class="col-sm-3">
-                @Html.Partial("_LeftNav")
+                @Html.Partial("_LeftNavPartial")
             </div>
             <div class="col-sm-9">
                 @RenderBody()

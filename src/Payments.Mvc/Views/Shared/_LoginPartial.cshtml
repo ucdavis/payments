@@ -1,0 +1,17 @@
+﻿@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@if (User.Identity.IsAuthenticated)
+{
+    var user = await UserManager.GetUserAsync(User);
+    <form class="flexer" asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+        <p><a asp-area="" asp-controller="Profile" asp-action="Index" title="Manage">Hello @user.Name!</a>
+        </p>
+
+        <button type="submit" class="btn-hollow">Sign out</button>
+    </form>
+}
+else
+{
+    <p><a asp-area="" asp-controller="Account" asp-action="Login">Sign in</a></p>
+}
