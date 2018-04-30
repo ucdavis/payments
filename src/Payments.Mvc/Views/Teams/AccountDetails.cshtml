@@ -1,0 +1,60 @@
+﻿@model Payments.Core.Domain.FinancialAccount
+
+@{
+    ViewData["Title"] = "Account Details";
+}
+
+<h2>Account Details</h2>
+
+<div>
+    <h4>FinancialAccount</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Chart)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Chart)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Account)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Account)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SubAccount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SubAccount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsDefault)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsDefault)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Team)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Team.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="EditAccount" asp-route-id="@Model.Id" asp-route-TeamId="@Model.TeamId">Edit</a> |
+    <a asp-action="Details" asp-route-id="@Model.TeamId" >Back to List</a>
+</div>

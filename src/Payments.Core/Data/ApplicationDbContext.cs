@@ -17,6 +17,7 @@ namespace Payments.Core.Data
         public virtual DbSet<PaymentEvent> PaymentEvents { get; set; }
         public virtual DbSet<TeamRole> TeamRoles { get; set; }
         public virtual DbSet<TeamPermission> TeamPermissions { get; set; }
+        public virtual DbSet<FinancialAccount> FinancialAccounts { get; set; }
         public new virtual DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

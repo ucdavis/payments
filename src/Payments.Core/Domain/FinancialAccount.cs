@@ -28,6 +28,7 @@ namespace Payments.Core.Domain
         public string SubAccount { get; set; }
 
         public bool IsDefault { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public Team Team { get; set; }
         public int TeamId { get; set; }

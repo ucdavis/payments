@@ -66,6 +66,7 @@ namespace Payments.Mvc
             services.AddTransient<IDataSigningService, DataSigningService>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IDirectorySearchService, IetWsSearchService>();
+            services.AddTransient<IFinancialService, FinancialService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
