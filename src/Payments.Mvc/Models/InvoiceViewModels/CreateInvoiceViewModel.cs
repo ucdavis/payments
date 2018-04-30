@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Payments.Mvc.Models.InvoiceViewModels
 {
-    public class EditInvoiceViewModel
+    public class CreateInvoiceViewModel
     {
-        public EditInvoiceCustomerViewModel Customer { get; set; }
+        public IList<CreateInvoiceCustomerViewModel> Customers { get; set; }
 
         [Range(0, int.MaxValue)]
         public decimal Discount { get; set; }
@@ -14,10 +14,10 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         [Range(0, int.MaxValue)]
         public decimal Tax { get; set; }
 
-        public IList<EditInvoiceItemViewModel> Items { get; set; }
+        public IList<CreateInvoiceItemViewModel> Items { get; set; }
     }
 
-    public class EditInvoiceCustomerViewModel
+    public class CreateInvoiceCustomerViewModel
     {
         [MaxLength(100)]
         public string Name { get; set; }
@@ -30,7 +30,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public string Email { get; set; }
     }
 
-    public class EditInvoiceItemViewModel
+    public class CreateInvoiceItemViewModel
     {
         [MaxLength(100)]
         public string Description { get; set; }

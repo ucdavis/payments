@@ -11,6 +11,7 @@ module.exports = env => {
     {
       stats: { modules: false },
       entry: {
+        'create-invoice': './ClientApp/pages/CreateInvoice.tsx',
         'edit-invoice': './ClientApp/pages/EditInvoice.tsx',
         vendor: [
           'event-source-polyfill',

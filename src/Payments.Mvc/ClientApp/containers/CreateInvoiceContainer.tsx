@@ -5,20 +5,17 @@ import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 
 import DiscountInput from '../components/discountInput';
+import MultiCustomerControl from '../components/multiCustomerControl';
 import TaxInput from '../components/taxInput';
 
 declare var antiForgeryToken: string;
 
-const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-
-interface IProps {
-    invoice: Invoice;
-}
-
 interface IState {
-    customer: InvoiceCustomer;
+    customers: InvoiceCustomer[];
     discount: number;
+    hasDiscount: boolean;
     taxRate: number;
+    hasTax: boolean;
     items: {
         byId: number[];
         byHash: {
@@ -27,48 +24,35 @@ interface IState {
     };
 }
 
-export default class EditInvoiceContainer extends React.Component<IProps, IState> {
-    constructor(props: IProps) {
+export default class CreateInvoiceContainer extends React.Component<{}, IState> {
+    constructor(props) {
         super(props);
 
-        const { invoice } = this.props;
-
-        // map array to object
+        // create single item
         const items: IState["items"] = {
-            byHash: {},
-            byId: [],
+            byHash: {
+                0: {
+                    amount: 0,
+                    description: '',
+                    id: 0,
+                    quantity: 0,
+                },
+            },
+            byId: [0],
         };
 
-        // require at least one item
-        if (!invoice.items || invoice.items.length < 1) {
-            invoice.items = [{
-                amount: 0,
-                description: '',
-                id: 0,
-                quantity: 0,
-            }];
-        }
-
-        props.invoice.items.forEach((item, index) => {
-            const id = item.id;
-            items.byId.push(id);
-            items.byHash[id] = item;
-        });
-
         this.state = {
-            customer: {
-                address: invoice.customerAddress || "",
-                email: invoice.customerEmail || "",
-                name: invoice.customerName || "",
-            },
-            discount: invoice.discount || 0,
+            customers: [],
+            discount: 0,
+            hasDiscount: false,
+            hasTax: false,
             items,
-            taxRate: invoice.taxPercent || 0,
+            taxRate: 0,
         };
     }
 
     public render() {
-        const { customer, items, discount, taxRate } = this.state;
+        const { items, discount, taxRate, customers } = this.state;
         const subtotal = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         const total = this.calculateTotal();
@@ -76,17 +60,10 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         return (
             <div className="container">
                 <h1>Edit Invoice</h1>
-                <h2>Customer Info</h2>
-                <div className="form-group">
-                    <label>Customer Email</label>
-                    <input
-                        type="email"
-                        className="form-control"
-                        placeholder="johndoe@example.com"
-                        onChange={(e) => { this.updateProperty("customer", { email: e.target.value }) }}
-                        value={customer.email}
-                    />
-                </div>
+                <MultiCustomerControl
+                    customers={customers}
+                    onChange={(c) => this.updateProperty('customers', c)}
+                />
                 <div className="">
                     <h2>Invoice Items</h2>
                     <table className="table">
@@ -156,6 +133,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             </div>
         );
     }
+
+    
 
     private renderItem(id: number, item: InvoiceItem) {
         const { description, quantity, amount } = item;
@@ -298,21 +277,20 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private onSubmit = async () => {
-        const { id } = this.props.invoice;
-        const { customer, discount, taxRate, items } = this.state;
+        const { customers, discount, taxRate, items } = this.state;
 
         const invoiceItems = items.byId.map(itemId => items.byHash[itemId]);
 
         // create submit object
         const invoice = {
-            customer,
+            customers,
             discount,
             items: invoiceItems,
             tax: taxRate,
         };
 
         // create save url
-        const url = `/invoices/edit/${id}`;
+        const url = "/invoices/create";
 
         // fetch 
         const response = await fetch(url, {
@@ -324,8 +302,5 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             }),
             method: "POST"
         });
-        console.log(await response.json());
-
-        // redirect to invoices
     }
 }
