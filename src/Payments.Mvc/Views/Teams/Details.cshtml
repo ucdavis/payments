@@ -70,8 +70,8 @@
 
                     <td>
                         <a asp-action="EditAccount" asp-route-id="@item.Id" asp-route-teamId="@Model.Id">Edit</a> |
-                        <a asp-action="AccountDetails" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="DeleteAccount" asp-route-id="@item.Id">Delete</a>
+                        <a asp-action="AccountDetails" asp-route-id="@item.Id" asp-route-teamId="@Model.Id">Details</a> |
+                        <a asp-action="DeleteAccount" asp-route-id="@item.Id" asp-route-teamId="@Model.Id">Delete</a>
                     </td>
                 </tr>
             }

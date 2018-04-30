@@ -137,6 +137,10 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id);
+            if (team == null)
+            {
+                return NotFound();
+            }
             team.IsActive = false;
             //_context.Teams.Remove(team);
             await _context.SaveChangesAsync();
@@ -164,6 +168,7 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
         {
+            //TODO Kfs look/validation (Maybe on form?)
             if (ModelState.IsValid)
             {
                 if (financialAccount.IsDefault)
@@ -237,7 +242,6 @@ namespace Payments.Mvc.Controllers
             {
                 try
                 {
-                    //TODO: Check IsActive and IsDefault so at least 1 active FA is defaulted 
                     _context.Update(financialAccountToUpdate);
                     await _context.SaveChangesAsync();
                 }
@@ -257,6 +261,61 @@ namespace Payments.Mvc.Controllers
 
             return View(financialAccountToUpdate);
         }
+
+        // GET: FinancialAccounts/Details/5
+        public async Task<IActionResult> AccountDetails(int? id, int? teamId)
+        {
+            if (id == null || teamId == null)
+            {
+                return NotFound();
+            }
+
+            var financialAccount = await _context.FinancialAccounts
+                .Include(f => f.Team)
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            if (financialAccount == null)
+            {
+                return NotFound();
+            }
+
+            return View(financialAccount);
+        }
+
+        // GET: FinancialAccounts/Delete/5
+        public async Task<IActionResult> DeleteAccount(int? id, int? teamId)
+        {
+            if (id == null || teamId == null)
+            {
+                return NotFound();
+            }
+
+            var financialAccount = await _context.FinancialAccounts
+                .Include(f => f.Team)
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            if (financialAccount == null)
+            {
+                return NotFound();
+            }
+
+            return View(financialAccount);
+        }
+
+        // POST: FinancialAccounts/DeleteAccount/5
+        [HttpPost, ActionName("DeleteAccount")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAccountConfirmed(int id, int teamId)
+        {
+            var financialAccount = await _context.FinancialAccounts.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            if (financialAccount == null)
+            {
+                return NotFound();
+            }
+
+            financialAccount.IsActive = false;
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
         private bool FinancialAccountExists(int id)
         {
             return _context.FinancialAccounts.Any(e => e.Id == id);
