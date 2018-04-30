@@ -7,7 +7,13 @@ using Payments.Core.Domain;
 
 namespace Payments.Core.Helpers
 {
-    public class DbInitializer
+    public interface IDbInitializationService
+    {
+        Task Initialize();
+        Task RecreateAndInitialize();
+    }
+
+    public class DbInitializer : IDbInitializationService
     {
         private readonly ApplicationDbContext _context;
 
@@ -28,15 +34,15 @@ namespace Payments.Core.Helpers
             _context.Database.EnsureCreated();
             //TODO: Revisit if users and roles change
 
-            var jason = new User
-            {
-                Id = "jason1",
-                Email = "jason@ucdavis.edu",
-                FirstName = "Jason",
-                LastName = "Sylvestre",
-                Name = "Jason Sylvestre"
-            };
-            _context.Users.Add(jason);
+            //var jason = new User
+            //{
+            //    Id = "jason1",
+            //    Email = "jason@ucdavis.edu",
+            //    FirstName = "Jason",
+            //    LastName = "Sylvestre",
+            //    Name = "Jason Sylvestre"
+            //};
+            //_context.Users.Add(jason);
 
             var john = new User
             {
