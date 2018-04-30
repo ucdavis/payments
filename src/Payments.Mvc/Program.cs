@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Helpers;
 
@@ -18,12 +19,16 @@ namespace Payments.Mvc
         public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
-#if DEBUG
+#if DEBUG            
             using (var scope = host.Services.CreateScope())
             {
-               var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-               var dbInitilizer = new DbInitializer(context);
-               Task.Run(() => dbInitilizer.RecreateAndInitialize()).Wait();
+                var settings = scope.ServiceProvider.GetRequiredService<IOptions<Settings>>();
+                if (settings.Value.RebuildDb == "Yes")
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var dbInitilizer = new DbInitializer(context);
+                    Task.Run(() => dbInitilizer.RecreateAndInitialize()).Wait();
+                }
             }
 #endif
 
