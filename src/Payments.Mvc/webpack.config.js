@@ -12,6 +12,7 @@ module.exports = env => {
       stats: { modules: false },
       entry: {
         'edit-invoice': './ClientApp/pages/EditInvoice.tsx',
+        root: './ClientApp/root',
         vendor: [
           'event-source-polyfill',
           'isomorphic-fetch',
@@ -35,11 +36,20 @@ module.exports = env => {
           {
             test: /\.css$/,
             use: isDevBuild
-              ? ['style-loader', 'css-loader']
+              ? ['style-loader', 'css-loader', 'sass-loader']
               : ExtractTextPlugin.extract({ use: 'css-loader?minimize' }),
           },
-          { test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' },
-        ]
+          {
+            test: /\.scss$/,
+            use: isDevBuild
+              ? ['style-loader', 'css-loader']
+              : ExtractTextPlugin.extract({ use: ['css-loader?minimize', 'sass-loader'] }),
+          },
+          {
+            test: /\.(png|jpg|jpeg|gif|svg)$/,
+            use: 'url-loader?limit=25000'
+          },
+        ],
       },
       plugins: [
         new CheckerPlugin(),
