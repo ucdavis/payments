@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Helpers;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Services;
 
@@ -66,6 +67,9 @@ namespace Payments.Mvc
             services.AddTransient<IDataSigningService, DataSigningService>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IDirectorySearchService, IetWsSearchService>();
+#if DEBUG
+            services.AddTransient<IDbInitializationService, DbInitializer>();
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
