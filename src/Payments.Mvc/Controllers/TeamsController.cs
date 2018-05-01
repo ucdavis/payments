@@ -6,7 +6,9 @@ using Payments.Core.Extensions;
 using Payments.Mvc.Services;
 using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Teams;
@@ -18,12 +20,14 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
         private readonly IDirectorySearchService _directorySearchService;
+        private readonly UserManager<User> _userManager;
 
-        public TeamsController(ApplicationDbContext context, IFinancialService financialService, IDirectorySearchService directorySearchService)
+        public TeamsController(ApplicationDbContext context, IFinancialService financialService, IDirectorySearchService directorySearchService, UserManager<User> userManager)
         {
             _context = context;
             _financialService = financialService;
             _directorySearchService = directorySearchService;
+            _userManager = userManager;
         }
 
         // GET: Teams
@@ -374,6 +378,8 @@ namespace Payments.Mvc.Controllers
         {
             //TODO: Permissions to do this, verify team, does the TeamPermission already exist anything else....
 
+            teamPermissionModel.Team =
+                await _context.Teams.SingleAsync(a => a.Id == teamPermissionModel.Team.Id && a.IsActive);
 
 
             var foundUser = await _context.Users.SingleOrDefaultAsync(a =>
@@ -400,15 +406,38 @@ namespace Payments.Mvc.Controllers
                 if (user != null)
                 {
                     //Create the user
+                    var userToCreate = new User();
+                    userToCreate.Email = user.Mail;
+                    userToCreate.UserName = user.Mail;
+                    userToCreate.CampusKerberos = user.Kerberos;
+                    userToCreate.Name = user.FullName;
+
+                    var userPrincipal = new ClaimsPrincipal();
+                    userPrincipal.AddIdentity(new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userToCreate.CampusKerberos),
+                        new Claim(ClaimTypes.Name, userToCreate.Name)
+                    }));
+                    var loginInfo = new ExternalLoginInfo(userPrincipal, "UCDavis", userToCreate.CampusKerberos, null);
+
+                    var createResult = await _userManager.CreateAsync(userToCreate);
+                    if (createResult.Succeeded)
+                    {
+                        await _userManager.AddLoginAsync(userToCreate, loginInfo);
+                    }
+
+                    foundUser = await _context.Users.SingleOrDefaultAsync(a => a.NormalizedEmail == userToCreate.Email.SafeToUpper());
                 }
             }
-
+            ModelState.Clear();
+            TryValidateModel(teamPermissionModel);
 
 
             if (foundUser == null)
             { 
                 ModelState.AddModelError("UserLookup", "User Not Found");
             }
+
 
             if (ModelState.IsValid)
             {
