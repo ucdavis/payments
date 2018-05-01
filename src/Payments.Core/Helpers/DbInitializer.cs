@@ -72,6 +72,13 @@ namespace Payments.Core.Helpers
             await MakeUser(scott);
 
 
+            var teamRole = new TeamRole();
+            teamRole.Name = TeamRole.Codes.Admin;
+            _context.TeamRoles.Add(teamRole);
+
+            teamRole = new TeamRole();
+            teamRole.Name = TeamRole.Codes.Editor;
+            _context.TeamRoles.Add(teamRole);
 
 
             var team1 = new Team

@@ -16,9 +16,9 @@ namespace Payments.Core.Domain
 
         public class Codes
         {
-            public const string SampleRole = "SampleRole";
-            public const string SampleRole2 = "SampleRole2";
-
+            //public const string Viewer = "Viewer"; Don't use yet
+            public const string Editor = "Editor"; //Can do everything except manage users/roles
+            public const string Admin = "Admin"; //God like powers limited to the Team
         }
     }
 }
