@@ -33,13 +33,16 @@ $accent:            #CCD4E0;
 
 $a-link:            transparentize($primary-color, .2);
 
-$primary-font: rgba(67,67,67,.99); //
-$secondary-font: rgba(67,67,67,.7); //
-$tertiary-font: rgba(67,67,67,.33); //
+$primary-font: rgba(31,31,31,.99); //
+$secondary-font: rgba(31,31,31,.65); //
+$tertiary-font: rgba(31,31,31,.33); //
 
-$dark: #252525;
+$box-shadow: 0 0 0 1px rgba(49,49,93,.03), 0 2px 5px 0 rgba(49,49,93,.1), 0 1px 2px 0 rgba(0,0,0,.08);
 
-$bg-color: transparentize(#DDD9A8, .88); // background
+$primary-color: #004987;
+$secondary-color: #D2AC3A;
+
+$bg-color: #F8F9FB; // background
 $borders: #C8C7CC; // border color
 
 $nav-active: #fff;
@@ -64,6 +67,7 @@ $wintersky-gray: #5b7f95;
 $cenwalk-gray: #b1b3b3;
 $cork-oak: #aca39a;
 $shingle-brown: #4f2c1d;
+// mixins
 // mixins
 @mixin breakpoint($point) {
   @if $point==rufus {
