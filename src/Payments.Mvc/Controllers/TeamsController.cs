@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
 using Payments.Mvc.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Payments.Mvc.Models;
+using Payments.Mvc.Models.Teams;
 
 namespace Payments.Mvc.Controllers
 {
@@ -16,11 +17,13 @@ namespace Payments.Mvc.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
+        private readonly IDirectorySearchService _directorySearchService;
 
-        public TeamsController(ApplicationDbContext context, IFinancialService financialService)
+        public TeamsController(ApplicationDbContext context, IFinancialService financialService, IDirectorySearchService directorySearchService)
         {
             _context = context;
             _financialService = financialService;
+            _directorySearchService = directorySearchService;
         }
 
         // GET: Teams
@@ -44,7 +47,12 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            return View(team);
+            var model = new TeamDetailsModel();
+            model.Team = team;
+            model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
+
+
+            return View(model);
         }
 
         // GET: Teams/Create
@@ -162,7 +170,7 @@ namespace Payments.Mvc.Controllers
         {
             var model = new FinancialAccount();
             model.TeamId = id;
-            model.Team = _context.Teams.Single(a => a.Id == id);
+            model.Team = _context.Teams.Single(a => a.Id == id && a.IsActive);
             return View(model);
         }
 
@@ -178,7 +186,7 @@ namespace Payments.Mvc.Controllers
             {
                 kfsResult = await GetAccountInfo(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //Log?
             }
@@ -353,5 +361,71 @@ namespace Payments.Mvc.Controllers
             return _context.FinancialAccounts.Any(e => e.Id == id);
         }
 
+        public async Task<IActionResult> CreatePermission(int id)
+        {
+            var model = new TeamPermissionModel();
+            model.Team = await _context.Teams.SingleAsync(a => a.Id == id && a.IsActive);
+            model.Roles = new SelectList(_context.TeamRoles, "Id", "Name");
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePermission(TeamPermissionModel teamPermissionModel)
+        {
+            //TODO: Permissions to do this, verify team, does the TeamPermission already exist anything else....
+
+
+
+            var foundUser = await _context.Users.SingleOrDefaultAsync(a =>
+                a.CampusKerberos == teamPermissionModel.UserLookup.ToLower() ||
+                a.NormalizedEmail == teamPermissionModel.UserLookup.SafeToUpper());
+
+            if (foundUser == null)
+            {
+                Person user = null;
+                //lets do a lookup and create user!
+                if (teamPermissionModel.UserLookup.Contains("@"))
+                {
+                    user = await _directorySearchService.GetByEmail(teamPermissionModel.UserLookup.ToLower());
+                }
+                else
+                {
+                    var directoryUser = await _directorySearchService.GetByKerberos(teamPermissionModel.UserLookup.ToLower());
+                    if (directoryUser != null && !directoryUser.IsInvalid)
+                    {
+                        user = directoryUser.Person;
+                    }
+                }
+
+                if (user != null)
+                {
+                    //Create the user
+                }
+            }
+
+
+
+            if (foundUser == null)
+            { 
+                ModelState.AddModelError("UserLookup", "User Not Found");
+            }
+
+            if (ModelState.IsValid)
+            {
+                var teamPermission = new TeamPermission();
+                teamPermission.TeamId = teamPermissionModel.Team.Id;
+                teamPermission.Role = await _context.TeamRoles.SingleAsync(a => a.Id == teamPermissionModel.SelectedRole);
+                teamPermission.UserId = foundUser.Id;
+                _context.TeamPermissions.Add(teamPermission);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", new { id = teamPermissionModel.Team.Id });
+            }
+
+
+            var model = new TeamPermissionModel();
+
+            return View(model);
+        }
     }
 }
