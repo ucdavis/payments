@@ -337,7 +337,7 @@ namespace Payments.Mvc.Controllers
 
             financialAccount.IsActive = false;
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", new {id = teamId});
         }
 
         [HttpGet("financial/info")]
