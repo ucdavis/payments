@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Payments.Core.Data;
+using Payments.Core.Domain;
 using Payments.Core.Helpers;
 
 namespace Payments.Mvc
@@ -26,7 +28,9 @@ namespace Payments.Mvc
                 if (settings.Value.RebuildDb == "Yes")
                 {
                     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var dbInitilizer = new DbInitializer(context);
+                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                    var rolemanager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                    var dbInitilizer = new DbInitializer(context, userManager, rolemanager);
                     Task.Run(() => dbInitilizer.RecreateAndInitialize()).Wait();
                 }
             }

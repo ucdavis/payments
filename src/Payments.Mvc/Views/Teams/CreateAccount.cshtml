@@ -11,42 +11,9 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="CreateAccount">
-            @Html.HiddenFor(a => a.TeamId)
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.Partial("_AccountForm")
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control"/>
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control"/>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Chart" class="control-label"></label>
-                <input asp-for="Chart" class="form-control"/>
-                <span asp-validation-for="Chart" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Account" class="control-label"></label>
-                <input asp-for="Account" class="form-control"/>
-                <span asp-validation-for="Account" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SubAccount" class="control-label"></label>
-                <input asp-for="SubAccount" class="form-control"/>
-                <span asp-validation-for="SubAccount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input asp-for="IsDefault" /> @Html.DisplayNameFor(model => model.IsDefault)
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default"/>
+                <input type="submit" value="Create" class="btn btn-default" />
             </div>
         </form>
     </div>
@@ -58,6 +25,15 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+        $(function () {
+            $("#Chart").prop('disabled', false);
+            $("#Account").prop('disabled', false);
+            $("#SubAccount").prop('disabled', false);
+        });
+      
+    </script>
+
     @*<script type="text/javascript">
         $("#Account").on("blur",
             function() {
