@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Extensions;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
@@ -186,6 +187,11 @@ namespace Payments.Mvc.Controllers
             {
                 ModelState.AddModelError("Account", "Valid Account Not Found.");
             }
+
+            financialAccount.Chart = financialAccount.Chart.SafeToUpper();
+            financialAccount.Account = financialAccount.Account.SafeToUpper();
+            financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
+
 
             if (ModelState.IsValid)
             {
