@@ -1,0 +1,85 @@
+*,
+*:after,
+*:before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html {
+  position: relative;
+  min-height: 100%;
+  height: inherit;
+  background-color: #000;
+}
+body {
+  padding: 0;
+  margin: 0 0 170px;
+}
+.container {
+  width: 90%;
+}
+@media (min-width: 576px) {
+  .container {
+    max-width: inherit;
+    width: 88%;
+  }
+}
+@media (min-width: 768px) {
+  .container {
+    max-width: inherit;
+    width: 86%;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+    max-width: inherit;
+    width: 84%;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1600px;
+    width: 82%;
+  }
+}
+
+header {
+  // background-color: $primary-color;
+  background: url("/media/head-bg.png") center top/cover no-repeat;
+  padding: 6% 0;
+}
+
+.head_bleed {
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1d3a5c+0,3e90a1+40,57a6a2+52,8eb172+61,a7b55b+78,b0b44f+83,daba54+100&0.8+0,0.8+100 */
+  background: -moz-linear-gradient(left, rgba(29,58,92,0.8) 0%, rgba(62,144,161,0.8) 40%, rgba(87,166,162,0.8) 52%, rgba(142,177,114,0.8) 61%, rgba(167,181,91,0.8) 78%, rgba(176,180,79,0.8) 83%, rgba(218,186,84,0.8) 100%);
+  /* FF3.6-15 */
+  background: -webkit-linear-gradient(left, rgba(29,58,92,0.8) 0%,rgba(62,144,161,0.8) 40%,rgba(87,166,162,0.8) 52%,rgba(142,177,114,0.8) 61%,rgba(167,181,91,0.8) 78%,rgba(176,180,79,0.8) 83%,rgba(218,186,84,0.8) 100%);
+  /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to right, rgba(29,58,92,0.8) 0%,rgba(62,144,161,0.8) 40%,rgba(87,166,162,0.8) 52%,rgba(142,177,114,0.8) 61%,rgba(167,181,91,0.8) 78%,rgba(176,180,79,0.8) 83%,rgba(218,186,84,0.8) 100%);
+  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=  '#cc1d3a5c', endColorstr='#ccdaba54',GradientType=1 );
+  /* IE6-9 */
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: block;
+  }
+  .footer_bleed {
+    background: #1e3a5b;
+      background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+      background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+      background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one',endColorstr='$gradient-two',GradientType=1);
+  }
+  .footer_divider {
+      background: url("/media/gunrock_banner_final.svg") center top/cover no-repeat;
+      height: 41px;
+      padding-top:10px;
+  }
+.row {
+  margin-right: 0;
+  margin-left: 0;
+}

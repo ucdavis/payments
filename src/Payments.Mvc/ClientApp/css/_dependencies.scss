@@ -1,0 +1,107 @@
+// fonts
+@font-face {
+    font-family: 'proxima-nova-r';
+    src: url('../media/fonts/proximanova-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'proxima-nova-i';
+    src: url('../media/fonts/proximanova-regularit-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'proxima-nova-b';
+    src: url('../media/fonts/proximanova-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+$sans-italic:   "proxima-nova-i",serif;
+$sans-bold:     "proxima-nova-b",serif;
+$sans-reg:      "proxima-nova-r",serif;
+
+$primary-color:     #002855;
+$secondary-color:   #D2AC3A;
+$tertiary-color:    transparentize($secondary-color, .80);
+
+$gold:              #D2AC3A;
+$blue:              #004987;
+
+$accent:            #CCD4E0;
+
+$a-link:            transparentize($primary-color, .2);
+
+$primary-font: rgba(67,67,67,.99); //
+$secondary-font: rgba(67,67,67,.7); //
+$tertiary-font: rgba(67,67,67,.33); //
+
+$dark: #252525;
+
+$bg-color: transparentize(#DDD9A8, .88); // background
+$borders: #C8C7CC; // border color
+
+$nav-active: #fff;
+
+
+// UC Davis Colors
+// Supplemental bright color palette for UC Davis
+$unitrans-red: #ba0c2f;
+$western-redbud: #c6007e;
+$california-poppy: #ed8800;
+$golden-lupine: #ffcd00;
+$sunny-grass: #78be20;
+$sky-blue: #00b5e2;
+$recpool-blue: #008eaa;
+$wine-grape: #642667;
+// Supplemental neutral color palette for UC Davis
+$mu-brick: #c26e60;
+$harthall-stucco: #e6a65d;
+$sage-green: #9caf88;
+$evergreen: #00573f;
+$wintersky-gray: #5b7f95;
+$cenwalk-gray: #b1b3b3;
+$cork-oak: #aca39a;
+$shingle-brown: #4f2c1d;
+// mixins
+@mixin breakpoint($point) {
+  @if $point==rufus {
+      @media (min-width: 768px) {
+          @content ;
+      }
+  }
+    @if $point==tablet {
+        @media (max-width: 768px) {
+            @content ;
+        }
+    }
+    @if $point==mobile {
+        @media (max-width: 640px) {
+            @content ;
+        }
+    }
+    @if $point==smbreak {
+        @media (min-width: 576px) {
+            @content ;
+        }
+    }
+    @if $point==smmaxbreak {
+        @media (max-width: 576px) {
+            @content ;
+        }
+    }
+    @if $point==mdbreak {
+        @media (max-width: 767px) {
+            @content ;
+        }
+    }
+}
+@mixin fader {
+  -o-transition:.25s;
+  -ms-transition:.25s;
+  -moz-transition:.25s;
+  -webkit-transition:.25s;
+  /* ...and now for the proper property */
+  transition:.25s;
+}
