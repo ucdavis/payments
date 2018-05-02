@@ -5,6 +5,7 @@ import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 
 import DiscountInput from '../components/discountInput';
+import MemoInput from '../components/memoInput';
 import MultiCustomerControl from '../components/multiCustomerControl';
 import TaxInput from '../components/taxInput';
 
@@ -13,9 +14,8 @@ declare var antiForgeryToken: string;
 interface IState {
     customers: InvoiceCustomer[];
     discount: number;
-    hasDiscount: boolean;
     taxRate: number;
-    hasTax: boolean;
+    memo: string;
     items: {
         byId: number[];
         byHash: {
@@ -44,15 +44,14 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
         this.state = {
             customers: [],
             discount: 0,
-            hasDiscount: false,
-            hasTax: false,
             items,
+            memo: '',
             taxRate: 0,
         };
     }
 
     public render() {
-        const { items, discount, taxRate, customers } = this.state;
+        const { items, discount, taxRate, customers, memo } = this.state;
         const subtotal = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         const total = this.calculateTotal();
@@ -120,7 +119,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
                 <div className="">
                     <h2>Memo</h2>
                     <div className="form-group">
-                        <textarea className="form-control" />
+                        <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
                     </div>
                 </div>
                 <div className="">
@@ -277,7 +276,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
     }
 
     private onSubmit = async () => {
-        const { customers, discount, taxRate, items } = this.state;
+        const { customers, discount, taxRate, items, memo } = this.state;
 
         const invoiceItems = items.byId.map(itemId => items.byHash[itemId]);
 
@@ -286,6 +285,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
             customers,
             discount,
             items: invoiceItems,
+            memo,
             tax: taxRate,
         };
 
