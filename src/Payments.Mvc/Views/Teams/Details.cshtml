@@ -1,7 +1,11 @@
-﻿@model Payments.Mvc.Models.Teams.TeamDetailsModel
+﻿@using System.Security.Claims
+@using Payments.Mvc.Models.Roles
+@model Payments.Mvc.Models.Teams.TeamDetailsModel
 
 @{
     ViewData["Title"] = "Details";
+    var isAppAdmin = User.IsInRole(ApplicationRoleCodes.Admin);
+    var isTeamAdmin = isAppAdmin || Model.Permissions.Any(a => a.UserId == User.FindFirst(ClaimTypes.NameIdentifier)?.Value && a.Role.Name == TeamRole.Codes.Admin);
 }
 
 <h2>Details</h2>
@@ -84,49 +88,58 @@
         }
         </tbody>
     </table>
-    <h4>Users</h4>
-    <hr />
-    <p>
-        <a asp-action="CreatePermission" asp-route-id="@Model.Team.Id">Add User</a>
-    </p>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Permissions[0].Role)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Permissions[0].User.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Permissions[0].User.Name)
-            </th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model.Permissions) {
+    @if (isTeamAdmin)
+    {
+        <h4>Users</h4>
+        <hr/>
+
+        <p>
+            <a asp-action="CreatePermission" asp-route-id="@Model.Team.Id">Add User</a>
+        </p>
+
+        <table class="table">
+            <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Role.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.UserName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.Name)
-                </td>
-                <td>
-                    <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Delete</a>
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.Permissions[0].Role)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Permissions[0].User.Email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Permissions[0].User.Name)
+                </th>
+                <th></th>
             </tr>
-        }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Permissions)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Role.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.Name)
+                    </td>
+                    <td>
+                        <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Team.Id">Edit Team</a> |
-    <a asp-action="Index">Back to List</a>
+    @if (isAppAdmin)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Team.Id">Edit Team</a> <span> | </span>
+    }
+    <a asp-action="Index">Back to List of Teams</a>
 </div>
 
 @section AdditionalStyles

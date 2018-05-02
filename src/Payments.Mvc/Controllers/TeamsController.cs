@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -45,6 +46,29 @@ namespace Payments.Mvc.Controllers
             return View(await teams.ToListAsync());
         }
 
+        // GET: Teams/Create
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Teams/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> Create([Bind("Name")] Team team)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(team);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(team);
+        }
+
         // GET: Teams/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -60,6 +84,12 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return NotFound();
+            }
+
             var model = new TeamDetailsModel();
             model.Team = team;
             model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
@@ -68,28 +98,10 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
-        // GET: Teams/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
 
-        // POST: Teams/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        public async Task<IActionResult> Create([Bind("Name")] Team team)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(team);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(team);
-        }
 
         // GET: Teams/Edit/5
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -109,6 +121,7 @@ namespace Payments.Mvc.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,IsActive,Name")] Team team)
         {
             if (id != team.Id)
@@ -140,6 +153,7 @@ namespace Payments.Mvc.Controllers
         }
 
         // GET: Teams/Delete/5
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -159,6 +173,7 @@ namespace Payments.Mvc.Controllers
 
         // POST: Teams/Delete/5
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id);
