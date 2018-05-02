@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Mvc.Models.Roles;
 
 namespace Payments.Core.Helpers
 {
@@ -35,8 +36,7 @@ namespace Payments.Core.Helpers
             //TODO: Revisit if users and roles change
 
             // create roles
-            await _roleManager.CreateAsync(new IdentityRole("Admin"));
-            await _roleManager.CreateAsync(new IdentityRole("User"));
+            await _roleManager.CreateAsync(new IdentityRole(ApplicationRoleCodes.Admin));
 
 
 
@@ -110,8 +110,7 @@ namespace Payments.Core.Helpers
             var loginInfo = new ExternalLoginInfo(userPrincipal, "UCDavis", userToCreate.CampusKerberos, null);
             await _userManager.CreateAsync(userToCreate);
             await _userManager.AddLoginAsync(userToCreate, loginInfo);
-            await _userManager.AddToRoleAsync(userToCreate, "Admin");
-            await _userManager.AddToRoleAsync(userToCreate, "User");
+            await _userManager.AddToRoleAsync(userToCreate, ApplicationRoleCodes.Admin);
         }
     }
 }

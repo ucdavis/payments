@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Payments.Mvc.Models;
+using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Models.Teams;
 
 namespace Payments.Mvc.Controllers
@@ -34,7 +35,14 @@ namespace Payments.Mvc.Controllers
         // GET: Teams
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Teams.ToListAsync());
+            var teams = _context.Teams.AsQueryable();
+            if (!User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                var teamPermissions = await _context.TeamPermissions.Where(a => a.UserId == CurrentUserId).Select(a => a.TeamId).Distinct().ToArrayAsync();
+                teams = teams.Where(a => a.IsActive && teamPermissions.Contains(a.Id));
+            }
+
+            return View(await teams.ToListAsync());
         }
 
         // GET: Teams/Details/5
