@@ -87,7 +87,7 @@ namespace Payments.Mvc.Controllers
             if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
             {
                 ErrorMessage = "You do not have access to this team.";
-                return NotFound();
+                return RedirectToAction("Index");
             }
 
             var model = new TeamDetailsModel();
@@ -194,11 +194,28 @@ namespace Payments.Mvc.Controllers
 
 
         // GET: FinancialAccounts/Create
-        public IActionResult CreateAccount(int id)
+        public async Task<IActionResult> CreateAccount(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var team = await _context.Teams
+                .SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
             var model = new FinancialAccount();
-            model.TeamId = id;
-            model.Team = _context.Teams.Single(a => a.Id == id && a.IsActive);
+            model.TeamId = team.Id;
+            model.Team = team;
             return View(model);
         }
 
@@ -208,8 +225,21 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
         {
+
+            var team = await _context.Teams
+                .SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
             string kfsResult = null;
-            //TODO Kfs look/validation (Maybe on form?)
             try
             {
                 kfsResult = await GetAccountInfo(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
@@ -253,7 +283,8 @@ namespace Payments.Mvc.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", new {id=financialAccount.TeamId});
             }
-            financialAccount.Team = _context.Teams.Single(a => a.Id == financialAccount.TeamId);
+
+            financialAccount.Team = team;
             return View(financialAccount);
         }
 
@@ -270,6 +301,19 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
+
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
             return View(financialAccount);
         }
 
