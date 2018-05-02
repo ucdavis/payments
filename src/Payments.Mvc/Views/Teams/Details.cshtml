@@ -98,6 +98,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Permissions[0].User.Email)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Permissions[0].User.Name)
+            </th>
             <th></th>
         </tr>
         </thead>
@@ -111,9 +114,10 @@
                     @Html.DisplayFor(modelItem => item.User.UserName)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    @Html.DisplayFor(modelItem => item.User.Name)
+                </td>
+                <td>
+                    <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Delete</a>
                 </td>
             </tr>
         }
@@ -121,7 +125,7 @@
     </table>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Team.Id">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Team.Id">Edit Team</a> |
     <a asp-action="Index">Back to List</a>
 </div>
 

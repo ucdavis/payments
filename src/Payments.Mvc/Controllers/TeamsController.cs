@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Teams;
 
@@ -426,7 +427,7 @@ namespace Payments.Mvc.Controllers
                         await _userManager.AddLoginAsync(userToCreate, loginInfo);
                     }
 
-                    foundUser = await _context.Users.SingleOrDefaultAsync(a => a.NormalizedEmail == userToCreate.Email.SafeToUpper());
+                    foundUser = userToCreate;
                 }
             }
             ModelState.Clear();
@@ -455,6 +456,42 @@ namespace Payments.Mvc.Controllers
             var model = new TeamPermissionModel();
 
             return View(model);
+        }
+
+        // GET: TeamPermissions/Delete/5
+        public async Task<IActionResult> DeletePermission(int? id, int? teamId)
+        {
+            //TODO: Check permissions
+            if (id == null || teamId == null)
+            {
+                return NotFound();
+            }
+
+            var model = new TeamPermissionModel();
+            model.Team = await _context.Teams.SingleAsync(a => a.Id == teamId && a.IsActive);
+            
+            model.TeamPermission = await _context.TeamPermissions
+                .Include(t => t.Role)
+                .Include(t => t.Team)
+                .Include(t => t.User)
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            if (model.TeamPermission == null)
+            {
+                return NotFound();
+            }
+
+            return View(model);
+        }
+
+        // POST: TeamPermissions/Delete/5
+        [HttpPost, ActionName("DeletePermission")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePermissionConfirmed(int id, int teamId)
+        {
+            var teamPermission = await _context.TeamPermissions.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            _context.TeamPermissions.Remove(teamPermission);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Details", new {id=teamId});
         }
     }
 }
