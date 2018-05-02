@@ -25,6 +25,21 @@
                 @Html.Partial("_LeftNavPartial")
             </div>
             <div class="col-sm-9">
+                @if (!string.IsNullOrWhiteSpace(TempData["ErrorMessage"] as string))
+                {
+                    <div class="alert alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(TempData["Message"] as string))
+                {
+                    <div class="alert alert-info">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        @TempData["Message"]
+                    </div>
+                }
                 @RenderBody()
             </div>
         </div>
