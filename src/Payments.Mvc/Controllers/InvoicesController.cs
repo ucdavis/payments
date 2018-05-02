@@ -70,6 +70,7 @@ namespace Payments.Mvc.Controllers
                     CustomerAddress = customer.Address,
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
+                    Memo            = model.Memo,
                     Status          = Invoice.StatusCodes.Sent, // TODO: Set to draft or sent based on actual email status
                 };
 
@@ -116,6 +117,7 @@ namespace Payments.Mvc.Controllers
             invoice.CustomerAddress = model.Customer.Address;
             invoice.CustomerEmail   = model.Customer.Email;
             invoice.CustomerName    = model.Customer.Name;
+            invoice.Memo            = model.Memo;
             invoice.Discount        = model.Discount;
             invoice.TaxPercent      = model.Tax;
 

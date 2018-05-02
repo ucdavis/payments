@@ -8,6 +8,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
     {
         public EditInvoiceCustomerViewModel Customer { get; set; }
 
+        public string Memo { get; set; }
+
         [Range(0, int.MaxValue)]
         public decimal Discount { get; set; }
 
