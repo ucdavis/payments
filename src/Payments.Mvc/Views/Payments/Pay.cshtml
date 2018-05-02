@@ -29,6 +29,11 @@
         <h2>$@Model.Total.ToString("F2") USD paid @Model.PaidDate.ToString("D")</h2>
     }
     
+    @if (!string.IsNullOrWhiteSpace(Model.Memo))
+    {
+        <p>@Model.Memo</p>
+    }
+
     <table>
         <thead>
         <tr>

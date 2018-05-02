@@ -17,6 +17,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public string CustomerEmail { get; set; }
 
+        public string Memo { get; set; }
+
         public decimal Discount { get; set; }
 
         public decimal TaxPercent { get; set; }
