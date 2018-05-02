@@ -70,6 +70,7 @@ namespace Payments.Mvc.Controllers
                     CustomerAddress = customer.Address,
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
+                    Status          = Invoice.StatusCodes.Sent, // TODO: Set to draft or sent based on actual email status
                 };
 
                 // add line items
