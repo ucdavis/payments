@@ -1,19 +1,87 @@
 ﻿@model Payments.Mvc.Models.PaymentViewModels.InvoicePaymentViewModel
 
 @{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+    ViewBag.Title = $"Pay Invoice {Model.Id}";
+    Layout = "_PaymentsLayout";
 }
 
-<h2>title</h2>
-<form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
-    @foreach (var pair in Model.PaymentDictionary)
+<div class="container">
+    <h1>Invoice from UCDavis Arboretum</h1>
+    <p>Billed to jpknoll@ucdavis.edu</p>
+    <p>Invoice @Model.Id</p>
+    
+    @if (Model.Status == Invoice.StatusCodes.Sent)
     {
-        <input type="hidden" name="@pair.Key" value="@pair.Value"/>
+        <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
+            @foreach (var pair in Model.PaymentDictionary)
+            {
+                <input type="hidden" name="@pair.Key" value="@pair.Value" />
+            }
+            <input type="hidden" name="signature" value="@ViewBag.Signature" />
+            <button type="submit" class="btn btn-primary" aria-hidden="true">
+                <i class="fa fa-credit-card" aria-hidden="true"></i>
+                @(string.Format("{0:C}", Model.Total)) Pay Now
+            </button>
+        </form>
     }
-    <input type="hidden" name="signature" value="@ViewBag.Signature"/>
-    <button type="submit" class="btn btn-primary" aria-hidden="true">
-        <i class="fa fa-credit-card" aria-hidden="true"></i>
-        @(string.Format("{0:C}", Model.Total)) Pay Now
-    </button>
-</form>
+    else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
+    {
+        <h2>$@Model.Total.ToString("F2") USD paid @Model.PaidDate.ToString("D")</h2>
+    }
+    
+    <table>
+        <thead>
+        <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr data-id="@item.Id">
+                <td>@item.Description</td>
+                <td>@item.Quantity</td>
+                <td>@item.Amount</td>
+                <td>@item.Total</td>
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+        @if (Model.Discount > 0)
+        {
+            <tr>
+                <td></td>
+                <td></td>
+                <td>Discount</td>
+                <td>$@Model.Discount.ToString("F2")</td>
+            </tr>
+        }
+        
+        @if (Model.TaxAmount > 0)
+        {
+            <tr>
+                <td></td>
+                <td></td>
+                <td>Tax (@Model.TaxPercent.ToString("P"))</td>
+                <td>$@Model.TaxAmount.ToString("F2")</td>
+            </tr>
+        }
+
+        <tr>
+            <td>
+                <button>Download PDF</button>
+            </td>
+            <td></td>
+            <td></td>
+            <td>@Model.Total</td>
+        </tr>
+        </tfoot>
+    </table>
+    
+    <p>
+        If you have any questions, contact at jpknoll@ucdavis.edu or call at 530-754-0000
+    </p>
+</div>

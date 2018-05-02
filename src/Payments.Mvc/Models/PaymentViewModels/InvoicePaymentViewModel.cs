@@ -9,6 +9,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
 {
     public class InvoicePaymentViewModel
     {
+        public string Id { get; set; }
+
         public string CustomerName { get; set; }
 
         public string CustomerAddress { get; set; }
@@ -30,5 +32,7 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public decimal Total { get; set; }
 
         public Dictionary<string, string> PaymentDictionary { get; set; }
+
+        public DateTime PaidDate { get; set; }
     }
 }
