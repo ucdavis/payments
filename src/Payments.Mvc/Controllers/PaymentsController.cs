@@ -42,31 +42,48 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            // prepare dictionary
-            var dictionary = invoice.GetPaymentDictionary();
-            dictionary.Add("access_key", _cyberSourceSettings.AccessKey);
-            dictionary.Add("profile_id", _cyberSourceSettings.ProfileId);
-
-            var fieldNames = string.Join(",", dictionary.Keys);
-            dictionary.Add("signed_field_names", "signed_field_names," + fieldNames);
-
-            ViewBag.Signature = _dataSigningService.Sign(dictionary);
-
-            ViewBag.CyberSourceUrl = _cyberSourceSettings.BaseUrl;
+            // the customer isn't allowed access to draft or cancelled invoices
+            if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
+            {
+                return NotFound();
+            }
 
             var model = new InvoicePaymentViewModel()
             {
-                CustomerName      = invoice.CustomerName,
-                CustomerEmail     = invoice.CustomerEmail,
-                CustomerAddress   = invoice.CustomerAddress,
-                Items             = invoice.Items,
-                Subtotal          = invoice.Subtotal,
-                Total             = invoice.Total,
-                Discount          = invoice.Discount,
-                TaxAmount         = invoice.TaxAmount,
-                TaxPercent        = invoice.TaxPercent,
-                PaymentDictionary = dictionary,
+                Id              = invoice.Id.ToString(),
+                CustomerName    = invoice.CustomerName,
+                CustomerEmail   = invoice.CustomerEmail,
+                CustomerAddress = invoice.CustomerAddress,
+                Items           = invoice.Items,
+                Subtotal        = invoice.Subtotal,
+                Total           = invoice.Total,
+                Discount        = invoice.Discount,
+                TaxAmount       = invoice.TaxAmount,
+                TaxPercent      = invoice.TaxPercent,
+                Status          = invoice.Status,
             };
+
+            if (invoice.Status == Invoice.StatusCodes.Sent)
+            {
+                // prepare dictionary
+                var dictionary = invoice.GetPaymentDictionary();
+                dictionary.Add("access_key", _cyberSourceSettings.AccessKey);
+                dictionary.Add("profile_id", _cyberSourceSettings.ProfileId);
+
+                var fieldNames = string.Join(",", dictionary.Keys);
+                dictionary.Add("signed_field_names", "signed_field_names," + fieldNames);
+
+                ViewBag.Signature = _dataSigningService.Sign(dictionary);
+
+                ViewBag.CyberSourceUrl = _cyberSourceSettings.BaseUrl;
+
+                model.PaymentDictionary = dictionary;
+            }
+            else if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
+            {
+                // add payment info
+                model.PaidDate = invoice.Payment.OccuredAt;
+            }
 
             return View(model);
         }
@@ -85,13 +102,9 @@ namespace Payments.Mvc.Controllers
                 ViewBag.ErrorMessage = "An error has occurred. Payment not processed. If you experience further problems, contact us.";
                 return RedirectToAction("Index", "Home");
             }
+            ViewBag.PaymentDictionary = dictionary;
 
-            #region DEBUG
-            // For testing local only.
-            var test = ProcessPaymentEvent(response, dictionary); 
-            _dbContext.SaveChanges();
-            #endregion
-
+            // find matching invoice
             var invoice = _dbContext.Invoices.SingleOrDefault(a => a.Id == response.Req_Reference_Number);
             if (invoice == null)
             {
@@ -99,52 +112,46 @@ namespace Payments.Mvc.Controllers
                 ViewBag.ErrorMessage = "Invoice for payment not found. Please contact technical support.";
                 return NotFound(response.Req_Reference_Number);
             }
-            //Note, don't check who has access as anyone may pay.
+
+            var model = new InvoicePaymentViewModel()
+            {
+                CustomerName    = invoice.CustomerName,
+                CustomerEmail   = invoice.CustomerEmail,
+                CustomerAddress = invoice.CustomerAddress,
+                Items           = invoice.Items,
+                Subtotal        = invoice.Subtotal,
+                Total           = invoice.Total,
+                Discount        = invoice.Discount,
+                TaxAmount       = invoice.TaxAmount,
+                TaxPercent      = invoice.TaxPercent,
+            };
 
             var responseValid = CheckResponse(response);
             if (!responseValid.IsValid)
             {
+                // send them back to the pay page with errors
                 ViewBag.ErrorMessage = string.Format("Errors detected: {0}", string.Join(",", responseValid.Errors));
-                return RedirectToAction("PaymentError");
+                return View("Pay", model);
             }
 
-            //Should be good,   
+            // Should be good,   
             ViewBag.Message = "Payment Processed. Thank You.";
+            model.PaidDate = response.AuthorizationDateTime;
+            model.Status = Invoice.StatusCodes.Paid;
 
             #region DEBUG
-            // Debugging only
-            ViewBag.PaymentDictionary = dictionary; 
+            // For testing local only, we should process the actual payment
+            // Live systems will use the side channel message from cybersource direct to record the payment event
+            var payment = ProcessPaymentEvent(response, dictionary);
+            if (response.Decision == ReplyCodes.Accept)
+            {
+                invoice.Payment = payment;
+                invoice.Status = Invoice.StatusCodes.Paid;
+            }
+            _dbContext.SaveChanges();
             #endregion
 
-            return View(response);
-        }
-
-        [IgnoreAntiforgeryToken]
-        public ActionResult PaymentError()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [IgnoreAntiforgeryToken]
-        public ActionResult Cancel(ReceiptResponseModel response)
-        {
-            {
-                Log.ForContext("response", response, true).Information("Cancel response received");
-
-                // check signature
-                var dictionary = Request.Form.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
-                if (!_dataSigningService.Check(dictionary, response.Signature))
-                {
-                    Log.Error("Check Signature Failure");
-                    ViewBag.ErrorMessage = "An error has occurred. Payment not processed. If you experience further problems, contact us.";
-                    return RedirectToAction("Index", "Home");
-                }
-
-                // TODO: record cancel transaction
-                // Redirect to Invoice with an error message
-                return RedirectToAction("Index", "Home");
-            }
+            return View("Pay", model);
         }
 
         [HttpPost]
@@ -183,7 +190,6 @@ namespace Payments.Mvc.Controllers
 
         private PaymentEvent ProcessPaymentEvent(ReceiptResponseModel response, Dictionary<string, string> dictionary)
         {
-
             var paymentEvent = new PaymentEvent
             {
                 Transaction_Id       = response.Transaction_Id,
@@ -281,6 +287,5 @@ namespace Payments.Mvc.Controllers
             public bool IsValid { get; set; } = false;
             public IList<string> Errors { get; set; } = new List<string>();
         }
-
     }
 }
