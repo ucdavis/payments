@@ -14,6 +14,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         [Range(0, int.MaxValue)]
         public decimal Tax { get; set; }
 
+        public string Memo { get; set; }
+
         public IList<CreateInvoiceItemViewModel> Items { get; set; }
     }
 
