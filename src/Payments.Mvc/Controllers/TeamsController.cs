@@ -40,7 +40,7 @@ namespace Payments.Mvc.Controllers
             if (!User.IsInRole(ApplicationRoleCodes.Admin))
             {
                 var teamPermissions = await _context.TeamPermissions.Where(a => a.UserId == CurrentUserId).Select(a => a.TeamId).Distinct().ToArrayAsync();
-                teams = teams.Where(a => a.IsActive && teamPermissions.Contains(a.Id));
+                teams = teams.Where(a => a.IsActive && teamPermissions.Contains(a.Id)); //TODO: Do we want them to see inactive teams? Maybe for old invoices?
             }
 
             return View(await teams.ToListAsync());
@@ -69,7 +69,11 @@ namespace Payments.Mvc.Controllers
             return View(team);
         }
 
-        // GET: Teams/Details/5
+        /// <summary>
+        /// GET: Teams/Details/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -100,7 +104,11 @@ namespace Payments.Mvc.Controllers
 
 
 
-        // GET: Teams/Edit/5
+        /// <summary>
+        /// GET: Teams/Edit/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -117,9 +125,12 @@ namespace Payments.Mvc.Controllers
             return View(team);
         }
 
-        // POST: Teams/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST: Teams/Edit/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <param name="team"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,IsActive,Name")] Team team)
@@ -152,7 +163,11 @@ namespace Payments.Mvc.Controllers
             return View(team);
         }
 
-        // GET: Teams/Delete/5
+        /// <summary>
+        /// GET: Teams/Delete/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -171,9 +186,13 @@ namespace Payments.Mvc.Controllers
             return View(team);
         }
 
-        // POST: Teams/Delete/5
+        /// <summary>
+        /// POST: Teams/Delete/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
         [HttpPost, ActionName("Delete")]
-        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]        
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id);
@@ -193,7 +212,11 @@ namespace Payments.Mvc.Controllers
         }
 
 
-        // GET: FinancialAccounts/Create
+        /// <summary>
+        /// GET: FinancialAccounts/Create
+        /// </summary>
+        /// <param name="id">Team id</param>
+        /// <returns></returns>
         public async Task<IActionResult> CreateAccount(int? id)
         {
             if (id == null)
@@ -219,9 +242,11 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
-        // POST: FinancialAccounts/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST: FinancialAccounts/Create
+        /// </summary>
+        /// <param name="financialAccount"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
         {
@@ -288,7 +313,12 @@ namespace Payments.Mvc.Controllers
             return View(financialAccount);
         }
 
-        // GET: FinancialAccounts/Edit/5
+        /// <summary>
+        /// GET: FinancialAccounts/Edit/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> EditAccount(int? id, int? teamId)
         {
             if (id == null || teamId == null)
@@ -302,7 +332,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive); //Maybe include getting the team with the financial account?
             if (team == null)
             {
                 return NotFound();
@@ -317,9 +347,13 @@ namespace Payments.Mvc.Controllers
             return View(financialAccount);
         }
 
-        // POST: FinancialAccounts/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST: FinancialAccounts/Edit/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <param name="financialAccount"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAccount(int id, int teamId, FinancialAccount financialAccount)
@@ -332,6 +366,16 @@ namespace Payments.Mvc.Controllers
             if (financialAccountToUpdate == null)
             {
                 return NotFound();
+            }
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
             }
 
             financialAccountToUpdate.Name = financialAccount.Name;
@@ -366,7 +410,12 @@ namespace Payments.Mvc.Controllers
             return View(financialAccountToUpdate);
         }
 
-        // GET: FinancialAccounts/Details/5
+        /// <summary>
+        /// GET: FinancialAccounts/Details/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> AccountDetails(int? id, int? teamId)
         {
             if (id == null || teamId == null)
@@ -382,10 +431,26 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
             return View(financialAccount);
         }
 
-        // GET: FinancialAccounts/Delete/5
+        /// <summary>
+        /// GET: FinancialAccounts/Delete/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> DeleteAccount(int? id, int? teamId)
         {
             if (id == null || teamId == null)
@@ -401,10 +466,26 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
             return View(financialAccount);
         }
 
-        // POST: FinancialAccounts/DeleteAccount/5
+        /// <summary>
+        /// POST: FinancialAccounts/DeleteAccount/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         [HttpPost, ActionName("DeleteAccount")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccountConfirmed(int id, int teamId)
@@ -415,6 +496,16 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
             financialAccount.IsActive = false;
             await _context.SaveChangesAsync();
             return RedirectToAction("Details", new {id = teamId});
