@@ -67,9 +67,19 @@ namespace Payments.Core.Helpers
                 Name = "Scott Kirkland",
                 CampusKerberos = "postit",
             };
+            var cal = new User
+            {
+                Email = "cydoval@ucdavis.edu",
+                UserName = "cydoval@ucdavis.edu",
+                FirstName = "Calvin",
+                LastName = "Doval",
+                Name = "Calvin Y Doval",
+                CampusKerberos = "cydoval",
+            };
             await MakeUser(jason);
             await MakeUser(john);
             await MakeUser(scott);
+            await MakeUser(cal);
 
 
             var teamRole = new TeamRole();
