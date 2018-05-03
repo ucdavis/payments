@@ -1,16 +1,19 @@
+@using Payments.Mvc.Helpers
 <div class="logo">
   <a href="/"><img src="/media/logo.svg" alt="UC Davis payments logo"></a>
 </div>
-﻿<ul class="main-nav">
+<ul class="main-nav">
     <li class=""><a href="@Url.Action("Index", "Home")"><!--<i class="fa fa-fw fa-home"></i>--><img src="/media/navicons/home.svg"> Home</a></li>
     <li class=""><a href="@Url.Action("Index", "Home")"><!--<i class="fa fa-fw fa-id-card-o"></i>--><img src="/media/navicons/account.svg"> Account</a></li>
-<br>
+    <br>
     <li class=""><a href="@Url.Action("Index", "Invoices")"><!--<i class="fa fa-fw fa-home"></i>--><img src="/media/navicons/invoices.svg"> Invoices</a></li>
     <br>
     <li class=""><a href="@Url.Action("Index", "Home")"><!--<i class="fa fa-fw fa-book"></i>--><img src="/media/navicons/support.svg"> Support</a></li>
     <li class=""><a href="@Url.Action("Index", "Home")"><!--<i class="fa fa-fw fa-question"></i>--><img src="/media/navicons/help.svg"> Help</a></li>
     <li class=""><a href="@Url.Action("Index", "Home")"><!--<i class="fa fa-fw fa-comments-o"></i>--><img src="/media/navicons/feedback.svg"> Feedback</a></li>
-<br>
+    <br>
     <li class=""><a href="@Url.Action("Index", "Home")"><!--<i class="fa fa-fw fa-cogs"></i>--><img src="/media/navicons/setting.svg"> Settings</a></li>
     <li class=""><a href="@Url.Action("Index", "Home")"><!--<i class="fa fa-fw fa-bomb"></i>--><img src="/media/navicons/nukes.svg"> Logout</a></li>
 </ul>
+
+@Html.InlineSvg("/wwwroot/media/navicons/home.svg")
