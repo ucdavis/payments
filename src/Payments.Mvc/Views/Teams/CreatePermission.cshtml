@@ -11,6 +11,7 @@
         <form asp-action="CreatePermission">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="@Model.Team.Id" />
+            <input type="hidden" id="Id" name="Id" value="@Model.Team.Id"/>
             <div class="form-group">
                 <label asp-for="@Model.UserLookup" class="control-label"></label>
                 <input asp-for="@Model.UserLookup" class="form-control" />

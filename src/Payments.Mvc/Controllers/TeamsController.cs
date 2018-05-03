@@ -524,18 +524,50 @@ namespace Payments.Mvc.Controllers
             return _context.FinancialAccounts.Any(e => e.Id == id);
         }
 
-        public async Task<IActionResult> CreatePermission(int id)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
+        public async Task<IActionResult> CreatePermission(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
             var model = new TeamPermissionModel();
-            model.Team = await _context.Teams.SingleAsync(a => a.Id == id && a.IsActive);
+            model.Team = team;
             model.Roles = new SelectList(_context.TeamRoles, "Id", "Name");
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePermission(TeamPermissionModel teamPermissionModel)
+        public async Task<IActionResult> CreatePermission(int id, TeamPermissionModel teamPermissionModel)
         {
-            //TODO: Permissions to do this, verify team, does the TeamPermission already exist anything else....
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
 
             teamPermissionModel.Team =
                 await _context.Teams.SingleAsync(a => a.Id == teamPermissionModel.Team.Id && a.IsActive);
@@ -596,6 +628,15 @@ namespace Payments.Mvc.Controllers
             { 
                 ModelState.AddModelError("UserLookup", "User Not Found");
             }
+            else
+            {
+                if (await _context.TeamPermissions.AnyAsync(a =>
+                    a.TeamId == teamPermissionModel.Team.Id && a.UserId == foundUser.Id &&
+                    a.RoleId == teamPermissionModel.SelectedRole))
+                {
+                    ModelState.AddModelError("UserLookup", "User with selected role already exists.");
+                }
+            }
 
 
             if (ModelState.IsValid)
@@ -612,7 +653,10 @@ namespace Payments.Mvc.Controllers
 
 
             var model = new TeamPermissionModel();
-
+            model.Team = team;
+            model.UserLookup = teamPermissionModel.UserLookup;
+            model.SelectedRole = teamPermissionModel.SelectedRole;
+            model.Roles = new SelectList(_context.TeamRoles, "Id", "Name");
             return View(model);
         }
 
