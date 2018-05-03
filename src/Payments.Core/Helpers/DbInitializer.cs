@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Mvc.Models.Roles;
 
 namespace Payments.Core.Helpers
 {
@@ -49,6 +50,8 @@ namespace Payments.Core.Helpers
 
             await CreateSampleTeam();
 
+            await CreateTeamRoles();
+
             // We need users here so we can make them creatores of invoices
             await CreateUsers();
 
@@ -59,8 +62,7 @@ namespace Payments.Core.Helpers
 
         private async Task CreateRoles()
         {
-            await _roleManager.CreateAsync(new IdentityRole("Admin"));
-            await _roleManager.CreateAsync(new IdentityRole("User"));
+            await _roleManager.CreateAsync(new IdentityRole(ApplicationRoleCodes.Admin));
             await _context.SaveChangesAsync();
         }
 
@@ -80,6 +82,18 @@ namespace Payments.Core.Helpers
             });
 
             _context.Teams.Add(team1);
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task CreateTeamRoles() {
+            var adminRole = new TeamRole();
+            adminRole.Name = TeamRole.Codes.Admin;
+            _context.TeamRoles.Add(adminRole);
+
+            var editorRole = new TeamRole();
+            editorRole.Name = TeamRole.Codes.Editor;
+            _context.TeamRoles.Add(editorRole);
 
             await _context.SaveChangesAsync();
         }
@@ -228,8 +242,7 @@ namespace Payments.Core.Helpers
             var loginInfo = new ExternalLoginInfo(userPrincipal, "UCDavis", userToCreate.CampusKerberos, null);
             await _userManager.CreateAsync(userToCreate);
             await _userManager.AddLoginAsync(userToCreate, loginInfo);
-            await _userManager.AddToRoleAsync(userToCreate, "Admin");
-            await _userManager.AddToRoleAsync(userToCreate, "User");
+            await _userManager.AddToRoleAsync(userToCreate, ApplicationRoleCodes.Admin);
         }
     }
 }
