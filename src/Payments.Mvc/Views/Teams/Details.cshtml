@@ -104,6 +104,9 @@
                     @Html.DisplayNameFor(model => model.Permissions[0].Role)
                 </th>
                 <th>
+                    @Html.DisplayNameFor(model => model.Permissions[0].User.CampusKerberos)
+                </th>
+                <th>
                     @Html.DisplayNameFor(model => model.Permissions[0].User.Email)
                 </th>
                 <th>
@@ -118,6 +121,9 @@
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Role.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.CampusKerberos)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.User.UserName)
