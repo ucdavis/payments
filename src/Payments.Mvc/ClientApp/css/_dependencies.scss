@@ -22,8 +22,8 @@ $sans-italic:   "proxima-nova-i",serif;
 $sans-bold:     "proxima-nova-b",serif;
 $sans-reg:      "proxima-nova-r",serif;
 
-$primary-color:     #002855;
-$secondary-color:   #D2AC3A;
+$primary-color:     #006F8E;
+$secondary-color:   #006F8E;
 $tertiary-color:    transparentize($secondary-color, .80);
 
 $gold:              #D2AC3A;
@@ -35,17 +35,15 @@ $a-link:            transparentize($primary-color, .2);
 
 $primary-font: rgba(31,31,31,.99); //
 $secondary-font: rgba(31,31,31,.65); //
-$tertiary-font: rgba(31,31,31,.33); //
+$tertiary-font: rgba(31,31,31,.40); //
 
 $box-shadow: 0 0 0 1px rgba(49,49,93,.03), 0 2px 5px 0 rgba(49,49,93,.1), 0 1px 2px 0 rgba(0,0,0,.08);
-
-$primary-color: #004987;
-$secondary-color: #D2AC3A;
 
 $bg-color: #F8F9FB; // background
 $borders: #C8C7CC; // border color
 
 $nav-active: #fff;
+$nav-secondary: $secondary-font;
 
 
 // UC Davis Colors

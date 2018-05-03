@@ -20,3 +20,63 @@ ul.main-nav {
   }
 
 }
+nav {
+  a {
+    .navitem {
+      color:$primary-font;
+      font-size: 1.8rem;
+      font-family: $sans-bold;
+    }
+    .row {
+      padding:4px 0px;
+    }
+    .svgwrapper {
+      margin-right:12px;
+      width:28px;
+    }
+  }
+}
+g#house-secondary, g#invoices-secondary, g#support-secondary, g#settings-secondary, g#nuke-secondary {
+  fill:#000;
+}
+a.nav-home:hover {
+  g#house-active {
+    fill:$secondary-color;
+  }
+  // g#house-secondary {
+  //   fill:$tertiary-font;
+  // }
+}
+a.nav-invoices:hover {
+  g#invoices-active {
+    fill:$secondary-color;
+  }
+  // g#invoices-secondary {
+  //   fill:$tertiary-font;
+  // }
+}
+a.nav-support:hover {
+  g#support-active {
+    fill:$secondary-color;
+  }
+  // g#support-secondary {
+  //   fill:$tertiary-font;
+  // }
+}
+
+a.nav-settings:hover {
+  g#settings-active {
+    fill:$secondary-color;
+  }
+  // g#settings-secondary {
+  //   fill:$tertiary-font;
+  // }
+}
+a.nav-logout:hover {
+  g#nuke-active {
+    fill:$secondary-color;
+  }
+  // g#nuke-secondary {
+  //   fill:$tertiary-font;
+  // }
+}
