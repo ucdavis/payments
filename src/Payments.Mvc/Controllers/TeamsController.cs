@@ -554,6 +554,12 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <param name="teamPermissionModel"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> CreatePermission(int id, TeamPermissionModel teamPermissionModel)
         {
@@ -669,8 +675,21 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
             var model = new TeamPermissionModel();
-            model.Team = await _context.Teams.SingleAsync(a => a.Id == teamId && a.IsActive);
+            model.Team = team;
             
             model.TeamPermission = await _context.TeamPermissions
                 .Include(t => t.Role)
@@ -682,6 +701,11 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            if (model.TeamPermission.UserId == CurrentUserId)
+            {
+                Message = "Warning! This is your own permission. If you remove it you may remove your access to the team.";
+            }
+
             return View(model);
         }
 
@@ -690,6 +714,18 @@ namespace Payments.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePermissionConfirmed(int id, int teamId)
         {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
             var teamPermission = await _context.TeamPermissions.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
             _context.TeamPermissions.Remove(teamPermission);
             await _context.SaveChangesAsync();
