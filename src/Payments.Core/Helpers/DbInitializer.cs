@@ -87,12 +87,10 @@ namespace Payments.Core.Helpers
         }
 
         private async Task CreateTeamRoles() {
-            var adminRole = new TeamRole();
-            adminRole.Name = TeamRole.Codes.Admin;
+            var adminRole = new TeamRole { Name = TeamRole.Codes.Admin };
             _context.TeamRoles.Add(adminRole);
 
-            var editorRole = new TeamRole();
-            editorRole.Name = TeamRole.Codes.Editor;
+            var editorRole = new TeamRole { Name = TeamRole.Codes.Editor };
             _context.TeamRoles.Add(editorRole);
 
             await _context.SaveChangesAsync();
@@ -101,6 +99,8 @@ namespace Payments.Core.Helpers
         private async Task CreateUsers()
         {
             var team = await _context.Teams.FirstAsync(t => t.Name == "CRU Sample Team");
+            var adminRole = await _context.TeamRoles.FirstAsync(r => r.Name == TeamRole.Codes.Admin);
+            var editorRole = await _context.TeamRoles.FirstAsync(r => r.Name == TeamRole.Codes.Editor);
 
             var jason = new User
             {
@@ -109,7 +109,8 @@ namespace Payments.Core.Helpers
                 CampusKerberos = "jsylvest",
                 FirstName = "Jason",
                 LastName = "Sylvestre",
-                Name = "Jason Sylvestre"
+                Name = "Jason Sylvestre",
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
             };
             await MakeUser(jason);
 
@@ -121,6 +122,7 @@ namespace Payments.Core.Helpers
                 LastName = "Knoll",
                 Name = "John Knoll",
                 CampusKerberos = "jpknoll",
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
             };
             await MakeUser(john);
 
@@ -132,6 +134,7 @@ namespace Payments.Core.Helpers
                 LastName = "Kirkland",
                 Name = "Scott Kirkland",
                 CampusKerberos = "postit",
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
             };
             await MakeUser(scott);
 
@@ -143,6 +146,7 @@ namespace Payments.Core.Helpers
                 LastName = "Doval",
                 Name = "Calvin Y Doval",
                 CampusKerberos = "cydoval",
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = editorRole } }
             };
             await MakeUser(cal);
 
