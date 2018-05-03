@@ -45,6 +45,9 @@ body {
 
 .logo {
   margin-top:7px;
+  g#logocolor {
+    fill:$primary-color;
+  }
 }
 footer {
   position: absolute;

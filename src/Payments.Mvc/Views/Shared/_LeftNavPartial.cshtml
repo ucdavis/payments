@@ -1,6 +1,8 @@
 @using Payments.Mvc.Helpers
 <div class="logo">
-  <a href="/"><img src="/media/logo.svg" alt="UC Davis payments logo"></a>
+  <a href="/">
+    @Html.InlineSvg("/wwwroot/media/logo.svg")
+  </a>
 </div>
 <nav>
   <a class="nav-home" href="@Url.Action("Index", "Home")">
@@ -41,7 +43,7 @@
 <a class="nav-logout" href="@Url.Action("Index", "Home")">
 <div class="row flex-center">
   <div class="svgwrapper">
-    @Html.InlineSvg("/wwwroot/media/navicons/nuke.svg")
+    @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
   </div>
   <span class="navitem">Logout</span>
 </div>

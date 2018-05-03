@@ -36,28 +36,37 @@ nav {
     }
   }
 }
-g#house-secondary, g#invoices-secondary, g#support-secondary, g#settings-secondary, g#nuke-secondary {
-  fill:#000;
+g#home-secondary, g#settings-secondary {
+  fill:$bg-color;
+}
+g#home-primary, g#invoices-primary, g#support-primary, g#settings-primary, g#logout-primary {
+  fill:lighten( $primary-color,5% );
+}
+g#invoices-secondary, g#support-secondary, g#logout-secondary {
+  fill:lighten( $primary-color,15% );
+}
+g#home-tertiary, g#invoices-tertiary, g#support-tertiary, g#settings-tertiary, g#logout-tertiary {
+  fill:lighten( $primary-color,25% );
 }
 a.nav-home:hover {
-  g#house-active {
-    fill:$secondary-color;
+  g#home-primary {
+    fill:$primary-color;
   }
   // g#house-secondary {
   //   fill:$tertiary-font;
   // }
 }
 a.nav-invoices:hover {
-  g#invoices-active {
-    fill:$secondary-color;
+  g#invoices-primary {
+    fill:$primary-color;
   }
   // g#invoices-secondary {
   //   fill:$tertiary-font;
   // }
 }
 a.nav-support:hover {
-  g#support-active {
-    fill:$secondary-color;
+  g#support-primary {
+    fill:$primary-color;
   }
   // g#support-secondary {
   //   fill:$tertiary-font;
@@ -65,16 +74,16 @@ a.nav-support:hover {
 }
 
 a.nav-settings:hover {
-  g#settings-active {
-    fill:$secondary-color;
+  g#settings-primary {
+    fill:$primary-color;
   }
   // g#settings-secondary {
   //   fill:$tertiary-font;
   // }
 }
 a.nav-logout:hover {
-  g#nuke-active {
-    fill:$secondary-color;
+  g#logout-primary {
+    fill:$primary-color;
   }
   // g#nuke-secondary {
   //   fill:$tertiary-font;
