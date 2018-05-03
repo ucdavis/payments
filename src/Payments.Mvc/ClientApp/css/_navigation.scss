@@ -1,0 +1,22 @@
+ul.main-nav {
+  list-style: none;
+  font-family: $sans-bold;
+  margin-left:0px;
+  padding-left:0px;
+  li {
+    padding:2px 0px;
+    a {
+      font-size:1.8rem;
+      color:$primary-font;
+      img {
+        margin-right:12px;
+        margin-bottom:3px;
+      }
+      &:hover {
+        color:$primary-color;
+        @include fader;
+      }
+    }
+  }
+
+}

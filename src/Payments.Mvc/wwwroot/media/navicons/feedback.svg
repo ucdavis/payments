@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="21px" height="21px" viewBox="0 0 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
+    <title>feedback</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" fill-opacity="0.8">
+        <g id="edit-invoice" transform="translate(-161.000000, -432.000000)" fill="#1F1F1F">
+            <g id="leftnav" transform="translate(159.000000, 116.000000)">
+                <g id="feedback" transform="translate(2.000000, 316.000000)">
+                    <path d="M10.5857182,4.78308696 L1.9089,4.78308696 C0.856036364,4.78308696 -0.000190909091,5.64108696 -0.000190909091,6.69613043 L-0.000190909091,15.3048261 C-0.000190909091,16.3598696 0.856036364,17.2178696 1.9089,17.2178696 L2.86344545,17.2178696 L2.86344545,21.0439565 L7.95499091,17.2178696 L14.3179909,17.2178696 C15.3708545,17.2178696 16.2270818,16.3598696 16.2270818,15.3048261 L16.2270818,9.56569565 C13.3901727,9.56569565 11.0410364,7.49673913 10.5857182,4.78308696" id="Fill-114"></path>
+                    <polygon id="Fill-115" points="15.2727273 7.09222609 11.7342273 3.54544348 13.0839545 2.19387826 15.2727273 4.38718261 19.3705909 0.280834783 20.7203182 1.6324"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
