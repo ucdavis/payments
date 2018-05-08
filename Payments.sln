@@ -13,9 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "items", "items", "{0B9295B2
 		appveyor.yml = appveyor.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Jobs.MoneyMovement", "Payments.Jobs.MoneyMovement\Payments.Jobs.MoneyMovement.csproj", "{C8702DE8-F68A-46CE-B35C-8062313E7E18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Jobs.MoneyMovement", "Payments.Jobs.MoneyMovement\Payments.Jobs.MoneyMovement.csproj", "{C8702DE8-F68A-46CE-B35C-8062313E7E18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Jobs.Core", "Payments.Jobs.Core\Payments.Jobs.Core.csproj", "{8B29D503-C663-4411-BCB5-19E21260D43D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Jobs.Core", "Payments.Jobs.Core\Payments.Jobs.Core.csproj", "{8B29D503-C663-4411-BCB5-19E21260D43D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "payments.Tests", "payments.Tests\payments.Tests.csproj", "{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,18 @@ Global
 		{8B29D503-C663-4411-BCB5-19E21260D43D}.Release|x64.Build.0 = Release|Any CPU
 		{8B29D503-C663-4411-BCB5-19E21260D43D}.Release|x86.ActiveCfg = Release|Any CPU
 		{8B29D503-C663-4411-BCB5-19E21260D43D}.Release|x86.Build.0 = Release|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Debug|x64.Build.0 = Debug|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Debug|x86.Build.0 = Debug|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Release|x64.ActiveCfg = Release|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Release|x64.Build.0 = Release|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Release|x86.ActiveCfg = Release|Any CPU
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,6 +98,7 @@ Global
 		{6C186322-71EC-42C8-8ECF-435E62EC1CD8} = {D1C93383-2244-4990-B2E9-5EF966F0E5A5}
 		{C8702DE8-F68A-46CE-B35C-8062313E7E18} = {D1C93383-2244-4990-B2E9-5EF966F0E5A5}
 		{8B29D503-C663-4411-BCB5-19E21260D43D} = {D1C93383-2244-4990-B2E9-5EF966F0E5A5}
+		{B81F7FCF-566E-4F8D-8343-1ABC5E423C27} = {D1C93383-2244-4990-B2E9-5EF966F0E5A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34045125-52CB-46C0-BEBC-371EB2F0DFEB}
