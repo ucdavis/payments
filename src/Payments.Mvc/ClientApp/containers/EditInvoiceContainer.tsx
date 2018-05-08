@@ -5,6 +5,7 @@ import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 
 import DiscountInput from '../components/discountInput';
+import MemoInput from '../components/memoInput';
 import TaxInput from '../components/taxInput';
 
 declare var antiForgeryToken: string;
@@ -19,6 +20,7 @@ interface IState {
     customer: InvoiceCustomer;
     discount: number;
     taxRate: number;
+    memo: string;
     items: {
         byId: number[];
         byHash: {
@@ -63,12 +65,13 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             },
             discount: invoice.discount || 0,
             items,
+            memo: invoice.memo,
             taxRate: invoice.taxPercent || 0,
         };
     }
 
     public render() {
-        const { customer, items, discount, taxRate } = this.state;
+        const { customer, items, discount, taxRate, memo } = this.state;
         const subtotal = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         const total = this.calculateTotal();
@@ -143,7 +146,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 <div className="">
                     <h2>Memo</h2>
                     <div className="form-group">
-                        <textarea className="form-control" />
+                        <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
                     </div>
                 </div>
                 <div className="">
@@ -299,7 +302,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
     private onSubmit = async () => {
         const { id } = this.props.invoice;
-        const { customer, discount, taxRate, items } = this.state;
+        const { customer, discount, taxRate, items, memo } = this.state;
 
         const invoiceItems = items.byId.map(itemId => items.byHash[itemId]);
 
@@ -308,6 +311,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             customer,
             discount,
             items: invoiceItems,
+            memo,
             tax: taxRate,
         };
 
