@@ -39,20 +39,29 @@ nav {
     }
   }
 }
-g#home-secondary, g#settings-primary {
+// g#home-secondary, g#settings-primary {
+//   fill:$bg-color;
+// }
+// g#home-primary, g#support-primary, g#settings-secondary, g#logout-primary {
+//   // fill:lighten( $tertiary-color,25% );
+//   fill:#A0A1A2;
+// }
+// g#invoices-secondary, g#support-secondary, g#logout-secondary {
+//   // fill:lighten( $tertiary-color,15% );
+//   fill:#A0A1A2;
+// }
+//  g#invoices-tertiary, g#support-tertiary, g#settings-tertiary, g#logout-tertiary {
+//   // fill:lighten( $tertiary-color,5% );
+//   fill:#A0A1A2;
+// }
+g#home-tertiary, g#invoices-secondary, g#invoices-tertiary, g#support-secondary, g#support-tertiary, g#settings-tertiary, g#logout-secondary, g#logout-tertiary {
+  fill:#BBBBBB;
+}
+g#home-primary, g#invoices-primary, g#support-primary, g#settings-secondary, g#settings-primary, g#logout-primary {
+ fill:#979797;
+}
+g#settings-secondary {
   fill:$bg-color;
-}
-g#home-primary, g#invoices-primary, g#support-primary, g#settings-secondary, g#logout-primary {
-  // fill:lighten( $tertiary-color,25% );
-  fill:#A0A1A2;
-}
-g#invoices-secondary, g#support-secondary, g#logout-secondary {
-  // fill:lighten( $tertiary-color,15% );
-  fill:#A0A1A2;
-}
-g#home-tertiary, g#invoices-tertiary, g#support-tertiary, g#settings-tertiary, g#logout-tertiary {
-  // fill:lighten( $tertiary-color,5% );
-  fill:#A0A1A2;
 }
 a.nav-home:hover {
   g#home-primary {
