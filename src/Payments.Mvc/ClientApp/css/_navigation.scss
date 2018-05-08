@@ -26,6 +26,7 @@ nav {
     .navitem {
       color:$secondary-font;
       font-size: 1.8rem;
+      font-family: $sans-bold;
       &:hover {
         color:$primary-font;
       }
