@@ -25,8 +25,7 @@ nav {
   a {
     .navitem {
       color:$secondary-font;
-      font-size: 2rem;
-      font-family: $sans-bold;
+      font-size: 1.8rem;
       &:hover {
         color:$primary-font;
       }
@@ -40,21 +39,24 @@ nav {
     }
   }
 }
-g#home-secondary, g#settings-secondary {
+g#home-secondary, g#settings-primary {
   fill:$bg-color;
 }
-g#home-primary, g#invoices-primary, g#support-primary, g#settings-primary, g#logout-primary {
-  fill:lighten( $primary-color,5% );
+g#home-primary, g#invoices-primary, g#support-primary, g#settings-secondary, g#logout-primary {
+  // fill:lighten( $tertiary-color,25% );
+  fill:#A0A1A2;
 }
 g#invoices-secondary, g#support-secondary, g#logout-secondary {
-  fill:lighten( $primary-color,15% );
+  // fill:lighten( $tertiary-color,15% );
+  fill:#A0A1A2;
 }
 g#home-tertiary, g#invoices-tertiary, g#support-tertiary, g#settings-tertiary, g#logout-tertiary {
-  fill:lighten( $primary-color,25% );
+  // fill:lighten( $tertiary-color,5% );
+  fill:#A0A1A2;
 }
 a.nav-home:hover {
   g#home-primary {
-    fill:$primary-color;
+    fill:$tertiary-color;
   }
   // g#house-secondary {
   //   fill:$tertiary-font;
@@ -62,7 +64,7 @@ a.nav-home:hover {
 }
 a.nav-invoices:hover {
   g#invoices-primary {
-    fill:$primary-color;
+    fill:$tertiary-color;
   }
   // g#invoices-secondary {
   //   fill:$tertiary-font;
@@ -70,7 +72,7 @@ a.nav-invoices:hover {
 }
 a.nav-support:hover {
   g#support-primary {
-    fill:$primary-color;
+    fill:$tertiary-color;
   }
   // g#support-secondary {
   //   fill:$tertiary-font;
@@ -79,7 +81,7 @@ a.nav-support:hover {
 
 a.nav-settings:hover {
   g#settings-primary {
-    fill:$primary-color;
+    fill:$tertiary-color;
   }
   // g#settings-secondary {
   //   fill:$tertiary-font;
@@ -87,7 +89,7 @@ a.nav-settings:hover {
 }
 a.nav-logout:hover {
   g#logout-primary {
-    fill:$primary-color;
+    fill:$tertiary-color;
   }
   // g#nuke-secondary {
   //   fill:$tertiary-font;

@@ -20,17 +20,6 @@ p a.action-btn {
     text-decoration: none !important;
 
 }
-.btn-borderonly {
-  border:1px solid rgba(0, 40, 85, 0.8);
-  padding:1rem 2rem;
-  display:inline-block;
-    color:transparentize($primary-color, .2);
-    text-decoration: none !important;
-  &:hover {
-    background-color:$accent;
-  }
-
-}
 .btn {
   white-space: nowrap;
   display: inline-block;
@@ -244,40 +233,20 @@ ol.breadcrumb {
 }
 //database
 
-table.dataTable tr.odd td.sorting_1 {
-  background-color: $accent;
-}
-
-table.dataTable tr.even td.sorting_1 {
-  background-color: #fefefe;
-}
-
-table.dataTable tr.odd td {
-  background-color: darken($accent,5%);
-}
-
-table.dataTable tr.even td {
-  background-color: darken(#fefefe,5%);
-}
-
-.gold {
-  color: $secondary-color;
-}
-
 .border-top {
   border-top: 2px solid rgba(255,255,255,0.95);
 }
 
 .border-blue-top {
-  border-top: 1px solid $accent;
+  border-top: 1px solid $primary-color;
 }
 
 .border-blue-bottom {
-  border-bottom: 1px solid $accent;
+  border-bottom: 1px solid $primary-color;
 }
 
 .border-blue-right {
-  border-right: 1px solid $accent;
+  border-right: 1px solid $primary-color;
 }
 .bg-unitrans {
   background-color:$unitrans-red;
@@ -336,9 +305,7 @@ table.dataTable tr.even td {
 .secondary-color {
   color:$secondary-color;
 }
-.accent-color {
-  color:$accent;
-}
+
 .a-color {
   color:$a-link;
 }
