@@ -25,7 +25,7 @@ module.exports = env => {
       output: {
         path: path.join(__dirname, bundleOutputDir),
         filename: '[name].js',
-        publicPath: '/',
+        publicPath: '/dist/',
       },
       module: {
         rules: [
@@ -37,18 +37,18 @@ module.exports = env => {
           {
             test: /\.css$/,
             use: isDevBuild
-              ? ['style-loader', 'css-loader', 'sass-loader']
+              ? ['style-loader', 'css-loader']
               : ExtractTextPlugin.extract({ use: 'css-loader?minimize' }),
           },
           {
             test: /\.scss$/,
             use: isDevBuild
-              ? ['style-loader', 'css-loader']
+              ? ['style-loader', 'css-loader', 'sass-loader']
               : ExtractTextPlugin.extract({ use: ['css-loader?minimize', 'sass-loader'] }),
           },
           {
-            test: /\.(png|jpg|jpeg|gif|svg)$/,
-            use: 'url-loader?limit=25000'
+            test: /\.(png|jpg|jpeg|gif|svg|woff)$/,
+            use: 'url-loader?limit=25000',
           },
         ],
       },

@@ -1,12 +1,52 @@
-﻿<ul class="">
-    <li class=""><a href="@Url.Action("Index", "Home")"><i class="fa fa-fw fa-home"></i> Home</a></li>
-    <li class=""><a href="@Url.Action("Index", "Home")"><i class="fa fa-fw fa-id-card-o"></i> Account</a></li>
+@using Payments.Mvc.Helpers
+<div class="logo">
+  <a href="/">
+    @Html.InlineSvg("/wwwroot/media/logo.svg")
+  </a>
+</div>
+<nav>
+  <a class="nav-home" href="@Url.Action("Index", "Home")">
+  <div class="row flex-center">
+    <div class="svgwrapper">
+      @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
+    </div>
+    <span class="navitem">Home</span>
+  </div>
+</a>
+<br>
+<a class="nav-invoices" href="@Url.Action("Index", "Invoices")">
+<div class="row flex-center">
+  <div class="svgwrapper">
+    @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
+  </div>
+  <span class="navitem">Invoices</span>
+</div>
+</a>
+<br>
+<a class="nav-support" href="@Url.Action("Index", "Home")">
+<div class="row flex-center">
+  <div class="svgwrapper">
+    @Html.InlineSvg("/wwwroot/media/navicons/support.svg")
+  </div>
+  <span class="navitem">Support</span>
+</div>
+</a>
 
-    <li class=""><a href="@Url.Action("Index", "Invoices")"><i class="fa fa-fw fa-home"></i> Invoices</a></li>
-    <li class=""><a href="@Url.Action("Index", "Home")"><i class="fa fa-fw fa-book"></i> Support</a></li>
-    <li class=""><a href="@Url.Action("Index", "Home")"><i class="fa fa-fw fa-question"></i> Help</a></li>
-    <li class=""><a href="@Url.Action("Index", "Home")"><i class="fa fa-fw fa-comments-o"></i> Feedback</a></li>
+<a class="nav-settings" href="@Url.Action("Index", "Home")">
+<div class="row flex-center">
+  <div class="svgwrapper">
+    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+  </div>
+  <span class="navitem">Settings</span>
+</div>
+</a>
+<a class="nav-logout" href="@Url.Action("Index", "Home")">
+<div class="row flex-center">
+  <div class="svgwrapper">
+    @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
+  </div>
+  <span class="navitem">Logout</span>
+</div>
+</a>
 
-    <li class=""><a href="@Url.Action("Index", "Home")"><i class="fa fa-fw fa-cogs"></i> Settings</a></li>
-    <li class=""><a href="@Url.Action("Index", "Home")"><i class="fa fa-fw fa-bomb"></i> Logout</a></li>
-</ul>
+</nav>
