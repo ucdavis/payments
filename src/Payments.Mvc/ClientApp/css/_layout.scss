@@ -1,0 +1,73 @@
+*,
+*:after,
+*:before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html {
+  position: relative;
+  min-height: 100%;
+  height: inherit;
+}
+body {
+  padding: 20px 0 0 0;
+  margin: 0 0 170px;
+  background-color: $bg-color;
+}
+.container {
+  width: 90%;
+}
+@media (min-width: 576px) {
+  .container {
+    max-width: inherit;
+    width:98%;
+  }
+}
+@media (min-width: 768px) {
+  .container {
+    max-width: inherit;
+    width:95%;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+    max-width: inherit;
+    width:90%;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1400px;
+    width:88%;
+  }
+}
+
+.logo {
+  margin-top:7px;
+  g#logocolor {
+    fill:$primary-color;
+  }
+}
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: block;
+  }
+  .footer_bleed {
+    background: #1e3a5b;
+      background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+      background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+      background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one',endColorstr='$gradient-two',GradientType=1);
+  }
+  .footer_divider {
+      background: url("/media/gunrock_banner_final.svg") center top/cover no-repeat;
+      height: 44px;
+      padding-top:10px;
+  }
+.row {
+  margin-right: 0;
+  margin-left: 0;
+}

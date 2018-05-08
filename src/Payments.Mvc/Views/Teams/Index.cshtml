@@ -1,14 +1,18 @@
-﻿@model IEnumerable<Payments.Core.Domain.Team>
+﻿@using Payments.Mvc.Models.Roles
+@model IEnumerable<Payments.Core.Domain.Team>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Teams";
+    var isAdmin = User.IsInRole(ApplicationRoleCodes.Admin);
 }
 
-<h2>Index</h2>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<h2>Teams</h2>
+@if (isAdmin)
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 <table class="table">
     <thead>
     <tr>
@@ -31,9 +35,19 @@
                 @Html.DisplayFor(modelItem => item.IsActive)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @if (isAdmin)
+                {
+                    <span>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </span>
+                }
+                else
+                {
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                }
+
             </td>
         </tr>
     }

@@ -1,0 +1,40 @@
+﻿@model Payments.Mvc.Models.Teams.TeamPermissionModel
+@{
+    ViewData["Title"] = "Delete User Permission";
+}
+
+<h2>Delete User Permission</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Permission for Team @Model.Team.Name</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.TeamPermission.Role)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TeamPermission.Role.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Team)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Team.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TeamPermission.User)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TeamPermission.User.Name) <span> (@Html.DisplayFor(model => model.TeamPermission.User.Email))</span>
+        </dd>
+    </dl>
+
+    <form asp-action="DeletePermission">
+        <input type="hidden" id="Id" name="Id" value="@Model.TeamPermission.Id" />
+        <input type="hidden" id="TeamId" name="TeamId" value="@Model.Team.Id"/>
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Details" asp-route-id="@Model.Team.Id">Back to List</a>
+    </form>
+</div>
+
