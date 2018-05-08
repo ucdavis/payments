@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Jobs.MoneyMovement
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Jobs.Core", "Payments.Jobs.Core\Payments.Jobs.Core.csproj", "{8B29D503-C663-4411-BCB5-19E21260D43D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "payments.Tests", "payments.Tests\payments.Tests.csproj", "{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Tests", "payments.Tests\Payments.Tests.csproj", "{B81F7FCF-566E-4F8D-8343-1ABC5E423C27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
