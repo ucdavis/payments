@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Mvc.Models.Roles;
 
 namespace Payments.Core.Helpers
 {
@@ -35,8 +36,7 @@ namespace Payments.Core.Helpers
             //TODO: Revisit if users and roles change
 
             // create roles
-            await _roleManager.CreateAsync(new IdentityRole("Admin"));
-            await _roleManager.CreateAsync(new IdentityRole("User"));
+            await _roleManager.CreateAsync(new IdentityRole(ApplicationRoleCodes.Admin));
 
 
 
@@ -67,11 +67,28 @@ namespace Payments.Core.Helpers
                 Name = "Scott Kirkland",
                 CampusKerberos = "postit",
             };
+            var cal = new User
+            {
+                Email = "cydoval@ucdavis.edu",
+                UserName = "cydoval@ucdavis.edu",
+                FirstName = "Calvin",
+                LastName = "Doval",
+                Name = "Calvin Y Doval",
+                CampusKerberos = "cydoval",
+            };
             await MakeUser(jason);
             await MakeUser(john);
             await MakeUser(scott);
+            await MakeUser(cal);
 
 
+            var teamRole = new TeamRole();
+            teamRole.Name = TeamRole.Codes.Admin;
+            _context.TeamRoles.Add(teamRole);
+
+            teamRole = new TeamRole();
+            teamRole.Name = TeamRole.Codes.Editor;
+            _context.TeamRoles.Add(teamRole);
 
 
             var team1 = new Team
@@ -103,8 +120,7 @@ namespace Payments.Core.Helpers
             var loginInfo = new ExternalLoginInfo(userPrincipal, "UCDavis", userToCreate.CampusKerberos, null);
             await _userManager.CreateAsync(userToCreate);
             await _userManager.AddLoginAsync(userToCreate, loginInfo);
-            await _userManager.AddToRoleAsync(userToCreate, "Admin");
-            await _userManager.AddToRoleAsync(userToCreate, "User");
+            await _userManager.AddToRoleAsync(userToCreate, ApplicationRoleCodes.Admin);
         }
     }
 }

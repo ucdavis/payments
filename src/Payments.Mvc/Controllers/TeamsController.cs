@@ -1,14 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
 using Payments.Mvc.Services;
+using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Payments.Mvc.Models;
+using Payments.Mvc.Models.Roles;
+using Payments.Mvc.Models.Teams;
 
 namespace Payments.Mvc.Controllers
 {
@@ -16,20 +22,58 @@ namespace Payments.Mvc.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
+        private readonly IDirectorySearchService _directorySearchService;
+        private readonly UserManager<User> _userManager;
 
-        public TeamsController(ApplicationDbContext context, IFinancialService financialService)
+        public TeamsController(ApplicationDbContext context, IFinancialService financialService, IDirectorySearchService directorySearchService, UserManager<User> userManager)
         {
             _context = context;
             _financialService = financialService;
+            _directorySearchService = directorySearchService;
+            _userManager = userManager;
         }
 
         // GET: Teams
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Teams.ToListAsync());
+            var teams = _context.Teams.AsQueryable();
+            if (!User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                var teamPermissions = await _context.TeamPermissions.Where(a => a.UserId == CurrentUserId).Select(a => a.TeamId).Distinct().ToArrayAsync();
+                teams = teams.Where(a => a.IsActive && teamPermissions.Contains(a.Id)); //TODO: Do we want them to see inactive teams? Maybe for old invoices?
+            }
+
+            return View(await teams.ToListAsync());
         }
 
-        // GET: Teams/Details/5
+        // GET: Teams/Create
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Teams/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> Create([Bind("Name")] Team team)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(team);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(team);
+        }
+
+        /// <summary>
+        /// GET: Teams/Details/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -44,31 +88,28 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            return View(team);
-        }
-
-        // GET: Teams/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Teams/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        public async Task<IActionResult> Create([Bind("Name")] Team team)
-        {
-            if (ModelState.IsValid)
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
             {
-                _context.Add(team);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
             }
-            return View(team);
+
+            var model = new TeamDetailsModel();
+            model.Team = team;
+            model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
+
+
+            return View(model);
         }
 
-        // GET: Teams/Edit/5
+
+
+        /// <summary>
+        /// GET: Teams/Edit/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -84,10 +125,14 @@ namespace Payments.Mvc.Controllers
             return View(team);
         }
 
-        // POST: Teams/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST: Teams/Edit/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <param name="team"></param>
+        /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,IsActive,Name")] Team team)
         {
             if (id != team.Id)
@@ -118,7 +163,12 @@ namespace Payments.Mvc.Controllers
             return View(team);
         }
 
-        // GET: Teams/Delete/5
+        /// <summary>
+        /// GET: Teams/Delete/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -136,8 +186,13 @@ namespace Payments.Mvc.Controllers
             return View(team);
         }
 
-        // POST: Teams/Delete/5
+        /// <summary>
+        /// POST: Teams/Delete/5
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]        
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id);
@@ -157,28 +212,64 @@ namespace Payments.Mvc.Controllers
         }
 
 
-        // GET: FinancialAccounts/Create
-        public IActionResult CreateAccount(int id)
+        /// <summary>
+        /// GET: FinancialAccounts/Create
+        /// </summary>
+        /// <param name="id">Team id</param>
+        /// <returns></returns>
+        public async Task<IActionResult> CreateAccount(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var team = await _context.Teams
+                .SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
             var model = new FinancialAccount();
-            model.TeamId = id;
-            model.Team = _context.Teams.Single(a => a.Id == id);
+            model.TeamId = team.Id;
+            model.Team = team;
             return View(model);
         }
 
-        // POST: FinancialAccounts/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST: FinancialAccounts/Create
+        /// </summary>
+        /// <param name="financialAccount"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
         {
+
+            var team = await _context.Teams
+                .SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
             string kfsResult = null;
-            //TODO Kfs look/validation (Maybe on form?)
             try
             {
                 kfsResult = await GetAccountInfo(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //Log?
             }
@@ -217,11 +308,17 @@ namespace Payments.Mvc.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", new {id=financialAccount.TeamId});
             }
-            financialAccount.Team = _context.Teams.Single(a => a.Id == financialAccount.TeamId);
+
+            financialAccount.Team = team;
             return View(financialAccount);
         }
 
-        // GET: FinancialAccounts/Edit/5
+        /// <summary>
+        /// GET: FinancialAccounts/Edit/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> EditAccount(int? id, int? teamId)
         {
             if (id == null || teamId == null)
@@ -234,12 +331,29 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
+
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive); //Maybe include getting the team with the financial account?
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
             return View(financialAccount);
         }
 
-        // POST: FinancialAccounts/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// POST: FinancialAccounts/Edit/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <param name="financialAccount"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAccount(int id, int teamId, FinancialAccount financialAccount)
@@ -252,6 +366,16 @@ namespace Payments.Mvc.Controllers
             if (financialAccountToUpdate == null)
             {
                 return NotFound();
+            }
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
             }
 
             financialAccountToUpdate.Name = financialAccount.Name;
@@ -286,7 +410,12 @@ namespace Payments.Mvc.Controllers
             return View(financialAccountToUpdate);
         }
 
-        // GET: FinancialAccounts/Details/5
+        /// <summary>
+        /// GET: FinancialAccounts/Details/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> AccountDetails(int? id, int? teamId)
         {
             if (id == null || teamId == null)
@@ -302,10 +431,26 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
             return View(financialAccount);
         }
 
-        // GET: FinancialAccounts/Delete/5
+        /// <summary>
+        /// GET: FinancialAccounts/Delete/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         public async Task<IActionResult> DeleteAccount(int? id, int? teamId)
         {
             if (id == null || teamId == null)
@@ -321,10 +466,26 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
             return View(financialAccount);
         }
 
-        // POST: FinancialAccounts/DeleteAccount/5
+        /// <summary>
+        /// POST: FinancialAccounts/DeleteAccount/5
+        /// </summary>
+        /// <param name="id">FinancialAccount Id</param>
+        /// <param name="teamId">Team Id</param>
+        /// <returns></returns>
         [HttpPost, ActionName("DeleteAccount")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccountConfirmed(int id, int teamId)
@@ -335,6 +496,16 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
             financialAccount.IsActive = false;
             await _context.SaveChangesAsync();
             return RedirectToAction("Details", new {id = teamId});
@@ -353,5 +524,212 @@ namespace Payments.Mvc.Controllers
             return _context.FinancialAccounts.Any(e => e.Id == id);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <returns></returns>
+        public async Task<IActionResult> CreatePermission(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
+            var model = new TeamPermissionModel();
+            model.Team = team;
+            model.Roles = new SelectList(_context.TeamRoles, "Id", "Name");
+            return View(model);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">Team Id</param>
+        /// <param name="teamPermissionModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CreatePermission(int id, TeamPermissionModel teamPermissionModel)
+        {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+            teamPermissionModel.Team =
+                await _context.Teams.SingleAsync(a => a.Id == teamPermissionModel.Team.Id && a.IsActive);
+
+
+            var foundUser = await _context.Users.SingleOrDefaultAsync(a =>
+                a.CampusKerberos == teamPermissionModel.UserLookup.ToLower() ||
+                a.NormalizedEmail == teamPermissionModel.UserLookup.SafeToUpper());
+
+            if (foundUser == null)
+            {
+                Person user = null;
+                //lets do a lookup and create user!
+                if (teamPermissionModel.UserLookup.Contains("@"))
+                {
+                    user = await _directorySearchService.GetByEmail(teamPermissionModel.UserLookup.ToLower());
+                }
+                else
+                {
+                    var directoryUser = await _directorySearchService.GetByKerberos(teamPermissionModel.UserLookup.ToLower());
+                    if (directoryUser != null && !directoryUser.IsInvalid)
+                    {
+                        user = directoryUser.Person;
+                    }
+                }
+
+                if (user != null)
+                {
+                    //Create the user
+                    var userToCreate = new User();
+                    userToCreate.Email = user.Mail;
+                    userToCreate.UserName = user.Mail;
+                    userToCreate.CampusKerberos = user.Kerberos;
+                    userToCreate.Name = user.FullName;
+
+                    var userPrincipal = new ClaimsPrincipal();
+                    userPrincipal.AddIdentity(new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userToCreate.CampusKerberos),
+                        new Claim(ClaimTypes.Name, userToCreate.Name)
+                    }));
+                    var loginInfo = new ExternalLoginInfo(userPrincipal, "UCDavis", userToCreate.CampusKerberos, null);
+
+                    var createResult = await _userManager.CreateAsync(userToCreate);
+                    if (createResult.Succeeded)
+                    {
+                        await _userManager.AddLoginAsync(userToCreate, loginInfo);
+                    }
+
+                    foundUser = userToCreate;
+                }
+            }
+            ModelState.Clear();
+            TryValidateModel(teamPermissionModel);
+
+
+            if (foundUser == null)
+            { 
+                ModelState.AddModelError("UserLookup", "User Not Found");
+            }
+            else
+            {
+                if (await _context.TeamPermissions.AnyAsync(a =>
+                    a.TeamId == teamPermissionModel.Team.Id && a.UserId == foundUser.Id &&
+                    a.RoleId == teamPermissionModel.SelectedRole))
+                {
+                    ModelState.AddModelError("UserLookup", "User with selected role already exists.");
+                }
+            }
+
+
+            if (ModelState.IsValid)
+            {
+                var teamPermission = new TeamPermission();
+                teamPermission.TeamId = teamPermissionModel.Team.Id;
+                teamPermission.Role = await _context.TeamRoles.SingleAsync(a => a.Id == teamPermissionModel.SelectedRole);
+                teamPermission.UserId = foundUser.Id;
+                _context.TeamPermissions.Add(teamPermission);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", new { id = teamPermissionModel.Team.Id });
+            }
+
+
+            var model = new TeamPermissionModel();
+            model.Team = team;
+            model.UserLookup = teamPermissionModel.UserLookup;
+            model.SelectedRole = teamPermissionModel.SelectedRole;
+            model.Roles = new SelectList(_context.TeamRoles, "Id", "Name");
+            return View(model);
+        }
+
+        // GET: TeamPermissions/Delete/5
+        public async Task<IActionResult> DeletePermission(int? id, int? teamId)
+        {
+            //TODO: Check permissions
+            if (id == null || teamId == null)
+            {
+                return NotFound();
+            }
+
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
+            var model = new TeamPermissionModel();
+            model.Team = team;
+            
+            model.TeamPermission = await _context.TeamPermissions
+                .Include(t => t.Role)
+                .Include(t => t.Team)
+                .Include(t => t.User)
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            if (model.TeamPermission == null)
+            {
+                return NotFound();
+            }
+
+            if (model.TeamPermission.UserId == CurrentUserId)
+            {
+                Message = "Warning! This is your own permission. If you remove it you may remove your access to the team.";
+            }
+
+            return View(model);
+        }
+
+        // POST: TeamPermissions/Delete/5
+        [HttpPost, ActionName("DeletePermission")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePermissionConfirmed(int id, int teamId)
+        {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            //Needs admin role, not just editor
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+            var teamPermission = await _context.TeamPermissions.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+            _context.TeamPermissions.Remove(teamPermission);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Details", new {id=teamId});
+        }
     }
 }

@@ -5,6 +5,7 @@ export interface Invoice {
     customerName: string;
     customerEmail: string;
     customerAddress: string;
+    memo: string;
     discount: number;
     taxPercent: number;
     items: InvoiceItem[];
