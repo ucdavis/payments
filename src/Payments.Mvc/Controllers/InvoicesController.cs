@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Services;
 using Payments.Mvc.Models.InvoiceViewModels;
 
 
@@ -16,11 +17,13 @@ namespace Payments.Mvc.Controllers
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<User> _userManager;
+        private readonly IEmailService _emailService;
 
-        public InvoicesController(ApplicationDbContext dbContext, UserManager<User> userManager)
+        public InvoicesController(ApplicationDbContext dbContext, UserManager<User> userManager, IEmailService emailService)
         {
             _dbContext = dbContext;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         // GET: /<controller>/
@@ -134,6 +137,38 @@ namespace Payments.Mvc.Controllers
             // save to db
             invoice.UpdateCalculatedValues();
             _dbContext.SaveChanges();
+
+            return new JsonResult(new
+            {
+                success = true
+            });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Send(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            if (invoice.Sent)
+            {
+                return BadRequest("Invoice already sent.");
+            }
+
+            await _emailService.SendInvoice(invoice);
+
+            invoice.Status = Invoice.StatusCodes.Sent;
+            invoice.Sent = true;
+            invoice.SentAt = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync();
 
             return new JsonResult(new
             {
