@@ -14,6 +14,7 @@ import beep     from 'beepbeep';
 import colors   from 'colors';
 import cheerio  from 'cheerio';
 import sparkpost from 'sparkpost';
+import azureStorage from 'azure-storage';
 
 const $ = plugins();
 
@@ -21,27 +22,36 @@ const $ = plugins();
 const PRODUCTION = !!(yargs.argv.production);
 const EMAIL = yargs.argv.to;
 
-// Declar var so that both AWS and Litmus task can use it.
+// Declar var so that Azure and Sparkpost can use it.
 let CONFIG;
+
+const configPath = './config.json';
+try {
+  CONFIG = JSON.parse(fs.readFileSync(configPath));
+} catch(e) {
+  beep();
+  console.log('[CONFIG]'.bold.red + ' Sorry, there was an issue locating your config.json. Please see README.md');
+  process.exit();
+}
 
 // Build the "dist" folder by running all of the below tasks
 gulp.task('build',
-  gulp.series(clean, pages, sass, images, inline));
+  gulp.series(clean, pages, sass, images, inline, azure));
 
 // Build emails, then send to litmus
 gulp.task('litmus',
-  gulp.series('build', creds, aws, litmus));
+  gulp.series('build', litmus));
 
 // Build emails, then send to EMAIL
 gulp.task('mail',
-  gulp.series('build', creds, aws, mail));
+  gulp.series('build', mail));
 
 // Build emails, then zip
 gulp.task('zip',
   gulp.series('build', zip));
 
 gulp.task('preview',
-  gulp.series('build', creds, preview));
+  gulp.series('build', preview));
 
 // Build emails, run the server, and watch for file changes
 gulp.task('default',
@@ -95,10 +105,13 @@ function images() {
     .pipe(gulp.dest('./dist/assets/img'));
 }
 
-// Inline CSS and minify HTML
+// Inline CSS, swap external URL, and minify HTML
 function inline() {
+  const azureURL = !!CONFIG && !!CONFIG.azure && !!CONFIG.azure.url ? CONFIG.azure.url : false;
+
   return gulp.src('dist/**/*.html')
     .pipe($.if(PRODUCTION, inliner('dist/css/app.css')))
+    .pipe($.if(!!azureURL, $.replace(/=('|")(\/?assets\/img)/g, '=$1' + azureURL)))
     .pipe(gulp.dest('dist'));
 }
 
@@ -129,69 +142,59 @@ function inliner(css) {
       applyStyleTags: false,
       removeStyleTags: true,
       preserveMediaQueries: true,
-      removeLinkTags: false
+      removeLinkTags: false,
     })
     .pipe($.replace, '<!-- <style> -->', `<style>${mqCss}</style>`)
     .pipe($.replace, '<link rel="stylesheet" type="text/css" href="css/app.css">', '')
     .pipe($.htmlmin, {
       collapseWhitespace: true,
-      minifyCSS: true
+      minifyCSS: true,
     });
 
   return pipe();
 }
 
-// Ensure creds for Litmus are at least there.
-function creds(done) {
-  const configPath = './config.json';
-  try { CONFIG = JSON.parse(fs.readFileSync(configPath)); }
-  catch(e) {
-    beep();
-    console.log('[AWS]'.bold.red + ' Sorry, there was an issue locating your config.json. Please see README.md');
-    process.exit();
-  }
-  done();
+// Post images to Azure Blob Storage so they are accessible to emails
+function azure() {
+  if (!CONFIG.azure) return Promise.resolve();
+
+  const blobService = azureStorage.createBlobService(CONFIG.azure.accountName, CONFIG.azure.accountKey);
+
+  const dir = path.join(__dirname, './dist/assets/img');
+  const tasks = fs.readdirSync(dir)
+    .filter((filename) => {
+      const file = path.join(dir, filename);
+      return fs.statSync(file).isFile();
+    })
+    .map(filename => new Promise((r, x) => {
+      blobService.createBlockBlobFromLocalFile(
+        CONFIG.azure.containerName,
+        filename,
+        path.join(dir, filename),
+        (err, result, response) => {
+          if (err) return x(err);
+          console.log('[AZURE]', result);
+          return r(result);
+        });
+    }));
+
+  return Promise.all(tasks);
 }
 
-// Post images to AWS S3 so they are accessible to Litmus and manual test
-function aws() {
-  const publisher = !!CONFIG.aws ? $.awspublish.create(CONFIG.aws) : $.awspublish.create();
-  const headers = {
-    'Cache-Control': 'max-age=315360000, no-transform, public'
-  };
-
-  return gulp.src('./dist/assets/img/*')
-    // publisher will add Content-Length, Content-Type and headers specified above
-    // If not specified it will set x-amz-acl to public-read by default
-    .pipe(publisher.publish(headers))
-
-    // create a cache file to speed up consecutive uploads
-    //.pipe(publisher.cache())
-
-    // print upload updates to console
-    .pipe($.awspublish.reporter());
-}
-
-// Send email to Litmus for testing. If no AWS creds then do not replace img urls.
+// Send email to Litmus for testing. If no Azure creds then do not replace img urls.
 function litmus() {
-  const awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
-
   return gulp.src('dist/**/*.html')
-    .pipe($.if(!!awsURL, $.replace(/=('|")(\/?assets\/img)/g, '=$1' + awsURL)))
     .pipe($.litmus(CONFIG.litmus))
     .pipe(gulp.dest('dist'));
 }
 
-// Send email to specified email for testing. If no AWS creds then do not replace img urls.
+// Send email to specified email for testing. If no Azure creds then do not replace img urls.
 function mail() {
-  const awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
-
   if (EMAIL) {
     CONFIG.mail.to = [EMAIL];
   }
 
   return gulp.src('dist/**/*.html')
-    .pipe($.if(!!awsURL, $.replace(/=('|")(\/?assets\/img)/g, '=$1' + awsURL)))
     .pipe($.mail(CONFIG.mail))
     .pipe(gulp.dest('dist'));
 }
@@ -241,9 +244,9 @@ function zip() {
 function getTemplate(dir, filename) {
   let html = fs.readFileSync(path.join(__dirname, dir, filename), 'utf-8');
 
-  const awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
-  if (!!awsURL) {
-    html = html.replace(/(=|url\()('|")?(\/?assets\/img)/g, '$1$2'+ awsURL);
+  const azureURL = !!CONFIG && !!CONFIG.azure && !!CONFIG.azure.url ? CONFIG.azure.url : false;
+  if (!!azureURL) {
+    html = html.replace(/(=|url\()('|")?(\/?assets\/img)/g, '$1$2'+ azureURL);
   }
 
   const dom = cheerio.load(html);
