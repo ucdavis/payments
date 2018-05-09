@@ -12,6 +12,8 @@ import path     from 'path';
 import merge    from 'merge-stream';
 import beep     from 'beepbeep';
 import colors   from 'colors';
+import cheerio  from 'cheerio';
+import sparkpost from 'sparkpost';
 
 const $ = plugins();
 
@@ -20,15 +22,11 @@ const PRODUCTION = !!(yargs.argv.production);
 const EMAIL = yargs.argv.to;
 
 // Declar var so that both AWS and Litmus task can use it.
-var CONFIG;
+let CONFIG;
 
 // Build the "dist" folder by running all of the below tasks
 gulp.task('build',
   gulp.series(clean, pages, sass, images, inline));
-
-// Build emails, run the server, and watch for file changes
-gulp.task('default',
-  gulp.series('build', server, watch));
 
 // Build emails, then send to litmus
 gulp.task('litmus',
@@ -41,6 +39,13 @@ gulp.task('mail',
 // Build emails, then zip
 gulp.task('zip',
   gulp.series('build', zip));
+
+gulp.task('preview',
+  gulp.series('build', creds, preview));
+
+// Build emails, run the server, and watch for file changes
+gulp.task('default',
+  gulp.series('preview', server, watch));
 
 // Delete the "dist" folder
 // This happens every time a build starts
@@ -73,7 +78,7 @@ function sass() {
   return gulp.src('src/assets/scss/app.scss')
     .pipe($.if(!PRODUCTION, $.sourcemaps.init()))
     .pipe($.sass({
-      includePaths: ['node_modules/foundation-emails/scss']
+      includePaths: ['node_modules/foundation-emails/scss'],
     }).on('error', $.sass.logError))
     .pipe($.if(PRODUCTION, $.uncss(
       {
@@ -100,25 +105,26 @@ function inline() {
 // Start a server with LiveReload to preview the site in
 function server(done) {
   browser.init({
-    server: 'dist'
+    server: 'dist',
   });
   done();
 }
 
 // Watch for file changes
 function watch() {
-  gulp.watch('src/pages/**/*.html').on('all', gulp.series(pages, inline, browser.reload));
-  gulp.watch(['src/layouts/**/*', 'src/partials/**/*']).on('all', gulp.series(resetPages, pages, inline, browser.reload));
-  gulp.watch(['../scss/**/*.scss', 'src/assets/scss/**/*.scss']).on('all', gulp.series(resetPages, sass, pages, inline, browser.reload));
-  gulp.watch('src/assets/img/**/*').on('all', gulp.series(images, browser.reload));
+  gulp.watch('src/pages/**/*.html').on('all', gulp.series(pages, inline, preview, browser.reload));
+  gulp.watch(['src/layouts/**/*', 'src/partials/**/*']).on('all', gulp.series(resetPages, pages, inline, preview, browser.reload));
+  gulp.watch(['../scss/**/*.scss', 'src/assets/scss/**/*.scss']).on('all', gulp.series(resetPages, sass, pages, inline, preview, browser.reload));
+  gulp.watch('src/assets/img/**/*').on('all', gulp.series(images, preview, browser.reload));
+  gulp.watch('etc/data/**/*.json').on('all', gulp.series(preview, browser.reload));
 }
 
 // Inlines CSS into HTML, adds media query CSS into the <style> tag of the email, and compresses the HTML
 function inliner(css) {
   var css = fs.readFileSync(css).toString();
-  var mqCss = siphon(css);
+  const mqCss = siphon(css);
 
-  var pipe = lazypipe()
+  const pipe = lazypipe()
     .pipe($.inlineCss, {
       applyStyleTags: false,
       removeStyleTags: true,
@@ -137,7 +143,7 @@ function inliner(css) {
 
 // Ensure creds for Litmus are at least there.
 function creds(done) {
-  var configPath = './config.json';
+  const configPath = './config.json';
   try { CONFIG = JSON.parse(fs.readFileSync(configPath)); }
   catch(e) {
     beep();
@@ -149,8 +155,8 @@ function creds(done) {
 
 // Post images to AWS S3 so they are accessible to Litmus and manual test
 function aws() {
-  var publisher = !!CONFIG.aws ? $.awspublish.create(CONFIG.aws) : $.awspublish.create();
-  var headers = {
+  const publisher = !!CONFIG.aws ? $.awspublish.create(CONFIG.aws) : $.awspublish.create();
+  const headers = {
     'Cache-Control': 'max-age=315360000, no-transform, public'
   };
 
@@ -168,55 +174,56 @@ function aws() {
 
 // Send email to Litmus for testing. If no AWS creds then do not replace img urls.
 function litmus() {
-  var awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
+  const awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
 
   return gulp.src('dist/**/*.html')
-    .pipe($.if(!!awsURL, $.replace(/=('|")(\/?assets\/img)/g, "=$1"+ awsURL)))
+    .pipe($.if(!!awsURL, $.replace(/=('|")(\/?assets\/img)/g, '=$1' + awsURL)))
     .pipe($.litmus(CONFIG.litmus))
     .pipe(gulp.dest('dist'));
 }
 
 // Send email to specified email for testing. If no AWS creds then do not replace img urls.
 function mail() {
-  var awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
+  const awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
 
   if (EMAIL) {
     CONFIG.mail.to = [EMAIL];
   }
 
   return gulp.src('dist/**/*.html')
-    .pipe($.if(!!awsURL, $.replace(/=('|")(\/?assets\/img)/g, "=$1"+ awsURL)))
+    .pipe($.if(!!awsURL, $.replace(/=('|")(\/?assets\/img)/g, '=$1' + awsURL)))
     .pipe($.mail(CONFIG.mail))
     .pipe(gulp.dest('dist'));
 }
 
+function getHtmlFiles(dir) {
+  const ext = '.html';
+  return fs.readdirSync(dir)
+    .filter((file) => {
+      const fileExt = path.join(dir, file);
+      const isHtml = path.extname(fileExt) === ext;
+      return fs.statSync(fileExt).isFile() && isHtml;
+    });
+}
+
 // Copy and compress into Zip
 function zip() {
-  var dist = 'dist';
-  var ext = '.html';
+  const dist = 'dist';
+  const ext = '.html';
 
-  function getHtmlFiles(dir) {
-    return fs.readdirSync(dir)
-      .filter(function(file) {
-        var fileExt = path.join(dir, file);
-        var isHtml = path.extname(fileExt) == ext;
-        return fs.statSync(fileExt).isFile() && isHtml;
-      });
-  }
+  const htmlFiles = getHtmlFiles(dist);
 
-  var htmlFiles = getHtmlFiles(dist);
+  const moveTasks = htmlFiles.map((file) => {
+    const sourcePath = path.join(dist, file);
+    const fileName = path.basename(sourcePath, ext);
 
-  var moveTasks = htmlFiles.map(function(file){
-    var sourcePath = path.join(dist, file);
-    var fileName = path.basename(sourcePath, ext);
-
-    var moveHTML = gulp.src(sourcePath)
+    const moveHTML = gulp.src(sourcePath)
       .pipe($.rename(function (path) {
         path.dirname = fileName;
         return path;
       }));
 
-    var moveImages = gulp.src(sourcePath)
+    const moveImages = gulp.src(sourcePath)
       .pipe($.htmlSrc({ selector: 'img'}))
       .pipe($.rename(function (path) {
         path.dirname = fileName + path.dirname.replace('dist', '');
@@ -224,9 +231,113 @@ function zip() {
       }));
 
     return merge(moveHTML, moveImages)
-      .pipe($.zip(fileName+ '.zip'))
+      .pipe($.zip(fileName + '.zip'))
       .pipe(gulp.dest('dist'));
   });
 
   return merge(moveTasks);
+}
+
+function getTemplate(dir, filename) {
+  let html = fs.readFileSync(path.join(__dirname, dir, filename), 'utf-8');
+
+  const awsURL = !!CONFIG && !!CONFIG.aws && !!CONFIG.aws.url ? CONFIG.aws.url : false;
+  if (!!awsURL) {
+    html = html.replace(/(=|url\()('|")?(\/?assets\/img)/g, '$1$2'+ awsURL);
+  }
+
+  const dom = cheerio.load(html);
+
+  const id = dom('meta[name="id"]').attr('content');
+  const name = dom('meta[name="name"]').attr('content');
+  const subject = dom('title').text();
+
+  const template = {
+    id,
+    name,
+    content: {
+      subject,
+      html,
+    },
+  };
+
+  // build from info
+  const fromEmail = dom('meta[name="from_email"]').attr('content');
+  if (fromEmail) {
+    template.content.from = fromEmail;
+  } else {
+    template.content.from = 'donotreply@payments-mail.ucdavis.edu';
+  }
+
+  const fromName = dom('meta[name="from_name"]').attr('content');
+  if (fromName) {
+    template.content.from = {
+      name: fromName,
+      email: template.content.from,
+    };
+  }
+
+  // build reply info
+  const replyEmail = dom('meta[name="reply_email"]').attr('content');
+  if (replyEmail) {
+    template.content.reply_to = replyEmail;
+  }
+
+  return template;
+}
+
+function getSubstitutionFiles(dir) {
+  const ext = '.json';
+  return fs.readdirSync(dir)
+    .filter((file) => {
+      const fileExt = path.join(dir, file);
+      const isJson = path.extname(fileExt) === ext;
+      return fs.statSync(fileExt).isFile() && isJson;
+    });
+}
+
+function preview() {
+  const key = CONFIG.sparkpost.apikey;
+  const client = new sparkpost(key);
+  const options = {
+    update_published: false,
+  };
+
+  let dist = path.join(__dirname, 'dist');
+  if (!fs.existsSync(dist)) {
+    fs.mkdirSync(dist);
+  }
+
+  dist = path.join(dist, 'preview');
+  if (!fs.existsSync(dist)) {
+    fs.mkdirSync(dist);
+  }
+
+  const dir = './etc/data';
+  const tasks = getSubstitutionFiles(dir).map(s => {
+    const id = s.replace(/\.json$/, '');
+    const data = JSON.parse(fs.readFileSync(path.join(__dirname, dir, s)));
+    const template = getTemplate('dist', `${id}.html`);
+
+    template.id = 'preview';
+    template.name = 'preview';
+
+    // first upload the template
+    return client.templates.update('preview', template)
+      .then(result => {
+        console.log(result);
+        return client.templates.preview('preview', {
+          draft: true,
+          substitution_data: data,
+        });
+      })
+      .then(result => {
+        // write files to dist
+        fs.writeFileSync(path.join(dist, `${id}.html`), result.results.html);
+      })
+      .catch(err => console.log(err));
+  });
+
+  return Promise.all(tasks);
+
 }
