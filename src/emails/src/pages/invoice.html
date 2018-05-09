@@ -1,6 +1,9 @@
 ---
+id: payments
+name: payments
 subject: New invoice from UCDavis #123456
 ---
+{{{{raw}}}}
 
 <spacer size="32"></spacer>
 
@@ -11,18 +14,18 @@ subject: New invoice from UCDavis #123456
         <div class="panel">
 
             <h1 class="text-center lead">Invoice from UCDavis</h1>
-            <p class="text-center minor">Invoice # 123456</p>
+            <p class="text-center minor">Invoice # {{id}}</p>
             
             <spacer size="16"></spacer>
 
             <row class="collapse">
                 <columns small="6">
                     <p class="major text-upper">Amount Due</p>
-                    <p>$10.98</p>
+                    <p>${{total}}</p>
                 </columns>
                 <columns small="6">
                     <p class="major text-upper text-right">Billed To</p>
-                    <p class="text-right">jpknoll@gmail.com</p>
+                    <p class="text-right">{{customerEmail}}</p>
                 </columns>
             </row>
 
@@ -35,29 +38,27 @@ subject: New invoice from UCDavis #123456
             <h2 class="major text-upper">Summary</h2>
             <div class="invoice-table bg-light-gray">
                 <spacer size="16"></spacer>
+                {{ each items }}
                 <row>
-                    <columns small="6">Item the first <span class="minor">x 1</span></columns>
-                    <columns small="6"><p class="text-right">$5.50</p></columns>
+                    <columns small="6">{{loop_var.description}} <span class="minor">x {{loop_var.quantity}}</span></columns>
+                    <columns small="6"><p class="text-right">${{loop_var.total}}</p></columns>
                 </row>
-                <row>
-                    <columns small="6">Yet another item <span class="minor">x 2</span></columns>
-                    <columns small="6"><p class="text-right">$6.60</p></columns>
-                </row>
+                {{ end }}
                 <row>
                     <columns><hr /></columns>
                 </row>
                 <row>
                     <columns small="6">discount</columns>
-                    <columns small="6"><p class="text-right">-$2.00</p></columns>
+                    <columns small="6"><p class="text-right">-${{discount}}</p></columns>
                 </row>
                 <row>
-                    <columns small="6">Tax (8.75%)</columns>
-                    <columns small="6"><p class="text-right">$0.88</p></columns>
+                    <columns small="6">Tax ({{taxPercent}}%)</columns>
+                    <columns small="6"><p class="text-right">${{taxAmount}}</p></columns>
                 </row>
                 <spacer size="16"></spacer>
                 <row>
                     <columns small="6"><p class="text-bold">Amount due</p></columns>
-                    <columns small="6"><p class="text-bold text-right">$10.98</p></columns>
+                    <columns small="6"><p class="text-bold text-right">${{total}}</p></columns>
                 </row>
             </div>
 
@@ -71,3 +72,5 @@ subject: New invoice from UCDavis #123456
         </div>
     </div>
 </container>
+
+{{{{/raw}}}}
