@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using payments.Tests.Helpers;
 using Payments.Core.Domain;
 using Shouldly;
 using TestHelpers.Helpers;
@@ -133,6 +135,62 @@ namespace Payments.Tests.DatabaseTests
 
             // Assert		
             invoice.Total.ShouldBe(expectedValue);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TestGetPaymentDictionaryReturnsExpectedValues(int value)
+        {
+            // Arrange
+            var invoice = CreateValidEntities.Invoice(value, value);
+            invoice.UpdateCalculatedValues();
+            invoice.CustomerEmail.ShouldNotBeNull();
+            invoice.CustomerName.ShouldNotBeNull();
+
+            // Act
+            var result = invoice.GetPaymentDictionary();
+
+            // Assert		
+            result.ShouldBeOfType<Dictionary<string, string>>();
+            result.Count.ShouldBe(13 + (3 * invoice.Items.Count));
+
+            result["transaction_type"].ShouldBe("sale");
+            result["reference_number"].ShouldBe(invoice.Id.ToString());
+            result["amount"].ShouldBe(invoice.Total.ToString("F2"));
+            result["currency"].ShouldBe("USD");
+            result["transaction_uuid"].ShouldNotBeNull();
+            result["signed_date_time"].ShouldNotBeNull();
+            result["unsigned_field_names"].ShouldBe("");
+            result["locale"].ShouldBe("en");
+            result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
+            result["bill_to_forename"].ShouldBe(invoice.CustomerName);
+            result["bill_to_address_country"].ShouldBe("US");
+            result["bill_to_address_state"].ShouldBe("CA");
+            result["line_item_count"].ShouldBe(value.ToString());
+
+            for (int i = 0; i < value; i++)
+            {
+                result[$"item_{i}_name"].ShouldBe(invoice.Items[i].Description);
+                result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString());
+                result[$"item_{i}_unit_price"].ShouldBe(invoice.Items[i].Amount.ToString("F2"));
+            }
+        }
+
+        [Fact]
+        public void TestStatusCodesHaveExpectedValues()
+        {
+            var scType = typeof(Invoice.StatusCodes);
+            var props = scType.GetFields();
+            props.Length.ShouldBe(5);
+            
+            //props[0].Name.ShouldBe("Draft");
+            Invoice.StatusCodes.Draft.ShouldBe("Draft");
+            Invoice.StatusCodes.Sent.ShouldBe("Sent");
+            Invoice.StatusCodes.Paid.ShouldBe("Paid");
+            Invoice.StatusCodes.Completed.ShouldBe("Completed");
+            Invoice.StatusCodes.Cancelled.ShouldBe("Cancelled");
         }
     }
 }
