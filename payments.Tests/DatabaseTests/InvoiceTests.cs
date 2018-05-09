@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using payments.Tests.Helpers;
+﻿using payments.Tests.Helpers;
 using Payments.Core.Domain;
 using Shouldly;
+using System.Collections.Generic;
 using TestHelpers.Helpers;
 using Xunit;
 
