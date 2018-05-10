@@ -13,8 +13,10 @@ namespace Payments.Core.Domain
         [Range(1, Int32.MaxValue)]
         public int Quantity { get; set; }
 
+        [Range(0, double.MaxValue)]
         public decimal Amount { get; set; }
-        
+
+        [Range(0, double.MaxValue)]
         public decimal Total { get; set; }
     }
 }
