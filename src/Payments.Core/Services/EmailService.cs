@@ -43,6 +43,7 @@ namespace Payments.Core.Services
                 { "taxPercent", (invoice.TaxPercent * 100).ToString("F") },
                 { "total", invoice.Total.ToString("F2") },
                 { "items", invoice.Items.Select(i => new { description = i.Description, quantity = i.Quantity, total = i.Total.ToString("F2") }) },
+                { "memo", invoice.Memo },
             };
 
             var transmission = new Transmission();
