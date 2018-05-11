@@ -154,6 +154,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 </div>
                 <div className="">
                     <button className="btn btn-default">Cancel</button>
+                    <button className="btn btn-success" onClick={this.onSend}>Send</button>
                     <button className="btn btn-success" onClick={this.onSubmit}>Save</button>
                 </div>
             </div>
@@ -321,15 +322,31 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         // fetch 
         const response = await fetch(url, {
             body: JSON.stringify(invoice),
-            credentials: "include",
+            credentials: "same-origin",
             headers: new Headers({
                 "Content-Type": "application/json",
                 "RequestVerificationToken": antiForgeryToken
             }),
-            method: "POST"
+            method: "POST",
         });
         console.log(await response.json());
 
         // redirect to invoices
+    }
+
+    private onSend = async () => {
+        const { id } = this.props.invoice;
+
+        const url = `/invoices/send/${id}`;
+
+        const response = await fetch(url, {
+            credentials: "same-origin",
+            headers: new Headers({
+                "Content-Type": "application/json",
+                "RequestVerificationToken": antiForgeryToken
+            }),
+            method: "POST",
+        });
+        console.log(await response.json());
     }
 }

@@ -1,0 +1,185 @@
+//  Foundation for Emails Settings
+//  ------------------------------
+//
+//  Table of Contents:
+//
+//   1. Global
+//   2. Grid
+//   3. Block Grid
+//   4. Typography
+//   5. Button
+//   6. Callout
+//   7. Menu
+//   8. Thumbnail
+
+
+// 1. Global
+// ---------
+
+$primary-color:     #004987;
+$secondary-color:   #D2AC3A;
+$tertiary-color:    transparentize($secondary-color, .80);
+
+$gold:              #D2AC3A;
+$blue:              #004987;
+
+$accent:            #CCD4E0;
+$success-color: #3adb76;
+$warning-color: #ffae00;
+$alert-color: #ec5840;
+$light-gray: #f3f3f3;
+$medium-gray: #cacaca;
+$dark-gray: #8a8a8a;
+$black: #0a0a0a;
+$white: #fefefe;
+$pre-color: #ff6908;
+
+// UC Davis Colors
+// Supplemental bright color palette for UC Davis
+$unitrans-red: #ba0c2f;
+$western-redbud: #c6007e;
+$california-poppy: #ed8800;
+$golden-lupine: #ffcd00;
+$sunny-grass: #78be20;
+$sky-blue: #00b5e2;
+$recpool-blue: #008eaa;
+$wine-grape: #642667;
+// Supplemental neutral color palette for UC Davis
+$mu-brick: #c26e60;
+$harthall-stucco: #e6a65d;
+$sage-green: #9caf88;
+$evergreen: #00573f;
+$wintersky-gray: #5b7f95;
+$cenwalk-gray: #b1b3b3;
+$cork-oak: #aca39a;
+$shingle-brown: #4f2c1d;
+
+$bg-color: #F8F9FB; // background
+$borders: #C8C7CC; // border color
+
+$global-width: 580px;
+$global-width-small: 95%;
+$global-gutter: 16px;
+$body-background: $bg-color;
+$container-background: initial;
+$global-padding: 16px;
+$global-margin: 16px;
+$global-radius: 3px;
+$global-rounded: 500px;
+$global-breakpoint: $global-width + $global-gutter;
+
+// 2. Grid
+// -------
+
+$grid-column-count: 12;
+$column-padding-bottom: $global-padding;
+$container-radius: 5px;
+
+// 3. Block Grid
+// -------------
+
+$block-grid-max: 8;
+$block-grid-gutter: $global-gutter;
+
+// 4. Typography
+// -------------
+
+$primary-font: rgba(31,31,31,.99); //
+$secondary-font: rgba(31,31,31,.65); //
+$tertiary-font: rgba(31,31,31,.33); //
+
+$global-font-color: $primary-font;
+$body-font-family: Georgia, Times New Roman, serif;
+$global-font-weight: normal;
+$header-color: inherit;
+$global-line-height: 1.3;
+$global-font-size: 16px;
+$body-line-height: $global-line-height;
+$header-font-family: $body-font-family;
+$header-font-weight: $global-font-weight;
+$h1-font-size: 34px;
+$h2-font-size: 30px;
+$h3-font-size: 28px;
+$h4-font-size: 24px;
+$h5-font-size: 20px;
+$h6-font-size: 18px;
+$header-margin-bottom: 10px;
+$paragraph-margin-bottom: 10px;
+$small-font-size: 80%;
+$small-font-color: $secondary-font;
+$lead-font-size: $global-font-size * 1.25;
+$lead-line-height: 1.6;
+$text-padding: 10px;
+$subheader-lineheight: 1.4;
+$subheader-color: $secondary-font;
+$subheader-font-weight: $global-font-weight;
+$subheader-margin-top: 4px;
+$subheader-margin-bottom: 8px;
+$hr-width: $global-width;
+$hr-border: 1px solid $black;
+$hr-margin: 20px auto;
+$anchor-text-decoration: none;
+$anchor-color: transparentize($primary-color, .2);
+$anchor-color-visited: $anchor-color;
+$anchor-color-hover: darken($primary-color, 10%);
+$anchor-color-active: $anchor-color-hover;
+$stat-font-size: 40px;
+
+// 5. Button
+// ---------
+
+$button-padding: (
+  tiny: 4px 8px 4px 8px,
+  small: 5px 10px 5px 10px,
+  default: 8px 16px 8px 16px,
+  large: 10px 20px 10px 20px,
+);
+$button-font-size: (
+  tiny: 10px,
+  small: 12px,
+  default: 16px,
+  large: 20px,
+);
+$button-color: $white;
+$button-color-alt: $medium-gray;
+$button-font-weight: bold;
+$button-margin: 0 0 $global-margin 0;
+$button-background: $primary-color;
+$button-border: 2px solid $button-background;
+$button-radius: $global-radius;
+$button-rounded: $global-rounded;
+
+// 6. Callout
+// ----------
+
+$callout-background: $white;
+$callout-background-fade: 85%;
+$callout-padding: 10px;
+$callout-margin-bottom: $global-margin;
+$callout-border: 1px solid darken($callout-background, 20%);
+$callout-border-secondary: 1px solid darken($secondary-color, 20%);
+$callout-border-success: 1px solid darken($success-color, 20%);
+$callout-border-warning: 1px solid darken($warning-color, 20%);
+$callout-border-alert: 1px solid darken($alert-color, 20%);
+
+// 7. Menu
+// -------
+
+$menu-item-padding: 10px;
+$menu-item-gutter: 10px;
+$menu-item-color: $primary-color;
+
+// 8. Thumbnail
+// ------------
+
+$thumbnail-border: solid 4px $white;
+$thumbnail-margin-bottom: $global-margin;
+$thumbnail-shadow: 0 0 0 1px rgba($black, 0.2);
+$thumbnail-shadow-hover: 0 0 6px 1px rgba($primary-color, 0.5);
+$thumbnail-transition: box-shadow 200ms ease-out;
+$thumbnail-radius: $global-radius;
+
+// 9. Other
+// --------
+
+$box-shadow: 0 0 0 1px rgba(49,49,93,.03), 0 2px 5px 0 rgba(49,49,93,.1), 0 1px 2px 0 rgba(0,0,0,.08);

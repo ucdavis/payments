@@ -1,0 +1,30 @@
+{
+    "id": 1,
+    "creator": {
+        "name": "John Knoll"
+    },
+    "customerName": null,
+    "customerAddress": null,
+    "customerEmail": "jpknoll@ucdavis.edu",
+    "memo": "Sample Memo Goes Here",
+    "discount": "2.00",
+    "taxPercent": "5.00",
+    "status": "Sent",
+    "team": null,
+    "items": [{
+        "id": 1,
+        "description": "Item 2",
+        "quantity": 2,
+        "amount": "3.30",
+        "total": "6.60"
+    }, {
+        "id": 2,
+        "description": "Item 1",
+        "quantity": 1,
+        "amount": "5.50",
+        "total": "5.50"
+    }],
+    "subtotal": "12.10",
+    "taxAmount": "0.51",
+    "total": "10.61"
+}

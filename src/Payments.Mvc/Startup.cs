@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.Configuration;
+using Payments.Core.Services;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Services;
 
@@ -35,6 +37,7 @@ namespace Payments.Mvc
         {
             services.Configure<Settings>(Configuration.GetSection("Settings"));
             services.Configure<CyberSourceSettings>(Configuration.GetSection("CyberSource"));
+            services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
 
             // setup entity framework
             if (!_environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -64,7 +67,7 @@ namespace Payments.Mvc
 
             // application services
             services.AddTransient<IDataSigningService, DataSigningService>();
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailService, SparkpostEmailService>();
             services.AddTransient<IDirectorySearchService, IetWsSearchService>();
             services.AddTransient<IFinancialService, FinancialService>();
         }
