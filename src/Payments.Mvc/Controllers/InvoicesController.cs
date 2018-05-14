@@ -135,6 +135,12 @@ namespace Payments.Mvc.Controllers
             });
             invoice.Items = items.ToList();
 
+            // editing a sent invoice will modify the link id
+            if (invoice.Sent)
+            {
+                invoice.LinkId = InvoiceKeyHelper.GetUniqueKey(10);
+            }
+
             // save to db
             invoice.UpdateCalculatedValues();
             _dbContext.SaveChanges();
