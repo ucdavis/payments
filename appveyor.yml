@@ -42,7 +42,7 @@ test_script:
     - node --version
     - npm --version
 - cmd: |
-    cd Payments.Tests
+    cd .\payments.Tests
     dotnet test
     cd ..
 
