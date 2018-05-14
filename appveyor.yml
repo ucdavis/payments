@@ -41,7 +41,10 @@ after_build:
 test_script:
     - node --version
     - npm --version
-# - ps: dotnet test .\test
+- cmd: |
+    cd Payments.Tests
+    dotnet test
+    cd ..
 
 artifacts:
 - path: artifacts\**\*.nupkg
