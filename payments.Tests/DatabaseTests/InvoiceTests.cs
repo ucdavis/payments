@@ -33,8 +33,11 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
             }));
             expectedFields.Add(new NameAndType("Items", "System.Collections.Generic.List`1[Payments.Core.Domain.LineItem]", new List<string>()));
+            expectedFields.Add(new NameAndType("LinkId", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Memo", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Payment", "Payments.Core.Domain.PaymentEvent", new List<string>()));
+            expectedFields.Add(new NameAndType("Sent", "System.Boolean", new List<string>()));
+            expectedFields.Add(new NameAndType("SentAt", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("Status", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Subtotal", "System.Decimal", new List<string>()));
             expectedFields.Add(new NameAndType("TaxAmount", "System.Decimal", new List<string>()));
@@ -44,6 +47,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
             expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>()));
+
 
             #endregion Arrange
 
