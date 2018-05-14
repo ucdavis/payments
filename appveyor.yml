@@ -39,10 +39,8 @@ after_build:
     octo pack --id Payments.Mvc --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Mvc\ --outFolder .\artifacts\
 
 test_script:
-    - node --version
-    - npm --version
 - cmd: |
-    cd .\Payments.Tests
+    cd Payments.Tests
     dotnet test
     cd ..
 
