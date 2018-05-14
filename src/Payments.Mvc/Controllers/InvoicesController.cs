@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Services;
+using Payments.Mvc.Helpers;
 using Payments.Mvc.Models.InvoiceViewModels;
 
 
@@ -162,6 +163,9 @@ namespace Payments.Mvc.Controllers
             {
                 return BadRequest("Invoice already sent.");
             }
+
+            // setup random 10 character key link id
+            invoice.LinkId = InvoiceKeyHelper.GetUniqueKey(10);
 
             await _emailService.SendInvoice(invoice);
 

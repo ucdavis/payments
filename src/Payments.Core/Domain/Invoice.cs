@@ -17,6 +17,8 @@ namespace Payments.Core.Domain
         [Key]
         public int Id { get; set; }
 
+        public string LinkId { get; set; }
+
         [Required]
         public User Creator { get; set; }
 
