@@ -17,9 +17,15 @@
     @RenderSection("AdditionalStyles", required: false)
 </head>
 <body>
+  <div class="logo t-center">
+    <a href="/">
+      <img src="/wwwroot/media/logo.svg" alt="">
+    </a>
+  </div>
     <div class="container">
         @RenderBody()
     </div>
+      @Html.Partial("_Footer")
 
     <environment names="Development">
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>

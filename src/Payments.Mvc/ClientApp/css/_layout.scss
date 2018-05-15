@@ -42,7 +42,48 @@ body {
     width:88%;
   }
 }
-
+.card-style {
+  background-color:#ffffff;
+  box-shadow: $box-shadow;
+  border-radius:4px;
+  overflow:hidden;
+}
+.card-gradient-header {
+  background: url("/media/gradient-header.svg") center top/cover no-repeat;
+  height: 6px;
+}
+.card-gradient-header-bleed {
+  background: #1e3a5b;
+  background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one',endColorstr='$gradient-two',GradientType=1);
+}
+.card-content {
+}
+.pay-card-style {
+  width:790px;
+  margin:0 auto;
+}
+.pay-top {
+  text-align: center;
+  padding:40px 48px;
+  border-bottom:1px solid $borders;
+  p {
+    font-size: 2rem;
+    margin-bottom:0px;
+  }
+}
+.pay-action {
+  background-color: transparentize($gold,.96);
+  padding:40px 48px;
+  text-align: center;
+  border-bottom:1px solid $borders;
+  p {
+    font-size:2rem;
+      margin:18px 0px;
+  }
+}
 .logo {
   margin-top:7px;
   g#logocolor {
@@ -57,15 +98,15 @@ footer {
   }
   .footer_bleed {
     background: #1e3a5b;
-      background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-      background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-      background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one',endColorstr='$gradient-two',GradientType=1);
+    background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+    background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+    background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one',endColorstr='$gradient-two',GradientType=1);
   }
   .footer_divider {
-      background: url("/media/gunrock_banner_final.svg") center top/cover no-repeat;
-      height: 44px;
-      padding-top:10px;
+    background: url("/media/gunrock_banner_final.svg") center top/cover no-repeat;
+    height: 44px;
+    padding-top:10px;
   }
 .row {
   margin-right: 0;

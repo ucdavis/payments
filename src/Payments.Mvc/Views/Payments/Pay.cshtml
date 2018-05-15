@@ -5,30 +5,43 @@
     Layout = "_PaymentsLayout";
 }
 
-<div class="container">
-    <h1>Invoice from UCDavis Arboretum</h1>
-    <p>Billed to jpknoll@ucdavis.edu</p>
-    <p>Invoice @Model.Id</p>
-    
-    @if (Model.Status == Invoice.StatusCodes.Sent)
-    {
-        <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
-            @foreach (var pair in Model.PaymentDictionary)
-            {
-                <input type="hidden" name="@pair.Key" value="@pair.Value" />
-            }
-            <input type="hidden" name="signature" value="@ViewBag.Signature" />
-            <button type="submit" class="btn btn-primary" aria-hidden="true">
-                <i class="fa fa-credit-card" aria-hidden="true"></i>
-                @(string.Format("{0:C}", Model.Total)) Pay Now
-            </button>
-        </form>
-    }
-    else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
-    {
-        <h2>$@Model.Total.ToString("F2") USD paid @Model.PaidDate.ToString("D")</h2>
-    }
-    
+<div class="card-style pay-card-style">
+  <div class="card-gradient-header-bleed">
+      <div class="card-gradient-header">
+
+      </div>
+  </div>
+  <div class="card-content">
+    <div class="pay-top">
+      <h2>Invoice from UCDavis Arboretum</h2>
+      <p class="secondary-font">Billed to jpknoll@ucdavis.edu</p>
+      <p class="tertiary-font">Invoice @Model.Id</p>
+    </div>
+    <div class="pay-action">
+      <h1>@(string.Format("{0:C}", Model.Total))</h1>
+      <p class="secondary-font">Due March, 23rd 1989</p>
+      @if (Model.Status == Invoice.StatusCodes.Sent)
+
+      {
+          <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
+              @foreach (var pair in Model.PaymentDictionary)
+              {
+                  <input type="hidden" name="@pair.Key" value="@pair.Value" />
+              }
+              <input type="hidden" name="signature" value="@ViewBag.Signature" />
+              <button type="submit" class="btn-gold" aria-hidden="true">
+                  <i class="fa fa-credit-card" aria-hidden="true"></i>
+                  Pay Now
+              </button>
+          </form>
+      }
+      else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
+      {
+          <h2>$@Model.Total.ToString("F2") USD paid @Model.PaidDate.ToString("D")</h2>
+      }
+    </div>
+
+
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
     {
         <p>@Model.Memo</p>
@@ -64,7 +77,7 @@
                 <td>$@Model.Discount.ToString("F2")</td>
             </tr>
         }
-        
+
         @if (Model.TaxAmount > 0)
         {
             <tr>
@@ -85,8 +98,10 @@
         </tr>
         </tfoot>
     </table>
-    
+
     <p>
         If you have any questions, contact at jpknoll@ucdavis.edu or call at 530-754-0000
     </p>
+  </div>
+
 </div>

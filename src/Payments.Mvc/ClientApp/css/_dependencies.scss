@@ -26,7 +26,7 @@ $primary-color:     #006F8E;
 $secondary-color:   #8FA600;
 $tertiary-color:    #009493;
 
-$gold:              #D2AC3A;
+$gold:              #DAAA00;
 $blue:              #004987;
 
 $a-link:            transparentize($primary-color, .2);
@@ -104,4 +104,31 @@ $shingle-brown: #4f2c1d;
   -webkit-transition:.25s;
   /* ...and now for the proper property */
   transition:.25s;
+}
+@mixin main-btn {
+  white-space: nowrap;
+  display: inline-block;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 20px;
+  box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 1px 3px rgba(0,0,0,.08);
+  background: $primary-color;
+  border-radius: 2px;
+  font-size: 1.6rem;
+  letter-spacing: 0.025em;
+  color: #fff !important;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  border: none;
+  font-family: $sans-bold;
+  &:active,
+  &:focus {
+    background-color: darken($primary-color, 5);
+  }
+  &:hover {
+    color: #fff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 3px 6px rgba(0,0,0,.08);
+    background-color: lighten($primary-color, 5);
+  }
 }
