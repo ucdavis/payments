@@ -36,6 +36,13 @@ p a.action-btn {
     background-color: lighten($gold, 5);
   }
 }
+.btn-inverse {
+  @include inverse-btn
+}
+.btn-inverse-gold {
+  @include inverse-btn
+  color:$gold;
+}
 
 .btn-border {
   border: 2px solid $borders;

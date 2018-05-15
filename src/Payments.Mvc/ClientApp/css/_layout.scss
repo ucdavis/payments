@@ -68,7 +68,6 @@ body {
 .pay-top {
   text-align: center;
   padding:40px 48px;
-  border-bottom:1px solid $borders;
   p {
     font-size: 2rem;
     margin-bottom:0px;
@@ -78,11 +77,19 @@ body {
   background-color: transparentize($gold,.96);
   padding:40px 48px;
   text-align: center;
-  border-bottom:1px solid $borders;
   p {
     font-size:2rem;
       margin:18px 0px;
   }
+}
+.pay-download {
+  background-color: $bg-color;
+  padding:40px 48px;
+  text-align: center;
+}
+.pay-footer {
+  padding:16px 48px 8px 48px;
+  text-align: center;
 }
 .logo {
   margin-top:7px;

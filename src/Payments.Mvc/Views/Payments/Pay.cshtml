@@ -47,7 +47,7 @@
         <p>@Model.Memo</p>
     }
 
-    <table>
+    <table class="table">
         <thead>
         <tr>
             <th>Description</th>
@@ -90,7 +90,8 @@
 
         <tr>
             <td>
-                <button>Download PDF</button>
+
+
             </td>
             <td></td>
             <td></td>
@@ -99,9 +100,17 @@
         </tfoot>
     </table>
 
-    <p>
-        If you have any questions, contact at jpknoll@ucdavis.edu or call at 530-754-0000
-    </p>
+<div class="pay-download">
+  <img src="/media/download.svg" alt="download icon">
+  <h3>Downloads</h3>
+    <button class="btn-inverse">Payment</button>
+    <button class="btn-inverse">Invoice</button>
+</div>
+    <div class="pay-footer">
+      <p>
+          If you have any questions, contact at <a href="/">jpknoll@ucdavis.edu</a> or call at <a href="">530-754-0000</a>
+      </p>
+    </div>
   </div>
 
 </div>

@@ -132,3 +132,25 @@ $shingle-brown: #4f2c1d;
     background-color: lighten($primary-color, 5);
   }
 }
+
+@mixin inverse-btn {
+  white-space: nowrap;
+  display: inline-block;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 20px;
+  background: #fff;
+  font-size: 1.6rem;
+  letter-spacing: 0.025em;
+  color: $primary-color;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  border: none;
+  font-family: $sans-bold;
+  box-shadow: $box-shadow;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $box-shadow;
+    background-color: $bg-color;
+  }
+}
