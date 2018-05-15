@@ -82,10 +82,16 @@ body {
       margin:18px 0px;
   }
 }
+.pay-description {
+  padding:40px 48px;
+}
 .pay-download {
   background-color: $bg-color;
   padding:40px 48px;
   text-align: center;
+  h3 {
+    margin:12px 0px;
+  }
 }
 .pay-footer {
   padding:16px 48px 8px 48px;

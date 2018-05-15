@@ -41,70 +41,72 @@
       }
     </div>
 
+<div class="pay-description">
+  @if (!string.IsNullOrWhiteSpace(Model.Memo))
+  {
+      <p>@Model.Memo</p>
+  }
 
-    @if (!string.IsNullOrWhiteSpace(Model.Memo))
-    {
-        <p>@Model.Memo</p>
-    }
+  <table class="table">
+      <thead>
+      <tr>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Amount</th>
+      </tr>
+      </thead>
+      <tbody>
+      @foreach (var item in Model.Items)
+      {
+          <tr data-id="@item.Id">
+              <td>@item.Description</td>
+              <td>@item.Quantity</td>
+              <td>@item.Amount</td>
+              <td>@item.Total</td>
+          </tr>
+      }
+      </tbody>
+      <tfoot>
+      @if (Model.Discount > 0)
+      {
+          <tr>
+              <td></td>
+              <td></td>
+              <td>Discount</td>
+              <td>$@Model.Discount.ToString("F2")</td>
+          </tr>
+      }
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Description</th>
-            <th>Qty</th>
-            <th>Unit Price</th>
-            <th>Amount</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model.Items)
-        {
-            <tr data-id="@item.Id">
-                <td>@item.Description</td>
-                <td>@item.Quantity</td>
-                <td>@item.Amount</td>
-                <td>@item.Total</td>
-            </tr>
-        }
-        </tbody>
-        <tfoot>
-        @if (Model.Discount > 0)
-        {
-            <tr>
-                <td></td>
-                <td></td>
-                <td>Discount</td>
-                <td>$@Model.Discount.ToString("F2")</td>
-            </tr>
-        }
+      @if (Model.TaxAmount > 0)
+      {
+          <tr>
+              <td></td>
+              <td></td>
+              <td>Tax (@Model.TaxPercent.ToString("P"))</td>
+              <td>$@Model.TaxAmount.ToString("F2")</td>
+          </tr>
+      }
 
-        @if (Model.TaxAmount > 0)
-        {
-            <tr>
-                <td></td>
-                <td></td>
-                <td>Tax (@Model.TaxPercent.ToString("P"))</td>
-                <td>$@Model.TaxAmount.ToString("F2")</td>
-            </tr>
-        }
-
-        <tr>
-            <td>
+      <tr>
+          <td>
 
 
-            </td>
-            <td></td>
-            <td></td>
-            <td>@Model.Total</td>
-        </tr>
-        </tfoot>
-    </table>
+          </td>
+          <td></td>
+          <td></td>
+          <td>@Model.Total</td>
+      </tr>
+      </tfoot>
+  </table>
+
+</div>
 
 <div class="pay-download">
   <img src="/media/download.svg" alt="download icon">
   <h3>Downloads</h3>
     <button class="btn-inverse">Payment</button>
-    <button class="btn-inverse">Invoice</button>
+    <button class="btn-inverse m-l">Invoice</button>
 </div>
     <div class="pay-footer">
       <p>
