@@ -42,11 +42,13 @@
     </div>
 
 <div class="pay-description">
-  @if (!string.IsNullOrWhiteSpace(Model.Memo))
-  {
-      <p>@Model.Memo</p>
-  }
-
+  <p class="twopointoh secondary-font">Memo</p>
+  <div class="pay-memo">
+    @if (!string.IsNullOrWhiteSpace(Model.Memo))
+    {
+        <p>@Model.Memo</p>
+    }
+  </div>
   <table class="table">
       <thead>
       <tr>

@@ -43,7 +43,6 @@ p a.action-btn {
   @include inverse-btn
   color:$gold;
 }
-
 .btn-border {
   border: 2px solid $borders;
   font-size: 1.6rem;
@@ -56,7 +55,6 @@ p a.action-btn {
     background-color: rgba(255,255,255,.90);
   }
 }
-
 .btn-discreet {
   color: $tertiary-font;
   font-size: 1.8rem;
@@ -68,11 +66,9 @@ p a.action-btn {
     color: $primary-color;
   }
 }
-
 .btn-register {
   width: 100%;
 }
-
 .media {
   margin-bottom: 16px;
 
@@ -310,4 +306,7 @@ ol.breadcrumb {
 
 .flex-center {
   align-items: center;
+}
+.twopointoh {
+  font-size:2rem;
 }

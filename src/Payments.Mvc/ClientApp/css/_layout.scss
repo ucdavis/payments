@@ -61,13 +61,21 @@ body {
 }
 .card-content {
 }
+.pay-memo {
+  box-shadow: $box-shadow;
+  padding:16px;
+  p {
+    margin-bottom:0px;
+  }
+  margin-bottom:40px;
+}
 .pay-card-style {
   width:790px;
   margin:0 auto;
 }
 .pay-top {
   text-align: center;
-  padding:40px 48px;
+  padding:40px 48px 20px 48px;
   p {
     font-size: 2rem;
     margin-bottom:0px;
@@ -96,6 +104,28 @@ body {
 .pay-footer {
   padding:16px 48px 8px 48px;
   text-align: center;
+}
+table.table {
+  thead {
+  th {
+    font-size:2rem;
+    font-family: $sans-reg;
+    border:none;
+    color:$secondary-font;
+    font-weight:inherit;
+  }
+  }
+  tbody {
+
+  }
+  tr {
+    td {
+      font-size:1.8rem;
+      font-family: $sans-reg;
+      color:$tertiary-font;
+      border:none;
+    }
+  }
 }
 .logo {
   margin-top:7px;
