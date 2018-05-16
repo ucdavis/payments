@@ -36,6 +36,10 @@ p a.action-btn {
     background-color: lighten($gold, 5);
   }
 }
+.btn-md {
+  padding:0px 40px;
+  font-size:1.8rem;
+}
 .btn-inverse {
   @include inverse-btn
 }
@@ -309,4 +313,7 @@ ol.breadcrumb {
 }
 .twopointoh {
   font-size:2rem;
+}
+.onepointeight {
+  font-size:1.8rem;
 }

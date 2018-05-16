@@ -29,7 +29,7 @@
                   <input type="hidden" name="@pair.Key" value="@pair.Value" />
               }
               <input type="hidden" name="signature" value="@ViewBag.Signature" />
-              <button type="submit" class="btn-gold" aria-hidden="true">
+              <button type="submit" class="btn-gold btn-md" aria-hidden="true">
                   <i class="fa fa-credit-card" aria-hidden="true"></i>
                   Pay Now
               </button>
@@ -42,14 +42,14 @@
     </div>
 
 <div class="pay-description">
-  <p class="twopointoh secondary-font">Memo</p>
+  <p class="onepointeight secondary-font">Memo</p>
   <div class="pay-memo">
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
     {
         <p>@Model.Memo</p>
     }
   </div>
-  <table class="table">
+  <table class="table pay-table">
       <thead>
       <tr>
           <th>Description</th>
@@ -64,8 +64,8 @@
           <tr data-id="@item.Id">
               <td>@item.Description</td>
               <td>@item.Quantity</td>
-              <td>@item.Amount</td>
-              <td>@item.Total</td>
+              <td>$@item.Amount.ToString("F2")</td>
+              <td>$@item.Total.ToString("F2")</td>
           </tr>
       }
 
@@ -76,7 +76,7 @@
               <td></td>
               <td>Discount</td>
               <td></td>
-              <td>$@Model.Discount.ToString("F2")</td>
+              <td>-$@Model.Discount.ToString("F2")</td>
           </tr>
       }
 
@@ -97,7 +97,7 @@
           </td>
           <td>Total:</td>
           <td></td>
-          <td>@Model.Total</td>
+          <td>$@Model.Total.ToString("F2")</td>
       </tr>
     </tbody>
   </table>
@@ -106,7 +106,7 @@
 
 <div class="pay-download">
   <img src="/media/download.svg" alt="download icon">
-  <h3>Downloads</h3>
+  <h3>PDF Downloads</h3>
     <button class="btn-inverse">Payment</button>
     <button class="btn-inverse m-l">Invoice</button>
 </div>

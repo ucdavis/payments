@@ -40,7 +40,6 @@
 .pay-top {
   text-align: center;
   padding: $card-padding;
-
   p {
     font-size: 2rem;
     margin-bottom: 0;
@@ -51,7 +50,8 @@
   background-color: transparentize($gold,.96);
   padding: $card-padding;
   text-align: center;
-
+  border-top:1px solid $borders;
+  border-bottom:1px solid $borders;
   p {
     font-size: 2rem;
     margin: 18px 0;
@@ -68,7 +68,7 @@
   text-align: center;
 
   h3 {
-    margin: 12px 0;
+    margin:12px 0px 24px 0;
   }
 }
 
@@ -77,14 +77,14 @@
   text-align: center;
 }
 // Payments table
-table.table {
+table.pay-table {
   border-collapse: collapse;
   th,td {
     padding:12px 0px;
   }
   thead {
     th {
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-family: $sans-reg;
       border: none;
       color: $secondary-font;
@@ -102,16 +102,15 @@ table.table {
     tr {
       &:last-child {
         border-top: 1px solid $borders;
-
         td {
           color: $primary-font;
-          font-family: $sans-bold;
+          font-family: $sans-reg;
         }
       }
     }
 
     td {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-family: $sans-reg;
       color: $tertiary-font;
       border: none;

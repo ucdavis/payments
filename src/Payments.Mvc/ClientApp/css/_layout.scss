@@ -18,18 +18,19 @@ body {
 .container {
   padding:0px;
   width:95%;
-  @include breakpoint(xl) {
-    width:75%;
-  }
-  @include breakpoint(lg) {
-    width:80%;
+  @include breakpoint (xl) {
+    width:90%;
   }
   @include breakpoint (md) {
     width:85%;
   }
-  @include breakpoint (xl) {
-    width:90%;
+  @include breakpoint(lg) {
+    width:80%;
   }
+  @include breakpoint(xl) {
+    width:75%;
+  }
+
 }
 .logo {
   margin-top:7px;
