@@ -27,9 +27,9 @@ nav {
       color:$secondary-font;
       font-size: 1.8rem;
       font-family: $sans-bold;
-      &:hover {
-        color:$primary-font;
-      }
+    }
+    &:hover .navitem {
+      color:$primary-font;
     }
     .row {
       padding:8px 0px;

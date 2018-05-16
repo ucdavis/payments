@@ -5,75 +5,86 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+
 html {
   position: relative;
   min-height: 100%;
   height: inherit;
 }
+
 body {
-  padding: 20px 0 0 0;
+  padding: 20px 0 0;
   margin: 0 0 100px;
   background-color: $bg-color;
 }
+
 .container {
-  padding:0px;
-  width:95%;
+  padding: 0;
+  width: 95%;
   @include breakpoint (xl) {
-    width:90%;
+    width: 90%;
   }
   @include breakpoint (md) {
-    width:85%;
+    width: 85%;
   }
   @include breakpoint(lg) {
-    width:80%;
+    width: 80%;
   }
   @include breakpoint(xl) {
-    width:75%;
+    width: 75%;
   }
+}
 
-}
 .logo {
-  margin-top:7px;
+  margin-top: 7px;
+
   g#logocolor {
-    fill:$primary-color;
+    fill: $primary-color;
   }
 }
+
 .profile {
-  display:flex;
+  display: flex;
   align-items: center;
+
   img.profile-picture {
-    border-radius:50%;
-    width:48px;
-    margin-right:4px;
-    box-shadow:$box-shadow;
+    border-radius: 50%;
+    width: 48px;
+    margin-right: 4px;
+    box-shadow: $box-shadow;
 
     &:hover {
-transform: translateY(-1px);
+      transform: translateY(-1px);
     }
   }
+  
   button {
-    border:none;
-    background-color:rgba(255,255,255,.001);
+    border: none;
+    background-color: rgba(255,255,255,.001);
   }
 }
+
 footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   display: block;
-  }
-  .footer_bleed {
-    background: #1e3a5b;
-    background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-    background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-    background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one',endColorstr='$gradient-two',GradientType=1);
-  }
-  .footer_divider {
-    background: url("/media/gunrock_banner_final.svg") center top/cover no-repeat;
-    height: 44px;
-    padding-top:10px;
-  }
+}
+
+.footer_bleed {
+  background: #1e3a5b;
+  background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr= '$gradient-one',endColorstr='$gradient-two',GradientType=1);
+}
+
+.footer_divider {
+  background: url("/media/gunrock_banner_final.svg") center top/cover no-repeat;
+  height: 44px;
+  padding-top: 10px;
+}
+
 .row {
   margin-right: 0;
   margin-left: 0;
