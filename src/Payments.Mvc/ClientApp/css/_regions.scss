@@ -1,0 +1,125 @@
+// Payments layout and card
+
+.card-style {
+  background-color: #ffffff;
+  box-shadow: $box-shadow;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.card-gradient-header {
+  background: url("/media/gradient-header.svg") center top/cover no-repeat;
+  height: 6px;
+}
+
+.card-gradient-header-bleed {
+  background: #1e3a5b;
+  background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr= '$gradient-one',endColorstr='$gradient-two',GradientType=1);
+}
+
+.card-content {}
+
+.pay-memo {
+  box-shadow: $box-shadow;
+  padding: 16px;
+
+  p {
+    margin-bottom: 0;
+  }
+  margin-bottom: 40px;
+}
+
+.pay-card-style {
+  margin: 0 auto;
+  max-width: 761px;
+}
+
+.pay-top {
+  text-align: center;
+  padding: $card-padding;
+
+  p {
+    font-size: 2rem;
+    margin-bottom: 0;
+  }
+}
+
+.pay-action {
+  background-color: transparentize($gold,.96);
+  padding: $card-padding;
+  text-align: center;
+
+  p {
+    font-size: 2rem;
+    margin: 18px 0;
+  }
+}
+
+.pay-description {
+  padding: $card-padding;
+}
+
+.pay-download {
+  background-color: $bg-color;
+  padding: $card-padding;
+  text-align: center;
+
+  h3 {
+    margin: 12px 0;
+  }
+}
+
+.pay-footer {
+  padding: 16px 48px 8px;
+  text-align: center;
+}
+// Payments table
+table.table {
+  border-collapse: collapse;
+  th,td {
+    padding:12px 0px;
+  }
+  thead {
+    th {
+      font-size: 2rem;
+      font-family: $sans-reg;
+      border: none;
+      color: $secondary-font;
+      font-weight: inherit;
+      border-bottom:1px solid $borders;
+      &:nth-child(2),
+      &:nth-child(3),
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      &:last-child {
+        border-top: 1px solid $borders;
+
+        td {
+          color: $primary-font;
+          font-family: $sans-bold;
+        }
+      }
+    }
+
+    td {
+      font-size: 1.8rem;
+      font-family: $sans-reg;
+      color: $tertiary-font;
+      border: none;
+      &:nth-child(2),
+      &:nth-child(3),
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+}

@@ -38,7 +38,7 @@ $tertiary-font: rgba(31,31,31,.40); //
 $box-shadow: 0 0 0 1px rgba(49,49,93,.03), 0 2px 5px 0 rgba(49,49,93,.1), 0 1px 2px 0 rgba(0,0,0,.08);
 
 $bg-color: #F8F9FB; // background
-$borders: #C8C7CC; // border color
+$borders: #E8E9ED; // border color
 
 $nav-active: #fff;
 $nav-secondary: $secondary-font;
@@ -91,7 +91,7 @@ $shingle-brown: #4f2c1d;
         }
     }
 }
-$card-padding: 4% 6%;
+$card-padding: 4% 4.5%;
 @mixin fader {
   -o-transition:.25s;
   -ms-transition:.25s;

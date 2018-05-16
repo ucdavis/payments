@@ -68,14 +68,14 @@
               <td>@item.Total</td>
           </tr>
       }
-      </tbody>
-      <tfoot>
+
+
       @if (Model.Discount > 0)
       {
           <tr>
               <td></td>
-              <td></td>
               <td>Discount</td>
+              <td></td>
               <td>$@Model.Discount.ToString("F2")</td>
           </tr>
       }
@@ -84,8 +84,8 @@
       {
           <tr>
               <td></td>
-              <td></td>
               <td>Tax (@Model.TaxPercent.ToString("P"))</td>
+              <td></td>
               <td>$@Model.TaxAmount.ToString("F2")</td>
           </tr>
       }
@@ -95,11 +95,11 @@
 
 
           </td>
-          <td></td>
+          <td>Total:</td>
           <td></td>
           <td>@Model.Total</td>
       </tr>
-      </tfoot>
+    </tbody>
   </table>
 
 </div>
