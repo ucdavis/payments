@@ -5,20 +5,14 @@
 {
     var user = await UserManager.GetUserAsync(User);
 
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+        <button type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <img class="profile-picture" src="https://secure.gravatar.com/avatar/@(user.EmailHash)d=mm&rating=gs=40" alt="User Picture"/>
+            <img src="/media/caret-dropdown.svg" alt="">
         </button>
-    </div>
 
-    <form class="flexer" asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
-        <p><a asp-area="" asp-controller="Profile" asp-action="Index" title="Manage">Hello @user.Name!</a>
-        </p>
-
-        <button type="submit" class="btn-hollow">Sign out</button>
-    </form>
 }
 else
 {
-    <p><a asp-area="" asp-controller="Account" asp-action="Login">Sign in</a></p>
+    <p><a class="btn-inverse" asp-area="" asp-controller="Account" asp-action="Login">Sign in</a></p>
 }

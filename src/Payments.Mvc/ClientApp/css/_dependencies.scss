@@ -145,5 +145,6 @@ $card-padding: 4% 4.5%;
   box-shadow: $box-shadow;
   &:hover {
     transform: translateY(-1px);
+    text-decoration: none;
   }
 }
