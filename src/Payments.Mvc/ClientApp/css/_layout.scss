@@ -16,30 +16,19 @@ body {
   background-color: $bg-color;
 }
 .container {
-  width: 90%;
-}
-@media (min-width: 576px) {
-  .container {
-    max-width: inherit;
-    width:98%;
+  padding:0px;
+  width:95%;
+  @include breakpoint(xl) {
+    width:75%;
   }
-}
-@media (min-width: 768px) {
-  .container {
-    max-width: inherit;
-    width:95%;
+  @include breakpoint(lg) {
+    width:80%;
   }
-}
-@media (min-width: 992px) {
-  .container {
-    max-width: inherit;
+  @include breakpoint (md) {
+    width:85%;
+  }
+  @include breakpoint (xl) {
     width:90%;
-  }
-}
-@media (min-width: 1200px) {
-  .container {
-    max-width: 1400px;
-    width:88%;
   }
 }
 .card-style {
@@ -70,12 +59,12 @@ body {
   margin-bottom:40px;
 }
 .pay-card-style {
-  width:790px;
   margin:0 auto;
+  max-width:761px;
 }
 .pay-top {
   text-align: center;
-  padding:40px 48px 20px 48px;
+  padding:$card-padding;
   p {
     font-size: 2rem;
     margin-bottom:0px;
@@ -83,7 +72,7 @@ body {
 }
 .pay-action {
   background-color: transparentize($gold,.96);
-  padding:40px 48px;
+  padding:$card-padding;
   text-align: center;
   p {
     font-size:2rem;
@@ -91,11 +80,11 @@ body {
   }
 }
 .pay-description {
-  padding:40px 48px;
+  padding:$card-padding;
 }
 .pay-download {
   background-color: $bg-color;
-  padding:40px 48px;
+  padding:$card-padding;
   text-align: center;
   h3 {
     margin:12px 0px;

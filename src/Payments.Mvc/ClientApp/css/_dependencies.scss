@@ -66,37 +66,32 @@ $shingle-brown: #4f2c1d;
 // mixins
 // mixins
 @mixin breakpoint($point) {
-  @if $point==rufus {
-      @media (min-width: 768px) {
-          @content ;
-      }
-  }
-    @if $point==tablet {
-        @media (max-width: 768px) {
-            @content ;
-        }
-    }
-    @if $point==mobile {
-        @media (max-width: 640px) {
-            @content ;
-        }
-    }
-    @if $point==smbreak {
+    @if $point==sm {
         @media (min-width: 576px) {
             @content ;
+            max-width:inherit;
         }
     }
-    @if $point==smmaxbreak {
-        @media (max-width: 576px) {
+    @if $point==md {
+        @media (min-width: 768px) {
             @content ;
+            max-width:inherit;
         }
     }
-    @if $point==mdbreak {
-        @media (max-width: 767px) {
+    @if $point==lg {
+        @media (min-width: 992px) {
             @content ;
+            max-width:inherit;
+        }
+    }
+    @if $point==xl {
+        @media (min-width: 1200px) {
+            @content ;
+            max-width:1440px;
         }
     }
 }
+$card-padding: 4% 6%;
 @mixin fader {
   -o-transition:.25s;
   -ms-transition:.25s;
