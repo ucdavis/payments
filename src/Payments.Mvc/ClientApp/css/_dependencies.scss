@@ -46,6 +46,7 @@ $nav-secondary: $secondary-font;
 
 // UC Davis Colors
 // Supplemental bright color palette for UC Davis
+
 $unitrans-red: #ba0c2f;
 $western-redbud: #c6007e;
 $california-poppy: #ed8800;
@@ -63,8 +64,12 @@ $wintersky-gray: #5b7f95;
 $cenwalk-gray: #b1b3b3;
 $cork-oak: #aca39a;
 $shingle-brown: #4f2c1d;
-// mixins
-// mixins
+
+// Layouts
+
+$card-padding: 0.75rem 1.25rem;
+$card-thick-padding: 3rem;
+
 @mixin breakpoint($point) {
     @if $point==sm {
         @media (min-width: 576px) {
@@ -91,7 +96,9 @@ $shingle-brown: #4f2c1d;
         }
     }
 }
-$card-padding: 4% 4.5%;
+
+
+
 @mixin fader {
   -o-transition:.25s;
   -ms-transition:.25s;

@@ -1,6 +1,42 @@
 img.img-fluid {
   width: 100%;
 }
+.alert {
+  padding:$card-padding;
+  p {
+    margin-bottom:0px;
+    color:$secondary-font;
+  }
+  @include fader;
+  box-shadow:$box-shadow;
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+.alert-red {
+  background-color:transparentize($unitrans-red,0.35);
+  &:hover {
+    background-color:transparentize($unitrans-red,0.15);
+}
+}
+.alert-yellow {
+  background-color: transparentize($golden-lupine,0.35);
+  &:hover {
+    background-color:transparentize($golden-lupine,.15);
+}
+}
+.alert-green {
+  background-color: transparentize($sunny-grass,0.35);
+  &:hover {
+    background-color:transparentize($sunny-grass,.15);
+}
+}
+.alert-blue {
+  background-color: transparentize($sky-blue,0.35);
+  &:hover {
+    background-color:transparentize($sky-blue,.15);
+}
+}
 
 .action-btn {
   display: block;

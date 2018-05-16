@@ -1,26 +1,5 @@
+
 // Payments layout and card
-
-.card-style {
-  background-color: #ffffff;
-  box-shadow: $box-shadow;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.card-gradient-header {
-  background: url("/media/gradient-header.svg") center top/cover no-repeat;
-  height: 6px;
-}
-
-.card-gradient-header-bleed {
-  background: #1e3a5b;
-  background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr= '$gradient-one',endColorstr='$gradient-two',GradientType=1);
-}
-
-.card-content {}
 
 .pay-memo {
   box-shadow: $box-shadow;
@@ -40,7 +19,7 @@
 
 .pay-top {
   text-align: center;
-  padding: $card-padding;
+  padding: $card-thick-padding;
   p {
     font-size: 2rem;
     margin-bottom: 0;
@@ -49,7 +28,7 @@
 
 .pay-action {
   background-color: transparentize($gold,.96);
-  padding: $card-padding;
+  padding: $card-thick-padding;
   text-align: center;
   border-top:1px solid $borders;
   border-bottom:1px solid $borders;
@@ -60,12 +39,12 @@
 }
 
 .pay-description {
-  padding: $card-padding;
+  padding: $card-thick-padding;
 }
 
 .pay-download {
   background-color: $bg-color;
-  padding: $card-padding;
+  padding: $card-thick-padding;
   text-align: center;
 
   h3 {
@@ -80,6 +59,7 @@
 // Payments table
 table.pay-table {
   border-collapse: collapse;
+  margin-bottom:0px;
   th,td {
     padding:12px 0px;
   }
