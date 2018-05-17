@@ -2,6 +2,75 @@
     ViewData["Title"] = "Home Page";
 }
 
+<div class="card-style">
+  <div class="card-header-primary">
+      <div class="card-head">
+        <h2>Your Payments Dashboard</h2>
+      </div>
+  </div>
+</div>
+<div class="alert alert-yellow">
+  <div class="row justify-content-between align-items-center">
+    <div>
+      <p><span class="sans-bold">You have 5 outstanding invoices |</span> view</p>
+    </div>
+    <div>
+      <img src="/media/remove.svg" alt="x icon">
+    </div>
+  </div>
+</div>
+<div class="alert alert-red">
+  <div class="row justify-content-between align-items-center">
+    <div>
+      <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
+    </div>
+    <div>
+      <img src="/media/remove.svg" alt="x icon">
+    </div>
+  </div>
+</div>
+<div class="alert alert-green">
+  <div class="row justify-content-between align-items-center">
+    <div>
+      <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
+    </div>
+    <div>
+      <img src="/media/remove.svg" alt="x icon">
+    </div>
+  </div>
+</div>
+<div class="alert alert-blue">
+  <div class="row justify-content-between align-items-center">
+    <div>
+      <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
+    </div>
+    <div>
+      <img src="/media/remove.svg" alt="x icon">
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col card-dashboard-button card-style">
+    <div class="row align-items-center">
+    @Html.InlineSvg("/wwwroot/media/invoices.svg")
+    <div>
+      <h2>View my invoices</h2>
+      <p class="discreet">55 total | 5 Outstanding | 3 Past due</p>
+    </div>
+</div>
+  </div>
+  <div class="col card-dashboard-button card-style">
+    @Html.InlineSvg("/wwwroot/media/newinvoice.svg")
+  </div>
+</div>
+<div class="row">
+  <div class="col card-dashboard-button card-style">
+    @Html.InlineSvg("/wwwroot/media/statistics.svg")
+  </div>
+  <div class="col card-dashboard-button card-style">
+    @Html.InlineSvg("/wwwroot/media/support.svg")
+  </div>
+</div>
 <div id="react-app">Loading...</div>
 
 @section scripts {

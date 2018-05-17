@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="33px" height="33px" viewBox="0 0 33 33" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
+    <title>newinvoice</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="dashboard" transform="translate(-874.000000, -417.000000)" fill="#8FA600">
+            <g id="buttons" transform="translate(383.000000, 381.000000)">
+                <g id="create-new-invoice" transform="translate(465.000000, 0.000000)">
+                    <g id="Group-4" transform="translate(26.000000, 36.000000)">
+                        <g id="newinvoice">
+                            <path d="M29.7505888,13 L30.9822602,11.7683692 C33.6734364,9.08242058 33.6717234,4.70405024 30.9822602,2.01638863 C28.29451,-0.672985962 23.9177085,-0.671272985 21.2316714,2.01638863 L20,3.24973239 L29.7505888,13 Z" id="Fill-31"></path>
+                            <polygon id="Fill-32" points="17.5134474 5 3 19.8214732 8.8207009 21 21 8.56054931"></polygon>
+                            <path d="M0.495378404,32.5062063 C0.912514427,32.925101 1.52217477,33.092321 2.09805891,32.9504373 L10,30.9742004 L8.68103954,24.3174913 L2.02544009,23 L0.0495326151,30.8998804 C-0.0923274087,31.4792387 0.0748647622,32.0856225 0.495378404,32.5062063" id="Fill-33"></path>
+                            <polygon id="Fill-34" points="24.4377861 11 12 23.181456 13.1768623 29 28 14.4878667"></polygon>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

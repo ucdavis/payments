@@ -26,7 +26,7 @@ $primary-color:     #006F8E;
 $secondary-color:   #8FA600;
 $tertiary-color:    #009493;
 
-$gold:              #D2AC3A;
+$gold:              #DAAA00;
 $blue:              #004987;
 
 $a-link:            transparentize($primary-color, .2);
@@ -38,7 +38,7 @@ $tertiary-font: rgba(31,31,31,.40); //
 $box-shadow: 0 0 0 1px rgba(49,49,93,.03), 0 2px 5px 0 rgba(49,49,93,.1), 0 1px 2px 0 rgba(0,0,0,.08);
 
 $bg-color: #F8F9FB; // background
-$borders: #C8C7CC; // border color
+$borders: #E8E9ED; // border color
 
 $nav-active: #fff;
 $nav-secondary: $secondary-font;
@@ -46,6 +46,7 @@ $nav-secondary: $secondary-font;
 
 // UC Davis Colors
 // Supplemental bright color palette for UC Davis
+
 $unitrans-red: #ba0c2f;
 $western-redbud: #c6007e;
 $california-poppy: #ed8800;
@@ -63,40 +64,41 @@ $wintersky-gray: #5b7f95;
 $cenwalk-gray: #b1b3b3;
 $cork-oak: #aca39a;
 $shingle-brown: #4f2c1d;
-// mixins
-// mixins
+
+// Layouts
+
+$card-padding: 0.75rem 1.25rem;
+$card-thick-padding: 3rem;
+
 @mixin breakpoint($point) {
-  @if $point==rufus {
-      @media (min-width: 768px) {
-          @content ;
-      }
-  }
-    @if $point==tablet {
-        @media (max-width: 768px) {
-            @content ;
-        }
-    }
-    @if $point==mobile {
-        @media (max-width: 640px) {
-            @content ;
-        }
-    }
-    @if $point==smbreak {
+    @if $point==sm {
         @media (min-width: 576px) {
             @content ;
+            max-width:inherit;
         }
     }
-    @if $point==smmaxbreak {
-        @media (max-width: 576px) {
+    @if $point==md {
+        @media (min-width: 768px) {
             @content ;
+            max-width:inherit;
         }
     }
-    @if $point==mdbreak {
-        @media (max-width: 767px) {
+    @if $point==lg {
+        @media (min-width: 992px) {
             @content ;
+            max-width:inherit;
+        }
+    }
+    @if $point==xl {
+        @media (min-width: 1200px) {
+            @content ;
+            max-width:1440px;
         }
     }
 }
+
+
+
 @mixin fader {
   -o-transition:.25s;
   -ms-transition:.25s;
@@ -104,4 +106,52 @@ $shingle-brown: #4f2c1d;
   -webkit-transition:.25s;
   /* ...and now for the proper property */
   transition:.25s;
+}
+@mixin main-btn {
+  white-space: nowrap;
+  display: inline-block;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 20px;
+  box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 1px 3px rgba(0,0,0,.08);
+  background: $primary-color;
+  border-radius: 2px;
+  font-size: 1.6rem;
+  letter-spacing: 0.025em;
+  color: #fff !important;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  border: none;
+  font-family: $sans-bold;
+  &:active,
+  &:focus {
+    background-color: darken($primary-color, 5);
+  }
+  &:hover {
+    color: #fff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 3px 6px rgba(0,0,0,.08);
+    background-color: lighten($primary-color, 5);
+  }
+}
+
+@mixin inverse-btn {
+  white-space: nowrap;
+  display: inline-block;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 20px;
+  background: #fff;
+  font-size: 1.6rem;
+  letter-spacing: 0.025em;
+  color: $primary-color;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  border: none;
+  font-family: $sans-bold;
+  box-shadow: $box-shadow;
+  &:hover {
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
 }
