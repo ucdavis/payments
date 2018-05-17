@@ -6,7 +6,7 @@
     "target": "es6",
     "jsx": "react",
     "sourceMap": true,
-    "skipDefaultLibCheck": true,
+    "skipDefaultLibCheck": true
   },
   "exclude": ["bin", "node_modules"]
 }

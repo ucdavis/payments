@@ -1,0 +1,42 @@
+.main {
+    background-color: white;
+    border-radius: 5px;
+
+    .hero-image {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+}
+
+.panel {
+    padding: $global-padding * 3;
+}
+
+.invoice-table {
+    border-radius: 5px;
+}
+
+.button {
+    display: block;
+    padding: $global-padding / 2;
+    border-radius: $global-radius;
+    text-align: center;
+
+    &.primary {
+        background-color: $primary-color;
+        color: $white;
+    }
+}
+
+.lead {
+    font-size: 20px;
+}
+
+.major {
+    font-size: 18px;
+    color: $secondary-color;
+}
+
+.minor {
+    color: $secondary-font;
+}

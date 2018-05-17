@@ -43,6 +43,10 @@ namespace Payments.Core.Domain
 
         public List<LineItem> Items { get; set; }
 
+        public bool Sent { get; set; }
+
+        public DateTime? SentAt { get; set; }
+
         // ----------------------
         // Calculated Values
         // ----------------------
