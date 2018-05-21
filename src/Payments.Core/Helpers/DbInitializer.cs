@@ -186,6 +186,7 @@ namespace Payments.Core.Helpers
                         Total       = new decimal(6.60)
                     },
                 },
+                CreatedAt = DateTime.UtcNow.AddDays(-2),
             };
             invoice1.UpdateCalculatedValues();
             _context.Invoices.Add(invoice1);
@@ -217,13 +218,16 @@ namespace Payments.Core.Helpers
                         Total       = new decimal(6.70)
                     },
                 },
+                Sent = true,
+                SentAt = DateTime.UtcNow.AddDays(-1),
                 Payment = new PaymentEvent()
                 {
                     Transaction_Id = "5252879470916001003524",
                     Decision = "ACCEPT",
                     Reason_Code = 100,
                     OccuredAt = DateTime.UtcNow,
-                }
+                },
+                CreatedAt = DateTime.UtcNow.AddDays(-2),
             };
             invoice2.UpdateCalculatedValues();
             invoice2.Payment.Auth_Amount = invoice2.Total.ToString("F2");

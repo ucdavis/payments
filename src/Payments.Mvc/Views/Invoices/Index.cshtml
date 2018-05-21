@@ -4,22 +4,61 @@
     ViewBag.Title = "Invoices";
 }
 
+@section AdditionalStyles
+{
+    @Html.Partial("_DataTableStylePartial")
+}
+
 <h2>@ViewBag.Title</h2>
 
-<table>
+<table id="Invoices" class="table">
     <thead>
     <tr>
-        <th>Id</th>
+        <th>Invoice Number</th>
+        <th></th>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Sent At</th>
+        <th>Created</th>
         <th></th>
     </tr>
     </thead>
     <tbody>
-        @foreach (var invoice in Model)
-        {
-            <tr>
-                <td>@invoice.Id</td>
-                <td><a href="@Url.Action("Edit", new { id = invoice.Id })">Edit</a></td>
-            </tr>
-        }
+    @foreach (var invoice in Model)
+    {
+        <tr>
+            <td>@invoice.Id</td>
+            <td>
+                <span class="badge">@invoice.Status</span>
+            </td>
+            <td>@invoice.CustomerName</td>
+            <td data-sort="@invoice.Total">
+                $@invoice.Total.ToString("F2")
+            </td>
+            <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
+                @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
+            </td>
+            <td data-sort="@invoice.CreatedAt.Ticks">
+                @invoice.CreatedAt.ToString("d")
+            </td>
+            <td><a href="@Url.Action("Edit", new { id = invoice.Id })">Edit</a></td>
+        </tr>
+    }
     </tbody>
 </table>
+
+
+@section scripts
+{
+    @Html.Partial("_DataTableScriptsPartial")
+
+    <script type="text/javascript">
+        $(function() {
+            $("#Invoices").DataTable({
+                "columnDefs": [
+                    { "orderable": false, "targets": -1 }
+                ],
+            });
+        });
+    </script>
+}
