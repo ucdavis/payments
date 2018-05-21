@@ -9,7 +9,9 @@ namespace Payments.Mvc.Helpers
 {
     public class InvoiceKeyHelper
     {
-        public static string GetUniqueKey(int maxSize)
+        public static readonly int KeyLength = 10;
+
+        public static string GetUniqueKey()
         {
             // all uppercase characters
             // ignore similar characters (0/O) (1/I) (2/Z)
@@ -18,10 +20,10 @@ namespace Payments.Mvc.Helpers
             using (var crypto = new RNGCryptoServiceProvider())
             {
                 crypto.GetNonZeroBytes(data);
-                data = new byte[maxSize];
+                data = new byte[KeyLength];
                 crypto.GetNonZeroBytes(data);
             }
-            var result = new StringBuilder(maxSize);
+            var result = new StringBuilder(KeyLength);
             foreach (var b in data)
             {
                 result.Append(chars[b % (chars.Length)]);
