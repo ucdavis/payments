@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Services;
+using Payments.Mvc.Helpers;
 using Payments.Mvc.Models.InvoiceViewModels;
 
 
@@ -134,6 +135,12 @@ namespace Payments.Mvc.Controllers
             });
             invoice.Items = items.ToList();
 
+            // editing a sent invoice will modify the link id
+            if (invoice.Sent)
+            {
+                SetInvoiceKey(invoice);
+            }
+
             // save to db
             invoice.UpdateCalculatedValues();
             _dbContext.SaveChanges();
@@ -163,6 +170,8 @@ namespace Payments.Mvc.Controllers
                 return BadRequest("Invoice already sent.");
             }
 
+            SetInvoiceKey(invoice);
+
             await _emailService.SendInvoice(invoice);
 
             invoice.Status = Invoice.StatusCodes.Sent;
@@ -174,6 +183,22 @@ namespace Payments.Mvc.Controllers
             {
                 success = true
             });
+        }
+
+        private void SetInvoiceKey(Invoice invoice)
+        {
+            for (var attempt = 0; attempt < 10; attempt++)
+            {
+                // setup random 10 character key link id
+                var linkId = InvoiceKeyHelper.GetUniqueKey();
+
+                // look for duplicate
+                if (_dbContext.Invoices.Any(i => i.LinkId == linkId)) continue;
+
+                invoice.LinkId = linkId;
+            }
+
+            throw new Exception("Failure to create new invoice link id in max attempts.");
         }
     }
 }

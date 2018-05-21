@@ -37,6 +37,7 @@ namespace Payments.Core.Services
             var data = new Dictionary<string, object>()
             {
                 { "id", invoice.Id },
+                { "linkid", invoice.LinkId },
                 { "customer", new { email = invoice.CustomerEmail, name = invoice.CustomerName } },
                 { "discount", invoice.Discount.ToString("F2") },
                 { "taxAmount", invoice.TaxAmount.ToString("F2") },
