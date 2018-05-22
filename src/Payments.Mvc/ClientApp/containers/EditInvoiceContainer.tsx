@@ -78,7 +78,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         return (
             <div className="card-style">
-              <div className="card-header-yellow">
+              <div className="card-header-yellow card-bot-border">
                   <div className="card-head">
                     <h2>Edit Invoice #122783BB8</h2>
                   </div>
@@ -157,14 +157,17 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     </div>
 </div>
 <div className="card-foot invoice-action">
-  <div className="row flex-between">
-    <div><button className="btn btn-default">Cancel</button></div>
-    <div><button className="btn btn-success" onClick={this.onSubmit}>Save and close</button>
-  <button className="btn btn-success" onClick={this.onSend}>Send</button></div>
+  <div className="row flex-between flex-center">
+    <div>
+      <button className="btn-plain color-unitrans">Cancel</button>
+    </div>
+      <div className="row flex-center">
+        <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
+        <button className="btn" onClick={this.onSend}>Send</button>
+      </div>
 
-
-              </div>
-            </div>
+    </div>
+</div>
 
             </div>
         );

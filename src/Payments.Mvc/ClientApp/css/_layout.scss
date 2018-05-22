@@ -54,7 +54,7 @@ body {
 
   img.profile-picture {
     border-radius: 50%;
-    width: 48px;
+    width: 44px;
     margin-right: 4px;
     box-shadow: $box-shadow;
 
@@ -78,7 +78,8 @@ body {
 
 .card-content {
   padding:$card-padding;
-  border-top:6px solid $bg-color;
+  padding-top:2.6rem;
+  padding-bottom:2.6rem;
 }
 .card-head {
   padding:$card-padding;
