@@ -191,3 +191,47 @@ table.invoice-table {
     }
   }
 }
+
+// invoices tablet
+
+table#Invoices {
+  border: 1px solid $borders;
+  border-collapse: collapse !important;
+  .odd td {
+    background-color:#f9f9f9;
+  }
+  th, td {
+
+  }
+  thead {
+      th {
+        font-size: 1.4rem;
+        font-family: $sans-bold;
+        color: $primary-font;
+        font-weight: inherit;
+        text-transform: uppercase;
+        border:none;
+        padding-top:8px;
+        padding-bottom:8px;
+        border-bottom:1px solid $borders;
+        border-right:1px solid $borders;
+        &:last-child {
+          border-right:none;
+        }
+
+    }
+  }
+tbody {
+  // border-left:1px solid $borders;
+  // border-right:1px solid $borders;
+}
+  td {
+    font-size:1.6rem;
+    border:none;
+    border-bottom:1px solid $borders;
+    border-right:1px solid $borders;
+    &:last-child {
+      border-right:none;
+    }
+  }
+}
