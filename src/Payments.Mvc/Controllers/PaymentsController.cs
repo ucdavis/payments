@@ -31,12 +31,12 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Pay(int id)
+        public async Task<ActionResult> Pay(string id)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
-                .FirstOrDefaultAsync(i => i.Id == id);
+                .FirstOrDefaultAsync(i => i.LinkId == id);
 
             if (invoice == null)
             {

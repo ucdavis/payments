@@ -97,6 +97,11 @@ namespace Payments.Mvc
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                    name: "pay-invoice",
+                    template: "{pay}/{id}",
+                    defaults: new { controller = "payments", action="pay" });
+
+                routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });

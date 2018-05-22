@@ -12,15 +12,19 @@ namespace Payments.Core.Domain
         public Invoice()
         {
             Items = new List<LineItem>();
+            CreatedAt = DateTime.UtcNow;
         }
 
         [Key]
         public int Id { get; set; }
 
+        public string LinkId { get; set; }
+
         [Required]
         public User Creator { get; set; }
 
         public string CustomerName { get; set; }
+
         public string CustomerAddress { get; set; }
 
         [EmailAddress]
@@ -46,6 +50,8 @@ namespace Payments.Core.Domain
         public bool Sent { get; set; }
 
         public DateTime? SentAt { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         // ----------------------
         // Calculated Values
