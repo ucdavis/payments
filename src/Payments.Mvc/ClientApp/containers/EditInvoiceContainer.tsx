@@ -114,7 +114,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         <tbody>
                             <tr>
                                 <td>
-                                    <button className="btn-invoice-add" onClick={this.createNewItem}>
+                                    <button className="btn-plain primary-color" onClick={this.createNewItem}>
                                         <i className="fa fa-plus" /> Add another item
                                     </button>
                                 </td>
