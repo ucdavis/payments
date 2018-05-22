@@ -20,18 +20,23 @@ body {
 
 .container {
   padding: 0;
-  width: 95%;
-  @include breakpoint (xl) {
-    width: 90%;
+  width: 98%;
+  max-width:1440px;
+  @include breakpoint (sm) {
+    width: 96%;
+    max-width:1440px;
   }
   @include breakpoint (md) {
-    width: 85%;
+    width: 92%;
+    max-width:1440px;
   }
   @include breakpoint(lg) {
-    width: 80%;
+    width: 90%;
+    max-width:1440px;
   }
   @include breakpoint(xl) {
-    width: 75%;
+    width: 80%;
+    max-width:1440px;
   }
 }
 
@@ -73,6 +78,7 @@ body {
 
 .card-content {
   padding:$card-padding;
+  border-top:6px solid $bg-color;
 }
 .card-head {
   padding:$card-padding;
@@ -92,7 +98,13 @@ body {
 .card-header-primary {
   border-top:4px solid $primary-color;
 }
-
+.card-header-yellow {
+  border-top:4px solid $golden-lupine;
+}
+.card-foot {
+  padding:$card-padding;
+  border-top:1px solid $borders;
+}
 footer {
   position: absolute;
   bottom: 0;

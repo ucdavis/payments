@@ -109,3 +109,119 @@ table.pay-table {
     }
   }
 }
+table.table {
+  td {
+    vertical-align: inherit;
+  }
+  tbody + tbody {
+    border:none;
+  }
+}
+// Payments table
+table.pay-table {
+  border-collapse: collapse;
+  margin-bottom:0px;
+  th,td {
+    padding:12px 0px;
+  }
+  thead {
+    th {
+      font-size: 1.8rem;
+      font-family: $sans-reg;
+      border: none;
+      color: $secondary-font;
+      font-weight: inherit;
+      border-bottom:1px solid $borders;
+      &:nth-child(2),
+      &:nth-child(3),
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      &:last-child {
+        border-top: 1px solid $borders;
+        td {
+          color: $primary-font;
+          font-family: $sans-reg;
+        }
+      }
+    }
+
+    td {
+      font-size: 1.6rem;
+      font-family: $sans-reg;
+      color: $tertiary-font;
+      border: none;
+      &:nth-child(2),
+      &:nth-child(3),
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+}
+// Invoice table
+table.invoice-table {
+  border-collapse: collapse;
+  margin-bottom:0px;
+  th,td {
+    padding:12px 0px;
+  }
+  thead {
+    th {
+      font-size: 1.8rem;
+      font-family: $sans-reg;
+      border: none;
+      color: $secondary-font;
+      font-weight: inherit;
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+
+  tbody {
+    &.tbody-invoice-details {
+      tr {
+        td:first-child {
+          width:45%;
+          padding-right:16px;
+        }
+        td:nth-child(2) {
+          width:12%;
+          padding-right:16px;
+        }
+        td:nth-child(3) {
+          width:15%;
+          input {
+            text-align: right;
+          }
+        }
+      }
+    }
+    // tr {
+    //   &:last-child {
+    //     border-top: 1px solid $borders;
+    //     td {
+    //       color: $primary-font;
+    //       font-family: $sans-reg;
+    //     }
+    //   }
+    // }
+
+    td {
+      font-size: 1.6rem;
+      font-family: $sans-reg;
+      color: $secondary-font;
+      border: none;
+      &:nth-child(5),
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+}
