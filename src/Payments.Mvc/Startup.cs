@@ -98,7 +98,7 @@ namespace Payments.Mvc
             {
                 routes.MapRoute(
                     name: "pay-invoice",
-                    template: "{pay}/{id}",
+                    template: "pay/{id}",
                     defaults: new { controller = "payments", action="pay" });
 
                 routes.MapRoute(
