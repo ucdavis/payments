@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -23,19 +24,26 @@ namespace Payments.Core.Domain
         [Required]
         public User Creator { get; set; }
 
+        [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
 
+        [DisplayName("Customer Address")]
         public string CustomerAddress { get; set; }
 
         [EmailAddress]
+        [DisplayName("Customer Email")]
         public string CustomerEmail { get; set; }
 
+        [DataType(DataType.MultilineText)]
         public string Memo { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Discount { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:P}")]
+        [DisplayName("Tax Percentage")]
         public decimal TaxPercent { get; set; }
-        
+
         public string Status { get; set; }
 
         public FinancialAccount Account { get; set; }
@@ -49,15 +57,23 @@ namespace Payments.Core.Domain
 
         public bool Sent { get; set; }
 
+        [DisplayName("Sent At")]
         public DateTime? SentAt { get; set; }
 
+        [DisplayName("Created On")]
         public DateTime CreatedAt { get; set; }
 
         // ----------------------
         // Calculated Values
         // ----------------------
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Subtotal { get; private set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
+        [DisplayName("Tax")]
         public decimal TaxAmount { get; private set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Total { get; private set; }
 
         public void UpdateCalculatedValues()
