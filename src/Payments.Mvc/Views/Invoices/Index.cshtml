@@ -21,6 +21,7 @@
         <th>Sent At</th>
         <th>Created</th>
         <th></th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -41,6 +42,7 @@
             <td data-sort="@invoice.CreatedAt.Ticks">
                 @invoice.CreatedAt.ToString("d")
             </td>
+            <td><a href="@Url.Action("Preview", "Payments", new { id = invoice.Id })">Preview</a></td>
             <td><a href="@Url.Action("Edit", new { id = invoice.Id })">Edit</a></td>
         </tr>
     }
