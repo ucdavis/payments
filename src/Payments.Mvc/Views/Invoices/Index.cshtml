@@ -26,7 +26,7 @@
     <tbody>
     @foreach (var invoice in Model)
     {
-        <tr>
+        <tr data-id="@invoice.Id">
             <td>@invoice.Id</td>
             <td>
                 <span class="badge">@invoice.Status</span>
@@ -59,6 +59,13 @@
                     { "orderable": false, "targets": -1 }
                 ],
             });
+        });
+
+        var detailsUrl = "@(Url.Action("Details"))";
+        $("#Invoices").on("click", "tr", function() {
+            var $that = $(this);
+            var id = $that.attr("data-id");
+            window.location = detailsUrl + "/" + id;
         });
     </script>
 }
