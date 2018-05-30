@@ -69,5 +69,12 @@
                 ],
             });
         });
+
+        var detailsUrl = "@(Url.Action("Details"))";
+        $("#Invoices").on("click", "tr", function() {
+            var $that = $(this);
+            var id = $that.attr("data-id");
+            window.location = detailsUrl + "/" + id;
+        });
     </script>
 }
