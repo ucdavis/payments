@@ -77,9 +77,14 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const total = this.calculateTotal();
 
         return (
-            <div className="container">
-                <h1>Edit Invoice</h1>
-                <h2>Customer Info</h2>
+            <div className="card-style">
+              <div className="card-header-yellow card-bot-border">
+                  <div className="card-head">
+                    <h2>Edit Invoice #122783BB8</h2>
+                  </div>
+              </div>
+              <div className="card-content invoice-customer">
+                <h3>Customer Info</h3>
                 <div className="form-group">
                     <label>Customer Email</label>
                     <input
@@ -90,25 +95,26 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         value={customer.email}
                     />
                 </div>
-                <div className="">
-                    <h2>Invoice Items</h2>
-                    <table className="table">
+              </div>
+              <div className="card-content invoice-items">
+                    <h3>Invoice Items</h3>
+                    <table className="table invoice-table">
                         <thead>
                             <tr>
                                 <th>Description</th>
                                 <th>Qty</th>
                                 <th>Price</th>
                                 <th>Amount</th>
-                                <th />
+                                <th/>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="tbody-invoice-details">
                             { items.byId.map((id) => this.renderItem(id, items.byHash[id])) }
                         </tbody>
                         <tbody>
                             <tr>
                                 <td>
-                                    <button className="btn btn-link" onClick={this.createNewItem}>
+                                    <button className="btn-plain primary-color" onClick={this.createNewItem}>
                                         <i className="fa fa-plus" /> Add another item
                                     </button>
                                 </td>
@@ -142,21 +148,27 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             </tr>
                         </tfoot>
                     </table>
-                </div>
-                <div className="">
-                    <h2>Memo</h2>
+</div>
+<div className="card-content invoice-memo">
+
+                    <h3>Memo</h3>
                     <div className="form-group">
                         <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
                     </div>
-                </div>
-                <div className="">
-                    <h2>Billing</h2>
-                </div>
-                <div className="">
-                    <button className="btn btn-default">Cancel</button>
-                    <button className="btn btn-success" onClick={this.onSend}>Send</button>
-                    <button className="btn btn-success" onClick={this.onSubmit}>Save</button>
-                </div>
+</div>
+<div className="card-foot invoice-action">
+  <div className="row flex-between flex-center">
+    <div>
+      <button className="btn-plain color-unitrans">Cancel</button>
+    </div>
+      <div className="row flex-center">
+        <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
+        <button className="btn" onClick={this.onSend}>Send</button>
+      </div>
+
+    </div>
+</div>
+
             </div>
         );
     }
@@ -205,7 +217,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     ${ (quantity * amount).toFixed(2) }
                 </td>
                 <td>
-                    <button className="btn btn-link" onClick={() => this.removeItem(id)}>
+                    <button className="btn-invoice-delete" onClick={() => this.removeItem(id)}>
                         <i className="fa fa-times" />
                     </button>
                 </td>
@@ -319,7 +331,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         // create save url
         const url = `/invoices/edit/${id}`;
 
-        // fetch 
+        // fetch
         const response = await fetch(url, {
             body: JSON.stringify(invoice),
             credentials: "same-origin",

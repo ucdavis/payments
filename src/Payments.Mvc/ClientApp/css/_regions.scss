@@ -109,3 +109,129 @@ table.pay-table {
     }
   }
 }
+table.table {
+  td {
+    vertical-align: inherit;
+  }
+  tbody + tbody {
+    border:none;
+  }
+}
+
+// Invoice table
+table.invoice-table {
+  border-collapse: collapse;
+  margin-bottom:0px;
+  td {
+    padding:12px 0px;
+  }
+  thead {
+    th {
+      font-size: 1.8rem;
+      font-family: $sans-reg;
+      border: none;
+      color: $secondary-font;
+      font-weight: inherit;
+      padding:0px;
+      padding-top:8px;
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+
+  tbody {
+    &.tbody-invoice-details {
+      tr {
+        td:first-child {
+          width:45%;
+          padding-right:16px;
+        }
+        td:nth-child(2) {
+          width:12%;
+          padding-right:16px;
+        }
+        td:nth-child(3) {
+          width:12%;
+          input {
+            text-align: right;
+          }
+        }
+        td:nth-child(5) {
+          width:30px;
+        }
+      }
+    }
+    td {
+      font-size: 1.6rem;
+      font-family: $sans-reg;
+      color: $secondary-font;
+      border: none;
+      &:nth-child(5),
+      &:nth-child(4) {
+        text-align: right;
+      }
+    }
+  }
+  tfoot {
+    border:none;
+    tr {
+      td {
+        border-top:none;
+        font-size: 1.6rem;
+        font-family: $sans-bold;
+        color:$primary-font;
+      }
+      td:nth-child(4) {
+        text-align: right;
+      }
+      td:nth-child(5) {
+        width:30px;
+      }
+    }
+  }
+}
+
+// invoices tablet
+
+table#Invoices {
+  border: 1px solid $borders;
+  border-collapse: collapse !important;
+  .odd td {
+    background-color:#f9f9f9;
+  }
+  th, td {
+
+  }
+  thead {
+      th {
+        font-size: 1.4rem;
+        font-family: $sans-bold;
+        color: $primary-font;
+        font-weight: inherit;
+        text-transform: uppercase;
+        border:none;
+        padding-top:8px;
+        padding-bottom:8px;
+        border-bottom:1px solid $borders;
+        border-right:1px solid $borders;
+        &:last-child {
+          border-right:none;
+        }
+
+    }
+  }
+tbody {
+  // border-left:1px solid $borders;
+  // border-right:1px solid $borders;
+}
+  td {
+    font-size:1.6rem;
+    border:none;
+    border-bottom:1px solid $borders;
+    border-right:1px solid $borders;
+    &:last-child {
+      border-right:none;
+    }
+  }
+}

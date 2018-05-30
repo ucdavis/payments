@@ -1,3 +1,6 @@
+button {
+  cursor:pointer;
+}
 img.img-fluid {
   width: 100%;
 }
@@ -57,7 +60,16 @@ img.img-fluid {
 p a.action-btn {
   text-decoration: none !important;
 }
-
+.btn-plain {
+  font-size:1.66rem;
+  font-family: $sans-bold;
+  color:$secondary-font;
+  background-color:rgba(255,255,255,.0001);
+  border:none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
 .btn {
   @include main-btn
 }
@@ -75,6 +87,10 @@ p a.action-btn {
 .btn-md {
   padding:0px 40px;
   font-size:1.8rem;
+}
+.btn-invoice-delete {
+  border:none;
+  color:$unitrans-red;
 }
 .btn-inverse {
   @include inverse-btn
@@ -328,11 +344,13 @@ ol.breadcrumb {
 .a-color {
   color: $a-link;
 }
-
+.primary-color {
+  color:$primary-color;
+}
 .sans-bold {
   font-family: $sans-bold;
 }
-.primary-color {
+.primary-font {
   color: $primary-font;
 }
 
@@ -352,4 +370,7 @@ ol.breadcrumb {
 }
 .onepointeight {
   font-size:1.8rem;
+}
+.card-bot-border {
+  border-bottom:1px solid $borders;
 }

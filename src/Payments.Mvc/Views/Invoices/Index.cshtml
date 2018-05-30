@@ -9,43 +9,52 @@
     @Html.Partial("_DataTableStylePartial")
 }
 
-<h2>@ViewBag.Title</h2>
+<div class="card-style">
+  <div class="card-header-primary card-bot-border">
+      <div class="card-head">
+        <h2>@ViewBag.Title</h2>
+      </div>
+  </div>
 
-<table id="Invoices" class="table">
-    <thead>
-    <tr>
-        <th>Invoice Number</th>
-        <th></th>
-        <th>Customer</th>
-        <th>Amount</th>
-        <th>Sent At</th>
-        <th>Created</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var invoice in Model)
-    {
-        <tr data-id="@invoice.Id">
-            <td>@invoice.Id</td>
-            <td>
-                <span class="badge">@invoice.Status</span>
-            </td>
-            <td>@invoice.CustomerName</td>
-            <td data-sort="@invoice.Total">
-                $@invoice.Total.ToString("F2")
-            </td>
-            <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
-                @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
-            </td>
-            <td data-sort="@invoice.CreatedAt.Ticks">
-                @invoice.CreatedAt.ToString("d")
-            </td>
-            <td><a href="@Url.Action("Edit", new { id = invoice.Id })">Edit</a></td>
+  <div class="card-content">
+    <table id="Invoices" class="table">
+        <thead>
+        <tr>
+            <th>Invoice Number</th>
+            <th></th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Sent At</th>
+            <th>Created</th>
+            <th></th>
         </tr>
-    }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.Id</td>
+                <td>
+                    <span class="badge">@invoice.Status</span>
+                </td>
+                <td>@invoice.CustomerName</td>
+                <td data-sort="@invoice.Total">
+                    $@invoice.Total.ToString("F2")
+                </td>
+                <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
+                    @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
+                </td>
+                <td data-sort="@invoice.CreatedAt.Ticks">
+                    @invoice.CreatedAt.ToString("d")
+                </td>
+                <td><a href="@Url.Action("Edit", new { id = invoice.Id })">Edit</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+  </div>
+</div>
+
 
 
 @section scripts
