@@ -5,6 +5,7 @@ import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 
 import DiscountInput from '../components/discountInput';
+import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
 import TaxInput from '../components/taxInput';
 
@@ -83,6 +84,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         return (
             <div className="card-style">
+                <LoadingModal isOpen={loading} />
                 <div className="card-header-yellow card-bot-border">
                     <div className="card-head">
                         <h2>Edit Invoice #{ invoice.id }</h2>
