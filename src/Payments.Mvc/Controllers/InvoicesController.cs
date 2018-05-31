@@ -219,7 +219,9 @@ namespace Payments.Mvc.Controllers
                 // look for duplicate
                 if (_dbContext.Invoices.Any(i => i.LinkId == linkId)) continue;
 
+                // set and exit
                 invoice.LinkId = linkId;
+                return;
             }
 
             throw new Exception("Failure to create new invoice link id in max attempts.");
