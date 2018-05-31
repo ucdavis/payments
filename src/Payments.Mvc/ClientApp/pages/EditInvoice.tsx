@@ -22,7 +22,7 @@ renderApp();
  
 // Allow Hot Module Replacement 
 if (module.hot) { 
-    module.hot.accept('./', () => { 
+    module.hot.accept('../containers/EditInvoiceContainer', () => { 
         renderApp(); 
     }); 
 } 
