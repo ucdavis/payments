@@ -27,6 +27,7 @@ module.exports = env => {
         filename: '[name].js',
         publicPath: '/dist/',
       },
+      devtool: 'source-map',
       module: {
         rules: [
           {
@@ -37,13 +38,20 @@ module.exports = env => {
           {
             test: /\.css$/,
             use: isDevBuild
-              ? ['style-loader', 'css-loader']
+              ? [
+                  { loader: 'style-loader', options: { } },
+                  { loader: 'css-loader', options: { sourceMap: true } },
+                ]
               : ExtractTextPlugin.extract({ use: 'css-loader?minimize' }),
           },
           {
             test: /\.scss$/,
             use: isDevBuild
-              ? ['style-loader', 'css-loader', 'sass-loader']
+              ? [
+                  { loader: 'style-loader', options: { } },
+                  { loader: 'css-loader', options: { sourceMap: true } },
+                  { loader: 'sass-loader', options: { sourceMap: true } },
+                ]
               : ExtractTextPlugin.extract({ use: ['css-loader?minimize', 'sass-loader'] }),
           },
           {
