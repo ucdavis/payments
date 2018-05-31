@@ -178,12 +178,20 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null)
             {
-                return NotFound();
+                return NotFound(new
+                {
+                    success = false,
+                    errorMessage = "Invoice Not Found"
+                });
             }
 
             if (invoice.Sent)
             {
-                return BadRequest("Invoice already sent.");
+                return BadRequest(new
+                {
+                    success = false,
+                    errorMessage = "Invoice already sent."
+                });
             }
 
             SetInvoiceKey(invoice);

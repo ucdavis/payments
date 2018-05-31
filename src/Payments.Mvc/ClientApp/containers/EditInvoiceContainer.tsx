@@ -27,6 +27,8 @@ interface IState {
             [key: number]: InvoiceItem;
         };
     };
+    loading: boolean;
+    errorMessage: string;
 }
 
 export default class EditInvoiceContainer extends React.Component<IProps, IState> {
@@ -64,39 +66,42 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 name: invoice.customerName || "",
             },
             discount: invoice.discount || 0,
+            errorMessage: "",
             items,
+            loading: false,
             memo: invoice.memo,
             taxRate: invoice.taxPercent || 0,
         };
     }
 
     public render() {
-        const { customer, items, discount, taxRate, memo } = this.state;
+        const { invoice } = this.props;
+        const { customer, items, discount, taxRate, memo, loading } = this.state;
         const subtotal = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         const total = this.calculateTotal();
 
         return (
             <div className="card-style">
-              <div className="card-header-yellow card-bot-border">
-                  <div className="card-head">
-                    <h2>Edit Invoice #122783BB8</h2>
-                  </div>
-              </div>
-              <div className="card-content invoice-customer">
-                <h3>Customer Info</h3>
-                <div className="form-group">
-                    <label>Customer Email</label>
-                    <input
-                        type="email"
-                        className="form-control"
-                        placeholder="johndoe@example.com"
-                        onChange={(e) => { this.updateProperty("customer", { email: e.target.value }) }}
-                        value={customer.email}
-                    />
+                <div className="card-header-yellow card-bot-border">
+                    <div className="card-head">
+                        <h2>Edit Invoice #{ invoice.id }</h2>
+                    </div>
                 </div>
-              </div>
-              <div className="card-content invoice-items">
+                <div className="card-content invoice-customer">
+                    <h3>Customer Info</h3>
+                    <div className="form-group">
+                        <label>Customer Email</label>
+                        <input
+                            type="email"
+                            className="form-control"
+                            placeholder="johndoe@example.com"
+                            onChange={(e) => { this.updateProperty("customer", { email: e.target.value }) }}
+                            value={customer.email}
+                        />
+                    </div>
+                </div>
+                <div className="card-content invoice-items">
                     <h3>Invoice Items</h3>
                     <table className="table invoice-table">
                         <thead>
@@ -148,27 +153,28 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             </tr>
                         </tfoot>
                     </table>
-</div>
-<div className="card-content invoice-memo">
-
+                </div>
+                <div className="card-content invoice-memo">
                     <h3>Memo</h3>
                     <div className="form-group">
                         <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
                     </div>
-</div>
-<div className="card-foot invoice-action">
-  <div className="row flex-between flex-center">
-    <div>
-      <button className="btn-plain color-unitrans">Cancel</button>
-    </div>
-      <div className="row flex-center">
-        <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
-        <button className="btn" onClick={this.onSend}>Send</button>
-      </div>
-
-    </div>
-</div>
-
+                </div>
+                <div className="card-foot invoice-action">
+                    <div className="row flex-between flex-center">
+                        <div className="col">
+                            <button className="btn-plain color-unitrans">Cancel</button>
+                        </div>
+                        <div className="col d-flex justify-content-center align-items-end">
+                            { this.renderError() }
+                        </div>
+                        <div className="col d-flex justify-content-end align-items-center">
+                            <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
+                            { invoice.sent &&
+                                <button className="btn" onClick={this.onSend}>Send</button> }
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -222,6 +228,22 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     </button>
                 </td>
             </tr>
+        );
+    }
+
+    private renderError() {
+        const { errorMessage } = this.state;
+        if (!errorMessage) {
+            return null;
+        }
+
+        return (
+            <div className="flex-grow-1 alert alert-danger" role="alert">
+                <strong>Error!</strong> { errorMessage }
+                <button type="button" className="close" aria-label="Close" onClick={this.dismissErrorMessage}>
+                    <i className="fa fa-times" />
+                </button>
+            </div>
         );
     }
 
@@ -313,7 +335,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         return sub - discount + tax;
     }
 
-    private onSubmit = async () => {
+    private saveInvoice = async () => {
         const { id } = this.props.invoice;
         const { customer, discount, taxRate, items, memo } = this.state;
 
@@ -341,12 +363,20 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             }),
             method: "POST",
         });
-        console.log(await response.json());
 
-        // redirect to invoices
+        const result = await response.json();
+        if (result.success) {
+            return true;
+        }
+
+        this.setState({
+            errorMessage: result.errorMessage
+        })
+        return false;
     }
 
-    private onSend = async () => {
+    private sendInvoice = async () => {
+        // send invoice
         const { id } = this.props.invoice;
 
         const url = `/invoices/send/${id}`;
@@ -359,6 +389,53 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             }),
             method: "POST",
         });
-        console.log(await response.json());
+        
+        const result = await response.json();
+        if (result.success) {
+            return true;
+        }
+
+        this.setState({
+            errorMessage: result.errorMessage
+        })
+        return false;
+    }
+
+    private onSubmit = async () => {
+        this.setState({ loading: true });
+
+        // save invoice
+        const saveResult = await this.saveInvoice();
+        if (!saveResult) {
+            this.setState({ loading: false });
+            return;
+        }
+
+        // return to all invoices page
+        window.location.pathname = "/invoices";
+    }
+
+    private onSend = async () => {
+        this.setState({ loading: true });
+
+        // save invoice
+        const saveResult = await this.saveInvoice();
+        if (!saveResult) {
+            this.setState({ loading: false });
+            return;
+        }
+
+        const sendResult = await this.sendInvoice();
+        if (!sendResult) {
+            this.setState({ loading: false });
+            return;
+        }
+
+        // return to all invoices page
+        window.location.pathname = "/invoices";
+    }
+
+    private dismissErrorMessage = () => {
+        this.setState({ errorMessage: "" });
     }
 }
