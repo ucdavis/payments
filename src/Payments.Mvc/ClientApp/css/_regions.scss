@@ -182,19 +182,12 @@ table.invoice-table {
         font-family: $sans-bold;
         color:$primary-font;
       }
-      td:nth-child(4) {
-        text-align: right;
-      }
-      td:nth-child(5) {
-        width:30px;
-      }
     }
   }
 }
 
-// invoices tablet
-
-table#Invoices {
+// datatables
+table.dataTable {
   border: 1px solid $borders;
   border-collapse: collapse !important;
   .odd td {
@@ -204,27 +197,33 @@ table#Invoices {
 
   }
   thead {
-      th {
-        font-size: 1.4rem;
-        font-family: $sans-bold;
-        color: $primary-font;
-        font-weight: inherit;
-        text-transform: uppercase;
-        border:none;
-        padding-top:8px;
-        padding-bottom:8px;
-        border-bottom:1px solid $borders;
-        border-right:1px solid $borders;
-        &:last-child {
-          border-right:none;
-        }
+    th {
+      font-size: 1.4rem;
+      font-family: $sans-bold;
+      color: $primary-font;
+      font-weight: inherit;
+      text-transform: uppercase;
+      border:none;
+      padding-top:8px;
+      padding-bottom:8px;
+      border-bottom:1px solid $borders;
+      border-right:1px solid $borders;
+      &:last-child {
+        border-right:none;
+      }
 
     }
+
+    .sorting:before,
+    .sorting:after {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
   }
-tbody {
-  // border-left:1px solid $borders;
-  // border-right:1px solid $borders;
-}
+  tbody {
+    // border-left:1px solid $borders;
+    // border-right:1px solid $borders;
+  }
   td {
     font-size:1.6rem;
     border:none;
@@ -232,6 +231,23 @@ tbody {
     border-right:1px solid $borders;
     &:last-child {
       border-right:none;
+    }
+  }
+}
+
+// invoice table
+table#Invoices {
+  tbody {
+    tr {
+      cursor: pointer;
+
+      td.invoices-edit-btn {
+        width:30px;
+      }
+
+      &:hover td {
+        font-weight: bold;
+      }
     }
   }
 }

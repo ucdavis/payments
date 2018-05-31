@@ -17,7 +17,7 @@
   </div>
 
   <div class="card-content">
-    <table id="Invoices" class="table">
+    <table id="Invoices" class="table table-hover">
         <thead>
         <tr>
             <th>Invoice Number</th>
@@ -32,13 +32,13 @@
         <tbody>
         @foreach (var invoice in Model)
         {
-            <tr>
+            <tr data-id="@invoice.Id">
                 <td>@invoice.Id</td>
                 <td>
-                    <span class="badge">@invoice.Status</span>
+                    <span class="badge" data-level="@invoice.Status">@invoice.Status</span>
                 </td>
                 <td>@invoice.CustomerName</td>
-                <td data-sort="@invoice.Total">
+                <td class="text-right" data-sort="@invoice.Total">
                     $@invoice.Total.ToString("F2")
                 </td>
                 <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
@@ -47,7 +47,9 @@
                 <td data-sort="@invoice.CreatedAt.Ticks">
                     @invoice.CreatedAt.ToString("d")
                 </td>
-                <td><a href="@Url.Action("Edit", new { id = invoice.Id })">Edit</a></td>
+                <td class="invoices-edit-btn text-center">
+                    <a href="@Url.Action("Edit", new {id = invoice.Id})">Edit</a>
+                </td>
             </tr>
         }
         </tbody>
