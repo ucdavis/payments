@@ -81,7 +81,7 @@ namespace Payments.Mvc
                 app.UseDatabaseErrorPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
-                    // HotModuleReplacement = true,
+                    HotModuleReplacement = true,
                     // ReactHotModuleReplacement = true
                 });
             }
