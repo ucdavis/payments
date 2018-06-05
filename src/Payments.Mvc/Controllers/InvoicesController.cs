@@ -213,6 +213,29 @@ namespace Payments.Mvc.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Unlock(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            invoice.Status = Invoice.StatusCodes.Draft;
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Edit", "Invoices", new {id});
+        }
+
         private void SetInvoiceKey(Invoice invoice)
         {
             for (var attempt = 0; attempt < 10; attempt++)
