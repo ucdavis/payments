@@ -78,6 +78,7 @@ namespace Payments.Mvc.Controllers
             var team = await _dbContext.Teams.FirstAsync();
 
             // manage multiple customer scenario
+            var invoices = new List<Invoice>();
             foreach (var customer in model.Customers)
             {
                 // create new object, track it
@@ -91,7 +92,8 @@ namespace Payments.Mvc.Controllers
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
                     Memo            = model.Memo,
-                    Status          = Invoice.StatusCodes.Sent, // TODO: Set to draft or sent based on actual email status
+                    Status          = Invoice.StatusCodes.Draft,
+                    Sent            = false,
                 };
 
                 // add line items
@@ -107,13 +109,16 @@ namespace Payments.Mvc.Controllers
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
                 _dbContext.Invoices.Add(invoice);
+
+                invoices.Add(invoice);
             }
 
             _dbContext.SaveChanges();
 
             return new JsonResult(new
             {
-                success = true
+                success = true,
+                ids = invoices.Select(i => i.Id),
             });
         }
 
@@ -166,7 +171,6 @@ namespace Payments.Mvc.Controllers
                 success = true
             });
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Send(int id)
