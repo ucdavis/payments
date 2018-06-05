@@ -71,10 +71,10 @@ p a.action-btn {
   }
 }
 .btn {
-  @include main-btn
+  @include main-btn;
 }
 .btn-gold {
-  @include main-btn
+  @include main-btn;
   background-color: $gold;
   &:active,
   &:focus {
@@ -93,10 +93,10 @@ p a.action-btn {
   color:$unitrans-red;
 }
 .btn-inverse {
-  @include inverse-btn
+  @include inverse-btn;
 }
 .btn-inverse-gold {
-  @include inverse-btn
+  @include inverse-btn;
   color:$gold;
 }
 .btn-border {
