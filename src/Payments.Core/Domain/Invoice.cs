@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 
 namespace Payments.Core.Domain
@@ -94,6 +93,26 @@ namespace Payments.Core.Domain
                 .HasOne(i => i.Team)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Invoice>()
+                .Property(i => i.TaxPercent)
+                .HasColumnType("decimal(18,5)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.Subtotal)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.Discount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.TaxAmount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.Total)
+                .HasColumnType("decimal(18,2)");
         }
 
         public Dictionary<string, string> GetPaymentDictionary()
