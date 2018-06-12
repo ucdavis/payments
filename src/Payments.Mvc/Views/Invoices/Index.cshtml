@@ -37,11 +37,11 @@
                     <td class="invoices-id-col">
                         @invoice.Id
                     </td>
-                    <td class="invoices-status-col">
+                    <td class="text-center invoices-status-col">
                         <span class="badge" data-level="@invoice.Status">@invoice.Status</span>
                     </td>
                     <td class="invoices-customer-col">
-                        @invoice.CustomerName
+                        @invoice.CustomerEmail
                     </td>
                     <td class="text-right" data-sort="@invoice.Total">
                         $@invoice.Total.ToString("F2")
@@ -109,8 +109,9 @@
     <script type="text/javascript">
         $(function() {
             $("#Invoices").DataTable({
-                "columnDefs": [
-                    { "orderable": false, "targets": -1 }
+                order: [[ 0, 'asc' ]],
+                columnDefs: [
+                    { orderable: false, targets: -1 },
                 ],
             });
         });
