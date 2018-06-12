@@ -238,7 +238,11 @@ table.dataTable {
     }
 
     .sorting:before,
-    .sorting:after {
+    .sorting:after,
+    .sorting_asc:before,
+    .sorting_asc:after,
+    .sorting_desc:before,
+    .sorting_desc:after {
       padding-top: 8px;
       padding-bottom: 8px;
     }
