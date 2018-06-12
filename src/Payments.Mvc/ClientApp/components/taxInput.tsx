@@ -7,6 +7,7 @@ interface IProps {
 
 interface IState {
     hasTax: boolean;
+    value: string;
 }
 
 export default class DiscountInput extends React.Component<IProps, IState> {
@@ -16,11 +17,19 @@ export default class DiscountInput extends React.Component<IProps, IState> {
 
         this.state = {
             hasTax: !!props.value,
+            value: props.value,
         };
     }
 
+    public componentWillReceiveProps(nextProps) {
+        this.setState({
+            value: nextProps.value,
+        });
+    }
+
     public render() {
-        const { value, onChange } = this.props;
+        const { onChange } = this.props;
+        const { value } = this.state;
 
         if (!this.state.hasTax) {
             return (
@@ -31,15 +40,21 @@ export default class DiscountInput extends React.Component<IProps, IState> {
         }
 
         return (
-            <input
-                type="number"
-                min="0"
-                step="0.01"
-                className="form-control"
-                placeholder="0.00"
-                value={value}
-                onChange={(e) => { onChange(e.target.value) }}
-            />
+            <div className="input-group">
+                <input
+                    type="number"
+                    min="0"
+                    step="0.0001"
+                    className="form-control"
+                    placeholder=""
+                    value={value}
+                    onBlur={(e) => { onChange(e.target.value) }}
+                    onChange={(e) => { this.setState({ value: e.target.value }); }}
+                />
+                <div className="input-group-append">
+                    <span className="input-group-text">%</span>
+                </div>
+            </div>
         );
     }
 

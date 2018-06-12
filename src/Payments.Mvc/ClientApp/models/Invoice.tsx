@@ -9,4 +9,5 @@ export interface Invoice {
     discount: number;
     taxPercent: number;
     items: InvoiceItem[];
+    sent: boolean;
 }

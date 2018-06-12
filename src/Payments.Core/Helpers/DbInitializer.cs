@@ -161,6 +161,7 @@ namespace Payments.Core.Helpers
 
             var invoice1 = new Invoice()
             {
+                LinkId        = "TESTKEY001",
                 Account       = account,
                 Creator       = creator,
                 Team          = team,
@@ -168,6 +169,8 @@ namespace Payments.Core.Helpers
                 Discount      = 2,
                 TaxPercent    = new decimal(0.05),
                 Status        = Invoice.StatusCodes.Sent,
+                Sent          = true,
+                SentAt        = DateTime.UtcNow.AddDays(-1),
                 Memo          = "Sample Memo Goes Here",
                 Items = new List<LineItem>()
                 {
@@ -193,12 +196,13 @@ namespace Payments.Core.Helpers
 
             var invoice2 = new Invoice()
             {
+                LinkId        = "TESTKEY002",
                 Account       = account,
                 Creator       = creator,
                 Team          = team,
                 CustomerEmail = "jpknoll@ucdavis.edu",
                 Discount      = 2,
-                TaxPercent    = new decimal(0.0875),
+                TaxPercent    = new decimal(0.08275),
                 Status        = Invoice.StatusCodes.Paid,
                 Memo          = "Sample Memo Goes Here",
                 Items = new List<LineItem>()

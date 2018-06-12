@@ -36,6 +36,7 @@ namespace Payments.Core.Services
             // build substitution data
             var data = new Dictionary<string, object>()
             {
+                { "baseUrl", _emailSettings.BaseUrl },
                 { "id", invoice.Id },
                 { "linkid", invoice.LinkId },
                 { "customer", new { email = invoice.CustomerEmail, name = invoice.CustomerName } },

@@ -62,6 +62,7 @@
   padding: 16px 48px 8px;
   text-align: center;
 }
+
 // Payments table
 table.pay-table {
   border-collapse: collapse;
@@ -144,7 +145,7 @@ table.invoice-table {
     &.tbody-invoice-details {
       tr {
         td:first-child {
-          width:45%;
+          // width:45%;
           padding-right:16px;
         }
         td:nth-child(2) {
@@ -156,6 +157,9 @@ table.invoice-table {
           input {
             text-align: right;
           }
+        }
+        td:nth-child(4) {
+          width:12%;
         }
         td:nth-child(5) {
           width:30px;
@@ -171,6 +175,10 @@ table.invoice-table {
       &:nth-child(4) {
         text-align: right;
       }
+
+      &:nth-child(4) {
+        padding-right:16px;
+      }
     }
   }
   tfoot {
@@ -181,20 +189,28 @@ table.invoice-table {
         font-size: 1.6rem;
         font-family: $sans-bold;
         color:$primary-font;
-      }
-      td:nth-child(4) {
-        text-align: right;
-      }
-      td:nth-child(5) {
-        width:30px;
+
+        &:nth-child(4) {
+          text-align: right;
+          padding-right:16px;
+        }
+
+        &:nth-child(2),
+        &:nth-child(3),
+        &:nth-child(4), {
+          border-top: 1px solid $borders;
+        }
       }
     }
   }
 }
 
-// invoices tablet
+// datatables
+.dataTables_wrapper {
+  font-size:1.6rem;
+}
 
-table#Invoices {
+table.dataTable {
   border: 1px solid $borders;
   border-collapse: collapse !important;
   .odd td {
@@ -204,27 +220,37 @@ table#Invoices {
 
   }
   thead {
-      th {
-        font-size: 1.4rem;
-        font-family: $sans-bold;
-        color: $primary-font;
-        font-weight: inherit;
-        text-transform: uppercase;
-        border:none;
-        padding-top:8px;
-        padding-bottom:8px;
-        border-bottom:1px solid $borders;
-        border-right:1px solid $borders;
-        &:last-child {
-          border-right:none;
-        }
+    th {
+      font-size: 1.4rem;
+      font-family: $sans-bold;
+      color: $primary-font;
+      font-weight: inherit;
+      text-transform: uppercase;
+      border:none;
+      padding-top:8px;
+      padding-bottom:8px;
+      border-bottom:1px solid $borders;
+      border-right:1px solid $borders;
+      &:last-child {
+        border-right:none;
+      }
 
     }
+
+    .sorting:before,
+    .sorting:after,
+    .sorting_asc:before,
+    .sorting_asc:after,
+    .sorting_desc:before,
+    .sorting_desc:after {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
   }
-tbody {
-  // border-left:1px solid $borders;
-  // border-right:1px solid $borders;
-}
+  tbody {
+    // border-left:1px solid $borders;
+    // border-right:1px solid $borders;
+  }
   td {
     font-size:1.6rem;
     border:none;
@@ -232,6 +258,46 @@ tbody {
     border-right:1px solid $borders;
     &:last-child {
       border-right:none;
+    }
+  }
+}
+
+// invoice table
+table#Invoices {
+  tbody {
+    tr {
+      cursor: pointer;
+
+      td.invoices-edit-btn {
+        width:30px;
+      }
+
+      &:hover td {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+// multi customer control
+.multi-customer-control {
+  .email-badge-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    flex-wrap: wrap;
+
+    span {
+      margin-bottom: 1rem;
+      margin-right: 1rem;
+      padding: 0.5em 1em;
+
+      font-size: 1.4rem;
+      font-weight: 400;
+
+      button {
+        color: white;
+      }
     }
   }
 }

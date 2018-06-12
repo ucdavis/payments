@@ -3,6 +3,8 @@
 @{
     ViewBag.Title = $"Pay Invoice {Model.Id}";
     Layout = "_PaymentsLayout";
+
+    var duedate = DateTime.UtcNow.AddDays(14);
 }
 
 <div class="card-style pay-card-style">
@@ -18,11 +20,10 @@
       <p class="tertiary-font">Invoice @Model.Id</p>
     </div>
     <div class="pay-action">
-      <h1>@(string.Format("{0:C}", Model.Total))</h1>
-      <p class="secondary-font">Due March, 23rd 1989</p>
       @if (Model.Status == Invoice.StatusCodes.Sent)
-
       {
+        <h1>@(string.Format("{0:C}", Model.Total))</h1>
+        <p class="secondary-font">Due @(duedate.ToString("D"))</p>
           <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
               @foreach (var pair in Model.PaymentDictionary)
               {
@@ -37,7 +38,8 @@
       }
       else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
       {
-          <h2>$@Model.Total.ToString("F2") USD paid @Model.PaidDate.ToString("D")</h2>
+          <h1>Invoice Paid</h1>
+          <h2>@Model.Total.ToString("C") USD paid @Model.PaidDate.ToString("D")</h2>
       }
     </div>
 

@@ -51,46 +51,41 @@
 </div>
 <div class="row justify-content-between">
   <div class="col-sm-12 col-md-5 card-dashboard-button card-style">
-    <div class="row align-items-center">
-    @Html.InlineSvg("/wwwroot/media/invoices.svg")
+    <div class="row align-items-center btn-card">
+      <img src="/media/invoices.svg" alt="invoices icon">
       <div>
         <h2 class="secondary-font">View my invoices</h2>
-        <p class="tertiary-font">55 total | 5 Outstanding | 3 Past due</p>
+        <p class="tertiary-font">55 total  |  5 Outstanding  |  3 Past due</p>
       </div>
     </div>
   </div>
   <div class="col-sm-12 col-md-5 card-dashboard-button card-style">
-    <div class="row align-items-center">
-    @Html.InlineSvg("/wwwroot/media/newinvoice.svg")
-    <div>
-      <h2 class="secondary-font">Create new invoice</h2>
-      <p class="tertiary-font">You've made 12 invoices</p>
+    <div class="row align-items-center btn-card">
+      <img src="/media/newinvoice.svg" alt="new invoice icon">
+      <div>
+        <h2 class="secondary-font">Create new invoice</h2>
+        <p class="tertiary-font">You've made 12 invoices</p>
+      </div>
     </div>
   </div>
-</div>
 </div>
 <div class="row justify-content-between">
   <div class="col-sm-12 col-md-5 card-dashboard-button card-style">
-    <div class="row align-items-center">
-    @Html.InlineSvg("/wwwroot/media/statistics.svg")
-    <div>
-      <h2 class="secondary-font">Statistics</h2>
-      <p class="tertiary-font">$122.44 over the last 6 months</p>
+    <div class="row align-items-center btn-card">
+      <img src="/media/statistics.svg" alt="statistics icon">
+      <div>
+        <h2 class="secondary-font">Statistics</h2>
+        <p class="tertiary-font">$122.44 over the last 6 months</p>
+      </div>
     </div>
   </div>
-</div>
   <div class="col-sm-12 col-md-5 card-dashboard-button card-style">
-    <div class="row align-items-center">
-    @Html.InlineSvg("/wwwroot/media/support.svg")
-    <div>
-      <h2 class="secondary-font">Get Support</h2>
-      <p class="tertiary-font">Questions, comments, concerns?</p>
+    <div class="row align-items-center btn-card">
+      <img src="/media/support.svg" alt="support icon">
+      <div>
+        <h2 class="secondary-font">Get Support</h2>
+        <p class="tertiary-font">Questions, comments, concerns?</p>
+      </div>
     </div>
   </div>
 </div>
-</div>
-<div id="react-app">Loading...</div>
-
-@section scripts {
-    <script src="~/dist/main.js" asp-append-version="true"></script>
-}

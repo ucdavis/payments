@@ -78,6 +78,7 @@ namespace Payments.Mvc.Controllers
             var team = await _dbContext.Teams.FirstAsync();
 
             // manage multiple customer scenario
+            var invoices = new List<Invoice>();
             foreach (var customer in model.Customers)
             {
                 // create new object, track it
@@ -91,7 +92,8 @@ namespace Payments.Mvc.Controllers
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
                     Memo            = model.Memo,
-                    Status          = Invoice.StatusCodes.Sent, // TODO: Set to draft or sent based on actual email status
+                    Status          = Invoice.StatusCodes.Draft,
+                    Sent            = false,
                 };
 
                 // add line items
@@ -107,13 +109,16 @@ namespace Payments.Mvc.Controllers
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
                 _dbContext.Invoices.Add(invoice);
+
+                invoices.Add(invoice);
             }
 
             _dbContext.SaveChanges();
 
             return new JsonResult(new
             {
-                success = true
+                success = true,
+                ids = invoices.Select(i => i.Id),
             });
         }
 
@@ -167,7 +172,6 @@ namespace Payments.Mvc.Controllers
             });
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Send(int id)
         {
@@ -178,12 +182,20 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null)
             {
-                return NotFound();
+                return NotFound(new
+                {
+                    success = false,
+                    errorMessage = "Invoice Not Found"
+                });
             }
 
             if (invoice.Sent)
             {
-                return BadRequest("Invoice already sent.");
+                return BadRequest(new
+                {
+                    success = false,
+                    errorMessage = "Invoice already sent."
+                });
             }
 
             SetInvoiceKey(invoice);
@@ -201,6 +213,29 @@ namespace Payments.Mvc.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Unlock(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            invoice.Status = Invoice.StatusCodes.Draft;
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Edit", "Invoices", new {id});
+        }
+
         private void SetInvoiceKey(Invoice invoice)
         {
             for (var attempt = 0; attempt < 10; attempt++)
@@ -211,7 +246,9 @@ namespace Payments.Mvc.Controllers
                 // look for duplicate
                 if (_dbContext.Invoices.Any(i => i.LinkId == linkId)) continue;
 
+                // set and exit
                 invoice.LinkId = linkId;
+                return;
             }
 
             throw new Exception("Failure to create new invoice link id in max attempts.");
