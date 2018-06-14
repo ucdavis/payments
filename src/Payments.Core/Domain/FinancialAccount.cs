@@ -24,8 +24,21 @@ namespace Payments.Core.Domain
         [Required]
         public string Account { get; set; }
 
+        [StringLength(4)]
+        [Required]
+        public string Object { get; set; }
+
         [StringLength(5)]
+        [DisplayFormat(NullDisplayText = "-----")]
         public string SubAccount { get; set; }
+
+        [StringLength(3)]
+        [DisplayFormat(NullDisplayText = "---")]
+        public string SubObject { get; set; }
+
+        [StringLength(9)]
+        [DisplayFormat(NullDisplayText = "---------")]
+        public string Project { get; set; }
 
         public bool IsDefault { get; set; }
         public bool IsActive { get; set; } = true;
