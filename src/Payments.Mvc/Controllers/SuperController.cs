@@ -33,5 +33,7 @@ namespace Payments.Mvc.Controllers
             get => TempData[TempDataErrorMessageKey] as string;
             set => TempData[TempDataErrorMessageKey] = value;
         }
+
+        public string TeamSlug => ControllerContext.RouteData.Values["team"] as string;
     }
 }

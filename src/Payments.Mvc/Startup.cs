@@ -114,6 +114,18 @@ namespace Payments.Mvc
                     defaults: new { controller = "payments", action="pay" });
 
                 routes.MapRoute(
+                    name: "admin-routes",
+                    template: "{controller}/{action=Index}/{id?}",
+                    defaults: new { },
+                    constraints: new { controller = "(account|system|teams)" });
+
+                routes.MapRoute(
+                    name: "team-routes",
+                    template: "{team}/{controller=Home}/{action=Index}/{id?}",
+                    defaults: new { },
+                    constraints: new { controller = "(home|invoices)" });
+
+                routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
