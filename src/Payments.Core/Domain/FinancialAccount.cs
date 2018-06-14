@@ -32,6 +32,7 @@ namespace Payments.Core.Domain
         public string SubAccount { get; set; }
 
         [StringLength(3)]
+        [DisplayFormat(NullDisplayText = "---")]
         public string SubObject { get; set; }
 
         [StringLength(9)]
