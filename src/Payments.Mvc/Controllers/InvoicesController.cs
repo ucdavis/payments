@@ -59,20 +59,61 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var team = await _dbContext.Teams
+                .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
+
+            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+
             return View();
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            // look for invoice
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
-            return View(invoice);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // fetch team data
+            var team = await _dbContext.Teams
+                .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
+
+            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+
+            // build model for view
+            var model = new EditInvoiceViewModel()
+            {
+                Discount = invoice.Discount,
+                Tax = invoice.TaxPercent,
+                Memo = invoice.Memo,
+                Customer = new EditInvoiceCustomerViewModel()
+                {
+                    Name = invoice.CustomerName,
+                    Address = invoice.CustomerAddress,
+                    Email = invoice.CustomerEmail,
+                },
+                Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
+                {
+                    Amount = i.Amount,
+                    Description = i.Description,
+                    Quantity = i.Quantity,
+                }).ToList()
+            };
+
+            // add other relevant data
+            ViewBag.Id = id;
+            ViewBag.Sent = invoice.Sent;
+
+            return View(model);
         }
 
         [HttpPost]

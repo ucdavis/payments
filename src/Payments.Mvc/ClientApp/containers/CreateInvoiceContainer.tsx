@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Invoice } from '../models/Invoice';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
+import { Team } from '../models/Team';
 
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
@@ -10,6 +11,10 @@ import MemoInput from '../components/memoInput';
 import MultiCustomerControl from '../components/multiCustomerControl';
 
 declare var antiForgeryToken: string;
+
+interface IProps {
+    team: Team;
+}
 
 interface IState {
     ids: number[] | undefined;
@@ -22,7 +27,7 @@ interface IState {
     errorMessage: string;
 }
 
-export default class CreateInvoiceContainer extends React.Component<{}, IState> {
+export default class CreateInvoiceContainer extends React.Component<IProps, IState> {
     constructor(props) {
         super(props);
 
@@ -44,6 +49,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
     }
 
     public render() {
+        const { team } = this.props;
         const { items, discount, taxRate, customers, memo, loading } = this.state;
         
         return (
@@ -51,7 +57,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
                 <LoadingModal loading={loading} />
                 <div className="card-header-yellow card-bot-border">
                     <div className="card-head">
-                        <h2>Create Invoice</h2>
+                        <h2>Create Invoice for { team.name }</h2>
                     </div>
                 </div>
                 <div className="card-content invoice-customer">
@@ -118,6 +124,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
     }
 
     private saveInvoice = async () => {
+        const { slug } = this.props.team;
         const { customers, discount, taxRate, items, memo } = this.state;
 
         // create submit object
@@ -130,7 +137,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
         };
 
         // create url
-        const url = '/invoices/create';
+        const url = `/${slug}/invoices/create`;
 
         // fetch
         const response = await fetch(url, {
@@ -156,6 +163,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
     }
 
     private sendInvoices = async () => {
+        const { slug } = this.props.team;
         const { ids } = this.state;
         if (ids === undefined) {
             this.setState({
@@ -164,10 +172,11 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
             return false;
         }
 
+        // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < ids.length; i++) {
             const id = ids[i];
             // send invoice
-            const url = `/invoices/send/${id}`;
+            const url = `/${slug}/send/${id}`;
 
             const response = await fetch(url, {
                 credentials: "same-origin",
@@ -191,6 +200,7 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
     }
 
     private onSubmit = async () => {
+        const { slug } = this.props.team;
         this.setState({ loading: true });
 
         // save invoice
@@ -201,10 +211,11 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
         }
 
         // return to all invoices page
-        window.location.pathname = "/invoices";
+        window.location.pathname = `/${slug}/invoices`;
     }
 
     private onSend = async () => {
+        const { slug } = this.props.team;
         this.setState({ loading: true });
 
         // save invoice
@@ -220,12 +231,12 @@ export default class CreateInvoiceContainer extends React.Component<{}, IState> 
         // send user back to invoices page with error message
         if (!sendResult) {
             // return to all invoices page
-            window.location.pathname = "/invoices";
+            window.location.pathname = `/${slug}/invoices`;
             return;
         }
 
         // return to all invoices page
-        window.location.pathname = "/invoices";
+        window.location.pathname = `/${slug}/invoices`;
     }
 
     private dismissErrorMessage = () => {
