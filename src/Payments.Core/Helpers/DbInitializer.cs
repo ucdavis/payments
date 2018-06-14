@@ -77,6 +77,7 @@ namespace Payments.Core.Helpers
             {
                 Chart = "3",
                 Account = "OTHER",
+                Object = "0060",
                 Name = "Other Acct",
                 IsDefault = true
             });
