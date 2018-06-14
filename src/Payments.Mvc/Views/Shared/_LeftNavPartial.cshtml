@@ -8,14 +8,6 @@
         <span class="navitem">Home</span>
     </div>
 </a>
-<a class="nav-invoices" href="@Url.Action("Index", "Teams")">
-    <div class="row flex-center">
-        <div class="svgwrapper">
-            @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
-        </div>
-        <span class="navitem">Teams</span>
-    </div>
-</a>
 <a class="nav-invoices" href="@Url.Action("Index", "Invoices")">
 <div class="row flex-center">
   <div class="svgwrapper">
@@ -33,7 +25,7 @@
 </div>
 </a>
 
-<a class="nav-settings" href="@Url.Action("Index", "Home")">
+<a class="nav-settings" href="@Url.Action("Index", "Teams")">
 <div class="row flex-center">
   <div class="svgwrapper">
     @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
