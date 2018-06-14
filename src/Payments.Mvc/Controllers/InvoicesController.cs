@@ -33,6 +33,7 @@ namespace Payments.Mvc.Controllers
         {
             var invoices = _dbContext.Invoices
                 .AsQueryable()
+                .Where(i => i.Team.Slug == TeamSlug)
                 .Take(100)
                 .OrderByDescending(i => i.Id);
 
@@ -46,6 +47,7 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
@@ -67,6 +69,7 @@ namespace Payments.Mvc.Controllers
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             return View(invoice);
@@ -76,7 +79,7 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> Create([FromBody] CreateInvoiceViewModel model)
         {
             var user = await _userManager.GetUserAsync(User);
-            var team = await _dbContext.Teams.FirstAsync();
+            var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
             // manage multiple customer scenario
             var invoices = new List<Invoice>();
@@ -129,6 +132,7 @@ namespace Payments.Mvc.Controllers
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
@@ -179,6 +183,7 @@ namespace Payments.Mvc.Controllers
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
@@ -220,6 +225,7 @@ namespace Payments.Mvc.Controllers
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
