@@ -103,27 +103,6 @@
 
     </script>
 
-    @*<script type="text/javascript">
-            $("#Account").on("blur",
-                function() {
-                    const account = $("#Account").val();
-                    const chart = $("#Chart").val();
-                    const subAcccount = $("#SubAccount").val();
-                    //fetch(`/financial/info?chart=4&account=CRU9033`, { credentials: "same-origin" })
-                    fetch(`/financial/info?chart=` + chart + `&account=`+ account +`&subAccount=` + subAcccount, { credentials: "same-origin" })
-                        .then((response) => {
-                            if (!response.ok) {
-                                throw Error("The account you entered could not be found");
-                            }
-                            return response;
-                        })
-                        .then((response) => response.json())
-                        .then((accountName) => {
-                            alert(accountName);
-                        });
-
-                });
-        </script>*@
 }
 
 
