@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Models.Teams;
@@ -23,14 +24,17 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
         private readonly IDirectorySearchService _directorySearchService;
-        private readonly UserManager<User> _userManager;
 
-        public TeamsController(ApplicationDbContext context, IFinancialService financialService, IDirectorySearchService directorySearchService, UserManager<User> userManager)
+        public TeamsController(
+                ApplicationUserManager userManager,
+                ApplicationDbContext context,
+                IFinancialService financialService,
+                IDirectorySearchService directorySearchService)
+            : base(userManager)
         {
             _context = context;
             _financialService = financialService;
             _directorySearchService = directorySearchService;
-            _userManager = userManager;
         }
 
         // GET: Teams

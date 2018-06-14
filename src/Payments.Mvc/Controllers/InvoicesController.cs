@@ -9,6 +9,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Services;
 using Payments.Mvc.Helpers;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models.InvoiceViewModels;
 
 
@@ -17,13 +18,12 @@ namespace Payments.Mvc.Controllers
     public class InvoicesController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
         private readonly IEmailService _emailService;
 
-        public InvoicesController(ApplicationDbContext dbContext, UserManager<User> userManager, IEmailService emailService)
+        public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IEmailService emailService)
+            : base(userManager)
         {
             _dbContext = dbContext;
-            _userManager = userManager;
             _emailService = emailService;
         }
 

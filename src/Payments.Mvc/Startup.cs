@@ -15,6 +15,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Services;
 
@@ -55,6 +56,7 @@ namespace Payments.Mvc
 
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddUserManager<ApplicationUserManager>()
                 .AddDefaultTokenProviders();
 
             services.AddAuthentication()

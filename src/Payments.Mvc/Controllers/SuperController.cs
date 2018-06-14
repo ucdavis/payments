@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Payments.Mvc.Identity;
 
 namespace Payments.Mvc.Controllers
 {
@@ -9,6 +10,13 @@ namespace Payments.Mvc.Controllers
     [Authorize]
     public class SuperController : Controller
     {
+        protected readonly ApplicationUserManager _userManager;
+
+        public SuperController(ApplicationUserManager userManager)
+        {
+            _userManager = userManager;
+        }
+
         public string CurrentUserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         private const string TempDataMessageKey = "Message";

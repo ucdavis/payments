@@ -8,27 +8,26 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Payments.Core.Domain;
-using Payments.Mvc.Models.AccountViewModels;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]
-    public class AccountController : Controller
+    public class AccountController : SuperController
     {
-        private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IDirectorySearchService _directorySearchService;
         private readonly ILogger _logger;
 
         public AccountController(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            IDirectorySearchService directorySearchService,
-            ILogger<AccountController> logger)
+                ApplicationUserManager userManager,
+                SignInManager<User> signInManager,
+                IDirectorySearchService directorySearchService,
+                ILogger<AccountController> logger)
+            : base(userManager)
         {
-            _userManager = userManager;
             _signInManager = signInManager;
             _directorySearchService = directorySearchService;
             _logger = logger;
