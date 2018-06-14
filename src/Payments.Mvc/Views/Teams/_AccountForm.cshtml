@@ -24,9 +24,24 @@
     <span asp-validation-for="Account" class="text-danger"></span>
 </div>
 <div class="form-group">
+    <label asp-for="Object" class="control-label"></label>
+    <input asp-for="Object" disabled class="form-control" style="text-transform:uppercase" />
+    <span asp-validation-for="Object" class="text-danger"></span>
+</div>
+<div class="form-group">
     <label asp-for="SubAccount" class="control-label"></label>
     <input asp-for="SubAccount" disabled class="form-control" style="text-transform:uppercase"/>
     <span asp-validation-for="SubAccount" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="SubObject" class="control-label"></label>
+    <input asp-for="SubObject" disabled class="form-control" style="text-transform:uppercase" placeholder="---"/>
+    <span asp-validation-for="SubObject" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Project" class="control-label"></label>
+    <input asp-for="Project" disabled class="form-control" style="text-transform:uppercase" />
+    <span asp-validation-for="Project" class="text-danger"></span>
 </div>
 <div class="form-group">
     <div class="checkbox">

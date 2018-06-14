@@ -248,7 +248,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="financialAccount"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> ConfirmAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
+        public async Task<IActionResult> ConfirmAccount([Bind("Name,Description,Chart,Account,Object,SubAccount,SubObject,Project,IsDefault,TeamId")] FinancialAccount financialAccount)
         {
 
             var team = await _context.Teams
@@ -282,6 +282,9 @@ namespace Payments.Mvc.Controllers
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
+            financialAccount.Object = financialAccount.Object.SafeToUpper();
+            financialAccount.SubObject = financialAccount.SubObject.SafeToUpper();
+            financialAccount.Project = financialAccount.Project.SafeToUpper();
 
 
             if (ModelState.IsValid)
@@ -300,7 +303,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="financialAccount"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount, bool confirm)
+        public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,Object,SubAccount,SubObject,Project,IsDefault,TeamId")] FinancialAccount financialAccount, bool confirm)
         {
 
             var team = await _context.Teams
@@ -334,6 +337,9 @@ namespace Payments.Mvc.Controllers
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
+            financialAccount.Object = financialAccount.Object.SafeToUpper();
+            financialAccount.SubObject = financialAccount.SubObject.SafeToUpper();
+            financialAccount.Project = financialAccount.Project.SafeToUpper();
 
             if (!confirm)
             {
