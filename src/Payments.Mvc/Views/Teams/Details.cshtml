@@ -42,7 +42,16 @@
                 @Html.DisplayNameFor(model => model.Team.DefaultAccount.Account)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Team.DefaultAccount.Object)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Team.DefaultAccount.SubAccount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Team.DefaultAccount.SubObject)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Team.DefaultAccount.Project)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Team.DefaultAccount.IsDefault)
@@ -70,7 +79,16 @@
                     @Html.DisplayFor(modelItem => item.Account)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.Object)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.SubAccount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubObject)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Project)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.IsDefault)
@@ -159,7 +177,16 @@
 
     <script type="text/javascript">
         $(function() {
-            $(".table").DataTable();
+            $(".table").DataTable({
+                columnDefs: [
+                    {
+                        targets: [-1], orderable: false
+                    },
+                    {
+                        targets: [-1], searchable: false
+                    }
+                ]
+            });
         });
     </script>
 }

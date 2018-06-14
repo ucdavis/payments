@@ -36,9 +36,25 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
             }));
+            expectedFields.Add(new NameAndType("Object", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)4)]",
+            }));
+            expectedFields.Add(new NameAndType("Project", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"---------\")]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)9)]",
+            }));
             expectedFields.Add(new NameAndType("SubAccount", "System.String", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"-----\")]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)5)]",
+            }));
+            expectedFields.Add(new NameAndType("SubObject", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"---\")]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)3)]",
             }));
             expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>()));
             expectedFields.Add(new NameAndType("TeamId", "System.Int32", new List<string>()));
