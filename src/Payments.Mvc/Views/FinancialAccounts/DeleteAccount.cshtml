@@ -36,10 +36,28 @@
             @Html.DisplayFor(model => model.Account)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.Object)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Object)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.SubAccount)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.SubAccount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SubObject)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SubObject)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Project)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Project)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.IsDefault)
@@ -59,6 +77,6 @@
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="TeamId"/>
         <input type="submit" value="Delete" class="btn btn-default" /> |
-        <a asp-action="Details" asp-route-id="@Model.TeamId">Back to List</a>
+        <a asp-action="Details" asp-controller="Teams" asp-route-id="@Model.TeamId">Back to List</a>
     </form>
 </div>

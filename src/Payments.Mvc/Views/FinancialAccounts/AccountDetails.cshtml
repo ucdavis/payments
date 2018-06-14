@@ -74,5 +74,5 @@
 </div>
 <div>
     <a asp-action="EditAccount" asp-route-id="@Model.Id" asp-route-TeamId="@Model.TeamId">Edit</a> |
-    <a asp-action="Details" asp-route-id="@Model.TeamId" >Back to List</a>
+    <a asp-action="Details" asp-controller="Teams" asp-route-id="@Model.TeamId" >Back to List</a>
 </div>
