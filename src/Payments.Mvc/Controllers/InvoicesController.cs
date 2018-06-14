@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
@@ -15,6 +15,7 @@ using Payments.Mvc.Models.InvoiceViewModels;
 
 namespace Payments.Mvc.Controllers
 {
+    [Authorize(Policy = "TeamEditor")]
     public class InvoicesController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;
