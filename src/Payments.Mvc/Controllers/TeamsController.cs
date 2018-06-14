@@ -248,7 +248,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="financialAccount"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
+        public async Task<IActionResult> ConfirmAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount)
         {
 
             var team = await _context.Teams
@@ -282,6 +282,64 @@ namespace Payments.Mvc.Controllers
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
+
+
+            if (ModelState.IsValid)
+            {
+                financialAccount.Team = team;
+                return View(financialAccount);
+            }
+
+            financialAccount.Team = team;
+            return View("CreateAccount", financialAccount);
+        }
+
+        /// <summary>
+        /// POST: FinancialAccounts/Create
+        /// </summary>
+        /// <param name="financialAccount"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,SubAccount,IsDefault,TeamId")] FinancialAccount financialAccount, bool confirm)
+        {
+
+            var team = await _context.Teams
+                .SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
+            {
+                ErrorMessage = "You do not have access to this team.";
+                return RedirectToAction("Index");
+            }
+
+
+            string kfsResult = null;
+            try
+            {
+                kfsResult = await GetAccountInfo(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+            }
+            catch (Exception)
+            {
+                //Log?
+            }
+
+            if (string.IsNullOrWhiteSpace(kfsResult))
+            {
+                ModelState.AddModelError("Account", "Valid Account Not Found.");
+            }
+
+            financialAccount.Chart = financialAccount.Chart.SafeToUpper();
+            financialAccount.Account = financialAccount.Account.SafeToUpper();
+            financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
+
+            if (!confirm)
+            {
+                financialAccount.Team = team;
+                return View("CreateAccount", financialAccount);
+            }
 
 
             if (ModelState.IsValid)
