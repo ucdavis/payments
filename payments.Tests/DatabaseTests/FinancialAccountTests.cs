@@ -43,10 +43,12 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Project", "System.String", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"---------\")]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)9)]",
             }));
             expectedFields.Add(new NameAndType("SubAccount", "System.String", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"-----\")]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)5)]",
             }));
             expectedFields.Add(new NameAndType("SubObject", "System.String", new List<string>
