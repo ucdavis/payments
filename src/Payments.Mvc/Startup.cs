@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Security.CAS;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,8 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
+using Payments.Mvc.Authorization;
+using Payments.Mvc.Handlers;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Services;
@@ -64,6 +67,13 @@ namespace Payments.Mvc
                 {
                     options.CasServerUrlBase = Configuration["Settings:CasBaseUrl"];
                 });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TeamAdmin", policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
+                options.AddPolicy("TeamEditor", policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin, TeamRole.Codes.Editor)));
+            });
+            services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             services.AddMvc();
 

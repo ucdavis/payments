@@ -31,7 +31,9 @@ namespace Payments.Mvc.Identity
         {
             return Users
                 .Include(u => u.TeamPermissions)
-                .ThenInclude(p => p.Team)
+                    .ThenInclude(p => p.Team)
+                .Include(u => u.TeamPermissions)
+                    .ThenInclude(p => p.Role)
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
     }
