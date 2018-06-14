@@ -1,12 +1,20 @@
 @using Payments.Mvc.Helpers
 <nav>
-  <a class="nav-home" href="@Url.Action("Index", "Home")">
-  <div class="row flex-center">
-    <div class="svgwrapper">
-      @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
+<a class="nav-home" href="@Url.Action("Index", "Home")">
+    <div class="row flex-center">
+        <div class="svgwrapper">
+            @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
+        </div>
+        <span class="navitem">Home</span>
     </div>
-    <span class="navitem">Home</span>
-  </div>
+</a>
+<a class="nav-invoices" href="@Url.Action("Index", "Teams")">
+    <div class="row flex-center">
+        <div class="svgwrapper">
+            @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+        </div>
+        <span class="navitem">Teams</span>
+    </div>
 </a>
 <a class="nav-invoices" href="@Url.Action("Index", "Invoices")">
 <div class="row flex-center">
