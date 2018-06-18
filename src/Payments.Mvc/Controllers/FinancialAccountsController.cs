@@ -50,7 +50,7 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("Index", "Teams");
             }
 
-            var model = new FinancialAccount();
+            var model = new FinancialAccountModel();
             model.TeamId = team.Id;
             model.Team = team;
             return View(model);
@@ -62,7 +62,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="financialAccount"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> ConfirmAccount([Bind("Name,Description,Chart,Account,Object,SubAccount,SubObject,Project,IsDefault,TeamId")] FinancialAccount financialAccount)
+        public async Task<IActionResult> ConfirmAccount(FinancialAccountModel financialAccount)
         {
 
             var team = await _context.Teams
@@ -114,24 +114,6 @@ namespace Payments.Mvc.Controllers
             }
 
 
-            string kfsResult = null;
-            try
-            {
-                kfsResult = await GetAccountInfo(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
-            }
-            catch (Exception)
-            {
-                //Log?
-            }
-
-            if (string.IsNullOrWhiteSpace(kfsResult))
-            {
-                
-            }
-
-
-
-
             if (ModelState.IsValid)
             {
                 financialAccount.Team = team;
@@ -142,14 +124,21 @@ namespace Payments.Mvc.Controllers
             return View("CreateAccount", financialAccount);
         }
 
-        /// <summary>
-        /// POST: FinancialAccounts/Create
-        /// </summary>
-        /// <param name="financialAccount"></param>
-        /// <returns></returns>
+
         [HttpPost]
-        public async Task<IActionResult> CreateAccount([Bind("Name,Description,Chart,Account,Object,SubAccount,SubObject,Project,IsDefault,TeamId")] FinancialAccount financialAccount, bool confirm)
+        public async Task<IActionResult> CreateAccount(FinancialAccountModel financialAccountModel, bool confirm)
         {
+            var financialAccount = new FinancialAccount();
+            financialAccount.Name = financialAccountModel.Name;
+            financialAccount.Description = financialAccountModel.Description;
+            financialAccount.Chart = financialAccountModel.Chart;
+            financialAccount.Account = financialAccountModel.Account;
+            financialAccount.Object = financialAccountModel.Object;
+            financialAccount.SubAccount = financialAccountModel.SubAccount;
+            financialAccount.SubObject = financialAccountModel.SubObject;
+            financialAccount.Project = financialAccountModel.Project;
+            financialAccount.IsDefault = financialAccountModel.IsDefault;
+            financialAccount.TeamId = financialAccountModel.TeamId;
 
             var team = await _context.Teams
                 .SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.IsActive);
@@ -188,8 +177,8 @@ namespace Payments.Mvc.Controllers
 
             if (!confirm)
             {
-                financialAccount.Team = team;
-                return View("CreateAccount", financialAccount);
+                financialAccountModel.Team = team;
+                return View("CreateAccount", financialAccountModel);
             }
 
 
@@ -219,7 +208,7 @@ namespace Payments.Mvc.Controllers
             }
 
             financialAccount.Team = team;
-            return View(financialAccount);
+            return View(financialAccountModel);
         }
 
         /// <summary>
