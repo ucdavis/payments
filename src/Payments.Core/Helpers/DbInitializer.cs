@@ -82,7 +82,33 @@ namespace Payments.Core.Helpers
                 Object = "72U8",
                 SubObject = "CEX",
                 Name = "Other Acct",
+                IsDefault = false
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "CRURATE",
+                Object = "0060",
+                Name = "Valid Caes Account",
                 IsDefault = true
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "CENRECG",
+                Object = "0060",
+                Name = "Valid Caes Account2",
+                IsDefault = false
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "EXEHHMI",
+                SubAccount = "WCNSI",
+                Object = "0060",
+                Project = "ADOBRM",
+                Name = "Valid Caes Account3",
+                IsDefault = false
             });
 
             _context.Teams.Add(team1);
