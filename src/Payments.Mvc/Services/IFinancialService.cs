@@ -21,6 +21,7 @@ namespace Payments.Mvc.Services
         Task<string> GetProjectName(string project);
         Task<string> GetSubAccountName(string chart, string account, string subAccount);
         Task<string> GetObjectName(string chart, string objectCode);
+        Task<string> GetSubObjectName(string chart, string account, string objectCode, string subObject);
     }
 
     public class FinancialService : IFinancialService
@@ -203,6 +204,19 @@ namespace Payments.Mvc.Services
         public async Task<string> GetObjectName(string chart, string objectCode)
         {
             string url = $"{_settings.FinancialLookupUrl}/object/{chart}/{objectCode}/name";
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var contents = await response.Content.ReadAsStringAsync();
+                return contents.Trim('"');
+            }
+        }
+        //GET /fau/subobject/{chart}/{account}/{object}/{subobject}/name
+        public async Task<string> GetSubObjectName(string chart, string account, string objectCode, string subObject)
+        {
+            string url = $"{_settings.FinancialLookupUrl}/subobject/{chart}/{account}/{objectCode}/{subObject}/name";
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync(url);

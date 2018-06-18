@@ -128,6 +128,10 @@ namespace Payments.Mvc.Controllers
                     financialAccount.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
                 }
                 financialAccount.KfsAccount.ObjectName = await _financialService.GetObjectName(financialAccount.Chart, financialAccount.Object);
+                if (!string.IsNullOrWhiteSpace(financialAccount.SubObject))
+                {
+                    financialAccount.KfsAccount.SubObjectName = await _financialService.GetSubObjectName(financialAccount.Chart, financialAccount.Account, financialAccount.Object, financialAccount.SubObject);
+                }
                 financialAccount.Team = team;
                 return View(financialAccount);
             }

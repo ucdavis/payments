@@ -83,6 +83,10 @@
                     <dt>Account Expiration Date</dt><dd>@Html.DisplayFor(model => model.KfsAccount.accountExpirationDate)</dd>
                 }
                 <dt>Object Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.ObjectName)</dd>
+                @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubObjectName))
+                {
+                    <dt>Sub Object Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.SubObjectName)</dd>
+                }
                 <dt>Sub Fund Group Type Code</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
                 <dt>Sub Fund Group Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
             </dl>
