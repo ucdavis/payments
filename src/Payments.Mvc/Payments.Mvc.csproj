@@ -31,6 +31,12 @@
     <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="xunit.assert">
+      <HintPath>..\..\..\..\Users\jsylvest\.nuget\packages\xunit.assert\2.3.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">

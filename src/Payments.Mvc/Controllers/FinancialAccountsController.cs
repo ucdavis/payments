@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Mvc.Models.FinancialModels;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
 
@@ -73,6 +74,42 @@ namespace Payments.Mvc.Controllers
                 ErrorMessage = "You do not have access to this team.";
                 return RedirectToAction("Index", "Teams");
             }
+            financialAccount.Chart = financialAccount.Chart.SafeToUpper();
+            financialAccount.Account = financialAccount.Account.SafeToUpper();
+            financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
+            financialAccount.Object = financialAccount.Object.SafeToUpper();
+            financialAccount.SubObject = financialAccount.SubObject.SafeToUpper();
+            financialAccount.Project = financialAccount.Project.SafeToUpper();
+
+            if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
+            {
+                ModelState.AddModelError("Account", "Valid Account Not Found.");
+            }
+
+            if (!await _financialService.IsObjectValid(financialAccount.Chart, financialAccount.Object))
+            {
+                ModelState.AddModelError("Object", "Object Not Valid.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(financialAccount.SubObject) && !await _financialService.IsSubObjectValid(financialAccount.Chart, financialAccount.Account, financialAccount.Object, financialAccount.SubObject))
+            {
+                ModelState.AddModelError("SubObject", "SubObject Not Valid.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(financialAccount.Project) && ! await _financialService.IsProjectValid(financialAccount.Project))
+            {
+                ModelState.AddModelError("Project", "Project Not Valid.");
+            }
+
+            var accountLookup = new KfsAccount();
+            if (ModelState.IsValid)
+            {
+                accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                if (!accountLookup.IsValidIncomeAccount)
+                {
+                    ModelState.AddModelError("Account", "Not An Income Account.");
+                }
+            }
 
 
             string kfsResult = null;
@@ -87,15 +124,10 @@ namespace Payments.Mvc.Controllers
 
             if (string.IsNullOrWhiteSpace(kfsResult))
             {
-                ModelState.AddModelError("Account", "Valid Account Not Found.");
+                
             }
 
-            financialAccount.Chart = financialAccount.Chart.SafeToUpper();
-            financialAccount.Account = financialAccount.Account.SafeToUpper();
-            financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
-            financialAccount.Object = financialAccount.Object.SafeToUpper();
-            financialAccount.SubObject = financialAccount.SubObject.SafeToUpper();
-            financialAccount.Project = financialAccount.Project.SafeToUpper();
+
 
 
             if (ModelState.IsValid)

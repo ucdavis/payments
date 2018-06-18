@@ -73,6 +73,7 @@ namespace Payments.Core.Helpers
                 Name = "CRU Sample Team",
             };
 
+            //This is an example of an account that has a SubObject, but it isn't an "Income Account"
             team1.Accounts.Add(new FinancialAccount
             {
                 Chart = "3",
