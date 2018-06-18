@@ -123,7 +123,11 @@ namespace Payments.Mvc
                     name: "team-routes",
                     template: "{team}/{controller=Home}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(home|invoices)" });
+                    constraints: new
+                    {
+                        controller = "(home|invoices|settings)",
+                        teams = "!(home|invoices|settings)"
+                    });
 
                 routes.MapRoute(
                     name: "default",
