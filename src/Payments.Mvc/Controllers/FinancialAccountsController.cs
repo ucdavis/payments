@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models.FinancialModels;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
@@ -18,7 +19,8 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
 
-        public FinancialAccountsController(ApplicationDbContext context, IFinancialService financialService)
+        public FinancialAccountsController(ApplicationDbContext context, IFinancialService financialService, ApplicationUserManager userManager)
+            : base(userManager)
         {
             _context = context;
             _financialService = financialService;
