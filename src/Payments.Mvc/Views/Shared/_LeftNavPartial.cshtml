@@ -7,6 +7,7 @@
 @{
     var user = await UserManager.GetUserAsync(User);
     var teamSlug = HttpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
+    var controller = HttpContextAccessor.HttpContext.GetRouteData().Values["controller"] as string;
 }
 
 @if (User.Identity.IsAuthenticated && user != null)
@@ -48,7 +49,7 @@
         </div>
     </a>
 
-    <a class="nav-settings" href="@Url.Action("Index", "Home")">
+    <a class="nav-settings" href="@Url.Action("Index", "Settings")">
         <div class="row flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
@@ -57,14 +58,22 @@
         </div>
     </a>
 
+    @if (string.Equals("settings", controller, StringComparison.OrdinalIgnoreCase)
+        || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase))
+    {
+        <div class="row flex-center subnav">
+            <a class="" href="@Url.Action("Index", "Teams")">
+                <span class="navitem">Teams</span>
+            </a>
+        </div>
+    }
+
     <form asp-action="logout" asp-controller="account" method="post">
-        <button class="nav-logout btn-plain">
-            <div class="row flex-center">
+        <button class="nav-logout btn-plain row flex-center">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
                 </div>
                 <span class="navitem">Logout</span>
-            </div>
         </button>
     </form>
 </nav>
