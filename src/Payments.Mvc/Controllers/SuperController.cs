@@ -8,11 +8,11 @@ namespace Payments.Mvc.Controllers
 {
     [AutoValidateAntiforgeryToken]
     [Authorize]
-    public class SuperController : Controller
+    public abstract class SuperController : Controller
     {
         protected readonly ApplicationUserManager _userManager;
 
-        public SuperController(ApplicationUserManager userManager)
+        protected SuperController(ApplicationUserManager userManager)
         {
             _userManager = userManager;
         }
