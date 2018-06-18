@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 
 namespace Payments.Core.Domain
@@ -23,19 +23,26 @@ namespace Payments.Core.Domain
         [Required]
         public User Creator { get; set; }
 
+        [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
 
+        [DisplayName("Customer Address")]
         public string CustomerAddress { get; set; }
 
         [EmailAddress]
+        [DisplayName("Customer Email")]
         public string CustomerEmail { get; set; }
 
+        [DataType(DataType.MultilineText)]
         public string Memo { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Discount { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:P}")]
+        [DisplayName("Tax Percentage")]
         public decimal TaxPercent { get; set; }
-        
+
         public string Status { get; set; }
 
         public FinancialAccount Account { get; set; }
@@ -49,15 +56,23 @@ namespace Payments.Core.Domain
 
         public bool Sent { get; set; }
 
+        [DisplayName("Sent At")]
         public DateTime? SentAt { get; set; }
 
+        [DisplayName("Created On")]
         public DateTime CreatedAt { get; set; }
 
         // ----------------------
         // Calculated Values
         // ----------------------
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Subtotal { get; private set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
+        [DisplayName("Tax")]
         public decimal TaxAmount { get; private set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Total { get; private set; }
 
         public void UpdateCalculatedValues()
@@ -78,6 +93,26 @@ namespace Payments.Core.Domain
                 .HasOne(i => i.Team)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Invoice>()
+                .Property(i => i.TaxPercent)
+                .HasColumnType("decimal(18,5)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.Subtotal)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.Discount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.TaxAmount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Invoice>()
+                .Property(i => i.Total)
+                .HasColumnType("decimal(18,2)");
         }
 
         public Dictionary<string, string> GetPaymentDictionary()

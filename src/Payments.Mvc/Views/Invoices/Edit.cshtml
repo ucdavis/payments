@@ -1,10 +1,8 @@
-﻿@model Invoice
+﻿@model Payments.Mvc.Models.InvoiceViewModels.EditInvoiceViewModel
 
 @{
     ViewBag.Title = "Edit Invoice";
 }
-
-<h2>@ViewBag.Title</h2>
 
 <div id="react-app">
     Loading Edit Invoice...
@@ -17,7 +15,13 @@
 
 @section scripts {
     <script>
+        window.id = @(Json.Serialize(ViewBag.Id));
+
         window.model = @(Json.Serialize(Model));
+
+        window.sent = @(Json.Serialize(ViewBag.Sent));
+
+        window.team = @(Json.Serialize(ViewBag.Team));
 
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();

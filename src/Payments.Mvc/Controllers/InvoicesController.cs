@@ -2,28 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Services;
 using Payments.Mvc.Helpers;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models.InvoiceViewModels;
 
 
 namespace Payments.Mvc.Controllers
 {
+    [Authorize(Policy = "TeamEditor")]
     public class InvoicesController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
         private readonly IEmailService _emailService;
 
-        public InvoicesController(ApplicationDbContext dbContext, UserManager<User> userManager, IEmailService emailService)
+        public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IEmailService emailService)
+            : base(userManager)
         {
             _dbContext = dbContext;
-            _userManager = userManager;
             _emailService = emailService;
         }
 
@@ -32,6 +33,7 @@ namespace Payments.Mvc.Controllers
         {
             var invoices = _dbContext.Invoices
                 .AsQueryable()
+                .Where(i => i.Team.Slug == TeamSlug)
                 .Take(100)
                 .OrderByDescending(i => i.Id);
 
@@ -40,28 +42,88 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Details(int id)
         {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Payment)
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            return View(invoice);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var team = await _dbContext.Teams
+                .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
+
+            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+
             return View();
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            // look for invoice
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
-            return View(invoice);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // fetch team data
+            var team = await _dbContext.Teams
+                .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
+
+            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+
+            // build model for view
+            var model = new EditInvoiceViewModel()
+            {
+                Discount = invoice.Discount,
+                Tax = invoice.TaxPercent,
+                Memo = invoice.Memo,
+                Customer = new EditInvoiceCustomerViewModel()
+                {
+                    Name = invoice.CustomerName,
+                    Address = invoice.CustomerAddress,
+                    Email = invoice.CustomerEmail,
+                },
+                Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
+                {
+                    Amount = i.Amount,
+                    Description = i.Description,
+                    Quantity = i.Quantity,
+                }).ToList()
+            };
+
+            // add other relevant data
+            ViewBag.Id = id;
+            ViewBag.Sent = invoice.Sent;
+
+            return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateInvoiceViewModel model)
         {
             var user = await _userManager.GetUserAsync(User);
-            var team = await _dbContext.Teams.FirstAsync();
+            var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
             // manage multiple customer scenario
+            var invoices = new List<Invoice>();
             foreach (var customer in model.Customers)
             {
                 // create new object, track it
@@ -75,7 +137,8 @@ namespace Payments.Mvc.Controllers
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
                     Memo            = model.Memo,
-                    Status          = Invoice.StatusCodes.Sent, // TODO: Set to draft or sent based on actual email status
+                    Status          = Invoice.StatusCodes.Draft,
+                    Sent            = false,
                 };
 
                 // add line items
@@ -91,13 +154,16 @@ namespace Payments.Mvc.Controllers
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
                 _dbContext.Invoices.Add(invoice);
+
+                invoices.Add(invoice);
             }
 
             _dbContext.SaveChanges();
 
             return new JsonResult(new
             {
-                success = true
+                success = true,
+                ids = invoices.Select(i => i.Id),
             });
         }
 
@@ -107,6 +173,7 @@ namespace Payments.Mvc.Controllers
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
@@ -151,23 +218,31 @@ namespace Payments.Mvc.Controllers
             });
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Send(int id)
         {
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
             {
-                return NotFound();
+                return NotFound(new
+                {
+                    success = false,
+                    errorMessage = "Invoice Not Found"
+                });
             }
 
             if (invoice.Sent)
             {
-                return BadRequest("Invoice already sent.");
+                return BadRequest(new
+                {
+                    success = false,
+                    errorMessage = "Invoice already sent."
+                });
             }
 
             SetInvoiceKey(invoice);
@@ -185,6 +260,30 @@ namespace Payments.Mvc.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Unlock(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            invoice.Status = Invoice.StatusCodes.Draft;
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Edit", "Invoices", new {id});
+        }
+
         private void SetInvoiceKey(Invoice invoice)
         {
             for (var attempt = 0; attempt < 10; attempt++)
@@ -195,7 +294,9 @@ namespace Payments.Mvc.Controllers
                 // look for duplicate
                 if (_dbContext.Invoices.Any(i => i.LinkId == linkId)) continue;
 
+                // set and exit
                 invoice.LinkId = linkId;
+                return;
             }
 
             throw new Exception("Failure to create new invoice link id in max attempts.");

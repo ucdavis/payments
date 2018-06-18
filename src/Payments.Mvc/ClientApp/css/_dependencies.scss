@@ -22,7 +22,7 @@ $sans-italic:   "proxima-nova-i",serif;
 $sans-bold:     "proxima-nova-b",serif;
 $sans-reg:      "proxima-nova-r",serif;
 
-$primary-color:     #006F8E;
+$primary-color:     #004987;
 $secondary-color:   #8FA600;
 $tertiary-color:    #009493;
 
@@ -32,7 +32,7 @@ $blue:              #004987;
 $a-link:            transparentize($primary-color, .2);
 
 $primary-font: rgba(31,31,31,.99); //
-$secondary-font: rgba(31,31,31,.65); //
+$secondary-font: rgba(31,31,31,.75); //
 $tertiary-font: rgba(31,31,31,.40); //
 
 $box-shadow: 0 0 0 1px rgba(49,49,93,.03), 0 2px 5px 0 rgba(49,49,93,.1), 0 1px 2px 0 rgba(0,0,0,.08);
@@ -74,25 +74,21 @@ $card-thick-padding: 3rem;
     @if $point==sm {
         @media (min-width: 576px) {
             @content ;
-            max-width:inherit;
         }
     }
     @if $point==md {
         @media (min-width: 768px) {
             @content ;
-            max-width:inherit;
         }
     }
     @if $point==lg {
         @media (min-width: 992px) {
             @content ;
-            max-width:inherit;
         }
     }
     @if $point==xl {
         @media (min-width: 1200px) {
             @content ;
-            max-width:1440px;
         }
     }
 }

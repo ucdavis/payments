@@ -2,8 +2,6 @@
     ViewBag.Title = "Create Invoice";
 }
 
-<h2>@ViewBag.Title</h2>
-
 <div id="react-app">
     Loading Create Invoice...
 </div>
@@ -15,6 +13,8 @@
 
 @section scripts {
     <script>
+        window.team = @(Json.Serialize(ViewBag.Team));
+
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
     </script>

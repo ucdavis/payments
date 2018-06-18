@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
@@ -32,7 +33,7 @@ namespace Payments.Core.Domain
         [StringLength(50)] // cache for campus kerb, also providerKey for the UCD login provider
         public string CampusKerberos { get; set; }
 
-        public List<TeamPermission> TeamPermissions { get; set; }
+        public virtual ICollection<TeamPermission> TeamPermissions { get; set; }
 
         private string _emailHash;
 
@@ -71,6 +72,11 @@ namespace Payments.Core.Domain
                 _emailHash = sBuilder.ToString(); // Return the hexadecimal string. 
                 return _emailHash;
             }
+        }
+
+        public IEnumerable<Team> GetTeams()
+        {
+            return TeamPermissions.Select(p => p.Team).Distinct();
         }
     }
 }

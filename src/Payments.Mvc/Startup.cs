@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Security.CAS;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,9 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
+using Payments.Mvc.Authorization;
+using Payments.Mvc.Handlers;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Services;
 
@@ -55,6 +59,7 @@ namespace Payments.Mvc
 
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddUserManager<ApplicationUserManager>()
                 .AddDefaultTokenProviders();
 
             services.AddAuthentication()
@@ -62,6 +67,13 @@ namespace Payments.Mvc
                 {
                     options.CasServerUrlBase = Configuration["Settings:CasBaseUrl"];
                 });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TeamAdmin", policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
+                options.AddPolicy("TeamEditor", policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin, TeamRole.Codes.Editor)));
+            });
+            services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             services.AddMvc();
 
@@ -81,7 +93,7 @@ namespace Payments.Mvc
                 app.UseDatabaseErrorPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
-                    // HotModuleReplacement = true,
+                    HotModuleReplacement = true,
                     // ReactHotModuleReplacement = true
                 });
             }
@@ -100,6 +112,18 @@ namespace Payments.Mvc
                     name: "pay-invoice",
                     template: "pay/{id}",
                     defaults: new { controller = "payments", action="pay" });
+
+                routes.MapRoute(
+                    name: "admin-routes",
+                    template: "{controller}/{action=Index}/{id?}",
+                    defaults: new { },
+                    constraints: new { controller = "(account|system|teams)" });
+
+                routes.MapRoute(
+                    name: "team-routes",
+                    template: "{team}/{controller=Home}/{action=Index}/{id?}",
+                    defaults: new { },
+                    constraints: new { controller = "(home|invoices)" });
 
                 routes.MapRoute(
                     name: "default",

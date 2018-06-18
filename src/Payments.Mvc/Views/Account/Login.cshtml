@@ -1,14 +1,9 @@
-﻿@using System.Collections.Generic
-@using System.Linq
-@using Payments.Mvc.Models.AccountViewModels
-@using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.Http.Authentication
-@model LoginViewModel
+﻿@using System.Linq
 @inject SignInManager<User> SignInManager
 
 @{
     ViewData["Title"] = "Log in";
-    Layout = null;
+    Layout = "_LoginLayout";
 }
 <div class="col">
 <h2>Choose how you would like to log in</h2>

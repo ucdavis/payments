@@ -1,3 +1,6 @@
+button {
+  cursor:pointer;
+}
 img.img-fluid {
   width: 100%;
 }
@@ -57,12 +60,21 @@ img.img-fluid {
 p a.action-btn {
   text-decoration: none !important;
 }
-
+.btn-plain {
+  font-size:1.66rem;
+  font-family: $sans-bold;
+  color:$secondary-font;
+  background-color:rgba(255,255,255,.0001);
+  border:none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
 .btn {
-  @include main-btn
+  @include main-btn;
 }
 .btn-gold {
-  @include main-btn
+  @include main-btn;
   background-color: $gold;
   &:active,
   &:focus {
@@ -76,11 +88,15 @@ p a.action-btn {
   padding:0px 40px;
   font-size:1.8rem;
 }
+.btn-invoice-delete {
+  border:none;
+  color:$unitrans-red;
+}
 .btn-inverse {
-  @include inverse-btn
+  @include inverse-btn;
 }
 .btn-inverse-gold {
-  @include inverse-btn
+  @include inverse-btn;
   color:$gold;
 }
 .btn-border {
@@ -109,6 +125,15 @@ p a.action-btn {
 .btn-register {
   width: 100%;
 }
+
+.btn-card {
+  padding: 9px 16px;
+
+  img {
+    margin-right: 1rem;
+  }
+}
+
 .media {
   margin-bottom: 16px;
 
@@ -328,11 +353,13 @@ ol.breadcrumb {
 .a-color {
   color: $a-link;
 }
-
+.primary-color {
+  color:$primary-color;
+}
 .sans-bold {
   font-family: $sans-bold;
 }
-.primary-color {
+.primary-font {
   color: $primary-font;
 }
 
@@ -352,4 +379,7 @@ ol.breadcrumb {
 }
 .onepointeight {
   font-size:1.8rem;
+}
+.card-bot-border {
+  border-bottom:1px solid $borders;
 }

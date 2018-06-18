@@ -1,16 +1,15 @@
-﻿@inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager
-
-@if (User.Identity.IsAuthenticated)
-{
+﻿@inject UserManager<User> UserManager
+    
+@{
     var user = await UserManager.GetUserAsync(User);
+}    
 
-
-        <button type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <img class="profile-picture" src="https://secure.gravatar.com/avatar/@(user.EmailHash)d=mm&rating=gs=40" alt="User Picture"/>
-            <img src="/media/caret-dropdown.svg" alt="">
-        </button>
-
+@if (User.Identity.IsAuthenticated && user != null)
+{
+    <button type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <img class="profile-picture" src="https://secure.gravatar.com/avatar/@(user.EmailHash)d=mm&rating=gs=40" alt="User Picture"/>
+        <img src="/media/caret-dropdown.svg" alt="">
+    </button>
 }
 else
 {

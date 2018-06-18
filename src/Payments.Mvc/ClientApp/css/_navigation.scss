@@ -21,7 +21,7 @@ ul.main-nav {
 
 }
 nav {
-  margin-top:30px;
+  margin-top:60px;
   a {
     .navitem {
       color:$secondary-font;
@@ -66,7 +66,7 @@ g#settings-secondary {
 }
 a.nav-home:hover {
   g#home-primary {
-    fill:$tertiary-color;
+    fill:$primary-color;
   }
   // g#house-secondary {
   //   fill:$tertiary-font;
@@ -74,7 +74,7 @@ a.nav-home:hover {
 }
 a.nav-invoices:hover {
   g#invoices-primary {
-    fill:$tertiary-color;
+    fill:$primary-color;
   }
   // g#invoices-secondary {
   //   fill:$tertiary-font;
@@ -82,7 +82,7 @@ a.nav-invoices:hover {
 }
 a.nav-support:hover {
   g#support-primary {
-    fill:$tertiary-color;
+    fill:$primary-color;
   }
   // g#support-secondary {
   //   fill:$tertiary-font;
@@ -91,7 +91,7 @@ a.nav-support:hover {
 
 a.nav-settings:hover {
   g#settings-primary {
-    fill:$tertiary-color;
+    fill:$primary-color;
   }
   // g#settings-secondary {
   //   fill:$tertiary-font;
@@ -99,7 +99,7 @@ a.nav-settings:hover {
 }
 a.nav-logout:hover {
   g#logout-primary {
-    fill:$tertiary-color;
+    fill:$primary-color;
   }
   // g#nuke-secondary {
   //   fill:$tertiary-font;
