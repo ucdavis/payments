@@ -70,7 +70,8 @@ namespace Payments.Core.Helpers
         {
             var team1 = new Team
             {
-                Name = "CRU Sample Team",
+                Name = "Banana Stand",
+                Slug = "banana-stand",
             };
 
             //This is an example of an account that has a SubObject, but it isn't an "Income Account"
@@ -85,6 +86,22 @@ namespace Payments.Core.Helpers
             });
 
             _context.Teams.Add(team1);
+
+            var team2 = new Team
+            {
+                Name = "Lemonade Stand",
+                Slug = "lemonade-stand",
+            };
+
+            team2.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "OTHER",
+                Name = "Other Acct",
+                IsDefault = true
+            });
+
+            _context.Teams.Add(team2);
 
             await _context.SaveChangesAsync();
         }
@@ -101,7 +118,8 @@ namespace Payments.Core.Helpers
 
         private async Task CreateUsers()
         {
-            var team = await _context.Teams.FirstAsync(t => t.Name == "CRU Sample Team");
+            var team1 = await _context.Teams.FirstAsync(t => t.Name == "Banana Stand");
+            var team2 = await _context.Teams.FirstAsync(t => t.Name == "Lemonade Stand");
             var adminRole = await _context.TeamRoles.FirstAsync(r => r.Name == TeamRole.Codes.Admin);
             var editorRole = await _context.TeamRoles.FirstAsync(r => r.Name == TeamRole.Codes.Editor);
 
@@ -113,7 +131,7 @@ namespace Payments.Core.Helpers
                 FirstName = "Jason",
                 LastName = "Sylvestre",
                 Name = "Jason Sylvestre",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team1, Role = adminRole }}
             };
             await MakeUser(jason);
 
@@ -125,7 +143,11 @@ namespace Payments.Core.Helpers
                 LastName = "Knoll",
                 Name = "John Knoll",
                 CampusKerberos = "jpknoll",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
+                TeamPermissions = new List<TeamPermission>()
+                {
+                    new TeamPermission() { Team = team1, Role = adminRole },
+                    new TeamPermission() { Team = team2, Role = adminRole },
+                }
             };
             await MakeUser(john);
 
@@ -137,7 +159,7 @@ namespace Payments.Core.Helpers
                 LastName = "Kirkland",
                 Name = "Scott Kirkland",
                 CampusKerberos = "postit",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team1, Role = adminRole }}
             };
             await MakeUser(scott);
 
@@ -149,7 +171,7 @@ namespace Payments.Core.Helpers
                 LastName = "Doval",
                 Name = "Calvin Y Doval",
                 CampusKerberos = "cydoval",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = editorRole } }
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team1, Role = editorRole } }
             };
             await MakeUser(cal);
 
@@ -159,7 +181,7 @@ namespace Payments.Core.Helpers
         private async Task CreateSampleInvoices()
         {
             var creator = await _context.Users.FirstAsync(u => u.Email == "jpknoll@ucdavis.edu");
-            var team = await _context.Teams.Include(t => t.Accounts).FirstAsync(t => t.Name == "CRU Sample Team");
+            var team = await _context.Teams.Include(t => t.Accounts).FirstAsync(t => t.Name == "Banana Stand");
             var account = team.DefaultAccount;
 
             var invoice1 = new Invoice()
