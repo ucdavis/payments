@@ -90,6 +90,39 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult> Preview(int id)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Payment)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            var model = new InvoicePaymentViewModel()
+            {
+                Id              = invoice.Id.ToString(),
+                CustomerName    = invoice.CustomerName,
+                CustomerEmail   = invoice.CustomerEmail,
+                CustomerAddress = invoice.CustomerAddress,
+                Memo            = invoice.Memo,
+                Items           = invoice.Items,
+                Subtotal        = invoice.Subtotal,
+                Total           = invoice.Total,
+                Discount        = invoice.Discount,
+                TaxAmount       = invoice.TaxAmount,
+                TaxPercent      = invoice.TaxPercent,
+                Status          = invoice.Status,
+            };
+
+            return View(model);
+        }
+
         [HttpPost]
         [IgnoreAntiforgeryToken]
         public ActionResult Receipt(ReceiptResponseModel response)

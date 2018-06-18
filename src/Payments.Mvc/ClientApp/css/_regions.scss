@@ -59,8 +59,22 @@
 }
 
 .pay-footer {
-  padding: 16px 48px 8px;
+  padding: 16px;
   text-align: center;
+}
+
+// Preview warning card
+
+.preview-warning-card-style {
+  padding: 16px 48px 8px;
+  margin: 0 auto;
+  margin-bottom: 48px;
+  max-width: 761px;
+  border-left: solid $unitrans-red 6px;
+
+  .preview-warning-icon {
+    color: $unitrans-red;
+  }
 }
 
 // Payments table
