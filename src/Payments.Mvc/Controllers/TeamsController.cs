@@ -5,6 +5,7 @@ using Payments.Core.Domain;
 using Payments.Core.Extensions;
 using Payments.Mvc.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -12,9 +13,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Models.Teams;
+using Payments.Mvc.Models.TeamViewModels;
 
 namespace Payments.Mvc.Controllers
 {
@@ -23,27 +26,34 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
         private readonly IDirectorySearchService _directorySearchService;
-        private readonly UserManager<User> _userManager;
 
-        public TeamsController(ApplicationDbContext context, IFinancialService financialService, IDirectorySearchService directorySearchService, UserManager<User> userManager)
+        public TeamsController(
+                ApplicationUserManager userManager,
+                ApplicationDbContext context,
+                IFinancialService financialService,
+                IDirectorySearchService directorySearchService)
+            : base(userManager)
         {
             _context = context;
             _financialService = financialService;
             _directorySearchService = directorySearchService;
-            _userManager = userManager;
         }
 
         // GET: Teams
         public async Task<IActionResult> Index()
         {
-            var teams = _context.Teams.AsQueryable();
-            if (!User.IsInRole(ApplicationRoleCodes.Admin))
+            List<Team> teams;
+            if (User.IsInRole(ApplicationRoleCodes.Admin))
             {
-                var teamPermissions = await _context.TeamPermissions.Where(a => a.UserId == CurrentUserId).Select(a => a.TeamId).Distinct().ToArrayAsync();
-                teams = teams.Where(a => a.IsActive && teamPermissions.Contains(a.Id)); //TODO: Do we want them to see inactive teams? Maybe for old invoices?
+                teams = _context.Teams.ToList();
+            }
+            else
+            {
+                var user = await _userManager.GetUserAsync(User);
+                teams = user.GetTeams().ToList();
             }
 
-            return View(await teams.ToListAsync());
+            return View(teams);
         }
 
         // GET: Teams/Create
@@ -54,19 +64,24 @@ namespace Payments.Mvc.Controllers
         }
 
         // POST: Teams/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
-        public async Task<IActionResult> Create([Bind("Name")] Team team)
+        public async Task<IActionResult> Create(CreateTeamViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(team);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return View(model);
             }
-            return View(team);
+
+            var team = new Team()
+            {
+                Name = model.Name,
+                Slug = model.Slug,
+            };
+            _context.Add(team);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         /// <summary>
@@ -122,45 +137,43 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
-            return View(team);
+
+            var model = new EditTeamViewModel()
+            {
+                Name = team.Name,
+                Slug = team.Slug,
+                IsActive = team.IsActive,
+            };
+
+            return View(model);
         }
 
         /// <summary>
         /// POST: Teams/Edit/5
         /// </summary>
         /// <param name="id">Team Id</param>
-        /// <param name="team"></param>
         /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,IsActive,Name")] Team team)
+        public async Task<IActionResult> Edit(int id, EditTeamViewModel model)
         {
-            if (id != team.Id)
+            var team = await _context.Teams.FindAsync(id);
+            if (team == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(team);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TeamExists(team.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return View(model);
             }
-            return View(team);
+
+            team.Name = model.Name;
+            team.Slug = model.Slug;
+            team.IsActive = model.IsActive;
+            await _context.SaveChangesAsync();
+            
+            return RedirectToAction(nameof(Index));
         }
 
         /// <summary>
