@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Invoice } from '../models/Invoice';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
+import { Team } from '../models/Team';
 
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
@@ -10,10 +11,11 @@ import MemoInput from '../components/memoInput';
 
 declare var antiForgeryToken: string;
 
-const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-
 interface IProps {
+    id: number;
     invoice: Invoice;
+    sent: boolean;
+    team: Team;
 }
 
 interface IState {
@@ -44,22 +46,18 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         }
 
         this.state = {
-            customer: {
-                address: invoice.customerAddress || "",
-                email: invoice.customerEmail || "",
-                name: invoice.customerName || "",
-            },
+            customer: invoice.customer,
             discount: invoice.discount || 0,
             errorMessage: "",
             items,
             loading: false,
             memo: invoice.memo,
-            taxRate: invoice.taxPercent || 0,
+            taxRate: invoice.tax || 0,
         };
     }
 
     public render() {
-        const { invoice } = this.props;
+        const { id, sent, team } = this.props;
         const { customer, items, discount, taxRate, memo, loading } = this.state;
         
 
@@ -68,7 +66,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 <LoadingModal loading={loading} />
                 <div className="card-header-yellow card-bot-border">
                     <div className="card-head">
-                        <h2>Edit Invoice #{ invoice.id }</h2>
+                        <h2>Edit Invoice #{ id } for { team.name } </h2>
                     </div>
                 </div>
                 <div className="card-content invoice-customer">
@@ -111,7 +109,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         </div>
                         <div className="col d-flex justify-content-end align-items-center">
                             <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
-                            { !invoice.sent &&
+                            { !sent &&
                                 <button className="btn" onClick={this.onSend}>Send</button> }
                         </div>
                     </div>
@@ -143,7 +141,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private saveInvoice = async () => {
-        const { id } = this.props.invoice;
+        const { id } = this.props;
+        const { slug } = this.props.team;
         const { customer, discount, taxRate, items, memo } = this.state;
 
         // create submit object
@@ -156,7 +155,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         };
 
         // create save url
-        const url = `/invoices/edit/${id}`;
+        const url = `/${slug}/invoices/edit/${id}`;
 
         // fetch
         const response = await fetch(url, {
@@ -182,9 +181,10 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
     private sendInvoice = async () => {
         // send invoice
-        const { id } = this.props.invoice;
+        const { id } = this.props;
+        const { slug } = this.props.team;
 
-        const url = `/invoices/send/${id}`;
+        const url = `/${slug}/invoices/send/${id}`;
 
         const response = await fetch(url, {
             credentials: "same-origin",
@@ -207,6 +207,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private onSubmit = async () => {
+        const { slug } = this.props.team;
         this.setState({ loading: true });
 
         // save invoice
@@ -217,10 +218,11 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         }
 
         // return to all invoices page
-        window.location.pathname = "/invoices";
+        window.location.pathname = `/${slug}/invoices`;
     }
 
     private onSend = async () => {
+        const { slug } = this.props.team;
         this.setState({ loading: true });
 
         // save invoice
@@ -237,7 +239,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         }
 
         // return to all invoices page
-        window.location.pathname = "/invoices";
+        window.location.pathname = `/${slug}/invoices`;
     }
 
     private dismissErrorMessage = () => {
