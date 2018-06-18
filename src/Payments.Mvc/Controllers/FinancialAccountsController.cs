@@ -168,28 +168,42 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("Index", "Teams");
             }
 
-
-            string kfsResult = null;
-            try
-            {
-                kfsResult = await GetAccountInfo(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
-            }
-            catch (Exception)
-            {
-                //Log?
-            }
-
-            if (string.IsNullOrWhiteSpace(kfsResult))
-            {
-                ModelState.AddModelError("Account", "Valid Account Not Found.");
-            }
-
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
             financialAccount.Object = financialAccount.Object.SafeToUpper();
             financialAccount.SubObject = financialAccount.SubObject.SafeToUpper();
             financialAccount.Project = financialAccount.Project.SafeToUpper();
+
+            if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
+            {
+                ModelState.AddModelError("Account", "Valid Account Not Found.");
+            }
+
+            if (!await _financialService.IsObjectValid(financialAccount.Chart, financialAccount.Object))
+            {
+                ModelState.AddModelError("Object", "Object Not Valid.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(financialAccount.SubObject) && !await _financialService.IsSubObjectValid(financialAccount.Chart, financialAccount.Account, financialAccount.Object, financialAccount.SubObject))
+            {
+                ModelState.AddModelError("SubObject", "SubObject Not Valid.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(financialAccount.Project) && !await _financialService.IsProjectValid(financialAccount.Project))
+            {
+                ModelState.AddModelError("Project", "Project Not Valid.");
+            }
+
+            var accountLookup = new KfsAccount();
+            if (ModelState.IsValid)
+            {
+                accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                if (!accountLookup.IsValidIncomeAccount)
+                {
+                    ModelState.AddModelError("Account", "Not An Income Account.");
+                }
+            }
 
             if (!confirm)
             {
@@ -356,7 +370,45 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("Index", "Teams");
             }
 
-            return View(financialAccount);
+            var model = new FinancialAccountDetailsModel();
+            model.FinancialAccount = financialAccount;
+
+
+            model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+
+            model.IsObjectValid = await _financialService.IsObjectValid(financialAccount.Chart, financialAccount.Object);
+            
+            if (!string.IsNullOrWhiteSpace(financialAccount.SubObject))
+            {
+                model.IsSubObjectValid = await _financialService.IsSubObjectValid(financialAccount.Chart, financialAccount.Account, financialAccount.Object, financialAccount.SubObject);
+            }
+
+            if (!string.IsNullOrWhiteSpace(financialAccount.Project))
+            {
+                model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
+            }
+            
+            if (model.IsAccountValid && model.IsObjectValid)
+            {
+                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                if (model.IsProjectValid.HasValue && model.IsProjectValid.Value)
+                {
+                    model.KfsAccount.ProjectName = await _financialService.GetProjectName(financialAccount.Project);
+                }
+
+                if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+                {
+                    model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                }
+                model.KfsAccount.ObjectName = await _financialService.GetObjectName(financialAccount.Chart, financialAccount.Object);
+
+                if (model.IsSubObjectValid.HasValue && model.IsSubObjectValid.Value)
+                {
+                    model.KfsAccount.SubObjectName = await _financialService.GetSubObjectName(financialAccount.Chart, financialAccount.Account, financialAccount.Object, financialAccount.SubObject);
+                }
+            }
+
+            return View(model);
         }
 
         /// <summary>

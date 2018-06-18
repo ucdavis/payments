@@ -1,4 +1,4 @@
-﻿@model FinancialAccount
+﻿@model Payments.Mvc.Models.FinancialModels.FinancialAccountDetailsModel
 
 @{
     ViewData["Title"] = "Account Details";
@@ -11,68 +11,113 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(model => model.FinancialAccount.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(model => model.FinancialAccount.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Description)
+            @Html.DisplayNameFor(model => model.FinancialAccount.Description)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Description)
+            @Html.DisplayFor(model => model.FinancialAccount.Description)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Chart)
+            @Html.DisplayNameFor(model => model.FinancialAccount.Chart)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Chart)
+            @Html.DisplayFor(model => model.FinancialAccount.Chart)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Account)
+            @Html.DisplayNameFor(model => model.FinancialAccount.Account)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Account)
+            @Html.DisplayFor(model => model.FinancialAccount.Account)
+            @if (!Model.IsAccountValid)
+            {
+                <span style="color: red"> ** Account is Invalid</span>
+            }
+            else if (!Model.KfsAccount.IsValidIncomeAccount)
+            {
+                <span style="color: red"> ** Not An Income Account</span>
+            }
+            else
+            {
+                <span> (@Model.KfsAccount.accountName)</span>
+            }
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Object)
+            @Html.DisplayNameFor(model => model.FinancialAccount.Object)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Object)
+            @Html.DisplayFor(model => model.FinancialAccount.Object)
+            @if (!Model.IsObjectValid)
+            {
+                <span style="color: red"> ** Object is Invalid</span>
+            }
+            else
+            {
+                <span> (@Model.KfsAccount.ObjectName)</span>
+            }
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.SubAccount)
+            @Html.DisplayNameFor(model => model.FinancialAccount.SubAccount)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.SubAccount)
+            @Html.DisplayFor(model => model.FinancialAccount.SubAccount)
+            @if (!string.IsNullOrWhiteSpace(Model.FinancialAccount.SubAccount))
+            {
+                <span> (@Model.KfsAccount.SubAccountName)</span>
+            }
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.SubObject)
+            @Html.DisplayNameFor(model => model.FinancialAccount.SubObject)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.SubObject)
+            @Html.DisplayFor(model => model.FinancialAccount.SubObject)
+            @if (Model.IsSubObjectValid.HasValue && !Model.IsSubObjectValid.Value)
+            {
+                <span style="color: red"> ** Sub Object is Invalid</span>
+            }
+            else if (Model.IsSubObjectValid.HasValue && Model.IsSubObjectValid.Value)
+            {
+                <span> (@Model.KfsAccount.SubObjectName)</span>
+            }
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Project)
+            @Html.DisplayNameFor(model => model.FinancialAccount.Project)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Project)
+            @Html.DisplayFor(model => model.FinancialAccount.Project)
+            @if (Model.IsProjectValid.HasValue && !Model.IsProjectValid.Value)
+            {
+                <span style="color: red"> ** Project is Invalid</span>
+            } else if (Model.IsProjectValid.HasValue && Model.IsProjectValid.Value)
+            {
+                <span> (@Model.KfsAccount.ProjectName)</span>
+            }
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.IsDefault)
+            @Html.DisplayNameFor(model => model.FinancialAccount.IsDefault)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.IsDefault)
+            @Html.DisplayFor(model => model.FinancialAccount.IsDefault)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Team)
+            @Html.DisplayNameFor(model => model.FinancialAccount.Team)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Team.Name)
+            @Html.DisplayFor(model => model.FinancialAccount.Team.Name)
         </dd>
+        @if (Model.KfsAccount.accountExpirationDate.HasValue)
+        {
+            <dt>Account Expiration Date</dt><dd>@Html.DisplayFor(model => model.KfsAccount.accountExpirationDate)</dd>
+        }
+        <dt>Sub Fund Group Type Code</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
+        <dt>Sub Fund Group Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
     </dl>
 </div>
 <div>
-    <a asp-action="EditAccount" asp-route-id="@Model.Id" asp-route-TeamId="@Model.TeamId">Edit</a> |
-    <a asp-action="Details" asp-controller="Teams" asp-route-id="@Model.TeamId" >Back to List</a>
+    <a asp-action="EditAccount" asp-route-id="@Model.FinancialAccount.Id" asp-route-TeamId="@Model.FinancialAccount.TeamId">Edit</a> |
+    <a asp-action="Details" asp-controller="Teams" asp-route-id="@Model.FinancialAccount.TeamId" >Back to List</a>
 </div>
