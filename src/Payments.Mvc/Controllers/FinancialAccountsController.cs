@@ -116,6 +116,18 @@ namespace Payments.Mvc.Controllers
 
             if (ModelState.IsValid)
             {
+                //OK, it is valid, so lookup display values
+                financialAccount.KfsAccount = accountLookup;
+                if (!string.IsNullOrWhiteSpace(financialAccount.Project))
+                {
+                    financialAccount.KfsAccount.ProjectName = await _financialService.GetProjectName(financialAccount.Project);
+                }
+
+                if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+                {
+                    financialAccount.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                }
+                financialAccount.KfsAccount.ObjectName = await _financialService.GetObjectName(financialAccount.Chart, financialAccount.Object);
                 financialAccount.Team = team;
                 return View(financialAccount);
             }

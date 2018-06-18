@@ -18,6 +18,9 @@ namespace Payments.Mvc.Services
         Task<bool> IsObjectValid(string chart, string objectCode);
         Task<bool> IsSubObjectValid(string chart, string account, string objectCode, string subObject);
         Task<bool> IsProjectValid(string project);
+        Task<string> GetProjectName(string project);
+        Task<string> GetSubAccountName(string chart, string account, string subAccount);
+        Task<string> GetObjectName(string chart, string objectCode);
     }
 
     public class FinancialService : IFinancialService
@@ -173,14 +176,40 @@ namespace Payments.Mvc.Services
 
         public async Task<string> GetProjectName(string project)
         {
-            string url = $"{_settings.FinancialLookupUrl}/project/{project}";
+            string url = $"{_settings.FinancialLookupUrl}/project/{project}/name";
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
                 var contents = await response.Content.ReadAsStringAsync();
-                return contents;
+                return contents.Trim('"');
+            }
+        }
+        
+        public async Task<string> GetSubAccountName(string chart, string account, string subAccount)
+        {
+            string url = $"{_settings.FinancialLookupUrl}/subaccount/{chart}/{account}/{subAccount}/name";
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var contents = await response.Content.ReadAsStringAsync();
+                return contents.Trim('"');
+            }
+        }
+
+        public async Task<string> GetObjectName(string chart, string objectCode)
+        {
+            string url = $"{_settings.FinancialLookupUrl}/object/{chart}/{objectCode}/name";
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var contents = await response.Content.ReadAsStringAsync();
+                return contents.Trim('"');
             }
         }
     }

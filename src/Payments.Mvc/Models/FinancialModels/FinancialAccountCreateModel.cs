@@ -8,5 +8,6 @@ namespace Payments.Mvc.Models.FinancialModels
 {
     public class FinancialAccountModel : FinancialAccount
     {
+        public KfsAccount KfsAccount { get; set; }
     }
 }
