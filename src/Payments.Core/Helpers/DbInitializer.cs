@@ -96,7 +96,9 @@ namespace Payments.Core.Helpers
             team2.Accounts.Add(new FinancialAccount
             {
                 Chart = "3",
-                Account = "OTHER",
+                Account = "BMTEC02",
+                Object = "72U8",
+                SubObject = "CEX",
                 Name = "Other Acct",
                 IsDefault = true
             });
