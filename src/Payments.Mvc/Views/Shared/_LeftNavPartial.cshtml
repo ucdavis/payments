@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
 @using Payments.Mvc.Identity
+@using Payments.Mvc.Models.Roles
 @inject ApplicationUserManager UserManager
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -47,16 +48,28 @@
             <span class="navitem">Support</span>
         </div>
     </a>
-
-    <a class="nav-settings" href="@Url.Action("Details", "Teams")">
-        <div class="row flex-center">
-            <div class="svgwrapper">
-                @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+    @if (User.IsInRole(ApplicationRoleCodes.Admin))
+    {
+        <a class="nav-settings" asp-controller="Teams" asp-action="Index" asp-route-team="ADMIN" >
+            <div class="row flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+                </div>
+                <span class="navitem">Settings</span>
             </div>
-            <span class="navitem">Settings</span>
-        </div>
-    </a>
-
+        </a>
+    }
+    else
+    {
+        <a class="nav-settings" href="@Url.Action("Details", "Teams")">
+            <div class="row flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+                </div>
+                <span class="navitem">Settings</span>
+            </div>
+        </a>
+    }
     <form asp-action="logout" asp-controller="account" method="post">
         <button class="nav-logout btn-plain">
             <div class="row flex-center">
