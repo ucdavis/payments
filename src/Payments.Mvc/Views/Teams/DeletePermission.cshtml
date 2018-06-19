@@ -34,7 +34,7 @@
         <input type="hidden" id="Id" name="Id" value="@Model.TeamPermission.Id" />
         <input type="hidden" id="TeamId" name="TeamId" value="@Model.Team.Id"/>
         <input type="submit" value="Delete" class="btn btn-default" /> |
-        <a asp-action="Details" asp-route-id="@Model.Team.Id">Back to List</a>
+        <a asp-action="Details" asp-route-team="@Model.Team.Slug">Back to List</a>
     </form>
 </div>
 
