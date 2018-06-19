@@ -117,13 +117,13 @@ namespace Payments.Mvc
                     name: "admin-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|system|teams)" });
+                    constraints: new { controller = "(account|system|)" });
 
                 routes.MapRoute(
                     name: "team-routes",
                     template: "{team}/{controller=Home}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(home|invoices)" });
+                    constraints: new { controller = "(home|invoices|teams|financialAccounts)" });
 
                 routes.MapRoute(
                     name: "default",
