@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
@@ -14,6 +15,7 @@ using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
 {
+    [Authorize(Policy = "TeamEditor")]
     public class FinancialAccountsController : SuperController
     {
         private readonly ApplicationDbContext _context;
@@ -33,21 +35,21 @@ namespace Payments.Mvc.Controllers
         /// <returns></returns>
         public async Task<IActionResult> CreateAccount(int? id)
         {
-            if (id == null)
+            Team team = null;
+            if (id != null && User.IsInRole(ApplicationRoleCodes.Admin))
             {
-                return NotFound();
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Id == id);
+            }
+            else
+            {
+                team = await _context.Teams
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             }
 
-            var team = await _context.Teams
-                .SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
             if (team == null)
             {
                 return NotFound();
-            }
-            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
-            {
-                ErrorMessage = "You do not have access to this team.";
-                return RedirectToAction("Index", "Teams");
             }
 
             var model = new FinancialAccountModel();
@@ -71,11 +73,7 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
-            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
-            {
-                ErrorMessage = "You do not have access to this team.";
-                return RedirectToAction("Index", "Teams");
-            }
+
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();

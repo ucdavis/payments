@@ -82,15 +82,22 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">Team Id</param>
         /// <returns></returns>
+        [Authorize(Policy = "TeamEditor")]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            Team team = null;
+            if (id != null && User.IsInRole(ApplicationRoleCodes.Admin))
             {
-                return NotFound();
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Id == id);
+            }
+            else
+            {
+
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug);
             }
 
-            var team = await _context.Teams.Include(a => a.Accounts)
-                .SingleOrDefaultAsync(m => m.Id == id);
             if (team == null)
             {
                 return NotFound();
