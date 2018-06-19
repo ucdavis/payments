@@ -40,9 +40,9 @@ after_build:
 
 test_script:
 - cmd: |
-    cd Payments.Tests
+    cd tests\Payments.Tests
     dotnet test
-    cd ..
+    cd ...
 
 artifacts:
 - path: artifacts\**\*.nupkg
