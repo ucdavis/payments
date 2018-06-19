@@ -44,12 +44,12 @@ namespace Payments.Mvc.Models.FinancialModels
                 {
                     return true;
                 }
-                if (subFundGroupTypeCode.SafeToUpper() == "M") //Self Supporting Activities(Other Sources
+                if ( subFundGroupTypeCode.Equals("M", StringComparison.OrdinalIgnoreCase)) //Self Supporting Activities(Other Sources
                 {
                     return true;
                 }
 
-                if (subFundGroupTypeCode.SafeToUpper() == "Y") //Sales and Service Educational Activities
+                if (subFundGroupTypeCode.Equals("Y", StringComparison.OrdinalIgnoreCase)) //Sales and Service Educational Activities
                 {
                     return true;
                 }
