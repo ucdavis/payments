@@ -1,4 +1,4 @@
-﻿@model Payments.Core.Domain.FinancialAccount
+﻿@model Payments.Mvc.Models.FinancialModels.FinancialAccountModel
 
 @{
     ViewData["Title"] = "Confirm Create Account";
@@ -13,7 +13,6 @@
         <form id="confirm-create" asp-action="CreateAccount">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="TeamId" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
@@ -68,6 +67,28 @@
                     @Html.DisplayFor(model => model.IsDefault)
                 </dd>
             </dl>
+            <dl class="dl-horizontal">
+                <dt>Account Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.accountName)</dd>
+                @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubAccountName))
+                {
+                    <dt>Sub Account Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.SubAccountName)</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.ProjectName))
+                {
+                    <dt>Project Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.ProjectName)</dd>
+                }
+                @if (Model.KfsAccount.accountExpirationDate.HasValue)
+                {
+                    <dt>Account Expiration Date</dt><dd>@Html.DisplayFor(model => model.KfsAccount.accountExpirationDate)</dd>
+                }
+                <dt>Object Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.ObjectName)</dd>
+                @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubObjectName))
+                {
+                    <dt>Sub Object Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.SubObjectName)</dd>
+                }
+                <dt>Sub Fund Group Type Code</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
+                <dt>Sub Fund Group Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
+            </dl>
             <input type="hidden" asp-for="Chart" />
             <input type="hidden" asp-for="Account" />
             <input type="hidden" asp-for="Object" />
@@ -87,7 +108,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Details" asp-controller="Teams">Back to List</a>
 </div>
 
 @section Scripts {

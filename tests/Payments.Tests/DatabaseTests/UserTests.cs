@@ -56,7 +56,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("PhoneNumber", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("PhoneNumberConfirmed", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("SecurityStamp", "System.String", new List<string>()));
-            expectedFields.Add(new NameAndType("TeamPermissions", "System.Collections.Generic.List`1[Payments.Core.Domain.TeamPermission]", new List<string>()));
+            expectedFields.Add(new NameAndType("TeamPermissions", "System.Collections.Generic.ICollection`1[Payments.Core.Domain.TeamPermission]", new List<string>()));
             expectedFields.Add(new NameAndType("TwoFactorEnabled", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("UserName", "System.String", new List<string>()));
             #endregion Arrange

@@ -74,13 +74,41 @@ namespace Payments.Core.Helpers
                 Slug = "banana-stand",
             };
 
+            //This is an example of an account that has a SubObject, but it isn't an "Income Account"
             team1.Accounts.Add(new FinancialAccount
             {
                 Chart = "3",
-                Account = "OTHER",
-                Object = "0060",
+                Account = "BMTEC02",
+                Object = "72U8",
+                SubObject = "CEX",
                 Name = "Other Acct",
+                IsDefault = false
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "CRURATE",
+                Object = "0060",
+                Name = "Valid Caes Account",
                 IsDefault = true
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "CENRECG",
+                Object = "0060",
+                Name = "Valid Caes Account2",
+                IsDefault = false
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "EXEHHMI",
+                SubAccount = "WCNSI",
+                Object = "0060",
+                Project = "ADOBRM",
+                Name = "Valid Caes Account3",
+                IsDefault = false
             });
 
             _context.Teams.Add(team1);
@@ -94,7 +122,9 @@ namespace Payments.Core.Helpers
             team2.Accounts.Add(new FinancialAccount
             {
                 Chart = "3",
-                Account = "OTHER",
+                Account = "BMTEC02",
+                Object = "72U8",
+                SubObject = "CEX",
                 Name = "Other Acct",
                 IsDefault = true
             });

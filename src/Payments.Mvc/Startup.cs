@@ -117,7 +117,7 @@ namespace Payments.Mvc
                     name: "admin-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|system|teams)" });
+                    constraints: new { controller = "(account|system|)" });
 
                 routes.MapRoute(
                     name: "team-routes",
@@ -125,7 +125,7 @@ namespace Payments.Mvc
                     defaults: new { },
                     constraints: new
                     {
-                        controller = "(home|invoices|settings)",
+                        controller = "(home|invoices|teams|financialAccounts)",
                         teams = "!(home|invoices|settings)"
                     });
 

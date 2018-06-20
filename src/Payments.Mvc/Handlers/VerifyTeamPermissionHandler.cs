@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Payments.Core.Domain;
 using Payments.Mvc.Authorization;
 using Payments.Mvc.Identity;
+using Payments.Mvc.Models.Roles;
 
 namespace Payments.Mvc.Handlers
 {
@@ -19,6 +21,11 @@ namespace Payments.Mvc.Handlers
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, VerifyTeamPermission requirement)
         {
+            if (context.User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                context.Succeed(requirement);
+                return;
+            }
             var team = "";
             if (context.Resource is AuthorizationFilterContext mvcContext)
             {
@@ -28,7 +35,7 @@ namespace Payments.Mvc.Handlers
                 }
             }
 
-            var user = await _userManager.GetUserAsync(context.User);
+            var user = await _userManager.GetUserAsync(context.User);            
             if (user != null && team != "")
             {
                 var permissions = user.TeamPermissions
