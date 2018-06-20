@@ -62,9 +62,9 @@ namespace Payments.Mvc.Controllers
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Create(CreateTeamViewModel model)
         {
-            if (await _context.Teams.AnyAsync(a => a.Slug == model.Slug && a.IsActive))
+            if (await _context.Teams.AnyAsync(a => a.Slug == model.Slug))
             {
-                ModelState.AddModelError("Slug", "Team Slug already exists for an active Team");
+                ModelState.AddModelError("Slug", "Team Slug already used.");
             }
 
             if (!ModelState.IsValid)
@@ -119,6 +119,10 @@ namespace Payments.Mvc.Controllers
             model.Team = team;
             model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
 
+            if (model.Team.Accounts.Where(a => a.IsActive && a.IsDefault).Count() != 1)
+            {
+                Message = "Warning! There is not a single active default account.";
+            }
 
             return View(model);
         }
@@ -169,9 +173,9 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            if (model.IsActive && await _context.Teams.AnyAsync(a => a.Id != team.Id && a.IsActive && a.Slug == model.Slug))
+            if (model.IsActive && await _context.Teams.AnyAsync(a => a.Id != team.Id && a.Slug == model.Slug))
             {
-                ModelState.AddModelError("Slug", "That Team Slug exists for a different active Team.");
+                ModelState.AddModelError("Slug", "Team Slug already used.");
             }
 
             if (!ModelState.IsValid)
