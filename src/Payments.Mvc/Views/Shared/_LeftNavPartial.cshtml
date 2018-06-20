@@ -70,14 +70,14 @@
             </div>
         </a>
     }
-    <form asp-action="logout" asp-controller="account" method="post">
-        <button class="nav-logout btn-plain">
+    <form id="logoutform" asp-action="logout" asp-controller="account" method="post">
+        <a class="nav-logout nav-support" onclick="$('#logoutform').submit();">
             <div class="row flex-center">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
                 </div>
-                <span class="navitem">Logout</span>
+                <span class="navitem">Sign out</span>
             </div>
-        </button>
+        </a>
     </form>
 </nav>
