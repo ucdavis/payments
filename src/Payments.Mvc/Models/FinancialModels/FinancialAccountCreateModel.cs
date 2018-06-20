@@ -46,7 +46,6 @@ namespace Payments.Mvc.Models.FinancialModels
         public bool IsActive { get; set; } = true;
 
         public Team Team { get; set; }
-        public int TeamId { get; set; }
         public KfsAccount KfsAccount { get; set; }
     }
 }

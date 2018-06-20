@@ -42,7 +42,6 @@ namespace Payments.Mvc.Controllers
             }
 
             var model = new FinancialAccountModel();
-            model.TeamId = team.Id;
             model.Team = team;
             return View(model);
         }
@@ -55,7 +54,7 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmAccount(FinancialAccountModel financialAccount)
         {
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.Slug == TeamSlug && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
@@ -129,6 +128,12 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAccount(FinancialAccountModel financialAccountModel, bool confirm)
         {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
             var financialAccount = new FinancialAccount();
             financialAccount.Name = financialAccountModel.Name;
             financialAccount.Description = financialAccountModel.Description;
@@ -139,13 +144,9 @@ namespace Payments.Mvc.Controllers
             financialAccount.SubObject = financialAccountModel.SubObject;
             financialAccount.Project = financialAccountModel.Project;
             financialAccount.IsDefault = financialAccountModel.IsDefault;
-            financialAccount.TeamId = financialAccountModel.TeamId;
+            financialAccount.TeamId = team.Id;
 
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.Slug == TeamSlug && m.IsActive);
-            if (team == null)
-            {
-                return NotFound();
-            }
+
 
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
