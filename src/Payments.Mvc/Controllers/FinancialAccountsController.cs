@@ -55,7 +55,7 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmAccount(FinancialAccountModel financialAccount)
         {
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
@@ -141,7 +141,7 @@ namespace Payments.Mvc.Controllers
             financialAccount.IsDefault = financialAccountModel.IsDefault;
             financialAccount.TeamId = financialAccountModel.TeamId;
 
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == financialAccount.TeamId && m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
@@ -268,7 +268,7 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
@@ -419,7 +419,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
