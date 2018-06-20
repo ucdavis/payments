@@ -62,10 +62,15 @@ namespace Payments.Mvc.Controllers
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Create(CreateTeamViewModel model)
         {
+            if (await _context.Teams.AnyAsync(a => a.Slug == model.Slug && a.IsActive))
+            {
+                ModelState.AddModelError("Slug", "Team Slug already exists for an active Team");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
-            }
+            }            
 
             var team = new Team()
             {
@@ -162,6 +167,11 @@ namespace Payments.Mvc.Controllers
             if (team == null)
             {
                 return NotFound();
+            }
+
+            if (model.IsActive && await _context.Teams.AnyAsync(a => a.Id != team.Id && a.IsActive && a.Slug == model.Slug))
+            {
+                ModelState.AddModelError("Slug", "That Team Slug exists for a different active Team.");
             }
 
             if (!ModelState.IsValid)
