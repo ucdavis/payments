@@ -33,6 +33,7 @@ namespace Payments.Mvc.Controllers
         }
 
         // GET: Teams
+        [Authorize(Policy = "TeamEditor")]
         public async Task<IActionResult> Index()
         {
             List<Team> teams;
@@ -61,10 +62,15 @@ namespace Payments.Mvc.Controllers
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> Create(CreateTeamViewModel model)
         {
+            if (await _context.Teams.AnyAsync(a => a.Slug == model.Slug))
+            {
+                ModelState.AddModelError("Slug", "Team Slug already used.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
-            }
+            }            
 
             var team = new Team()
             {
@@ -82,15 +88,22 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">Team Id</param>
         /// <returns></returns>
+        [Authorize(Policy = "TeamEditor")]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            Team team = null;
+            if (id != null && User.IsInRole(ApplicationRoleCodes.Admin))
             {
-                return NotFound();
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Id == id);
+            }
+            else
+            {
+
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             }
 
-            var team = await _context.Teams.Include(a => a.Accounts)
-                .SingleOrDefaultAsync(m => m.Id == id);
             if (team == null)
             {
                 return NotFound();
@@ -106,6 +119,10 @@ namespace Payments.Mvc.Controllers
             model.Team = team;
             model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
 
+            if (model.Team.Accounts.Where(a => a.IsActive && a.IsDefault).Count() != 1)
+            {
+                Message = "Warning! There is not a single active default account.";
+            }
 
             return View(model);
         }
@@ -154,6 +171,11 @@ namespace Payments.Mvc.Controllers
             if (team == null)
             {
                 return NotFound();
+            }
+
+            if (model.IsActive && await _context.Teams.AnyAsync(a => a.Id != team.Id && a.Slug == model.Slug))
+            {
+                ModelState.AddModelError("Slug", "Team Slug already used.");
             }
 
             if (!ModelState.IsValid)
@@ -223,24 +245,14 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">Team Id</param>
         /// <returns></returns>
-        public async Task<IActionResult> CreatePermission(int? id)
+        [Authorize(Policy = "TeamAdmin")]
+        public async Task<IActionResult> CreatePermission()
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
             }
-            //Needs admin role, not just editor
-            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
-            {
-                ErrorMessage = "You do not have access to this team.";
-                return RedirectToAction("Index");
-            }
-
 
             var model = new TeamPermissionModel();
             model.Team = team;
@@ -255,18 +267,13 @@ namespace Payments.Mvc.Controllers
         /// <param name="teamPermissionModel"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Policy = "TeamAdmin")]
         public async Task<IActionResult> CreatePermission(int id, TeamPermissionModel teamPermissionModel)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
             if (team == null)
             {
                 return NotFound();
-            }
-            //Needs admin role, not just editor
-            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
-            {
-                ErrorMessage = "You do not have access to this team.";
-                return RedirectToAction("Index");
             }
 
             teamPermissionModel.Team =
@@ -348,7 +355,7 @@ namespace Payments.Mvc.Controllers
                 _context.TeamPermissions.Add(teamPermission);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Details", new { id = teamPermissionModel.Team.Id });
+                return RedirectToAction("Details", new { team = teamPermissionModel.Team.Slug });
             }
 
 
@@ -361,26 +368,20 @@ namespace Payments.Mvc.Controllers
         }
 
         // GET: TeamPermissions/Delete/5
-        public async Task<IActionResult> DeletePermission(int? id, int? teamId)
+        [Authorize(Policy = "TeamAdmin")]
+        public async Task<IActionResult> DeletePermission(int? id)
         {
             //TODO: Check permissions
-            if (id == null || teamId == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
             }
-            //Needs admin role, not just editor
-            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
-            {
-                ErrorMessage = "You do not have access to this team.";
-                return RedirectToAction("Index");
-            }
-
 
             var model = new TeamPermissionModel();
             model.Team = team;
@@ -389,7 +390,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Role)
                 .Include(t => t.Team)
                 .Include(t => t.User)
-                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == team.Id);
             if (model.TeamPermission == null)
             {
                 return NotFound();
@@ -406,6 +407,7 @@ namespace Payments.Mvc.Controllers
         // POST: TeamPermissions/Delete/5
         [HttpPost, ActionName("DeletePermission")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "TeamAdmin")]
         public async Task<IActionResult> DeletePermissionConfirmed(int id, int teamId)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);
@@ -413,17 +415,11 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
-            //Needs admin role, not just editor
-            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId && a.Role.Name == TeamRole.Codes.Admin))
-            {
-                ErrorMessage = "You do not have access to this team.";
-                return RedirectToAction("Index");
-            }
 
             var teamPermission = await _context.TeamPermissions.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
             _context.TeamPermissions.Remove(teamPermission);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Details", new {id=teamId});
+            return RedirectToAction("Details", new {id=team.Slug});
         }
     }
 }

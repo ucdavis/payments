@@ -11,16 +11,64 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="ConfirmAccount">
-            @Html.Partial("_AccountForm")
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <input type="submit" value="Next" class="btn btn-default" />                
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Chart" class="control-label"></label>
+                <input asp-for="Chart" disabled class="form-control" style="text-transform:uppercase" />
+                <span asp-validation-for="Chart" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Account" class="control-label"></label>
+                <input asp-for="Account" disabled class="form-control" style="text-transform:uppercase" />
+                <span asp-validation-for="Account" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Object" class="control-label"></label>
+                <input asp-for="Object" disabled class="form-control" style="text-transform:uppercase" />
+                <span asp-validation-for="Object" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubAccount" class="control-label"></label>
+                <input asp-for="SubAccount" disabled class="form-control" style="text-transform:uppercase" placeholder="-----" />
+                <span asp-validation-for="SubAccount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubObject" class="control-label"></label>
+                <input asp-for="SubObject" disabled class="form-control" style="text-transform:uppercase" placeholder="---" />
+                <span asp-validation-for="SubObject" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Project" class="control-label"></label>
+                <input asp-for="Project" disabled class="form-control" style="text-transform:uppercase" placeholder="---------" />
+                <span asp-validation-for="Project" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="IsDefault" /> @Html.DisplayNameFor(model => model.IsDefault)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Next" class="btn btn-default" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Details" asp-controller="Teams" asp-route-id="@Model.TeamId">Back to List</a>
+    <a asp-action="Details" asp-controller="Teams" >Back to List</a>
 </div>
 
 @section Scripts {

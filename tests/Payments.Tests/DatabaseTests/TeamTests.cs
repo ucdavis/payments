@@ -30,6 +30,13 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
             }));
+            expectedFields.Add(new NameAndType("Slug", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Team Slug\")]",
+                "[System.ComponentModel.DataAnnotations.RegularExpressionAttribute(\"^([a-z0-9]+[a-z0-9\\-]?)+[a-z0-9]$\", ErrorMessage = \"Slug may only contain lowercase alphanumeric characters or single hyphens, and cannot begin or end with a hyphen\")]",
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)40, MinimumLength = 3, ErrorMessage = \"Slug must be between 3 and 40 characters\")]",
+            }));
 
             #endregion Arrange
 
