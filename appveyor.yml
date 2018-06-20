@@ -42,7 +42,7 @@ test_script:
 - cmd: |
     cd tests\Payments.Tests
     dotnet test
-    cd ...
+    cd ..\..
 
 artifacts:
 - path: artifacts\**\*.nupkg
