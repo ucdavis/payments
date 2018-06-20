@@ -101,7 +101,7 @@ namespace Payments.Mvc.Controllers
             {
 
                 team = await _context.Teams.Include(a => a.Accounts)
-                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug);
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             }
 
             if (team == null)
