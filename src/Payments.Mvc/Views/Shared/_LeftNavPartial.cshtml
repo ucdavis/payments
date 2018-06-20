@@ -70,14 +70,17 @@
             </div>
         </a>
     }
+@if (User.Identity.IsAuthenticated && user != null)
+{
     <form asp-action="logout" asp-controller="account" method="post">
         <button class="nav-logout btn-plain">
             <div class="row flex-center">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
                 </div>
-                <span class="navitem">Logout</span>
+                <span class="navitem">Sign Out</span>
             </div>
         </button>
     </form>
+}
 </nav>
