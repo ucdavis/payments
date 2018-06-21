@@ -1,0 +1,89 @@
+﻿@model Payments.Mvc.Models.Teams.TeamDetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.Team.Name)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.Team.Name)
+    </dd>
+</dl>
+<h2>User Roles</h2>
+
+<div>
+    <p>
+        <a asp-action="CreatePermission" asp-route-id="@Model.Team.Id">Add User</a>
+    </p>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Permissions[0].Role)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Permissions[0].User.CampusKerberos)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Permissions[0].User.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Permissions[0].User.Name)
+            </th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Permissions)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Role.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.CampusKerberos)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.Name)
+                </td>
+                <td>
+                    <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Delete</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+</div>
+
+
+@section AdditionalStyles
+    {
+    @{ await Html.RenderPartialAsync("_DataTableStylePartial"); }
+}
+
+@section scripts
+    {
+    @{ await Html.RenderPartialAsync("_DataTableScriptsPartial"); }
+
+    <script type="text/javascript">
+        $(function() {
+            $(".table").DataTable({
+                columnDefs: [
+                    {
+                        targets: [-1], orderable: false
+                    },
+                    {
+                        targets: [-1], searchable: false
+                    }
+                ]
+            });
+        });
+    </script>
+}
