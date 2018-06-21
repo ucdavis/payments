@@ -52,10 +52,14 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-
-            if (!team.Accounts.Any(a => a.IsActive && a.IsDefault))
+            var defaultCount = team.Accounts.Count(a => a.IsActive && a.IsDefault);
+            if (defaultCount == 0)
             {
-                Message = "Warning! There is not a single active default account.";
+                Message = "Warning! There is no active default account. Please set one account as your default";
+            }
+            else if (defaultCount > 1)
+            {
+                Message = "Warning! There are multiple active default accounts. Please set only one as your default.";
             }
 
             return View(team);
