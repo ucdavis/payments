@@ -50,7 +50,7 @@ namespace Payments.Mvc.Controllers
             }
 
 
-            if (team.Accounts.Where(a => a.IsActive && a.IsDefault).Count() != 1)
+            if (!team.Accounts.Any(a => a.IsActive && a.IsDefault))
             {
                 Message = "Warning! There is not a single active default account.";
             }
