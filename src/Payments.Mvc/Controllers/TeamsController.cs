@@ -33,7 +33,7 @@ namespace Payments.Mvc.Controllers
         }
 
         // GET: Teams
-        [Authorize(Policy = "TeamEditor")]
+        [Authorize(Policy = PolicyCodes.TeamEditor)]
         public async Task<IActionResult> Index()
         {
             List<Team> teams;
@@ -88,7 +88,7 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">Team Id</param>
         /// <returns></returns>
-        [Authorize(Policy = "TeamEditor")]
+        [Authorize(Policy = PolicyCodes.TeamEditor)]
         public async Task<IActionResult> Details(int? id)
         {
             Team team = null;
@@ -270,7 +270,7 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">Team Id</param>
         /// <returns></returns>
-        [Authorize(Policy = "TeamAdmin")]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> CreatePermission()
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
@@ -292,7 +292,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="teamPermissionModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize(Policy = "TeamAdmin")]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> CreatePermission(int id, TeamPermissionModel teamPermissionModel)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == id && m.IsActive);
@@ -393,7 +393,7 @@ namespace Payments.Mvc.Controllers
         }
 
         // GET: TeamPermissions/Delete/5
-        [Authorize(Policy = "TeamAdmin")]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> DeletePermission(int? id)
         {
             //TODO: Check permissions
@@ -432,7 +432,7 @@ namespace Payments.Mvc.Controllers
         // POST: TeamPermissions/Delete/5
         [HttpPost, ActionName("DeletePermission")]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = "TeamAdmin")]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> DeletePermissionConfirmed(int id, int teamId)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Id == teamId && m.IsActive);

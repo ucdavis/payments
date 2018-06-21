@@ -15,7 +15,7 @@ using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
 {
-    [Authorize(Policy = "TeamEditor")]
+    [Authorize(Policy = PolicyCodes.TeamEditor)]
     public class FinancialAccountsController : SuperController
     {
         private readonly ApplicationDbContext _context;
