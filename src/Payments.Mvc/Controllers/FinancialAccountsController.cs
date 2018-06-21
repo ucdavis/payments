@@ -31,16 +31,19 @@ namespace Payments.Mvc.Controllers
         [Authorize(Policy = "TeamEditor")]
         public async Task<IActionResult> Index()
         {
-            Team team = null;
+            // admins can look at inactive teams
+            Team team;
             if (User.IsInRole(ApplicationRoleCodes.Admin))
             {
-                team = await _context.Teams.Include(a => a.Accounts)
+                team = await _context.Teams
+                    .Include(a => a.Accounts)
                     .SingleOrDefaultAsync(m => m.Slug == TeamSlug);
             }
             else
             {
 
-                team = await _context.Teams.Include(a => a.Accounts)
+                team = await _context.Teams
+                    .Include(a => a.Accounts)
                     .SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             }
 
