@@ -36,5 +36,11 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public Dictionary<string, string> PaymentDictionary { get; set; }
 
         public DateTime PaidDate { get; set; }
+
+        public string TeamName { get; set; }
+
+        public string TeamContactEmail { get; set; }
+
+        public string TeamContactPhone { get; set; }
     }
 }
