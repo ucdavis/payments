@@ -11,11 +11,12 @@ using Payments.Core.Services;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.InvoiceViewModels;
+using Payments.Mvc.Models.Roles;
 
 
 namespace Payments.Mvc.Controllers
 {
-    [Authorize(Policy = "TeamEditor")]
+    [Authorize(Policy = PolicyCodes.TeamEditor)]
     public class InvoicesController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;

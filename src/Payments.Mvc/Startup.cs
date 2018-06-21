@@ -20,6 +20,7 @@ using Payments.Mvc.Authorization;
 using Payments.Mvc.Handlers;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Configuration;
+using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc
@@ -70,8 +71,8 @@ namespace Payments.Mvc
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("TeamAdmin", policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
-                options.AddPolicy("TeamEditor", policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin, TeamRole.Codes.Editor)));
+                options.AddPolicy(PolicyCodes.TeamAdmin, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
+                options.AddPolicy(PolicyCodes.TeamEditor, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin, TeamRole.Codes.Editor)));
             });
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
