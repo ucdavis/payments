@@ -171,6 +171,13 @@ namespace Payments.Mvc.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            return View();
+        }
+
+
         #region Helpers
 
         private bool IsUcdLogin(ExternalLoginInfo info) {

@@ -15,7 +15,7 @@
   </div>
   <div>
     <div class="pay-top">
-      <h2>Invoice from UCDavis Arboretum</h2>
+      <h2>Invoice from @Model.TeamName</h2>
       <p class="secondary-font">Billed to jpknoll@ucdavis.edu</p>
       <p class="tertiary-font">Invoice @Model.Id</p>
     </div>
@@ -86,7 +86,7 @@
       {
           <tr>
               <td></td>
-              <td>Tax (@Model.TaxPercent.ToString("P"))</td>
+              <td>Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
               <td></td>
               <td>$@Model.TaxAmount.ToString("F2")</td>
           </tr>
@@ -114,7 +114,7 @@
 </div>
     <div class="pay-footer">
       <p>
-          If you have any questions, contact at <a href="/">jpknoll@ucdavis.edu</a> or call at <a href="">530-754-0000</a>
+          If you have any questions, contact us at <a href="/">jpknoll@ucdavis.edu</a> or call at <a href="">530-754-0000</a>
       </p>
     </div>
   </div>
