@@ -84,7 +84,7 @@
                     {
                         <tr>
                             <td></td>
-                            <td>Tax (@Model.TaxPercent.ToString("P"))</td>
+                            <td>Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
                             <td></td>
                             <td>$@Model.TaxAmount.ToString("F2")</td>
                         </tr>
