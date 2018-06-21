@@ -31,7 +31,6 @@
             <span class="navitem">Home</span>
         </div>
     </a>
-
     <a class="nav-invoices" href="@Url.Action("Index", "Invoices")">
         <div class="row flex-center">
             <div class="svgwrapper">
@@ -40,7 +39,6 @@
             <span class="navitem">Invoices</span>
         </div>
     </a>
-
     <a class="nav-support" href="@Url.Action("Index", "Home")">
         <div class="row flex-center">
             <div class="svgwrapper">
@@ -48,9 +46,8 @@
             </div>
             <span class="navitem">Support</span>
         </div>
-    </a>    
-
-    <a class="nav-settings" asp-controller="Teams" asp-action="Details" asp-team="@teamSlug">
+    </a>
+    <a class="nav-settings" asp-controller="Teams" asp-action="Index" asp-route-team="@(string.IsNullOrWhiteSpace(teamSlug) ? "----" : teamSlug)">
         <div class="row flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
@@ -58,25 +55,25 @@
             <span class="navitem">Settings</span>
         </div>
     </a>
-
     @if (string.Equals("settings", controller, StringComparison.OrdinalIgnoreCase)
-        || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase))
+    || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase)
+    || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
     {
-        <a class="" asp-controller="Teams" asp-action="Details" asp-team="@teamSlug">
-            <div class="row flex-center subnav">
-                <span class="navitem">Team</span>
-            </div>
-        </a>
-        <a class="" asp-controller="Teams" asp-action="Roles" asp-team="@teamSlug">
-            <div class="row flex-center subnav">
-                <span class="navitem">Roles</span>
-            </div>
-        </a>
-        <a class="" asp-controller="Teams" asp-action="Accounts" asp-team="@teamSlug">
-            <div class="row flex-center subnav">
-                <span class="navitem">Accounts</span>
-            </div>
-        </a>
+    <a class="" asp-controller="Teams" asp-action="Index" asp-route-team="@teamSlug">
+        <div class="row flex-center subnav">
+            <span class="navitem">Teams</span>
+        </div>
+    </a>
+    <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@teamSlug">
+        <div class="row flex-center subnav">
+            <span class="navitem">Roles</span>
+        </div>
+    </a>
+    <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@teamSlug">
+        <div class="row flex-center subnav">
+            <span class="navitem">Accounts</span>
+        </div>
+    </a>
     }
 
     @if (User.Identity.IsAuthenticated && user != null)

@@ -109,12 +109,6 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            if (!User.IsInRole(ApplicationRoleCodes.Admin) && !await _context.TeamPermissions.AnyAsync(a => a.TeamId == team.Id && a.UserId == CurrentUserId))
-            {
-                ErrorMessage = "You do not have access to this team.";
-                return RedirectToAction("Index");
-            }
-
             var model = new TeamDetailsModel();
             model.Team = team;
             model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
@@ -126,6 +120,37 @@ namespace Payments.Mvc.Controllers
 
             return View(model);
         }
+
+        [Authorize(Policy = "TeamAdmin")]
+        public async Task<IActionResult> Roles()
+        {
+            Team team = null;
+            if (User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug);
+            }
+            else
+            {
+
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            }
+
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var model = new TeamDetailsModel();
+            model.Team = team;
+            model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
+
+
+            return View(model);
+        }
+
+
 
 
 
@@ -355,7 +380,7 @@ namespace Payments.Mvc.Controllers
                 _context.TeamPermissions.Add(teamPermission);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Details", new { team = teamPermissionModel.Team.Slug });
+                return RedirectToAction("Roles", new { team = teamPermissionModel.Team.Slug });
             }
 
 
@@ -419,7 +444,7 @@ namespace Payments.Mvc.Controllers
             var teamPermission = await _context.TeamPermissions.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
             _context.TeamPermissions.Remove(teamPermission);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Details", new {id=team.Slug});
+            return RedirectToAction("Roles", new {id=team.Slug});
         }
     }
 }

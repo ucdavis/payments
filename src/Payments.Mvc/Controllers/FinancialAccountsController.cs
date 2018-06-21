@@ -28,6 +28,36 @@ namespace Payments.Mvc.Controllers
             _financialService = financialService;
         }
 
+        [Authorize(Policy = "TeamEditor")]
+        public async Task<IActionResult> Index()
+        {
+            Team team = null;
+            if (User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug);
+            }
+            else
+            {
+
+                team = await _context.Teams.Include(a => a.Accounts)
+                    .SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            }
+
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+
+            if (team.Accounts.Where(a => a.IsActive && a.IsDefault).Count() != 1)
+            {
+                Message = "Warning! There is not a single active default account.";
+            }
+
+            return View(team);
+        }
+
         /// <summary>
         /// GET: FinancialAccounts/Create
         /// </summary>
@@ -214,7 +244,7 @@ namespace Payments.Mvc.Controllers
                 }
                 _context.Add(financialAccount);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Teams", new { id = financialAccount.TeamId });
+                return RedirectToAction("Index", "FinancialAccounts", new { id = financialAccount.TeamId });
             }
 
             financialAccount.Team = team;
@@ -301,7 +331,7 @@ namespace Payments.Mvc.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Details", "Teams", new { id = teamId });
+                return RedirectToAction("Index", "FinancialAccounts", new { id = teamId });
             }
 
             return View(financialAccountToUpdate);
@@ -428,7 +458,7 @@ namespace Payments.Mvc.Controllers
 
             financialAccount.IsActive = false;
             await _context.SaveChangesAsync();
-            return RedirectToAction("Details", "Teams", new { id = teamId });
+            return RedirectToAction("Index", "FinancialAccounts", new { id = teamId });
         }
 
         private bool FinancialAccountExists(int id)
