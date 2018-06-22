@@ -1,10 +1,12 @@
 import "isomorphic-fetch";
 import * as React from 'react';
+import { Account } from '../models/Account';
 import { Invoice } from '../models/Invoice';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
+import AccountSelectControl from '../components/accountSelectControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
@@ -12,6 +14,7 @@ import MemoInput from '../components/memoInput';
 declare var antiForgeryToken: string;
 
 interface IProps {
+    accounts: Account[];
     id: number;
     invoice: Invoice;
     sent: boolean;
@@ -19,6 +22,7 @@ interface IProps {
 }
 
 interface IState {
+    accountId: number;
     customer: InvoiceCustomer;
     discount: number;
     taxRate: number;
@@ -46,6 +50,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         }
 
         this.state = {
+            accountId: invoice.accountId,
             customer: invoice.customer,
             discount: invoice.discount || 0,
             errorMessage: "",
@@ -57,8 +62,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     public render() {
-        const { id, sent, team } = this.props;
-        const { customer, items, discount, taxRate, memo, loading } = this.state;
+        const { id, sent, team, accounts } = this.props;
+        const { accountId, customer, items, discount, taxRate, memo, loading } = this.state;
         
 
         return (
@@ -97,6 +102,12 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <h3>Memo</h3>
                     <div className="form-group">
                         <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
+                    </div>
+                </div>
+                <div className="card-content invoice-billing">
+                    <h2>Billing</h2>
+                    <div className="form-group">
+                        <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
                 </div>
                 <div className="card-foot invoice-action">
@@ -143,10 +154,11 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     private saveInvoice = async () => {
         const { id } = this.props;
         const { slug } = this.props.team;
-        const { customer, discount, taxRate, items, memo } = this.state;
+        const { accountId, customer, discount, taxRate, items, memo } = this.state;
 
         // create submit object
         const invoice = {
+            accountId,
             customer,
             discount,
             items,

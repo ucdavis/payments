@@ -92,6 +92,7 @@ namespace Payments.Mvc.Controllers
         {
             // look for invoice
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Account)
                 .Include(i => i.Items)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
@@ -127,6 +128,7 @@ namespace Payments.Mvc.Controllers
             // build model for view
             var model = new EditInvoiceViewModel()
             {
+                AccountId = invoice.Account.Id,
                 Discount = invoice.Discount,
                 Tax = invoice.TaxPercent,
                 Memo = invoice.Memo,
@@ -157,6 +159,30 @@ namespace Payments.Mvc.Controllers
             var user = await _userManager.GetUserAsync(User);
             var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
+            // find account
+            var account = await _dbContext.FinancialAccounts
+                .FirstOrDefaultAsync(a => a.Team.Slug == TeamSlug && a.Id == model.AccountId);
+
+            if (account == null)
+            {
+                ModelState.AddModelError("AccountId", "Account Id not found for this team.");
+            }
+            else if (!account.IsActive)
+            {
+                ModelState.AddModelError("AccountId", "Account is inactive.");
+            }
+
+            // validate model
+            if (!ModelState.IsValid)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    errorMessage = "Errors found in request",
+                    modelState = ModelState
+                });
+            }
+
             // manage multiple customer scenario
             var invoices = new List<Invoice>();
             foreach (var customer in model.Customers)
@@ -164,6 +190,7 @@ namespace Payments.Mvc.Controllers
                 // create new object, track it
                 var invoice = new Invoice
                 {
+                    Account         = account,
                     Creator         = user,
                     Team            = team,
                     Discount        = model.Discount,
@@ -216,10 +243,35 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            // find account
+            var account = await _dbContext.FinancialAccounts
+                .FirstOrDefaultAsync(a => a.Team.Slug == TeamSlug && a.Id == model.AccountId);
+
+            if (account == null)
+            {
+                ModelState.AddModelError("AccountId", "Account Id not found for this team.");
+            }
+            else if (!account.IsActive)
+            {
+                ModelState.AddModelError("AccountId", "Account is inactive.");
+            }
+
+            // validate model
+            if (!ModelState.IsValid)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    errorMessage = "Errors found in request",
+                    modelState = ModelState
+                });
+            }
+
             // remove old items
             _dbContext.LineItems.RemoveRange(invoice.Items);
 
             // update invoice
+            invoice.Account         = account;
             invoice.CustomerAddress = model.Customer.Address;
             invoice.CustomerEmail   = model.Customer.Email;
             invoice.CustomerName    = model.Customer.Name;
@@ -300,7 +352,6 @@ namespace Payments.Mvc.Controllers
         {
             // find item
             var invoice = await _dbContext.Invoices
-                .Include(i => i.Items)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
