@@ -3,7 +3,10 @@ import * as React from 'react';
 import Portal from './Portal';
 
 interface IProps {
+    dialogClassName?: string;
     isOpen: boolean;
+    onBackdropClick?: () => void;
+    onEscape?: () => void;
 }
 
 interface IState {
@@ -13,6 +16,8 @@ interface IState {
 export default class LoadingModal extends React.Component<IProps, IState> {
   
     private _portal: HTMLDivElement;
+    private _dialog: HTMLDivElement;
+    private _mouseDownElement: HTMLElement;
     private _isMounted: boolean = false;
 
     constructor(props) {
@@ -66,7 +71,13 @@ export default class LoadingModal extends React.Component<IProps, IState> {
 
         return (
             <Portal node={this._portal}>
-                <div className="modal" style={{ display: "block" }}>
+                <div
+                    className="modal"
+                    style={{ display: "block" }}
+                    onKeyUp={this.handleEscape}
+                    onMouseDown={this.handleBackdropMouseDown}
+                    onMouseUp={this.handleBackdropMouseUp}
+                >
                     {this.renderModalDialog()}
                 </div>
                 <div className="modal-backdrop fade show" />
@@ -75,13 +86,42 @@ export default class LoadingModal extends React.Component<IProps, IState> {
     }
     
     private renderModalDialog() {
+        const { dialogClassName } = this.props;
+
+
         return (
-            <div className= "modal-dialog modal-dialog-centered" role="document">
+            <div className={`modal-dialog modal-dialog-centered ${dialogClassName}`} role="document" ref={r => this._dialog = r}>
                 <div className="modal-content">
                     { this.props.children }
                 </div>
             </div>
         );
+    }
+
+    private handleEscape = (e) => {
+        console.log(e);
+        if (this.props.isOpen && e.keyCode === 27 && this.props.onEscape) {
+          this.props.onEscape();
+        }
+    }
+
+    private handleBackdropMouseDown = (e) => {
+        this._mouseDownElement = e.target;
+    }
+
+    private handleBackdropMouseUp = (e) => {
+        if (e.target === this._mouseDownElement) {
+          e.stopPropagation();
+          if (!this.props.isOpen) {
+              return;
+          }
+    
+          const container = this._dialog;
+    
+          if (e.target && !container.contains(e.target) && this.props.onBackdropClick) {
+            this.props.onBackdropClick();
+          }
+        }
     }
 
     private init() {
@@ -111,7 +151,6 @@ export default class LoadingModal extends React.Component<IProps, IState> {
     }
 
     private onOpen() {
-        
     }
 
     private onClose() {
