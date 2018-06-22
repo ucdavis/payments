@@ -4,9 +4,11 @@ import { AppContainer } from 'react-hot-loader';
 
 import EditInvoiceContainer from '../containers/EditInvoiceContainer';
 
+import { Account } from '../models/Account';
 import { Invoice } from '../models/Invoice';
 import { Team } from '../models/Team';
 
+declare var accounts: Account[]
 declare var id: number;
 declare var model: Invoice;
 declare var sent: boolean;
@@ -17,7 +19,13 @@ function renderApp() {
     // configuration and injects the app into a DOM element.
     ReactDOM.render( 
         <AppContainer>
-            <EditInvoiceContainer id={id} invoice={model} sent={sent} team={team} />
+            <EditInvoiceContainer
+                accounts={accounts}
+                id={id}
+                invoice={model}
+                sent={sent}
+                team={team}
+            />
         </AppContainer>, 
         document.getElementById('react-app') 
     ); 

@@ -4,8 +4,10 @@ import { AppContainer } from 'react-hot-loader';
 
 import CreateInvoiceContainer from '../containers/CreateInvoiceContainer';
 
+import { Account } from '../models/Account';
 import { Team } from '../models/Team';
 
+declare var accounts: Account[]
 declare var team: Team;
 
 function renderApp() { 
@@ -13,7 +15,10 @@ function renderApp() {
     // configuration and injects the app into a DOM element.
     ReactDOM.render( 
         <AppContainer>
-            <CreateInvoiceContainer team={team} />
+            <CreateInvoiceContainer
+                accounts={accounts}
+                team={team}
+            />
         </AppContainer>, 
         document.getElementById('react-app') 
     ); 

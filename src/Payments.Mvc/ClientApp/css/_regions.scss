@@ -315,3 +315,33 @@ table#Invoices {
     }
   }
 }
+
+.account-details-modal {
+
+  .modal-header{
+    background-color: $bg-color;
+    
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+  }
+
+  .modal-body {
+    background-color: $bg-color;
+
+    .account-name {
+    }
+
+    .account-description {
+    }
+
+    &:hover {
+      background-color: darken($bg-color, 5%);
+    }
+  }
+
+  .modal-body + .modal-body {
+    border-top: 1px solid $borders;
+  }
+}

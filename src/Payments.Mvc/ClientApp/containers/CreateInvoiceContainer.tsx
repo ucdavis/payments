@@ -1,10 +1,11 @@
 import "isomorphic-fetch";
 import * as React from 'react';
-import { Invoice } from '../models/Invoice';
+import { Account } from '../models/Account';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
+import AccountSelectControl from '../components/accountSelectControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
@@ -13,11 +14,13 @@ import MultiCustomerControl from '../components/multiCustomerControl';
 declare var antiForgeryToken: string;
 
 interface IProps {
+    accounts: Account[];
     team: Team;
 }
 
 interface IState {
     ids: number[] | undefined;
+    accountId: number;
     customers: InvoiceCustomer[];
     discount: number;
     taxRate: number;
@@ -28,10 +31,13 @@ interface IState {
 }
 
 export default class CreateInvoiceContainer extends React.Component<IProps, IState> {
-    constructor(props) {
+    constructor(props: IProps) {
         super(props);
 
+        const defaultAccount = props.accounts.find(a => a.isDefault);
+
         this.state = {
+            accountId: defaultAccount ? defaultAccount.id : 0,
             customers: [],
             discount: 0,
             errorMessage: '',
@@ -49,8 +55,8 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
     }
 
     public render() {
-        const { team } = this.props;
-        const { items, discount, taxRate, customers, memo, loading } = this.state;
+        const { accounts, team } = this.props;
+        const { accountId, items, discount, taxRate, customers, memo, loading } = this.state;
         
         return (
             <div className="card-style">
@@ -81,6 +87,12 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                     <h2>Memo</h2>
                     <div className="form-group">
                         <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
+                    </div>
+                </div>
+                <div className="card-content invoice-billing">
+                    <h2>Billing</h2>
+                    <div className="form-group">
+                        <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
                 </div>
                 <div className="card-foot invoice-action">
@@ -125,10 +137,11 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
     private saveInvoice = async () => {
         const { slug } = this.props.team;
-        const { customers, discount, taxRate, items, memo } = this.state;
+        const { accountId, customers, discount, taxRate, items, memo } = this.state;
 
         // create submit object
         const invoice = {
+            accountId,
             customers,
             discount,
             items,
