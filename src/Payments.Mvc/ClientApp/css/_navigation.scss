@@ -23,6 +23,10 @@ ul.main-nav {
 nav {
   margin-top:60px;
 
+  .nav-item {
+    padding:8px 0px;
+  }
+
   .navitem {
     color:$secondary-font;
     font-size: 1.8rem;
@@ -31,9 +35,7 @@ nav {
   &:hover .navitem {
     color:$primary-font;
   }
-  .row {
-    padding:8px 0px;
-  }
+  
   .svgwrapper {
     margin-right:18px;
     width:34px;

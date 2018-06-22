@@ -24,7 +24,7 @@
 
 <nav>
     <a class="nav-home" href="@Url.Action("Index", "Home")">
-        <div class="row flex-center">
+        <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
             </div>
@@ -32,7 +32,7 @@
         </div>
     </a>
     <a class="nav-invoices" href="@Url.Action("Index", "Invoices")">
-        <div class="row flex-center">
+        <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
             </div>
@@ -40,7 +40,7 @@
         </div>
     </a>
     <a class="nav-support" href="@Url.Action("Index", "Home")">
-        <div class="row flex-center">
+        <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/support.svg")
             </div>
@@ -48,7 +48,7 @@
         </div>
     </a>
     <a class="nav-settings" asp-controller="Teams" asp-action="Index" asp-route-team="@(string.IsNullOrWhiteSpace(teamSlug) ? "----" : teamSlug)">
-        <div class="row flex-center">
+        <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
             </div>
@@ -60,17 +60,17 @@
     || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
     {
     <a class="" asp-controller="Teams" asp-action="Index" asp-route-team="@teamSlug">
-        <div class="row flex-center subnav">
+        <div class="nav-item d-flex flex-center subnav">
             <span class="navitem">Teams</span>
         </div>
     </a>
     <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@teamSlug">
-        <div class="row flex-center subnav">
+        <div class="nav-item d-flex flex-center subnav">
             <span class="navitem">Roles</span>
         </div>
     </a>
     <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@teamSlug">
-        <div class="row flex-center subnav">
+        <div class="nav-item d-flex flex-center subnav">
             <span class="navitem">Accounts</span>
         </div>
     </a>
@@ -79,7 +79,7 @@
     @if (User.Identity.IsAuthenticated && user != null)
     {
         <form asp-action="logout" asp-controller="account" method="post">
-            <button class="nav-logout btn-plain row flex-center">
+            <button class="nav-item nav-logout btn-plain d-flex flex-center">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
                 </div>
