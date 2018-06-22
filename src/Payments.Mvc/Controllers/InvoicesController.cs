@@ -63,9 +63,26 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> Create()
         {
             var team = await _dbContext.Teams
+                .Include(t => t.Accounts)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
             ViewBag.Team = new { team.Id, team.Name, team.Slug };
+
+            ViewBag.Accounts = team.Accounts
+                .Where(a => a.IsActive)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Name,
+                    a.Description,
+                    a.IsDefault,
+                    a.Chart,
+                    a.Account,
+                    a.SubAccount,
+                    a.Object,
+                    a.SubObject,
+                    a.Project,
+                });
 
             return View();
         }
@@ -86,9 +103,26 @@ namespace Payments.Mvc.Controllers
 
             // fetch team data
             var team = await _dbContext.Teams
+                .Include(t => t.Accounts)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
             ViewBag.Team = new { team.Id, team.Name, team.Slug };
+
+            ViewBag.Accounts = team.Accounts
+                .Where(a => a.IsActive)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Name,
+                    a.Description,
+                    a.IsDefault,
+                    a.Chart,
+                    a.Account,
+                    a.SubAccount,
+                    a.Object,
+                    a.SubObject,
+                    a.Project,
+                });
 
             // build model for view
             var model = new EditInvoiceViewModel()
