@@ -13,10 +13,13 @@
 
 @if (User.Identity.IsAuthenticated && user != null)
 {
-    var defteamSlug = user.GetTeams().Where(a => a.IsActive).FirstOrDefault();
-    if (defteamSlug != null)
+    if (string.IsNullOrWhiteSpace(teamSlug))
     {
-        teamSlug = defteamSlug.Slug;
+        var defteamSlug = user.GetTeams().Where(a => a.IsActive).FirstOrDefault();
+        if (defteamSlug != null)
+        {
+            teamSlug = defteamSlug.Slug;
+        }
     }
     using (Html.BeginForm("SetActiveTeam", "Home", FormMethod.Post, new { id = "TeamSelectForm" }))
     {
