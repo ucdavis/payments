@@ -44,7 +44,7 @@ namespace Payments.Mvc.Controllers
             else
             {
                 var user = await _userManager.GetUserAsync(User);
-                teams = user.GetTeams().ToList();
+                teams = user.GetTeams().Where(a => a.IsActive).ToList();
             }
 
             return View(teams);
