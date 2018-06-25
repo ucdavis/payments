@@ -109,16 +109,12 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new TeamDetailsModel();
-            model.Team = team;
-            model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (model.Team.Accounts.Where(a => a.IsActive && a.IsDefault).Count() != 1)
-            {
-                Message = "Warning! There is not a single active default account.";
-            }
+            ViewBag.ShowEdit = User.IsInRole(ApplicationRoleCodes.Admin) || await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User)
+                                   .AnyAsync(a => a.TeamId == team.Id && a.UserId == userId && a.Role.Name == TeamRole.Codes.Admin);
 
-            return View(model);
+            return View(team);
         }
 
         [Authorize(Policy = "TeamAdmin")]
@@ -159,7 +155,7 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">Team Id</param>
         /// <returns></returns>
-        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -189,7 +185,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="id">Team Id</param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> Edit(int id, EditTeamViewModel model)
         {
             var team = await _context.Teams.FindAsync(id);
