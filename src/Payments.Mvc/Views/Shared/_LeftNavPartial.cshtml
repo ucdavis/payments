@@ -39,14 +39,17 @@
             <span class="navitem">Home</span>
         </div>
     </a>
-    <a class="nav-invoices" asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug">
-        <div class="nav-item d-flex flex-center">
-            <div class="svgwrapper">
-                @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
+    @if (!string.IsNullOrWhiteSpace(teamSlug))
+    {
+        <a class="nav-invoices" asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug">
+            <div class="nav-item d-flex flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
+                </div>
+                <span class="navitem">Invoices</span>
             </div>
-            <span class="navitem">Invoices</span>
-        </div>
-    </a>
+        </a>
+    }
     <a class="nav-support" href="@Url.Action("Index", "Home")">
         <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
