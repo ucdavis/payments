@@ -13,6 +13,11 @@
 
 @if (User.Identity.IsAuthenticated && user != null)
 {
+    var defteamSlug = user.GetTeams().Where(a => a.IsActive).FirstOrDefault();
+    if (defteamSlug != null)
+    {
+        teamSlug = defteamSlug.Slug;
+    }
     using (Html.BeginForm("SetActiveTeam", "Home", FormMethod.Post, new { id = "TeamSelectForm" }))
     {
         var teamSelectList = user.GetTeams().Where(a => a.IsActive)
@@ -47,14 +52,28 @@
             <span class="navitem">Support</span>
         </div>
     </a>
-    <a class="nav-settings" asp-controller="Teams" asp-action="Index" asp-route-team="@(string.IsNullOrWhiteSpace(teamSlug) ? "----" : teamSlug)">
-        <div class="nav-item d-flex flex-center">
-            <div class="svgwrapper">
-                @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+    @if (string.IsNullOrWhiteSpace(teamSlug) || teamSlug == "----")
+    {
+        <a class="nav-settings" asp-controller="Teams" asp-action="Index" asp-route-team="@(string.IsNullOrWhiteSpace(teamSlug) ? "----" : teamSlug)">
+            <div class="nav-item d-flex flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+                </div>
+                <span class="navitem">Settings</span>
             </div>
-            <span class="navitem">Settings</span>
-        </div>
-    </a>
+        </a>
+    }
+    else
+    {
+        <a class="nav-settings" asp-controller="Teams" asp-action="Details" asp-route-team="@teamSlug">
+            <div class="nav-item d-flex flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+                </div>
+                <span class="navitem">Settings</span>
+            </div>
+        </a>
+    }
     @if (string.Equals("settings", controller, StringComparison.OrdinalIgnoreCase)
     || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase)
     || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
