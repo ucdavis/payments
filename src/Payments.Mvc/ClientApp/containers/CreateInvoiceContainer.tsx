@@ -6,6 +6,7 @@ import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
+import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
@@ -58,7 +59,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
     public render() {
         const { accounts, team } = this.props;
-        const { accountId, items, discount, taxRate, customers, memo, loading } = this.state;
+        const { accountId, dueDate, items, discount, taxRate, customers, memo, loading } = this.state;
         
         return (
             <div className="card-style">
@@ -93,6 +94,9 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                 </div>
                 <div className="card-content invoice-billing">
                     <h2>Billing</h2>
+                    <div className="form-group">
+                        <DueDateControl value={dueDate} onChange={(d) => this.updateProperty('dueDate', d)} />
+                    </div>
                     <div className="form-group">
                         <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
