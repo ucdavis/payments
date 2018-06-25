@@ -209,7 +209,7 @@ namespace Payments.Mvc.Controllers
             team.IsActive = model.IsActive;
             await _context.SaveChangesAsync();
             
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Details), new { team = team.Slug });
         }
 
         /// <summary>
