@@ -25,11 +25,13 @@
             <p class="tertiary-font">Invoice @Model.Id</p>
         </div>
         <div class="pay-action">
-            <h1>@(string.Format("{0:C}", Model.Total))</h1>
-            <p class="secondary-font">Due March, 23rd 1989</p>
             @if (Model.Status == Invoice.StatusCodes.Sent)
-
             {
+                <h1>@(string.Format("{0:C}", Model.Total))</h1>
+                if (Model.DueDate.HasValue)
+                {
+                    <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
+                }
                 <button type="submit" class="btn-gold btn-md" aria-hidden="true">
                     <i class="fa fa-credit-card" aria-hidden="true"></i>
                     Pay Now
