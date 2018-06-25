@@ -19,6 +19,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public decimal Tax { get; set; }
 
         public IList<EditInvoiceItemViewModel> Items { get; set; }
+
+        public DateTime? DueDate { get; set; }
     }
 
     public class EditInvoiceCustomerViewModel

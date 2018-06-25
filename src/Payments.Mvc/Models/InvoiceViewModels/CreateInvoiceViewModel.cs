@@ -19,6 +19,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public string Memo { get; set; }
 
         public IList<CreateInvoiceItemViewModel> Items { get; set; }
+
+        public DateTime? DueDate { get; set; }
     }
 
     public class CreateInvoiceCustomerViewModel

@@ -22,6 +22,7 @@ interface IState {
     ids: number[] | undefined;
     accountId: number;
     customers: InvoiceCustomer[];
+    dueDate: string;
     discount: number;
     taxRate: number;
     memo: string;
@@ -40,6 +41,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             accountId: defaultAccount ? defaultAccount.id : 0,
             customers: [],
             discount: 0,
+            dueDate: '',
             errorMessage: '',
             ids: undefined,
             items: [{
@@ -131,19 +133,20 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
     private updateProperty = (name: any, value: any) => {
         this.setState({
-            [name]: value
+            [name]: value,
         });
     }
 
     private saveInvoice = async () => {
         const { slug } = this.props.team;
-        const { accountId, customers, discount, taxRate, items, memo } = this.state;
+        const { accountId, dueDate, customers, discount, taxRate, items, memo } = this.state;
 
         // create submit object
         const invoice = {
             accountId,
             customers,
             discount,
+            dueDate,
             items,
             memo,
             tax: taxRate,

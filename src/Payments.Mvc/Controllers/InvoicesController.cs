@@ -129,14 +129,15 @@ namespace Payments.Mvc.Controllers
             var model = new EditInvoiceViewModel()
             {
                 AccountId = invoice.Account.Id,
-                Discount = invoice.Discount,
-                Tax = invoice.TaxPercent,
-                Memo = invoice.Memo,
-                Customer = new EditInvoiceCustomerViewModel()
+                Discount  = invoice.Discount,
+                DueDate   = invoice.DueDate,
+                Tax       = invoice.TaxPercent,
+                Memo      = invoice.Memo,
+                Customer  = new EditInvoiceCustomerViewModel()
                 {
-                    Name = invoice.CustomerName,
+                    Name    = invoice.CustomerName,
                     Address = invoice.CustomerAddress,
-                    Email = invoice.CustomerEmail,
+                    Email   = invoice.CustomerEmail,
                 },
                 Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
                 {
@@ -195,6 +196,7 @@ namespace Payments.Mvc.Controllers
                     Team            = team,
                     Discount        = model.Discount,
                     TaxPercent      = model.Tax,
+                    DueDate         = model.DueDate,
                     CustomerAddress = customer.Address,
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
@@ -278,6 +280,7 @@ namespace Payments.Mvc.Controllers
             invoice.Memo            = model.Memo;
             invoice.Discount        = model.Discount;
             invoice.TaxPercent      = model.Tax;
+            invoice.DueDate         = model.DueDate;
 
             // add line items
             var items = model.Items.Select(i => new LineItem()
