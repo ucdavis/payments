@@ -39,7 +39,7 @@
             <span class="navitem">Home</span>
         </div>
     </a>
-    <a class="nav-invoices" href="@Url.Action("Index", "Invoices")">
+    <a class="nav-invoices" asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug">
         <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
