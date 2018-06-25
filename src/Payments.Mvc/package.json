@@ -6,25 +6,33 @@
     "start": "ASPNETCORE_ENVIRONMENT=Development dotnet watch run",
     "webpack": "node node_modules/webpack/bin/webpack.js --env.dev --watch"
   },
+  "dependencies": {
+    "bootstrap": "^4.1.1",
+    "bootstrap-datepicker": "^1.8.0",
+    "date-fns": "^1.29.0",
+    "jquery": "3.3.1",
+    "popper.js": "^1.14.3",
+    "react": "16.3.2",
+    "react-dom": "16.3.2"
+  },
   "devDependencies": {
-    "@types/react": "16.3.11",
-    "@types/react-dom": "16.0.5",
+    "@types/bootstrap": "^4.1.1",
+    "@types/bootstrap-datepicker": "^0.0.13",
+    "@types/jquery": "^3",
+    "@types/react": "^16.4.1",
+    "@types/react-dom": "^16.0.6",
     "@types/react-hot-loader": "3.0.6",
     "@types/webpack-env": "1.13.6",
     "aspnet-webpack": "^2.0.3",
     "aspnet-webpack-react": "^3.0.0",
     "awesome-typescript-loader": "3.4.1",
-    "bootstrap": "4.1.0",
     "css-loader": "0.28.11",
     "event-source-polyfill": "0.0.12",
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "1.1.11",
     "isomorphic-fetch": "2.2.1",
-    "jquery": "3.3.1",
     "json-loader": "0.5.7",
     "node-sass": "^4.9.0",
-    "react": "16.3.2",
-    "react-dom": "16.3.2",
     "react-hot-loader": "4.1.0",
     "sass-loader": "^7.0.1",
     "style-loader": "0.21.0",
@@ -35,6 +43,6 @@
     "uglifyjs-webpack-plugin": "^1.2.5",
     "url-loader": "1.0.1",
     "webpack": "3.10.0",
-    "webpack-hot-middleware": "2.22.1"
+    "webpack-hot-middleware": "^2.22.2"
   }
 }
