@@ -141,9 +141,10 @@ namespace Payments.Mvc.Controllers
                 },
                 Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
                 {
-                    Amount = i.Amount,
+                    Id          = i.Id,
+                    Amount      = i.Amount,
                     Description = i.Description,
-                    Quantity = i.Quantity,
+                    Quantity    = i.Quantity,
                 }).ToList()
             };
 
@@ -268,7 +269,7 @@ namespace Payments.Mvc.Controllers
                     modelState = ModelState
                 });
             }
-
+            // TODO: Consider modifying items instead of replacing
             // remove old items
             _dbContext.LineItems.RemoveRange(invoice.Items);
 

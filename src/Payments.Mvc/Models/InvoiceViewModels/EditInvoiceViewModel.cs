@@ -38,6 +38,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
     public class EditInvoiceItemViewModel
     {
+        public int Id { get; set; }
+
         [MaxLength(100)]
         public string Description { get; set; }
 
