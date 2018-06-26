@@ -57,7 +57,7 @@
 
 </div>
 <div>
-    @if (ViewBag.ShowEdit != null && (bool)ViewBag.ShowEdit)
+    @if (ViewBag.UserCanEdit != null && (bool)ViewBag.UserCanEdit)
     {
         <a asp-action="Edit" asp-route-id="@Model.Id">Edit Team</a> <span> | </span>
         <a asp-action="Index">Back to List of Teams</a>

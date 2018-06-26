@@ -111,7 +111,7 @@ namespace Payments.Mvc.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            ViewBag.ShowEdit = User.IsInRole(ApplicationRoleCodes.Admin) || await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User)
+            ViewBag.UserCanEdit = User.IsInRole(ApplicationRoleCodes.Admin) || await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User)
                                    .AnyAsync(a => a.TeamId == team.Id && a.UserId == userId && a.Role.Name == TeamRole.Codes.Admin);
 
             return View(team);
