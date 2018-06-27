@@ -31,6 +31,7 @@ cache:
 
 build_script:
 - ps: |
+    yarn install
     dotnet build .\src\Payments.Mvc\ --configuration $Env:configuration
 
 after_build:
