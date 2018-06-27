@@ -57,16 +57,16 @@
                     <td class="invoices-edit-btn-col text-center">
                         @if (invoice.Status == Invoice.StatusCodes.Paid)
                         {
-                            <a href="@Url.Action("Details", new {id = invoice.Id})" class="btn btn-primary">View</a>
+                            <a href="@Url.Action("Details", new {id = invoice.Id})" class="">View</a>
 
                         }
                         else if (!invoice.Sent)
                         {
-                            <a href="@Url.Action("Edit", new {id = invoice.Id})" class="btn btn-primary">Edit</a>
+                            <a href="@Url.Action("Edit", new {id = invoice.Id})" class="">Edit</a>
                         }
                         else
                         {
-                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#editLockedInvoiceModal" data-id="@invoice.Id">Edit</a>
+                            <a href="#" class="" data-toggle="modal" data-target="#editLockedInvoiceModal" data-id="@invoice.Id">Edit</a>
                         }
                     </td>
                 </tr>
@@ -75,7 +75,7 @@
         </table>
     </div>
 </div>
-    
+
 <div class="modal fade" id="editLockedInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

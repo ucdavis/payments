@@ -134,6 +134,9 @@ table.table {
 }
 
 // Invoice table
+.table-hover tbody tr:hover {
+  background-color:rgba(0, 0, 0, 0.000);
+}
 table.invoice-table {
   border-collapse: collapse;
   margin-bottom:0px;
@@ -286,9 +289,9 @@ table#Invoices {
         width:30px;
       }
 
-      &:hover td {
-        font-weight: bold;
-      }
+      // &:hover td {
+      //   font-weight: bold;
+      // }
     }
   }
 }
@@ -320,7 +323,7 @@ table#Invoices {
 
   .modal-header{
     background-color: $bg-color;
-    
+
     .modal-title {
       font-size: 2rem;
       font-weight: 600;
