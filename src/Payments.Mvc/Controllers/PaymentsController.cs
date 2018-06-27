@@ -126,6 +126,12 @@ namespace Payments.Mvc.Controllers
                 TeamName        = invoice.Team.Name,
             };
 
+            if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
+            {
+                // add payment info
+                model.PaidDate = invoice.Payment.OccuredAt;
+            }
+
             // TODO: Change this to ChromePdf when it's available on Local
             HttpContext.JsReportFeature()
                 .Recipe(Recipe.PhantomPdf);
