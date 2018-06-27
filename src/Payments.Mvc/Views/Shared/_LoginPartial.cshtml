@@ -1,16 +1,28 @@
-﻿@inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager
-
-@if (User.Identity.IsAuthenticated)
-{
+﻿@inject UserManager<User> UserManager
+    
+@{
     var user = await UserManager.GetUserAsync(User);
+}    
 
-
+@if (User.Identity.IsAuthenticated && user != null)
+{
+    <div class="btn-group">
         <button type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <img class="profile-picture" src="https://secure.gravatar.com/avatar/@(user.EmailHash)d=mm&rating=gs=40" alt="User Picture"/>
             <img src="/media/caret-dropdown.svg" alt="">
         </button>
-
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="#">
+                <span>Profile</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <form asp-action="logout" asp-controller="account" method="post">
+                <button class="btn-plain dropdown-item">
+                    <span class="">Sign Out</span>
+                </button>
+            </form>
+        </div>
+    </div>
 }
 else
 {

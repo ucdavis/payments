@@ -2,13 +2,21 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Payments.Mvc.Identity;
 
 namespace Payments.Mvc.Controllers
 {
     [AutoValidateAntiforgeryToken]
     [Authorize]
-    public class SuperController : Controller
+    public abstract class SuperController : Controller
     {
+        protected readonly ApplicationUserManager _userManager;
+
+        protected SuperController(ApplicationUserManager userManager)
+        {
+            _userManager = userManager;
+        }
+
         public string CurrentUserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         private const string TempDataMessageKey = "Message";
@@ -25,5 +33,7 @@ namespace Payments.Mvc.Controllers
             get => TempData[TempDataErrorMessageKey] as string;
             set => TempData[TempDataErrorMessageKey] = value;
         }
+
+        public string TeamSlug => ControllerContext.RouteData.Values["team"] as string;
     }
 }

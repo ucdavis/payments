@@ -1,0 +1,129 @@
+﻿@model Payments.Mvc.Models.FinancialModels.FinancialAccountModel
+
+@{
+    ViewData["Title"] = "Confirm Create Account";
+}
+
+<h2>Confirm Create Account for Team @Model.Team.Name</h2>
+
+<h4>FinancialAccount</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form id="confirm-create" asp-action="CreateAccount">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.Chart)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Chart)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Account)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Account)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Object)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Object)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.SubAccount)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.SubAccount)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.SubObject)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.SubObject)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Project)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Project)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.IsDefault)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.IsDefault)
+                </dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Account Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.accountName)</dd>
+                @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubAccountName))
+                {
+                    <dt>Sub Account Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.SubAccountName)</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.ProjectName))
+                {
+                    <dt>Project Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.ProjectName)</dd>
+                }
+                @if (Model.KfsAccount.accountExpirationDate.HasValue)
+                {
+                    <dt>Account Expiration Date</dt><dd>@Html.DisplayFor(model => model.KfsAccount.accountExpirationDate)</dd>
+                }
+                <dt>Object Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.ObjectName)</dd>
+                @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubObjectName))
+                {
+                    <dt>Sub Object Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.SubObjectName)</dd>
+                }
+                <dt>Sub Fund Group Type Code</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
+                <dt>Sub Fund Group Name</dt><dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
+            </dl>
+            <input type="hidden" asp-for="Chart" />
+            <input type="hidden" asp-for="Account" />
+            <input type="hidden" asp-for="Object" />
+            <input type="hidden" asp-for="SubAccount" />
+            <input type="hidden" asp-for="SubObject" />
+            <input type="hidden" asp-for="Project" />
+            <input type="hidden" asp-for="IsDefault" />
+
+
+            <input type="hidden" id="confirm" name="confirm" value="true" />
+            <div class="form-group">
+                <input type="submit" value="Confirm" class="btn btn-default" />
+                <a class="btn btn-secondary" id="edit">Edit</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Details" asp-controller="Teams">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+
+        $('#edit').on('click',
+            function() {
+                $("#confirm").val("false");
+                $("#confirm-create").submit();
+            });
+
+
+    </script>
+
+}
+
+

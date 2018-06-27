@@ -22,21 +22,34 @@ ul.main-nav {
 }
 nav {
   margin-top:60px;
-  a {
+
+  .nav-item {
+    padding:8px 0px;
+  }
+
+  .navitem {
+    color:$secondary-font;
+    font-size: 1.8rem;
+    font-family: $sans-bold;
+  }
+  &:hover .navitem {
+    color:$primary-font;
+  }
+  
+  .svgwrapper {
+    margin-right:18px;
+    width:34px;
+  }
+  .btn-plain {
+
+  }
+
+  .subnav {
+    // svg size and margin
+    margin-left: 34px  + 18px;
+  
     .navitem {
-      color:$secondary-font;
-      font-size: 1.8rem;
-      font-family: $sans-bold;
-    }
-    &:hover .navitem {
-      color:$primary-font;
-    }
-    .row {
-      padding:8px 0px;
-    }
-    .svgwrapper {
-      margin-right:18px;
-      width:34px;
+      font-size: 1.6rem;
     }
   }
 }
@@ -97,7 +110,7 @@ a.nav-settings:hover {
   //   fill:$tertiary-font;
   // }
 }
-a.nav-logout:hover {
+button.nav-logout:hover {
   g#logout-primary {
     fill:$primary-color;
   }

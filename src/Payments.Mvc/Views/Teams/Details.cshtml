@@ -1,151 +1,68 @@
 ﻿@using System.Security.Claims
 @using Payments.Mvc.Models.Roles
-@model Payments.Mvc.Models.Teams.TeamDetailsModel
+@model Team
 
 @{
     ViewData["Title"] = "Details";
-    var isAppAdmin = User.IsInRole(ApplicationRoleCodes.Admin);
-    var isTeamAdmin = isAppAdmin || Model.Permissions.Any(a => a.UserId == User.FindFirst(ClaimTypes.NameIdentifier)?.Value && a.Role.Name == TeamRole.Codes.Admin);
 }
 
 <h2>Details</h2>
 
 <div>
-    <h4>Team</h4>
-    <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Team.Name)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Team.Name)
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Slug)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Slug)
         </dd>
     </dl>
-    <h4>Accounts</h4>
-    <hr />
-    <p>
-        <a asp-action="CreateAccount" asp-route-id="@Model.Team.Id">Create New Account</a>
-    </p>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Team.DefaultAccount.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Team.DefaultAccount.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Team.DefaultAccount.Chart)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Team.DefaultAccount.Account)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Team.DefaultAccount.SubAccount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Team.DefaultAccount.IsDefault)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Team.DefaultAccount.IsActive)
-            </th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model.Team.Accounts)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Chart)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Account)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SubAccount)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsDefault)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsActive)
-                </td>
 
-                <td>
-                    <a asp-action="EditAccount" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Edit</a> |
-                    <a asp-action="AccountDetails" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Details</a> |
-                    <a asp-action="DeleteAccount" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Delete</a>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
-    @if (isTeamAdmin)
-    {
-        <h4>Users</h4>
-        <hr/>
 
-        <p>
-            <a asp-action="CreatePermission" asp-route-id="@Model.Team.Id">Add User</a>
-        </p>
+    <div class="row justify-content-between">
+        
+        <div class="col-sm-12 col-md-5">
+            <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@Model.Slug">
+                <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+                    <img src="/media/statistics.svg" alt="statistics icon">
+                    <div>
+                        <h2 class="secondary-font">Account</h2>
+                        <p class="tertiary-font">Edit Financial Accounts for Team</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        
+        <div class="col-sm-12 col-md-5">
+            <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@Model.Slug">
+                <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+                    <img src="/media/support.svg" alt="support icon">
+                    <div>
+                        <h2 class="secondary-font">Users</h2>
+                        <p class="tertiary-font">Edit Users and Roles for Team</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+    </div>
 
-        <table class="table">
-            <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Permissions[0].Role)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Permissions[0].User.CampusKerberos)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Permissions[0].User.Email)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Permissions[0].User.Name)
-                </th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model.Permissions)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Role.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.User.CampusKerberos)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.User.UserName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.User.Name)
-                    </td>
-                    <td>
-                        <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-teamId="@Model.Team.Id">Delete</a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    }
+
 </div>
 <div>
-    @if (isAppAdmin)
+    @if (ViewBag.UserCanEdit != null && (bool)ViewBag.UserCanEdit)
     {
-        <a asp-action="Edit" asp-route-id="@Model.Team.Id">Edit Team</a> <span> | </span>
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit Team</a> <span> | </span>
+        <a asp-action="Index">Back to List of Teams</a>
     }
-    <a asp-action="Index">Back to List of Teams</a>
+
 </div>
 
 @section AdditionalStyles
@@ -159,7 +76,16 @@
 
     <script type="text/javascript">
         $(function() {
-            $(".table").DataTable();
+            $(".table").DataTable({
+                columnDefs: [
+                    {
+                        targets: [-1], orderable: false
+                    },
+                    {
+                        targets: [-1], searchable: false
+                    }
+                ]
+            });
         });
     </script>
 }

@@ -70,18 +70,66 @@ namespace Payments.Core.Helpers
         {
             var team1 = new Team
             {
-                Name = "CRU Sample Team",
+                Name = "Banana Stand",
+                Slug = "banana-stand",
             };
 
+            //This is an example of an account that has a SubObject, but it isn't an "Income Account"
             team1.Accounts.Add(new FinancialAccount
             {
                 Chart = "3",
-                Account = "OTHER",
+                Account = "BMTEC02",
+                Object = "72U8",
+                SubObject = "CEX",
+                Name = "Other Acct",
+                IsDefault = false
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "CRURATE",
+                Object = "0060",
+                Name = "Valid Caes Account",
+                IsDefault = true
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "CENRECG",
+                Object = "0060",
+                Name = "Valid Caes Account2",
+                IsDefault = false
+            });
+            team1.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "EXEHHMI",
+                SubAccount = "WCNSI",
+                Object = "0060",
+                Project = "ADOBRM",
+                Name = "Valid Caes Account3",
+                IsDefault = false
+            });
+
+            _context.Teams.Add(team1);
+
+            var team2 = new Team
+            {
+                Name = "Lemonade Stand",
+                Slug = "lemonade-stand",
+            };
+
+            team2.Accounts.Add(new FinancialAccount
+            {
+                Chart = "3",
+                Account = "BMTEC02",
+                Object = "72U8",
+                SubObject = "CEX",
                 Name = "Other Acct",
                 IsDefault = true
             });
 
-            _context.Teams.Add(team1);
+            _context.Teams.Add(team2);
 
             await _context.SaveChangesAsync();
         }
@@ -98,7 +146,8 @@ namespace Payments.Core.Helpers
 
         private async Task CreateUsers()
         {
-            var team = await _context.Teams.FirstAsync(t => t.Name == "CRU Sample Team");
+            var team1 = await _context.Teams.FirstAsync(t => t.Name == "Banana Stand");
+            var team2 = await _context.Teams.FirstAsync(t => t.Name == "Lemonade Stand");
             var adminRole = await _context.TeamRoles.FirstAsync(r => r.Name == TeamRole.Codes.Admin);
             var editorRole = await _context.TeamRoles.FirstAsync(r => r.Name == TeamRole.Codes.Editor);
 
@@ -110,7 +159,7 @@ namespace Payments.Core.Helpers
                 FirstName = "Jason",
                 LastName = "Sylvestre",
                 Name = "Jason Sylvestre",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team1, Role = adminRole }}
             };
             await MakeUser(jason);
 
@@ -122,7 +171,11 @@ namespace Payments.Core.Helpers
                 LastName = "Knoll",
                 Name = "John Knoll",
                 CampusKerberos = "jpknoll",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
+                TeamPermissions = new List<TeamPermission>()
+                {
+                    new TeamPermission() { Team = team1, Role = adminRole },
+                    new TeamPermission() { Team = team2, Role = adminRole },
+                }
             };
             await MakeUser(john);
 
@@ -134,7 +187,7 @@ namespace Payments.Core.Helpers
                 LastName = "Kirkland",
                 Name = "Scott Kirkland",
                 CampusKerberos = "postit",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = adminRole }}
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team1, Role = adminRole }}
             };
             await MakeUser(scott);
 
@@ -146,7 +199,7 @@ namespace Payments.Core.Helpers
                 LastName = "Doval",
                 Name = "Calvin Y Doval",
                 CampusKerberos = "cydoval",
-                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team, Role = editorRole } }
+                TeamPermissions = new List<TeamPermission>() {new TeamPermission() { Team = team1, Role = editorRole } }
             };
             await MakeUser(cal);
 
@@ -156,11 +209,12 @@ namespace Payments.Core.Helpers
         private async Task CreateSampleInvoices()
         {
             var creator = await _context.Users.FirstAsync(u => u.Email == "jpknoll@ucdavis.edu");
-            var team = await _context.Teams.Include(t => t.Accounts).FirstAsync(t => t.Name == "CRU Sample Team");
+            var team = await _context.Teams.Include(t => t.Accounts).FirstAsync(t => t.Name == "Banana Stand");
             var account = team.DefaultAccount;
 
             var invoice1 = new Invoice()
             {
+                LinkId        = "TESTKEY001",
                 Account       = account,
                 Creator       = creator,
                 Team          = team,
@@ -168,6 +222,8 @@ namespace Payments.Core.Helpers
                 Discount      = 2,
                 TaxPercent    = new decimal(0.05),
                 Status        = Invoice.StatusCodes.Sent,
+                Sent          = true,
+                SentAt        = DateTime.UtcNow.AddDays(-1),
                 Memo          = "Sample Memo Goes Here",
                 Items = new List<LineItem>()
                 {
@@ -193,12 +249,13 @@ namespace Payments.Core.Helpers
 
             var invoice2 = new Invoice()
             {
+                LinkId        = "TESTKEY002",
                 Account       = account,
                 Creator       = creator,
                 Team          = team,
                 CustomerEmail = "jpknoll@ucdavis.edu",
                 Discount      = 2,
-                TaxPercent    = new decimal(0.0875),
+                TaxPercent    = new decimal(0.08275),
                 Status        = Invoice.StatusCodes.Paid,
                 Memo          = "Sample Memo Goes Here",
                 Items = new List<LineItem>()

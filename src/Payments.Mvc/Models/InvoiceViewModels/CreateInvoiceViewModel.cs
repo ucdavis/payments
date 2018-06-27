@@ -6,6 +6,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 {
     public class CreateInvoiceViewModel
     {
+        public int AccountId { get; set; }
+
         public IList<CreateInvoiceCustomerViewModel> Customers { get; set; }
 
         [Range(0, int.MaxValue)]

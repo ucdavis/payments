@@ -1,4 +1,4 @@
-﻿@model Invoice
+﻿@model Payments.Mvc.Models.InvoiceViewModels.EditInvoiceViewModel
 
 @{
     ViewBag.Title = "Edit Invoice";
@@ -15,7 +15,15 @@
 
 @section scripts {
     <script>
+        window.id = @(Json.Serialize(ViewBag.Id));
+
         window.model = @(Json.Serialize(Model));
+
+        window.sent = @(Json.Serialize(ViewBag.Sent));
+
+        window.team = @(Json.Serialize(ViewBag.Team));
+
+        window.accounts = @(Json.Serialize(ViewBag.Accounts));
 
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();

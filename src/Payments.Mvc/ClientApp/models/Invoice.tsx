@@ -1,12 +1,11 @@
+import { InvoiceCustomer } from './InvoiceCustomer';
 import { InvoiceItem } from './InvoiceItem';
 
 export interface Invoice {
-    id: number;
-    customerName: string;
-    customerEmail: string;
-    customerAddress: string;
+    accountId: number;
+    customer: InvoiceCustomer;
     memo: string;
     discount: number;
-    taxPercent: number;
+    tax: number;
     items: InvoiceItem[];
 }

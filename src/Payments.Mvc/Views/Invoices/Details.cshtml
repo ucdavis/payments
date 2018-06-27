@@ -1,0 +1,263 @@
+﻿@model Invoice
+
+@{
+    ViewBag.Title = $"Invoice #{Model.Id}";
+    Layout = "_Layout";
+}
+
+<div class="card-style">
+
+    <div class="card-header-yellow card-bot-border">
+        <div class="card-head">
+            <h2>@ViewBag.Title</h2>
+
+        </div>
+    </div>
+    <div class="card-content invoice-customer">
+        <h2>Customer Info</h2>
+        <div class="form-group">
+            @Html.LabelFor(x => x.CustomerName)
+            @Html.DisplayFor(x => x.CustomerName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.CustomerEmail)
+            @Html.DisplayFor(x => x.CustomerEmail, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.CustomerAddress)
+            @Html.DisplayFor(x => x.CustomerAddress, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+        </div>
+    </div>
+    <div class="card-content invoice-items">
+        <h2>Invoice Items</h2>
+        <table class="table invoice-table">
+            <thead>
+            <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th />
+            </tr>
+            </thead>
+            <tbody>
+            @for (var i = 0; i < Model.Items.Count; i++)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                    <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
+                    <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
+                    <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
+                </tr>
+            }
+            </tbody>
+            <tbody>
+            <tr>
+                <td></td>
+                <td>Subtotal</td>
+                <td></td>
+                <td>@Html.DisplayFor(x => x.Subtotal)</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Discount</td>
+                <td></td>
+                <td>@Html.DisplayFor(x => x.Discount)</td>
+                <td />
+            </tr>
+            <tr>
+                <td />
+                <td>Tax</td>
+                <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                <td />
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td />
+                <td>Total</td>
+                <td />
+                <td>@Html.DisplayFor(x => x.Total)</td>
+                <td />
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="card-content invoice-memo">
+        <h2>Memo</h2>
+        <div class="form-group">
+            @Html.DisplayFor(x => x.Memo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+        </div>
+    </div>
+    <div class="card-foot invoice-action">
+        <div class="row flex-between flex-center">
+            <div class="col">
+                <a class="btn-plain" href="@Url.Action("Index")">Back</a>
+            </div>
+            <div class="col d-flex justify-content-end align-items-center">
+                <a href="#" id="sendInvoiceButton" class="btn btn-primary" data-toggle="modal" data-target="#sendInvoiceModal">
+                    @(!Model.Sent ? "Send" : "Resend")
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade y-flip-rotate" id="sendInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
+    <div id="sendInvoiceFormResend" class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLockedInvoiceModalLabel">Send Invoice?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" role="alert">
+                    Warning! You've already sent this invoice!
+                </div>
+                <p>
+                    Send again?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="reSendInvoiceFormSubmit" class="btn btn-primary">Resend Invoice</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sendInvoiceFormConfirm" class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLockedInvoiceModalLabel">Send Invoice?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" role="alert">
+                    Warning! You are about to send an invoice!
+                </div>
+                <p>
+                    Sending your invoice will lock it and you will be unable to edit it!
+                </p>
+                <p>
+                    If you decide you later wish to edit this invoice, your customer will be unable to see it until you send it again.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="sendInvoiceFormSubmit" class="btn btn-primary">Send Invoice</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sendInvoiceFormProgress" class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>
+                    Sending Invoice...
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="sendInvoiceFormResult" class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLockedInvoiceModalLabel">Send Invoice?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" role="alert">
+                    Success
+                </div>
+                <p>
+                    Your invoice has been sent!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+@section scripts
+{
+    <script>
+        var form = $("#__AjaxAntiForgeryForm");
+        window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
+    </script>
+
+    <script type="text/javascript">
+        var invoiceSent = @Json.Serialize(Model.Sent);
+        var sendUrl = '@Url.Action("Send", "Invoices", new { id = Model.Id })';
+
+        $('#sendInvoiceModal').on('show.bs.modal',
+            function () {
+                // reset modal state
+                $('#sendInvoiceModal .modal-dialog').hide();
+
+                if (invoiceSent) {
+                    $('#sendInvoiceFormResend').show();
+                } else {
+                    $('#sendInvoiceFormConfirm').show();
+                }
+            });
+
+        $('#sendInvoiceFormSubmit, #reSendInvoiceFormSubmit').click(function () {
+
+            // start transition
+            $('#sendInvoiceModal').addClass('flip');
+
+            // show loading modal
+            setTimeout(function () {
+                $('#sendInvoiceModal .modal-dialog').hide();
+                $('#sendInvoiceFormProgress').show();
+            }, 500);
+
+            // send email request
+            fetch(sendUrl, {
+                    credentials: "same-origin",
+                    headers: new Headers({
+                        "Content-Type": "application/json",
+                        "RequestVerificationToken": window.antiForgeryToken
+                    }),
+                    method: 'POST',
+                })
+                .then(function (response) {
+                    if (response.ok) {
+                        invoiceSent = true;
+                    }
+
+                    return response.json();
+                })
+                .then(function() {
+                    return new Promise(function(r, x) {
+                        setTimeout(function() { r() }, 1000);
+                    });
+                })
+                .then(function() {
+                    // reverse transition
+                    $('#sendInvoiceModal').removeClass('flip');
+
+                    // show next modal
+                    setTimeout(function () {
+                        $('#sendInvoiceModal .modal-dialog').hide();
+                        $('#sendInvoiceFormResult').show();
+                    }, 500);
+                });
+        });
+    </script>
+}

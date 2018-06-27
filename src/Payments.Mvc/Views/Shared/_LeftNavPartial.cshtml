@@ -1,45 +1,115 @@
-@using Payments.Mvc.Helpers
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Routing
+@using Payments.Mvc.Identity
+@using Payments.Mvc.Models.Roles
+@inject ApplicationUserManager UserManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var teamSlug = HttpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
+    var controller = HttpContextAccessor.HttpContext.GetRouteData().Values["controller"] as string;
+}
+
+@if (User.Identity.IsAuthenticated && user != null)
+{
+    if (string.IsNullOrWhiteSpace(teamSlug))
+    {
+        var defteamSlug = user.GetTeams().Where(a => a.IsActive).FirstOrDefault();
+        if (defteamSlug != null)
+        {
+            teamSlug = defteamSlug.Slug;
+        }
+    }
+    using (Html.BeginForm("SetActiveTeam", "Home", FormMethod.Post, new { id = "TeamSelectForm" }))
+    {
+        var teamSelectList = user.GetTeams().Where(a => a.IsActive)
+            .Select(t => new SelectListItem() {Value = t.Id.ToString(), Text = t.Name, Selected = (t.Slug == teamSlug) });
+
+        @Html.DropDownList("teamId", teamSelectList, "Select Team", new { @class = "team-select-control", onchange= "$('#TeamSelectForm').submit()" })
+    }
+}
+
 <nav>
-  <a class="nav-home" href="@Url.Action("Index", "Home")">
-  <div class="row flex-center">
-    <div class="svgwrapper">
-      @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
-    </div>
-    <span class="navitem">Home</span>
-  </div>
-</a>
-<a class="nav-invoices" href="@Url.Action("Index", "Invoices")">
-<div class="row flex-center">
-  <div class="svgwrapper">
-    @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
-  </div>
-  <span class="navitem">Invoices</span>
-</div>
-</a>
-<a class="nav-support" href="@Url.Action("Index", "Home")">
-<div class="row flex-center">
-  <div class="svgwrapper">
-    @Html.InlineSvg("/wwwroot/media/navicons/support.svg")
-  </div>
-  <span class="navitem">Support</span>
-</div>
-</a>
+    <a class="nav-home" href="@Url.Action("Index", "Home")">
+        <div class="nav-item d-flex flex-center">
+            <div class="svgwrapper">
+                @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
+            </div>
+            <span class="navitem">Home</span>
+        </div>
+    </a>
+    @if (!string.IsNullOrWhiteSpace(teamSlug))
+    {
+        <a class="nav-invoices" asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug">
+            <div class="nav-item d-flex flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
+                </div>
+                <span class="navitem">Invoices</span>
+            </div>
+        </a>
+    }
+    <a class="nav-support" href="@Url.Action("Index", "Home")">
+        <div class="nav-item d-flex flex-center">
+            <div class="svgwrapper">
+                @Html.InlineSvg("/wwwroot/media/navicons/support.svg")
+            </div>
+            <span class="navitem">Support</span>
+        </div>
+    </a>
+    @if (string.IsNullOrWhiteSpace(teamSlug) || teamSlug == "----")
+    {
+        <a class="nav-settings" asp-controller="Teams" asp-action="Index" asp-route-team="@(string.IsNullOrWhiteSpace(teamSlug) ? "----" : teamSlug)">
+            <div class="nav-item d-flex flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+                </div>
+                <span class="navitem">Settings</span>
+            </div>
+        </a>
+    }
+    else
+    {
+        <a class="nav-settings" asp-controller="Teams" asp-action="Details" asp-route-team="@teamSlug">
+            <div class="nav-item d-flex flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
+                </div>
+                <span class="navitem">Settings</span>
+            </div>
+        </a>
+    }
+    @if (string.Equals("settings", controller, StringComparison.OrdinalIgnoreCase)
+    || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase)
+    || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
+    {
+    <a class="" asp-controller="Teams" asp-action="Index" asp-route-team="@teamSlug">
+        <div class="nav-item d-flex flex-center subnav">
+            <span class="navitem">Teams</span>
+        </div>
+    </a>
+    <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@teamSlug">
+        <div class="nav-item d-flex flex-center subnav">
+            <span class="navitem">Roles</span>
+        </div>
+    </a>
+    <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@teamSlug">
+        <div class="nav-item d-flex flex-center subnav">
+            <span class="navitem">Accounts</span>
+        </div>
+    </a>
+    }
 
-<a class="nav-settings" href="@Url.Action("Index", "Home")">
-<div class="row flex-center">
-  <div class="svgwrapper">
-    @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
-  </div>
-  <span class="navitem">Settings</span>
-</div>
-</a>
-<a class="nav-logout" href="@Url.Action("Index", "Home")">
-<div class="row flex-center">
-  <div class="svgwrapper">
-    @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
-  </div>
-  <span class="navitem">Logout</span>
-</div>
-</a>
-
+    @if (User.Identity.IsAuthenticated && user != null)
+    {
+        <form asp-action="logout" asp-controller="account" method="post">
+            <button class="nav-item nav-logout btn-plain d-flex flex-center">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
+                </div>
+                <span class="navitem">Sign Out</span>
+            </button>
+        </form>
+    }
 </nav>

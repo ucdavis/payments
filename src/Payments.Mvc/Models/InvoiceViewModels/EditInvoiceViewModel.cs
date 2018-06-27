@@ -6,6 +6,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 {
     public class EditInvoiceViewModel
     {
+        public int AccountId { get; set; }
+
         public EditInvoiceCustomerViewModel Customer { get; set; }
 
         public string Memo { get; set; }

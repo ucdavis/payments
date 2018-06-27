@@ -4,4 +4,10 @@
     {
         public const string Admin = "Admin";
     }
+
+    public static class PolicyCodes
+    {
+        public const string TeamEditor = "TeamEditor";
+        public const string TeamAdmin = "TeamAdmin";
+    }
 }

@@ -10,51 +10,98 @@
 }
 
 <div class="card-style">
-  <div class="card-header-primary card-bot-border">
-      <div class="card-head">
-        <h2>@ViewBag.Title</h2>
-      </div>
-  </div>
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+            <a href="@Url.Action("Create")" class="btn btn-primary">Create New Invoice</a>
+        </div>
+    </div>
 
-  <div class="card-content">
-    <table id="Invoices" class="table">
-        <thead>
-        <tr>
-            <th>Invoice Number</th>
-            <th></th>
-            <th>Customer</th>
-            <th>Amount</th>
-            <th>Sent At</th>
-            <th>Created</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var invoice in Model)
-        {
+    <div class="card-content">
+        <table id="Invoices" class="table table-hover">
+            <thead>
             <tr>
-                <td>@invoice.Id</td>
-                <td>
-                    <span class="badge">@invoice.Status</span>
-                </td>
-                <td>@invoice.CustomerName</td>
-                <td data-sort="@invoice.Total">
-                    $@invoice.Total.ToString("F2")
-                </td>
-                <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
-                    @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
-                </td>
-                <td data-sort="@invoice.CreatedAt.Ticks">
-                    @invoice.CreatedAt.ToString("d")
-                </td>
-                <td><a href="@Url.Action("Edit", new { id = invoice.Id })">Edit</a></td>
+                <th>Invoice Number</th>
+                <th></th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Sent At</th>
+                <th>Created</th>
+                <th></th>
+                <th></th>
             </tr>
-        }
-        </tbody>
-    </table>
-  </div>
-</div>
+            </thead>
+            <tbody>
+            @foreach (var invoice in Model)
+            {
+                <tr data-id="@invoice.Id">
+                    <td class="invoices-id-col">
+                        @invoice.Id
+                    </td>
+                    <td class="text-center invoices-status-col">
+                        <span class="badge" data-level="@invoice.Status">@invoice.Status</span>
+                    </td>
+                    <td class="invoices-customer-col">
+                        @invoice.CustomerEmail
+                    </td>
+                    <td class="text-right" data-sort="@invoice.Total">
+                        $@invoice.Total.ToString("F2")
+                    </td>
+                    <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
+                        @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
+                    </td>
+                    <td data-sort="@invoice.CreatedAt.Ticks">
+                        @invoice.CreatedAt.ToString("d")
+                    </td>
+                    <td><a href="@Url.Action("Preview", "Payments", new { id = invoice.Id })">Preview</a></td>
+                    <td class="invoices-edit-btn-col text-center">
+                        @if (invoice.Status == Invoice.StatusCodes.Paid)
+                        {
+                            <a href="@Url.Action("Details", new {id = invoice.Id})" class="btn btn-primary">View</a>
 
+                        }
+                        else if (!invoice.Sent)
+                        {
+                            <a href="@Url.Action("Edit", new {id = invoice.Id})" class="btn btn-primary">Edit</a>
+                        }
+                        else
+                        {
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#editLockedInvoiceModal" data-id="@invoice.Id">Edit</a>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+    
+<div class="modal fade" id="editLockedInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="unlockInvoiceForm">
+                    <div class="alert alert-danger" role="alert">
+                        Warning! You are about to edit an invoice that has already been sent!
+                    </div>
+                    <p>
+                        Continuing will prevent your customer from paying this invoice unil you send it again!
+                    </p>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="unlockInvoiceFormSubmit" class="btn btn-primary">Unlock Invoice</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @section scripts
@@ -64,10 +111,34 @@
     <script type="text/javascript">
         $(function() {
             $("#Invoices").DataTable({
-                "columnDefs": [
-                    { "orderable": false, "targets": -1 }
+                order: [[ 0, 'asc' ]],
+                columnDefs: [
+                    { orderable: false, targets: -1 },
                 ],
             });
+        });
+
+        var detailsUrl = "@(Url.Action("Details"))";
+        $("#Invoices tr").on("click",
+            ".invoices-id-col, .invoices-status-col, .invoices-customer-col",
+            function(event) {
+                var $row = $(event.delegateTarget);
+                var id = $row.attr("data-id");
+                window.location = detailsUrl + "/" + id;
+            });
+
+        var unlockUrl = "@Url.Action("Unlock")";
+        $('#editLockedInvoiceModal').on('show.bs.modal',
+            function(event) {
+                var $button = $(event.relatedTarget);
+                var id = $button.data('id');
+
+                var modal = $(this);
+                modal.find('#unlockInvoiceForm').attr("action", unlockUrl + '/' + id);
+            });
+
+        $('#unlockInvoiceFormSubmit').click(function() {
+            $('#unlockInvoiceForm').submit();
         });
     </script>
 }

@@ -36,6 +36,7 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
+                .Include(i => i.Team)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
 
             if (invoice == null)
@@ -63,6 +64,7 @@ namespace Payments.Mvc.Controllers
                 TaxAmount       = invoice.TaxAmount,
                 TaxPercent      = invoice.TaxPercent,
                 Status          = invoice.Status,
+                TeamName        = invoice.Team.Name,
             };
 
             if (invoice.Status == Invoice.StatusCodes.Sent)
@@ -86,6 +88,41 @@ namespace Payments.Mvc.Controllers
                 // add payment info
                 model.PaidDate = invoice.Payment.OccuredAt;
             }
+
+            return View(model);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult> Preview(int id)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Payment)
+                .Include(i => i.Team)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            var model = new InvoicePaymentViewModel()
+            {
+                Id              = invoice.Id.ToString(),
+                CustomerName    = invoice.CustomerName,
+                CustomerEmail   = invoice.CustomerEmail,
+                CustomerAddress = invoice.CustomerAddress,
+                Memo            = invoice.Memo,
+                Items           = invoice.Items,
+                Subtotal        = invoice.Subtotal,
+                Total           = invoice.Total,
+                Discount        = invoice.Discount,
+                TaxAmount       = invoice.TaxAmount,
+                TaxPercent      = invoice.TaxPercent,
+                Status          = invoice.Status,
+                TeamName        = invoice.Team.Name,
+            };
 
             return View(model);
         }
