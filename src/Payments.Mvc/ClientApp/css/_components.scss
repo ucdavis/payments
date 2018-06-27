@@ -67,16 +67,16 @@ p a.action-btn {
   background-color:rgba(255,255,255,.0001);
   border:none;
   &:hover {
-    text-decoration: underline;
-  }
-  .nav-item & {
-    &:hover {
-      text-decoration: none;
-    }
+    text-decoration: none;
   }
 }
 .nav-item.btn-plain:hover {
   text-decoration: none !important;
+}
+.btn-formend {
+  border:1px solid #ced4da;
+  padding:12px;
+  background-color:$bg-color;
 }
 .btn {
   @include main-btn;

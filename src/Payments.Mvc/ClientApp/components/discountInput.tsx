@@ -1,5 +1,5 @@
 import * as React from 'react';
- 
+
 interface IProps {
     value: number;
     onChange: (value: string) => void;
@@ -24,12 +24,12 @@ export default class DiscountInput extends React.Component<IProps, IState> {
 
         if (!this.state.hasDiscount) {
             return (
-                <button className="btn btn-link" onClick={this.addDiscount}>
+                <button className="btn-plain primary-color" onClick={this.addDiscount}>
                     <i className="fa fa-plus" /> Add coupon
                 </button>
             );
         }
-        
+
         return (
             <div className="input-group">
                 <div className="input-group-prepend">
