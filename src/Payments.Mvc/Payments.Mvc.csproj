@@ -18,8 +18,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
-    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.1" />
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,12 +27,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="xunit.assert">
-      <HintPath>..\..\..\..\Users\jsylvest\.nuget\packages\xunit.assert\2.3.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
