@@ -69,6 +69,14 @@ p a.action-btn {
   &:hover {
     text-decoration: underline;
   }
+  .nav-item & {
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+.nav-item.btn-plain:hover {
+  text-decoration: none !important;
 }
 .btn {
   @include main-btn;

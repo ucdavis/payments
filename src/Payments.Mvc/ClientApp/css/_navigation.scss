@@ -31,11 +31,14 @@ nav {
     color:$secondary-font;
     font-size: 1.8rem;
     font-family: $sans-bold;
+    &:hover {
+      color:$primary-font;
+    }
   }
-  &:hover .navitem {
-    color:$primary-font;
-  }
-  
+  // &:hover .navitem {
+  //   color:$primary-font;
+  // }
+
   .svgwrapper {
     margin-right:18px;
     width:34px;
@@ -47,7 +50,7 @@ nav {
   .subnav {
     // svg size and margin
     margin-left: 34px  + 18px;
-  
+
     .navitem {
       font-size: 1.6rem;
     }
