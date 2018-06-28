@@ -79,6 +79,7 @@ namespace Payments.Mvc.Controllers
             var model = new InvoicePaymentViewModel()
             {
                 Id = invoice.Id.ToString(),
+                LinkId = invoice.LinkId,
                 CustomerName = invoice.CustomerName,
                 CustomerEmail = invoice.CustomerEmail,
                 CustomerAddress = invoice.CustomerAddress,

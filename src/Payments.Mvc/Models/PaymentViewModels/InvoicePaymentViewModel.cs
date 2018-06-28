@@ -10,6 +10,7 @@ namespace Payments.Mvc.Models.PaymentViewModels
     public class InvoicePaymentViewModel
     {
         public string Id { get; set; }
+        public string LinkId { get; set; }
 
         public string CustomerName { get; set; }
 
