@@ -57,13 +57,13 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
     public render() {
         const { accounts, team } = this.props;
         const { accountId, items, discount, taxRate, customers, memo, loading } = this.state;
-        
+
         return (
             <div className="card-style">
                 <LoadingModal loading={loading} />
                 <div className="card-header-yellow card-bot-border">
                     <div className="card-head">
-                        <h2>Create Invoice for { team.name }</h2>
+                        <h1>Create Invoice for { team.name }</h1>
                     </div>
                 </div>
                 <div className="card-content invoice-customer">
@@ -199,7 +199,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                 }),
                 method: "POST",
             });
-            
+
             const result = await response.json();
             if (!result.success) {
                 this.setState({
@@ -208,7 +208,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                 return false;
             }
         }
-        
+
         return true;
     }
 

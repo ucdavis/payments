@@ -138,7 +138,7 @@ p a.action-btn {
   padding: 9px 16px;
 
   img {
-    margin-right: 1rem;
+    margin-right: 1.5rem;
   }
 }
 
@@ -211,7 +211,9 @@ ol.breadcrumb {
 .separator {
   margin: 20px 0 10px;
 }
-
+.m-t {
+  margin-top:8px;
+}
 .m-r {
   margin-right:8px;
 }
@@ -262,7 +264,7 @@ ol.breadcrumb {
 }
 
 .bot-border {
-  border-bottom: 1px solid $bg-color;
+  border-bottom: 1px solid $borders;
 }
 //database
 

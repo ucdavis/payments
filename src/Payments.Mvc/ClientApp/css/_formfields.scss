@@ -20,12 +20,23 @@
   }
 }
 label {
-  font-size:1.6rem;
+  font-size: 1.8rem;
+    font-family: "proxima-nova-r", serif;
+    border: none;
+    color: rgba(31, 31, 31, 0.75);
+    font-weight: inherit;
+    padding: 0px;
+    padding-top: 8px;
 }
 .form-control {
   font-size:1.6rem;
+  max-width:750px;
+  min-height:36px;
 }
 
 .custom-select {
   height: 40px;
+}
+.input-group {
+  max-width:750px;
 }

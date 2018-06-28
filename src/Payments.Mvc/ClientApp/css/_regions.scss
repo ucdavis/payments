@@ -2,6 +2,10 @@
 
 .card-dashboard-button {
   padding:$card-padding;
+  h2 {
+    margin-bottom:0px;
+    margin-top:1.3rem;
+  }
 }
 
 
@@ -144,6 +148,7 @@ table.invoice-table {
     padding:12px 0px;
   }
   thead {
+    border-bottom:1px solid $borders;
     th {
       font-size: 1.8rem;
       font-family: $sans-reg;
@@ -157,7 +162,6 @@ table.invoice-table {
       }
     }
   }
-
   tbody {
     &.tbody-invoice-details {
       tr {
@@ -166,20 +170,23 @@ table.invoice-table {
           padding-right:16px;
         }
         td:nth-child(2) {
-          width:12%;
+          width:20%;
           padding-right:16px;
         }
         td:nth-child(3) {
-          width:12%;
+          width:20%;
           input {
             text-align: right;
           }
         }
         td:nth-child(4) {
-          width:12%;
+          width:10%;
         }
         td:nth-child(5) {
           width:30px;
+        }
+        tr:last-child {
+          border-bottom:1px solid $borders;
         }
       }
     }

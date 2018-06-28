@@ -5,8 +5,14 @@
     ViewData["Title"] = "Log in";
     Layout = "_LoginLayout";
 }
-<div class="col">
-<h2>Choose how you would like to log in</h2>
+<div class="card-style">
+  <div class="card-header-primary">
+      <div class="card-head">
+        <h1>Choose how you would like to log in</h1>
+      </div>
+  </div>
+</div>
+
 
         @{
             var loginProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -29,11 +35,12 @@
                                 <button type="submit" class="btn btn-default" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.Name</button>
                             }
                         </p>
+                        go ags
                     </div>
                 </form>
             }
         }
-</div>
+
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")

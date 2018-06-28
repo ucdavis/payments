@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
-import * as ArrayUtils from '../utils/array.js'; 
+import * as ArrayUtils from '../utils/array.js';
 
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -52,8 +52,8 @@ export default class DiscountInput extends React.Component<IProps, IState> {
                             onChange={(e) => { onChange([{ email: e.target.value }]) }}
                             value={customer.email}
                         />
-                        <div className="input-group-append">
-                            <button className="btn" type="button" onClick={this.enableMultiCustomer}>
+                        <div className="input-group m-t">
+                            <button className="btn-plain primary-color" type="button" onClick={this.enableMultiCustomer}>
                                 <i className="fa fa-plus mr-3" />
                                 <i className="fa fa-users mr-2" />
                                 Bill Multiple Customers
@@ -78,8 +78,8 @@ export default class DiscountInput extends React.Component<IProps, IState> {
                     onChange={(e) => { this.updateProperty("multiCustomerInput", e.target.value) }}
                     value={multiCustomerInput}
                 />
-                <div className="row justify-content-end">
-                    <button className="btn" type="button" onClick={this.disableMultiCustomer}>
+                <div className="input-group">
+                    <button className="btn-plain primary-color" type="button" onClick={this.disableMultiCustomer}>
                         <i className="fa fa-user mr-2" />
                         Bill Single Customer
                     </button>

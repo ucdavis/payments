@@ -9,7 +9,7 @@
 
     <div class="card-header-yellow card-bot-border">
         <div class="card-head">
-            <h2>@ViewBag.Title</h2>
+            <h1>@ViewBag.Title</h1>
 
         </div>
     </div>
@@ -40,7 +40,7 @@
                 <th />
             </tr>
             </thead>
-            <tbody>
+            <tbody class="tbody-invoice-details">
             @for (var i = 0; i < Model.Items.Count; i++)
             {
                 <tr>
