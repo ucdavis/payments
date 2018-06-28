@@ -26,12 +26,11 @@ before_build:
     appveyor-retry dotnet restore
 - ps: |
     cd src\Payments.Mvc
-    appveyor-retry yarn install
+    yarn install
     cd ..\..
 
 build_script:
 - ps: |
-    yarn install
     dotnet build .\src\Payments.Mvc\ --configuration $Env:configuration
 
 after_build:
