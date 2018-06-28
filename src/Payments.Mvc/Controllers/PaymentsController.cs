@@ -52,22 +52,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new InvoicePaymentViewModel()
-            {
-                Id              = invoice.Id.ToString(),
-                CustomerName    = invoice.CustomerName,
-                CustomerEmail   = invoice.CustomerEmail,
-                CustomerAddress = invoice.CustomerAddress,
-                Memo            = invoice.Memo,
-                Items           = invoice.Items,
-                Subtotal        = invoice.Subtotal,
-                Total           = invoice.Total,
-                Discount        = invoice.Discount,
-                TaxAmount       = invoice.TaxAmount,
-                TaxPercent      = invoice.TaxPercent,
-                Status          = invoice.Status,
-                TeamName        = invoice.Team.Name,
-            };
+            var model = CreateInvoicePaymentViewModel(invoice);
 
             if (invoice.Status == Invoice.StatusCodes.Sent)
             {
@@ -84,14 +69,36 @@ namespace Payments.Mvc.Controllers
                 ViewBag.CyberSourceUrl = _cyberSourceSettings.BaseUrl;
 
                 model.PaymentDictionary = dictionary;
-            }
-            else if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
+            }            
+
+            return View(model);
+        }
+
+        private static InvoicePaymentViewModel CreateInvoicePaymentViewModel(Invoice invoice)
+        {
+            var model = new InvoicePaymentViewModel()
+            {
+                Id = invoice.Id.ToString(),
+                CustomerName = invoice.CustomerName,
+                CustomerEmail = invoice.CustomerEmail,
+                CustomerAddress = invoice.CustomerAddress,
+                Memo = invoice.Memo,
+                Items = invoice.Items,
+                Subtotal = invoice.Subtotal,
+                Total = invoice.Total,
+                Discount = invoice.Discount,
+                TaxAmount = invoice.TaxAmount,
+                TaxPercent = invoice.TaxPercent,
+                Status = invoice.Status,
+                TeamName = invoice.Team.Name,
+            };
+            if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
             {
                 // add payment info
                 model.PaidDate = invoice.Payment.OccuredAt;
             }
 
-            return View(model);
+            return model;
         }
 
         [HttpGet]
@@ -109,30 +116,9 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new InvoicePaymentViewModel()
-            {
-                Id              = invoice.Id.ToString(),
-                CustomerName    = invoice.CustomerName,
-                CustomerEmail   = invoice.CustomerEmail,
-                CustomerAddress = invoice.CustomerAddress,
-                Memo            = invoice.Memo,
-                Items           = invoice.Items,
-                Subtotal        = invoice.Subtotal,
-                Total           = invoice.Total,
-                Discount        = invoice.Discount,
-                TaxAmount       = invoice.TaxAmount,
-                TaxPercent      = invoice.TaxPercent,
-                Status          = invoice.Status,
-                TeamName        = invoice.Team.Name,
-            };
+            var model = CreateInvoicePaymentViewModel(invoice);
 
-            if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
-            {
-                // add payment info
-                model.PaidDate = invoice.Payment.OccuredAt;
-            }
-
-            // TODO: Change this to ChromePdf when it's available on Local
+            // TODO: Change this to ChromePdf when it's available on Local            
             HttpContext.JsReportFeature()
                 .Recipe(Recipe.PhantomPdf);
 
