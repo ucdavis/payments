@@ -133,6 +133,19 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
+        [Authorize]
+        [HttpPost]
+        public ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
+        {
+            var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
+
+            // fill in totals
+            model.Items.ForEach(i => i.Total = i.Amount * i.Quantity);
+            model.UpdateCalculatedValues();
+
+            return View("preview", model);
+        }
+
         [HttpPost]
         [IgnoreAntiforgeryToken]
         public ActionResult Receipt(ReceiptResponseModel response)
