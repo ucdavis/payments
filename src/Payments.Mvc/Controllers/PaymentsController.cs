@@ -143,22 +143,13 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new InvoicePaymentViewModel()
+            var model = CreateInvoicePaymentViewModel(invoice);
+            model.IsPayPage = false;
+            model.Status = Invoice.StatusCodes.Sent;
+            if (!model.DueDate.HasValue)
             {
-                Id              = invoice.Id.ToString(),
-                CustomerName    = invoice.CustomerName,
-                CustomerEmail   = invoice.CustomerEmail,
-                CustomerAddress = invoice.CustomerAddress,
-                Memo            = invoice.Memo,
-                Items           = invoice.Items,
-                Subtotal        = invoice.Subtotal,
-                Total           = invoice.Total,
-                Discount        = invoice.Discount,
-                TaxAmount       = invoice.TaxAmount,
-                TaxPercent      = invoice.TaxPercent,
-                Status          = invoice.Status,
-                TeamName        = invoice.Team.Name,
-            };
+                model.DueDate = new DateTime?(new DateTime(1969, 2, 24));
+            }
 
             return View(model);
         }
