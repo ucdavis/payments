@@ -43,5 +43,7 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public string TeamContactEmail { get; set; }
 
         public string TeamContactPhone { get; set; }
+
+        public DateTime? DueDate { get; set; }
     }
 }

@@ -3,8 +3,6 @@
 @{
     ViewBag.Title = "Invoice #" + Model.Id;
     Layout = "_PdfReportLayout";
-
-    var duedate = DateTime.UtcNow.AddDays(14); //TODO: Get real value
 }
 
 <div class="card-style pay-card-style">
@@ -23,7 +21,7 @@
             @if (Model.Status == Invoice.StatusCodes.Sent)
             {
                 <h1>@(string.Format("{0:C}", Model.Total))</h1>
-                <p class="secondary-font">Due @(duedate.ToString("D"))</p>
+                <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
             }
             else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
             {

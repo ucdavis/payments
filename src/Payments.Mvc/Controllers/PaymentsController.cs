@@ -92,6 +92,7 @@ namespace Payments.Mvc.Controllers
                 TaxPercent = invoice.TaxPercent,
                 Status = invoice.Status,
                 TeamName = invoice.Team.Name,
+                DueDate = DateTime.UtcNow.AddDays(14), //TODO: Set this value
             };
             if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
             {
