@@ -47,6 +47,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             accountId: defaultAccount ? defaultAccount.id : 0,
             customers: [],
             discount: 0,
+            dueDate: '',
             ids: undefined,
             items: [{
                 amount: 0,
@@ -137,11 +138,10 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             emailLine = customers[0].email;
         }
 
-        const invoice: Invoice = {
-            accountId,
-            customer: { email: emailLine } ,
+        const invoice = {
+            customer: { email: emailLine },
             discount,
-            dueDate,
+            dueDate: dueDate ? new Date(dueDate) : undefined,
             items,
             memo,
             taxPercent,

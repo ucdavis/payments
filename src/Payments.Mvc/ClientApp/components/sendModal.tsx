@@ -7,7 +7,7 @@ import Modal from './modal';
 import PreviewFrame from './previewFrame';
 
 interface IProps {
-    invoice: Invoice;
+    invoice: Partial<Invoice>;
     team: Team;
     isModalOpen: boolean;
 
@@ -30,7 +30,7 @@ export default class SendModal extends React.Component<IProps, IState> {
     }
 
     public render() {
-        const { invoice, isModalOpen, onCancel, onSend, team } = this.props;
+        const { isModalOpen, onCancel } = this.props;
 
         return (
             <Modal dialogClassName="send-invoice-modal modal-lg" isOpen={isModalOpen} onBackdropClick={onCancel} onEscape={onCancel}>
@@ -48,9 +48,7 @@ export default class SendModal extends React.Component<IProps, IState> {
                     </div>
                 </div>
                 { this.renderSendBody() }
-                <div className="modal-body p-0">
-                    <PreviewFrame invoice={invoice} teamName={team.name} />
-                </div>
+                { this.renderPreviewFrame() }
                 <div className="modal-footer">
                     <div className="flex-grow-1 d-flex justify-content-between align-items-center">
                         <span><i className="fa fa-fw fa-info" /> This invoice can't be edited after it's sent.</span>
@@ -61,6 +59,19 @@ export default class SendModal extends React.Component<IProps, IState> {
                     </div>
                 </div>
             </Modal>
+        );
+    }
+
+    private renderPreviewFrame() {
+        const { invoice, team } = this.props;
+
+        return (
+            <div className="modal-body p-0">
+                <PreviewFrame
+                    invoice={invoice}
+                    team={team}
+                />
+            </div>
         );
     }
 
