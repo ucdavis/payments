@@ -119,6 +119,7 @@ namespace Payments.Mvc.Controllers
             }
 
             var model = CreateInvoicePaymentViewModel(invoice);
+            model.IsPayPage = false;
 
             // TODO: Change this to ChromePdf when it's available on Local            
             HttpContext.JsReportFeature()

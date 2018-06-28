@@ -45,5 +45,7 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public string TeamContactPhone { get; set; }
 
         public DateTime? DueDate { get; set; }
+
+        public bool IsPayPage { get; set; } = true;
     }
 }
