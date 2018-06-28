@@ -110,7 +110,7 @@
   <img src="/media/download.svg" alt="download icon">
     <h3></h3>
     @*TODO: Get style to work with the a tag*@ 
-    <a asp-action="Pdf" asp-route-id="@Model.LinkId">
+    <a asp-action="Pdf" asp-route-id="@Model.LinkId" download>
         <button class="btn-inverse">Download PDF</button> 
     </a>
     <!-- <button class="btn-inverse m-l">Invoice</button> -->
