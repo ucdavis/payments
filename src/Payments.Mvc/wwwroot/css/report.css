@@ -1,2 +1,64 @@
-﻿body {
-}
+﻿
+        .card-style {
+         background-color: #ffffff;
+         box-shadow: 0 0 0 1px rgba(49, 49, 93, 0.03), 0 2px 5px 0 rgba(49, 49, 93, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+         border-radius: 4px;
+         overflow: hidden;
+         margin-bottom: 16px;
+     }
+       /* Don't think the gradient stuff will work'*/
+    .card-gradient-header {
+        background: url("/media/gradient-header.svg") center top/cover no-repeat;
+        height: 6px;
+    }
+    .card-gradient-header-bleed {
+        background: linear-gradient(to right, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%)
+    }
+
+    .pay-memo {
+        box-shadow: 0 0 0 1px rgba(49, 49, 93, 0.03), 0 2px 5px 0 rgba(49, 49, 93, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+        padding: 16px;
+        margin-bottom: 40px;
+    }
+    .pay-memo p {
+        margin-bottom: 0;
+        font-style: italic;
+    }
+
+    .pay-card-style {
+        margin: 0 auto;
+        max-width: 761px;
+    }
+
+    .pay-top {
+        text-align: center;
+        padding: 3rem;
+    }
+    .pay-top p {
+        font-size: 2rem;
+        margin-bottom: 0;
+        
+    }
+
+    .pay-action {
+        background-color: rgba(218, 170, 0, 0.04);
+        padding: 3rem;
+        text-align: center;
+        border-top: 1px solid #E8E9ED;
+        border-bottom: 1px solid #E8E9ED;
+    }
+
+    .pay-action p {
+        font-size: 2rem;
+        margin: 18px 0;
+    }
+
+    .pay-description {
+        padding: 3rem;
+    }
+
+
+    .pay-footer {
+        padding: 16px;
+        text-align: center;
+    }
