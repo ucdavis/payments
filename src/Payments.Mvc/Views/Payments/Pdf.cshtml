@@ -4,7 +4,7 @@
     ViewBag.Title = "Invoice #" + Model.Id;
     Layout = "_PdfReportLayout";
 
-    var duedate = DateTime.UtcNow.AddDays(14);
+    var duedate = DateTime.UtcNow.AddDays(14); //TODO: Get real value
 }
 
 <div class="card-style pay-card-style">
@@ -42,51 +42,51 @@
             </div>
             <table class="table pay-table">
                 <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Amount</th>
-                    </tr>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Amount</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.Items)
-                    {
-                        <tr data-id="@item.Id">
-                            <td>@item.Description</td>
-                            <td>@item.Quantity</td>
-                            <td>$@item.Amount.ToString("F2")</td>
-                            <td>$@item.Total.ToString("F2")</td>
-                        </tr>
-                    }
+                @foreach (var item in Model.Items)
+                {
+                    <tr data-id="@item.Id">
+                        <td>@item.Description</td>
+                        <td>@item.Quantity</td>
+                        <td>$@item.Amount.ToString("F2")</td>
+                        <td>$@item.Total.ToString("F2")</td>
+                    </tr>
+                }
 
 
-                    @if (Model.Discount > 0)
-                    {
-                        <tr>
-                            <td></td>
-                            <td>Discount</td>
-                            <td></td>
-                            <td>-$@Model.Discount.ToString("F2")</td>
-                        </tr>
-                    }
-
-                    @if (Model.TaxAmount > 0)
-                    {
-                        <tr>
-                            <td></td>
-                            <td>Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
-                            <td></td>
-                            <td>$@Model.TaxAmount.ToString("F2")</td>
-                        </tr>
-                    }
-
+                @if (Model.Discount > 0)
+                {
                     <tr>
                         <td></td>
-                        <td>Total:</td>
+                        <td>Discount</td>
                         <td></td>
-                        <td>$@Model.Total.ToString("F2")</td>
+                        <td>-$@Model.Discount.ToString("F2")</td>
                     </tr>
+                }
+
+                @if (Model.TaxAmount > 0)
+                {
+                    <tr>
+                        <td></td>
+                        <td>Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
+                        <td></td>
+                        <td>$@Model.TaxAmount.ToString("F2")</td>
+                    </tr>
+                }
+
+                <tr>
+                    <td></td>
+                    <td>Total:</td>
+                    <td></td>
+                    <td>$@Model.Total.ToString("F2")</td>
+                </tr>
                 </tbody>
             </table>
 
@@ -100,4 +100,6 @@
     </div>
 
 </div>
+
+
 
