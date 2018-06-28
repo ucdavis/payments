@@ -107,12 +107,13 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new InvoicePaymentViewModel()
+            var model = new PreviewInvoiceViewModel()
             {
                 Id              = invoice.Id.ToString(),
                 CustomerName    = invoice.CustomerName,
                 CustomerEmail   = invoice.CustomerEmail,
                 CustomerAddress = invoice.CustomerAddress,
+                DueDate         = invoice.DueDate,
                 Memo            = invoice.Memo,
                 Items           = invoice.Items,
                 Subtotal        = invoice.Subtotal,
@@ -123,6 +124,11 @@ namespace Payments.Mvc.Controllers
                 Status          = invoice.Status,
                 TeamName        = invoice.Team.Name,
             };
+
+            if (invoice.Payment != null)
+            {
+                model.PaidDate = invoice.Payment.OccuredAt;
+            }
 
             return View(model);
         }
