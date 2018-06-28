@@ -12,14 +12,23 @@
     @RenderSection("AdditionalStyles", required: false)
 </head>
 <body>
-    <div class="logo m-b t-center">
-        <a href="/">
-            @Html.InlineSvg("/wwwroot/media/logo.svg")            
-        </a>
+<div class="logo m-b t-center">
+    <a href="/">
+        @Html.InlineSvg("/wwwroot/media/logo.svg")            
+    </a>
+</div>
+<div class="container">
+    @RenderBody()
+</div>
+<footer>
+    <div class="footer_bleed">
+        
+        <div class="footer_divider">
+            <div class="t-center">
+                <p style="color: white">Copyright &copy; <span id="copywrite-year"></span> The Regents of the University of California, Davis campus. All rights reserved.</p>
+            </div>
+        </div>
     </div>
-    <div class="container">
-        @RenderBody()
-    </div>
-    @Html.Partial("_Footer")                                                              
+</footer>                                                            
 </body>
 </html>

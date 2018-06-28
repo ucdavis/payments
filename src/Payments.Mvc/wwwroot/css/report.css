@@ -7,10 +7,10 @@
          margin-bottom: 16px;
      }
        /* Don't think the gradient stuff will work'*/
-    .card-gradient-header {
-        background: url("/media/gradient-header.svg") center top/cover no-repeat;
-        height: 6px;
-    }
+.card-gradient-header {
+    background: url("/wwwroot/media/gradient-header.svg") center top/cover no-repeat;
+    height: 6px;
+}
     .card-gradient-header-bleed {
         background: linear-gradient(to right, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%)
     }
@@ -62,3 +62,28 @@
         padding: 16px;
         text-align: center;
     }
+
+footer {
+    margin-top: 10px;
+    
+    bottom: 0;
+    width: 100%;
+    display: block;
+}
+
+.footer_bleed {
+    background: #1e3a5b;
+    background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+    background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+    background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr= '#dbbc5b',endColorstr='#1e3a5b',GradientType=1);
+}
+.footer_divider {
+    background: url("/wwwroot/media/gunrock_banner_final.svg") center top/cover no-repeat;
+    height: 44px;
+    padding-top: 10px;
+}
+
+.t-center {
+    text-align: center;
+}
