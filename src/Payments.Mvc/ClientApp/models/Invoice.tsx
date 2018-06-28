@@ -6,6 +6,7 @@ export interface Invoice {
     customer: InvoiceCustomer;
     memo: string;
     discount: number;
+    dueDate?: Date;
     tax: number;
     items: InvoiceItem[];
 }
