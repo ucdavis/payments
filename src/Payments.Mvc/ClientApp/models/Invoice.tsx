@@ -7,6 +7,6 @@ export interface Invoice {
     memo: string;
     discount: number;
     dueDate?: Date;
-    tax: number;
+    taxPercent: number;
     items: InvoiceItem[];
 }

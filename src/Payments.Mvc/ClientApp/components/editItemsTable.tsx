@@ -7,10 +7,10 @@ import TaxInput from '../components/taxInput';
 interface IProps {
     items: InvoiceItem[];
     discount: number;
-    taxRate: number;
+    taxPercent: number;
     onItemsChange: (value: InvoiceItem[]) => void;
     onDiscountChange: (value: number) => void;
-    onTaxRateChange: (value: number) => void;
+    onTaxPercentChange: (value: number) => void;
 }
 
 interface IState {
@@ -59,7 +59,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     public render() {
-        const { discount, taxRate } = this.props;
+        const { discount, taxPercent } = this.props;
         const { items } = this.state;
 
         const subtotal = this.calculateSubTotal();
@@ -106,9 +106,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     <tr>
                         <td />
                         <td>Tax</td>
-                        <td><TaxInput value={taxRate * 100} onChange={(v) => this.onTaxRateChange(v)} /></td>
+                        <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
                         <td>{
-                                taxRate !== 0 &&
+                                taxPercent !== 0 &&
                                 <span>${ tax.toFixed(2) }</span>
                             }
                         </td>
@@ -250,9 +250,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.props.onDiscountChange(value);
     }
 
-    private onTaxRateChange = (value) => {
+    private onTaxPercentChange = (value) => {
         // pass up the actual rate
-        this.props.onTaxRateChange(value / 100);
+        this.props.onTaxPercentChange(value / 100);
     }
 
     private calculateSubTotal = () => {
@@ -266,9 +266,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     private calculateTaxAmount = () => {
-        const { discount, taxRate } = this.props;
+        const { discount, taxPercent } = this.props;
         const sub = this.calculateSubTotal();
-        return (sub - discount) * taxRate;
+        return (sub - discount) * taxPercent;
     }
 
     private calculateTotal = () => {

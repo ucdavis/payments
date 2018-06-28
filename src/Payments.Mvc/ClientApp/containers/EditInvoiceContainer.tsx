@@ -29,7 +29,7 @@ interface IState {
     customer: InvoiceCustomer;
     discount: number;
     dueDate: string;
-    taxRate: number;
+    taxPercent: number;
     memo: string;
     items: InvoiceItem[];
     loading: boolean;
@@ -62,13 +62,13 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             items,
             loading: false,
             memo: invoice.memo,
-            taxRate: invoice.tax || 0,
+            taxPercent: invoice.taxPercent || 0,
         };
     }
 
     public render() {
         const { id, sent, team, accounts } = this.props;
-        const { accountId, customer, dueDate, items, discount, taxRate, memo, loading } = this.state;
+        const { accountId, customer, dueDate, items, discount, taxPercent, memo, loading } = this.state;
         
 
         return (
@@ -97,10 +97,10 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <EditItemsTable
                         items={items}
                         discount={discount}
-                        taxRate={taxRate}
+                        taxPercent={taxPercent}
                         onItemsChange={(v) => this.updateProperty('items', v)}
                         onDiscountChange={(v) => this.updateProperty('discount', v)}
-                        onTaxRateChange={(v) => this.updateProperty('taxRate', v)}
+                        onTaxPercentChange={(v) => this.updateProperty('taxPercent', v)}
                     />
                 </div>
                 <div className="card-content invoice-memo">
@@ -162,7 +162,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     private saveInvoice = async () => {
         const { id } = this.props;
         const { slug } = this.props.team;
-        const { accountId, customer, discount, dueDate, taxRate, items, memo } = this.state;
+        const { accountId, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
         // create submit object
         const invoice = {
@@ -172,7 +172,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             dueDate,
             items,
             memo,
-            tax: taxRate,
+            taxPercent,
         };
 
         // create save url
