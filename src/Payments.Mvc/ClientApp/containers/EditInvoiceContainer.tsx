@@ -1,5 +1,7 @@
 import "isomorphic-fetch";
 import * as React from 'react';
+import { format } from 'date-fns';
+
 import { Account } from '../models/Account';
 import { Invoice } from '../models/Invoice';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
@@ -7,6 +9,7 @@ import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
+import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
@@ -25,6 +28,7 @@ interface IState {
     accountId: number;
     customer: InvoiceCustomer;
     discount: number;
+    dueDate: string;
     taxRate: number;
     memo: string;
     items: InvoiceItem[];
@@ -53,6 +57,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             accountId: invoice.accountId,
             customer: invoice.customer,
             discount: invoice.discount || 0,
+            dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
             errorMessage: "",
             items,
             loading: false,
@@ -63,7 +68,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
     public render() {
         const { id, sent, team, accounts } = this.props;
-        const { accountId, customer, items, discount, taxRate, memo, loading } = this.state;
+        const { accountId, customer, dueDate, items, discount, taxRate, memo, loading } = this.state;
         
 
         return (
@@ -106,6 +111,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 </div>
                 <div className="card-content invoice-billing">
                     <h2>Billing</h2>
+                    <div className="form-group">
+                        <DueDateControl value={dueDate} onChange={(d) => this.updateProperty('dueDate', d)} />
+                    </div>
                     <div className="form-group">
                         <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
@@ -154,13 +162,14 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     private saveInvoice = async () => {
         const { id } = this.props;
         const { slug } = this.props.team;
-        const { accountId, customer, discount, taxRate, items, memo } = this.state;
+        const { accountId, customer, discount, dueDate, taxRate, items, memo } = this.state;
 
         // create submit object
         const invoice = {
             accountId,
             customer,
             discount,
+            dueDate,
             items,
             memo,
             tax: taxRate,

@@ -38,6 +38,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Discount", "System.Decimal", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
+            expectedFields.Add(new NameAndType("DueDate", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
@@ -74,6 +75,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
+
 
             #endregion Arrange
 
