@@ -1,12 +1,15 @@
-﻿@model Invoice
+﻿@using Microsoft.AspNetCore.Http
+@model Invoice
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewBag.Title = $"Invoice #{Model.Id}";
     Layout = "_Layout";
+
+    var scheme = HttpContextAccessor.HttpContext.Request.Scheme;
 }
 
 <div class="card-style">
-
     <div class="card-header-yellow card-bot-border">
         <div class="card-head">
             <h2>@ViewBag.Title</h2>
@@ -102,6 +105,23 @@
                 </a>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="card-style">
+    <div class="card-header">
+        <h3>Details</h3>
+    </div>
+    <div class="card-content invoice-details">
+        <dl class="row">
+            <dt class="col-2 text-right">Payment page</dt>            
+            <dd class="col-10">
+                @{
+                    var paymentPageHref = Url.RouteUrl("pay-invoice", new {id = Model.LinkId}, scheme);
+                }
+                <a href="@paymentPageHref">@paymentPageHref</a>
+            </dd>
+        </dl>
     </div>
 </div>
 
