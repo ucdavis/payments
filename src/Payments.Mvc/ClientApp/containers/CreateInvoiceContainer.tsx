@@ -1,8 +1,8 @@
-import "isomorphic-fetch";
 import * as React from 'react';
 
+import "isomorphic-fetch";
+
 import { Account } from '../models/Account';
-import { Invoice } from '../models/Invoice';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
@@ -129,7 +129,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
     private renderSendModal() {
         const { team } = this.props;
-        const { accountId, dueDate, customers, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
+        const { dueDate, customers, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
         let emailLine = '';
         if (customers.length > 1) {
