@@ -11,6 +11,12 @@
     var controller = HttpContextAccessor.HttpContext.GetRouteData().Values["controller"] as string;
 }
 
+<div class="logo">
+  <a href="/">
+    @Html.InlineSvg("/wwwroot/media/logo.svg")
+  </a>
+</div>
+
 @if (User.Identity.IsAuthenticated && user != null)
 {
     if (string.IsNullOrWhiteSpace(teamSlug))
@@ -29,7 +35,6 @@
         @Html.DropDownList("teamId", teamSelectList, "Select Team", new { @class = "team-select-control", onchange= "$('#TeamSelectForm').submit()" })
     }
 }
-
 <nav>
     <a class="nav-home" href="@Url.Action("Index", "Home")">
         <div class="nav-item d-flex flex-center">
