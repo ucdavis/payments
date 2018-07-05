@@ -1,6 +1,7 @@
-import "isomorphic-fetch";
 import * as React from 'react';
+
 import { format } from 'date-fns';
+import "isomorphic-fetch";
 
 import { Account } from '../models/Account';
 import { Invoice } from '../models/Invoice';
@@ -13,6 +14,7 @@ import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
+import SendModal from '../components/sendModal';
 
 declare var antiForgeryToken: string;
 
@@ -29,11 +31,12 @@ interface IState {
     customer: InvoiceCustomer;
     discount: number;
     dueDate: string;
-    taxRate: number;
+    taxPercent: number;
     memo: string;
     items: InvoiceItem[];
     loading: boolean;
     errorMessage: string;
+    isSendModalOpen: boolean;
 }
 
 export default class EditInvoiceContainer extends React.Component<IProps, IState> {
@@ -58,17 +61,19 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             customer: invoice.customer,
             discount: invoice.discount || 0,
             dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
-            errorMessage: "",
             items,
-            loading: false,
             memo: invoice.memo,
-            taxRate: invoice.tax || 0,
+            taxPercent: invoice.taxPercent || 0,
+            
+            errorMessage: "",
+            loading: false,
+            isSendModalOpen: false,
         };
     }
 
     public render() {
         const { id, sent, team, accounts } = this.props;
-        const { accountId, customer, dueDate, items, discount, taxRate, memo, loading } = this.state;
+        const { accountId, customer, dueDate, items, discount, taxPercent, memo, loading } = this.state;
         
 
         return (
@@ -97,10 +102,10 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <EditItemsTable
                         items={items}
                         discount={discount}
-                        taxRate={taxRate}
+                        taxPercent={taxPercent}
                         onItemsChange={(v) => this.updateProperty('items', v)}
                         onDiscountChange={(v) => this.updateProperty('discount', v)}
-                        onTaxRateChange={(v) => this.updateProperty('taxRate', v)}
+                        onTaxPercentChange={(v) => this.updateProperty('taxPercent', v)}
                     />
                 </div>
                 <div className="card-content invoice-memo">
@@ -129,11 +134,37 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         <div className="col d-flex justify-content-end align-items-center">
                             <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
                             { !sent &&
-                                <button className="btn" onClick={this.onSend}>Send</button> }
+                                <button className="btn" onClick={this.openSendModal}>Send...</button> }
+                            { !sent && 
+                                this.renderSendModal() }
                         </div>
                     </div>
                 </div>
             </div>
+        );
+    }
+
+    private renderSendModal() {
+        const { team } = this.props;
+        const { dueDate, customer, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
+
+        const invoice = {
+            customer,
+            discount,
+            dueDate: dueDate ? new Date(dueDate) : undefined,
+            items,
+            memo,
+            taxPercent,
+        };
+
+        return (
+            <SendModal
+                isModalOpen={isSendModalOpen}
+                invoice={invoice}
+                team={team}
+                onCancel={() => { this.setState({ isSendModalOpen: false}) }}
+                onSend={this.onSend}
+            />
         );
     }
 
@@ -162,7 +193,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     private saveInvoice = async () => {
         const { id } = this.props;
         const { slug } = this.props.team;
-        const { accountId, customer, discount, dueDate, taxRate, items, memo } = this.state;
+        const { accountId, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
         // create submit object
         const invoice = {
@@ -172,7 +203,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             dueDate,
             items,
             memo,
-            tax: taxRate,
+            taxPercent,
         };
 
         // create save url
@@ -240,6 +271,12 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         // return to all invoices page
         window.location.pathname = `/${slug}/invoices`;
+    }
+
+    private openSendModal = () => {
+        this.setState({
+            isSendModalOpen: true,
+        })
     }
 
     private onSend = async () => {

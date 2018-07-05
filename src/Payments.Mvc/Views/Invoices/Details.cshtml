@@ -1,12 +1,15 @@
-﻿@model Invoice
+﻿@using Microsoft.AspNetCore.Http
+@model Invoice
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewBag.Title = $"Invoice #{Model.Id}";
     Layout = "_Layout";
+
+    var scheme = HttpContextAccessor.HttpContext.Request.Scheme;
 }
 
 <div class="card-style">
-
     <div class="card-header-yellow card-bot-border">
         <div class="card-head">
             <h2>@ViewBag.Title</h2>
@@ -104,6 +107,52 @@
         </div>
     </div>
 </div>
+
+<div class="card-style">
+    <div class="card-header">
+        <h3>Details</h3>
+    </div>
+    <div class="card-content invoice-details">
+        <dl class="row">
+            <dt class="col-2 text-right">Created</dt>
+            <dd class="col-10">
+                @Model.CreatedAt.ToString("g")
+            </dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-2 text-right">Payment page</dt>
+            <dd class="col-10">
+                @{
+                    var paymentPageHref = Url.RouteUrl("pay-invoice", new {id = Model.LinkId}, scheme);
+                }
+                <a href="@paymentPageHref">@paymentPageHref</a>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+@if (Model.Payment != null)
+{
+    <div class="card-style">
+        <div class="card-header">
+            <h3>Payment</h3>
+        </div>
+        <div class="card-content invoice-details">
+            <dl class="row">
+                <dt class="col-2 text-right">Amount</dt>
+                <dd class="col-10">
+                    $@Model.Payment.Auth_Amount
+                </dd>
+            </dl>
+            <dl class="row">
+                <dt class="col-2 text-right">Paid on</dt>
+                <dd class="col-10">
+                    @Model.Payment.OccuredAt.ToString("g")
+                </dd>
+            </dl>
+        </div>
+    </div>
+}
 
 <div class="modal fade y-flip-rotate" id="sendInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
     <div id="sendInvoiceFormResend" class="modal-dialog modal-dialog-centered" role="document">

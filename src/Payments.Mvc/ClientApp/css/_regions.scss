@@ -345,3 +345,9 @@ table#Invoices {
     border-top: 1px solid $borders;
   }
 }
+
+.send-invoice-modal {
+  .modal-body + .modal-body {
+    border-top: 1px solid $borders;
+  }
+}

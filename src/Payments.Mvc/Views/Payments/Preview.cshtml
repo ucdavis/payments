@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.PaymentViewModels.InvoicePaymentViewModel
+﻿@model Payments.Mvc.Models.PaymentViewModels.PreviewInvoiceViewModel
 
 @{
     ViewBag.Title = $"Preview Invoice {Model.Id}";
@@ -25,22 +25,15 @@
             <p class="tertiary-font">Invoice @Model.Id</p>
         </div>
         <div class="pay-action">
-            @if (Model.Status == Invoice.StatusCodes.Sent)
+            <h1>@(string.Format("{0:C}", Model.Total))</h1>
+            @if (Model.DueDate.HasValue)
             {
-                <h1>@(string.Format("{0:C}", Model.Total))</h1>
-                if (Model.DueDate.HasValue)
-                {
-                    <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
-                }
-                <button type="submit" class="btn-gold btn-md" aria-hidden="true">
-                    <i class="fa fa-credit-card" aria-hidden="true"></i>
-                    Pay Now
-                </button>
+                <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
             }
-            else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
-            {
-                <h2>$@Model.Total.ToString("F2") USD paid @Model.PaidDate.ToString("D")</h2>
-            }
+            <button type="submit" class="btn-gold btn-md" aria-hidden="true">
+                <i class="fa fa-credit-card" aria-hidden="true"></i>
+                Pay Now
+            </button>
         </div>
 
         <div class="pay-description">
@@ -107,11 +100,10 @@
             <img src="/media/download.svg" alt="download icon">
             <h3></h3>
             <button class="btn-inverse">Download PDF</button>
-            <!-- <button class="btn-inverse m-l">Invoice</button> -->
         </div>
         <div class="pay-footer">
             <p>
-                If you have any questions, contact us at <a href="/">jpknoll@ucdavis.edu</a> or call at <a href="">530-754-0000</a>
+                If you have any questions, contact us at <a href="#">jpknoll@ucdavis.edu</a> or call at <a href="#">530-754-0000</a>
             </p>
         </div>
     </div>
