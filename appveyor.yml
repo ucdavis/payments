@@ -2,7 +2,7 @@ version: 1.0.0.{build}
 
 environment:
   configuration: Release
-  node_version: "7"
+  node_version: "8"
 
 branches:
   except:
@@ -10,11 +10,10 @@ branches:
 
 image: Visual Studio 2017
 
-install:
+init:
 - ps: |
     Install-Product node $env:node_version
     appveyor-retry choco install octopustools
-    appveyor-retry dotnet restore
 
 cache:
 - C:\ProgramData\chocolatey\bin -> appveyor.yml
@@ -22,12 +21,13 @@ cache:
 - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
 - '%LOCALAPPDATA%\yarn -> **\package.json'
 
-# before_build:
-# - ps: |
-#     $path = (Get-Item .\src\Payments.Mvc\Payments.Mvc.csproj).FullName
-#     $csproj = [xml](Get-Content $path)
-#     $csproj.Project.PropertyGroup.Version = $Env:APPVEYOR_BUILD_VERSION
-#     $csproj.Save($path)
+before_build:
+- ps: |
+    appveyor-retry dotnet restore
+- ps: |
+    cd src\Payments.Mvc
+    yarn install
+    cd ..\..
 
 build_script:
 - ps: |

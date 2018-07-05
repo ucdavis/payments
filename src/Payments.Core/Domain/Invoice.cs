@@ -43,6 +43,8 @@ namespace Payments.Core.Domain
         [DisplayName("Tax Percentage")]
         public decimal TaxPercent { get; set; }
 
+        public DateTime? DueDate { get; set; }
+
         public string Status { get; set; }
 
         public FinancialAccount Account { get; set; }

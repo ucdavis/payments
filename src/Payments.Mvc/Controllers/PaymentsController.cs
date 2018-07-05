@@ -143,15 +143,44 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = CreateInvoicePaymentViewModel(invoice);
-            model.IsPayPage = false;
-            model.Status = Invoice.StatusCodes.Sent;
-            if (!model.DueDate.HasValue)
+            var model = new InvoicePaymentViewModel()
             {
-                model.DueDate = new DateTime?(new DateTime(1969, 2, 24));
+                Id              = invoice.Id.ToString(),
+                LinkId          = invoice.LinkId,
+                CustomerName    = invoice.CustomerName,
+                CustomerEmail   = invoice.CustomerEmail,
+                CustomerAddress = invoice.CustomerAddress,
+                Memo            = invoice.Memo,
+                Items           = invoice.Items,
+                Subtotal        = invoice.Subtotal,
+                Total           = invoice.Total,
+                Discount        = invoice.Discount,
+                TaxAmount       = invoice.TaxAmount,
+                TaxPercent      = invoice.TaxPercent,
+                Status          = invoice.Status,
+                TeamName        = invoice.Team.Name,
+                DueDate         = invoice.DueDate
+            };
+
+            if (invoice.Payment != null)
+            {
+                model.PaidDate = invoice.Payment.OccuredAt;
             }
 
             return View(model);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
+        {
+            var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
+
+            // fill in totals
+            model.Items.ForEach(i => i.Total = i.Amount * i.Quantity);
+            model.UpdateCalculatedValues();
+
+            return View("preview", model);
         }
 
         [HttpPost]

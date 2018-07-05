@@ -16,9 +16,11 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public decimal Discount { get; set; }
 
         [Range(0, int.MaxValue)]
-        public decimal Tax { get; set; }
+        public decimal TaxPercent { get; set; }
 
         public IList<EditInvoiceItemViewModel> Items { get; set; }
+
+        public DateTime? DueDate { get; set; }
     }
 
     public class EditInvoiceCustomerViewModel
@@ -36,6 +38,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
     public class EditInvoiceItemViewModel
     {
+        public int Id { get; set; }
+
         [MaxLength(100)]
         public string Description { get; set; }
 

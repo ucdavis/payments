@@ -5,6 +5,10 @@ import Portal from './Portal';
 interface IProps {
     dialogClassName?: string;
     isOpen: boolean;
+
+    onOpened?: () => void;
+    onClosed?: () => void;
+
     onBackdropClick?: () => void;
     onEscape?: () => void;
 }
@@ -99,7 +103,6 @@ export default class LoadingModal extends React.Component<IProps, IState> {
     }
 
     private handleEscape = (e) => {
-        console.log(e);
         if (this.props.isOpen && e.keyCode === 27 && this.props.onEscape) {
           this.props.onEscape();
         }
@@ -151,9 +154,16 @@ export default class LoadingModal extends React.Component<IProps, IState> {
     }
 
     private onOpen() {
+        if (this.props.onOpened) {
+            this.props.onOpened();
+        }
     }
 
     private onClose() {
+        if (this.props.onClosed) {
+            this.props.onClosed();
+        }
+
         this.destroy();
 
         if (this._isMounted) {

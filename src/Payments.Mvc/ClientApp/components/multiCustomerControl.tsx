@@ -14,7 +14,7 @@ interface IState {
     multiCustomerInput: string;
 }
 
-export default class DiscountInput extends React.Component<IProps, IState> {
+export default class MultiCustomerControl extends React.Component<IProps, IState> {
 
     constructor(props) {
         super(props);

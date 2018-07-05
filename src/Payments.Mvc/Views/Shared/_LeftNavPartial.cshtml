@@ -89,11 +89,14 @@
             <span class="navitem">Teams</span>
         </div>
     </a>
-    <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@teamSlug">
-        <div class="nav-item d-flex flex-center subnav">
-            <span class="navitem">Roles</span>
-        </div>
-    </a>
+        if (User.IsInRole(ApplicationRoleCodes.Admin) || user.IsTeamAdmin(teamSlug))
+        {
+            <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@teamSlug">
+                <div class="nav-item d-flex flex-center subnav">
+                    <span class="navitem">Roles</span>
+                </div>
+            </a>
+        }
     <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@teamSlug">
         <div class="nav-item d-flex flex-center subnav">
             <span class="navitem">Accounts</span>

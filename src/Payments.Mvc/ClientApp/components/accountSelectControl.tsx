@@ -56,7 +56,7 @@ export default class AccountSelectControl extends React.Component<IProps, IState
                 </select>
                 <div className="input-group-append">
                     <button className="btn btn-outline-secondary" type="button" onClick={this.openModal}>
-                        <i className="fa fa-info-circle" />
+                        <i className="fa fa-fw fa-info-circle" />
                     </button>
                 </div>
                 {this.renderModal()}

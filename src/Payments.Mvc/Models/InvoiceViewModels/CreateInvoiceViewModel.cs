@@ -14,11 +14,13 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public decimal Discount { get; set; }
 
         [Range(0, int.MaxValue)]
-        public decimal Tax { get; set; }
+        public decimal TaxPercent { get; set; }
 
         public string Memo { get; set; }
 
         public IList<CreateInvoiceItemViewModel> Items { get; set; }
+
+        public DateTime? DueDate { get; set; }
     }
 
     public class CreateInvoiceCustomerViewModel

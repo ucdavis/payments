@@ -128,21 +128,23 @@ namespace Payments.Mvc.Controllers
             // build model for view
             var model = new EditInvoiceViewModel()
             {
-                AccountId = invoice.Account.Id,
-                Discount = invoice.Discount,
-                Tax = invoice.TaxPercent,
-                Memo = invoice.Memo,
-                Customer = new EditInvoiceCustomerViewModel()
+                AccountId  = invoice.Account.Id,
+                Discount   = invoice.Discount,
+                DueDate    = invoice.DueDate,
+                TaxPercent = invoice.TaxPercent,
+                Memo       = invoice.Memo,
+                Customer   = new EditInvoiceCustomerViewModel()
                 {
-                    Name = invoice.CustomerName,
+                    Name    = invoice.CustomerName,
                     Address = invoice.CustomerAddress,
-                    Email = invoice.CustomerEmail,
+                    Email   = invoice.CustomerEmail,
                 },
                 Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
                 {
-                    Amount = i.Amount,
+                    Id          = i.Id,
+                    Amount      = i.Amount,
                     Description = i.Description,
-                    Quantity = i.Quantity,
+                    Quantity    = i.Quantity,
                 }).ToList()
             };
 
@@ -194,7 +196,8 @@ namespace Payments.Mvc.Controllers
                     Creator         = user,
                     Team            = team,
                     Discount        = model.Discount,
-                    TaxPercent      = model.Tax,
+                    TaxPercent      = model.TaxPercent,
+                    DueDate         = model.DueDate,
                     CustomerAddress = customer.Address,
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
@@ -266,7 +269,7 @@ namespace Payments.Mvc.Controllers
                     modelState = ModelState
                 });
             }
-
+            // TODO: Consider modifying items instead of replacing
             // remove old items
             _dbContext.LineItems.RemoveRange(invoice.Items);
 
@@ -277,7 +280,8 @@ namespace Payments.Mvc.Controllers
             invoice.CustomerName    = model.Customer.Name;
             invoice.Memo            = model.Memo;
             invoice.Discount        = model.Discount;
-            invoice.TaxPercent      = model.Tax;
+            invoice.TaxPercent      = model.TaxPercent;
+            invoice.DueDate         = model.DueDate;
 
             // add line items
             var items = model.Items.Select(i => new LineItem()
