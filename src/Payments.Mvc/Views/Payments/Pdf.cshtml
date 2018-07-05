@@ -1,11 +1,30 @@
-﻿@model Payments.Mvc.Models.PaymentViewModels.InvoicePaymentViewModel
+﻿@model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
 
 @{
     ViewBag.Title = "Invoice #" + Model.Id;
     Layout = "_PdfReportLayout";
 }
 
-@Html.Partial("_Pay")
-
-
-
+<div class="card-style pay-card-style">
+    <div class="card-gradient-header-bleed">
+        <div class="card-gradient-header">
+        </div>
+    </div>
+    <div>
+        @Html.Partial("_TopInfo")
+        <div class="pay-action">
+            @if (Model.Status == Invoice.StatusCodes.Sent)
+            {
+                <h1>@(string.Format("{0:C}", Model.Total))</h1>
+                <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
+            }
+            else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
+            {
+                <h1>Invoice Paid</h1>
+                <h2>@Model.Total.ToString("C") USD paid @Model.PaidDate.ToString("D")</h2>
+            }
+        </div>
+        @Html.Partial("_Summary")
+        @Html.Partial("_Footer")
+    </div>
+</div>

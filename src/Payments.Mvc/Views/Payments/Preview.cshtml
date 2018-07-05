@@ -12,4 +12,26 @@
     </p>
 </div>
 
-@Html.Partial("_Pay")
+<div class="card-style pay-card-style">
+    <div class="card-gradient-header-bleed">
+        <div class="card-gradient-header">
+        </div>
+    </div>
+    <div>
+        @Html.Partial("_TopInfo")
+        <div class="pay-action">
+            <h1>@(string.Format("{0:C}", Model.Total))</h1>
+            @if (Model.DueDate.HasValue)
+            {
+                <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
+            }
+            <button type="submit" class="btn-gold btn-md" aria-hidden="true">
+                <i class="fa fa-credit-card" aria-hidden="true"></i>
+                Pay Now
+            </button>
+        </div>
+        @Html.Partial("_Summary")
+        @Html.Partial("_Download", string.Empty)
+        @Html.Partial("_Footer")
+    </div>
+</div>
