@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using jsreport.AspNetCore;
+using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -50,22 +52,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new InvoicePaymentViewModel()
-            {
-                Id              = invoice.Id.ToString(),
-                CustomerName    = invoice.CustomerName,
-                CustomerEmail   = invoice.CustomerEmail,
-                CustomerAddress = invoice.CustomerAddress,
-                Memo            = invoice.Memo,
-                Items           = invoice.Items,
-                Subtotal        = invoice.Subtotal,
-                Total           = invoice.Total,
-                Discount        = invoice.Discount,
-                TaxAmount       = invoice.TaxAmount,
-                TaxPercent      = invoice.TaxPercent,
-                Status          = invoice.Status,
-                TeamName        = invoice.Team.Name,
-            };
+            var model = CreateInvoicePaymentViewModel(invoice);
 
             if (invoice.Status == Invoice.StatusCodes.Sent)
             {
@@ -82,12 +69,33 @@ namespace Payments.Mvc.Controllers
                 ViewBag.CyberSourceUrl = _cyberSourceSettings.BaseUrl;
 
                 model.PaymentDictionary = dictionary;
-            }
-            else if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
+            }            
+
+            return View(model);
+        }
+
+        
+
+        [HttpGet]
+        [MiddlewareFilter(typeof(JsReportPipeline))]
+        public async Task<ActionResult> Pdf(string id)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Payment)
+                .Include(i => i.Team)
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+
+            if (invoice == null)
             {
-                // add payment info
-                model.PaidDate = invoice.Payment.OccuredAt;
+                return NotFound();
             }
+
+            var model = CreateInvoicePaymentViewModel(invoice);
+
+            // TODO: Change this to ChromePdf when it's available on Local            
+            HttpContext.JsReportFeature()
+                .Recipe(Recipe.PhantomPdf);
 
             return View(model);
         }
@@ -121,14 +129,8 @@ namespace Payments.Mvc.Controllers
                 Discount        = invoice.Discount,
                 TaxAmount       = invoice.TaxAmount,
                 TaxPercent      = invoice.TaxPercent,
-                Status          = invoice.Status,
                 TeamName        = invoice.Team.Name,
             };
-
-            if (invoice.Payment != null)
-            {
-                model.PaidDate = invoice.Payment.OccuredAt;
-            }
 
             return View(model);
         }
@@ -171,7 +173,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound(response.Req_Reference_Number);
             }
 
-            var model = new InvoicePaymentViewModel()
+            var model = new PaymentInvoiceViewModel()
             {
                 CustomerName    = invoice.CustomerName,
                 CustomerEmail   = invoice.CustomerEmail,
@@ -345,6 +347,38 @@ namespace Payments.Mvc.Controllers
         {
             public bool IsValid { get; set; } = false;
             public IList<string> Errors { get; set; } = new List<string>();
+        }
+        private PaymentInvoiceViewModel CreateInvoicePaymentViewModel(Invoice invoice)
+        {
+            // update team contact info
+            var model = new PaymentInvoiceViewModel()
+            {
+                Id               = invoice.Id.ToString(),
+                LinkId           = invoice.LinkId,
+                CustomerName     = invoice.CustomerName,
+                CustomerEmail    = invoice.CustomerEmail,
+                CustomerAddress  = invoice.CustomerAddress,
+                Memo             = invoice.Memo,
+                Items            = invoice.Items,
+                Subtotal         = invoice.Subtotal,
+                Total            = invoice.Total,
+                Discount         = invoice.Discount,
+                TaxAmount        = invoice.TaxAmount,
+                TaxPercent       = invoice.TaxPercent,
+                Status           = invoice.Status,
+                DueDate          = invoice.DueDate,
+                TeamName         = invoice.Team.Name,
+                TeamContactEmail = "help@payments.ucdavis.edu",
+                TeamContactPhone = "1-800-555-1234",
+            };
+
+            // add payment info
+            if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
+            {
+                model.PaidDate = invoice.Payment.OccuredAt;
+            }
+
+            return model;
         }
     }
 }

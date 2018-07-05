@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading.Tasks;
 using Payments.Core.Domain;
 
 namespace Payments.Mvc.Models.PaymentViewModels
 {
-    public class InvoicePaymentViewModel
+    public class BaseInvoiceViewModel
     {
         public string Id { get; set; }
 
@@ -23,8 +21,6 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public decimal TaxPercent { get; set; }
 
-        public string Status { get; set; }
-
         public List<LineItem> Items { get; set; }
 
         public decimal Subtotal { get; set; }
@@ -33,10 +29,6 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public decimal Total { get; set; }
 
-        public Dictionary<string, string> PaymentDictionary { get; set; }
-
-        public DateTime PaidDate { get; set; }
-
         public string TeamName { get; set; }
 
         public string TeamContactEmail { get; set; }
@@ -44,5 +36,12 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public string TeamContactPhone { get; set; }
 
         public DateTime? DueDate { get; set; }
+
+        public void UpdateCalculatedValues()
+        {
+            Subtotal = Items.Sum(i => i.Total);
+            TaxAmount = (Subtotal - Discount) * TaxPercent;
+            Total = Subtotal - Discount + TaxAmount;
+        }
     }
 }

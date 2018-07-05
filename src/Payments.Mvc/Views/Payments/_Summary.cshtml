@@ -1,0 +1,57 @@
+﻿@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
+<div class="pay-description">
+    <p class="onepointeight secondary-font">Memo</p>
+    <div class="pay-memo">
+        @if (!string.IsNullOrWhiteSpace(Model.Memo))
+        {
+            <p>@Model.Memo</p>
+        }
+    </div>
+    <table class="table pay-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr data-id="@item.Id">
+                    <td>@item.Description</td>
+                    <td>@item.Quantity</td>
+                    <td>$@item.Amount.ToString("F2")</td>
+                    <td>$@item.Total.ToString("F2")</td>
+                </tr>
+            }
+
+            @if (Model.Discount > 0)
+            {
+                <tr>
+                    <td></td>
+                    <td>Discount</td>
+                    <td></td>
+                    <td>-$@Model.Discount.ToString("F2")</td>
+                </tr>
+            }
+
+            @if (Model.TaxAmount > 0)
+            {
+                <tr>
+                    <td></td>
+                    <td>Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
+                    <td></td>
+                    <td>$@Model.TaxAmount.ToString("F2")</td>
+                </tr>
+            }
+            <tr>
+                <td></td>
+                <td>Total:</td>
+                <td></td>
+                <td>$@Model.Total.ToString("F2")</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

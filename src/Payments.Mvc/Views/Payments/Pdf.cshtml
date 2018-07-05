@@ -1,8 +1,8 @@
 ﻿@model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
 
 @{
-    ViewBag.Title = $"Pay Invoice {Model.Id}";
-    Layout = "_PaymentsLayout";
+    ViewBag.Title = "Invoice #" + Model.Id;
+    Layout = "_PdfReportLayout";
 }
 
 <div class="card-style pay-card-style">
@@ -16,23 +16,10 @@
             @if (Model.Status == Invoice.StatusCodes.Sent)
             {
                 <h1>@(string.Format("{0:C}", Model.Total))</h1>
-
                 if (Model.DueDate.HasValue)
                 {
                     <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
                 }
-
-                <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
-                    @foreach (var pair in Model.PaymentDictionary)
-                    {
-                        <input type="hidden" name="@pair.Key" value="@pair.Value" />
-                    }
-                    <input type="hidden" name="signature" value="@ViewBag.Signature" />
-                    <button type="submit" class="btn-gold btn-md" aria-hidden="true">
-                        <i class="fa fa-credit-card" aria-hidden="true"></i>
-                        Pay Now
-                    </button>
-                </form>
             }
             else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
             {
@@ -41,7 +28,6 @@
             }
         </div>
         @Html.Partial("_Summary")
-        @Html.Partial("_Download", Url.Action("Pdf", new { id = Model.LinkId }))
         @Html.Partial("_Footer")
     </div>
 </div>

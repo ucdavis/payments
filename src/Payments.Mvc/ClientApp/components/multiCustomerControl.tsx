@@ -136,7 +136,15 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
 
         // remove duplicates, map to customer
         const distinctCustomers = ArrayUtils.distinct(validCustomers, c => c.email);
-        const sortedCustomers = distinctCustomers.sort((c1, c2) => c1.email > c2.email);
+        const sortedCustomers = distinctCustomers.sort((c1, c2) => {
+            if (c1.email > c2.email) {
+                return 1;
+            }
+            if (c1.email < c2.email) {
+                return -1;
+            }
+            return 0;
+        });
 
         onChange(sortedCustomers);
         this.setState({
