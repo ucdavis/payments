@@ -16,7 +16,10 @@
             @if (Model.Status == Invoice.StatusCodes.Sent)
             {
                 <h1>@(string.Format("{0:C}", Model.Total))</h1>
-                <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
+                if (Model.DueDate.HasValue)
+                {
+                    <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
+                }
             }
             else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
             {
