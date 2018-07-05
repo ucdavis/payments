@@ -78,5 +78,10 @@ namespace Payments.Core.Domain
         {
             return TeamPermissions.Select(p => p.Team).Distinct();
         }
+
+        public bool IsTeamAdmin(string slug)
+        {
+            return TeamPermissions.Any(a => a.Team.Slug == slug && a.Role.Name == TeamRole.Codes.Admin);
+        }
     }
 }
