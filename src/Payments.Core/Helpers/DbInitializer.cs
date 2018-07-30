@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Mvc.Models.Roles;

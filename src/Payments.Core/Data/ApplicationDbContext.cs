@@ -25,7 +25,6 @@ namespace Payments.Core.Data
         public virtual DbSet<TeamPermission> TeamPermissions { get; set; }
 
         public virtual DbSet<FinancialAccount> FinancialAccounts { get; set; }
-        public new virtual DbSet<User> Users { get; set; }
 
         public virtual DbSet<LogMessage> Logs { get; set; }
 
