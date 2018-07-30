@@ -28,6 +28,8 @@ namespace Payments.Core.Data
 
         public virtual DbSet<LogMessage> Logs { get; set; }
 
+        public virtual DbSet<MoneyMovementJobRecord> MoneyMovementJobRecords { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
