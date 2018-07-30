@@ -1,13 +1,11 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Jobs;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 using Payments.Jobs.Core;
@@ -21,56 +19,67 @@ namespace Payments.Jobs.MoneyMovement
 
         public static void Main(string[] args)
         {
-            _log = Log.ForContext("jobid", Guid.NewGuid());
+            // setup env
+            Configure();
+
+            // log run
+            var jobRecord = new MoneyMovementJobRecord()
+            {
+                Id     = Guid.NewGuid().ToString(),
+                Name   = MoneyMovementJob.JobName,
+                RanOn  = DateTime.UtcNow,
+                Status = "Running",
+            };
+
+            _log = Log.Logger
+                .ForContext("jobname", jobRecord.Name)
+                .ForContext("jobid", jobRecord.Id);
 
             var assembyName = typeof(Program).Assembly.GetName();
             _log.Information("Running {job} build {build}", assembyName.Name, assembyName.Version);
 
             // setup di
             var provider = ConfigureServices();
+            var dbContext = provider.GetService<ApplicationDbContext>();
 
-            // create services
-            SlothService = provider.GetService<ISlothService>();
-            DbContext = provider.GetService<ApplicationDbContext>();
+            // save log to db
+            dbContext.MoneyMovementJobRecords.Add(jobRecord);
+            dbContext.SaveChanges();
 
-            // call methods
-            FindBankReconcileTransactions().RunSynchronously();
+            try
+            {
+                // create job service
+                var moneyMovementJob = provider.GetService<MoneyMovementJob>();
+
+                // call methods
+                Task.Run(() => moneyMovementJob.FindBankReconcileTransactions(_log)).Wait();
+            }
+            finally
+            {
+                // record status
+                jobRecord.Status = "Finished";
+                dbContext.SaveChanges();
+            }
         }
 
         private static ServiceProvider ConfigureServices()
         {
             IServiceCollection services = new ServiceCollection();
 
+            // options viles
+            services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
+
+            // db service
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
             );
-            services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
 
+            // required services
             services.AddTransient<ISlothService, SlothService>();
+
+            services.AddSingleton<MoneyMovementJob>();
+
             return services.BuildServiceProvider();
-        }
-
-        public static ISlothService SlothService { get; private set; }
-        public static ApplicationDbContext DbContext { get; private set; }
-
-        public static async Task FindBankReconcileTransactions()
-        {
-            // get all invoices that are waiting for reconcile
-            var invoices = DbContext.Invoices
-                .Where(i => i.Status == Invoice.StatusCodes.Paid)
-                .Include(i => i.Payment)
-                .ToList();
-
-            foreach (var invoice in invoices)
-            {
-                var transaction = await SlothService.GetTransactionsByProcessorId(invoice.Payment.Transaction_Id);
-                if (transaction == null) continue;
-
-                // transaction found, bank reconcile was successful
-                invoice.Status = Invoice.StatusCodes.Completed;
-            }
-
-            await DbContext.SaveChangesAsync();
         }
     }
 }
