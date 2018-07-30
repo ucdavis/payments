@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Payments.Jobs.Core.Logging;
 
 namespace Payments.Jobs.Core
@@ -10,7 +9,7 @@ namespace Payments.Jobs.Core
     {
         public static IConfigurationRoot Configuration { get; set; }
 
-        protected JobBase()
+        protected static void Configure()
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -26,7 +25,7 @@ namespace Payments.Jobs.Core
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
 
-            LogHelper.ConfigureLogging(Configuration);
+            LoggingConfiguration.Setup(Configuration);
         }
     }
 }
