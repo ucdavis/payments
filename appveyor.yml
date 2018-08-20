@@ -23,11 +23,7 @@ cache:
 
 before_build:
 - ps: |
-    appveyor-retry dotnet restore
-- ps: |
-    cd src\Payments.Mvc
-    yarn install
-    cd ..\..
+    appveyor-retry dotnet restore .\src\Payments.Mvc\
 
 build_script:
 - ps: |
@@ -39,10 +35,7 @@ after_build:
     octo pack --id Payments.Mvc --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Mvc\ --outFolder .\artifacts\
 
 test_script:
-- cmd: |
-    cd tests\Payments.Tests
-    dotnet test
-    cd ..\..
+- ps: dotnet test .\tests\Payments.Tests\Payments.Tests.csproj
 
 artifacts:
 - path: artifacts\**\*.nupkg

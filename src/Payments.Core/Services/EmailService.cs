@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
 using Serilog;
@@ -21,12 +17,10 @@ namespace Payments.Core.Services
     public class SparkpostEmailService : IEmailService
     {
         private readonly SparkpostSettings _emailSettings;
-        private readonly ApplicationDbContext _dbContext;
 
-        public SparkpostEmailService(IOptions<SparkpostSettings> emailSettings, ApplicationDbContext dbContext)
+        public SparkpostEmailService(IOptions<SparkpostSettings> emailSettings)
         {
             _emailSettings = emailSettings.Value;
-            _dbContext = dbContext;
         }
 
         public async Task SendInvoice(Invoice invoice)

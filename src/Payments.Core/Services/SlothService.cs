@@ -56,6 +56,7 @@ namespace Payments.Core.Services
             {
                 BaseAddress = new Uri(_settings.BaseUrl),
             };
+            client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.ApiKey);
 
             return client;
         }

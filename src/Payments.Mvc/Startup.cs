@@ -10,40 +10,58 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Jobs;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 using Payments.Mvc.Authorization;
 using Payments.Mvc.Handlers;
 using Payments.Mvc.Identity;
+using Payments.Mvc.Logging;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
+using Serilog;
+using StackifyLib;
 
 namespace Payments.Mvc
 {
     public class Startup
     {
-
-        public Startup(IHostingEnvironment environment, IConfiguration configuration)
+        public Startup(IHostingEnvironment env)
         {
-            _environment = environment;
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            builder.AddEnvironmentVariables();
+            Configuration = builder.Build();
+            Environment = env;
         }
 
-        public IConfiguration Configuration { get; }
-        private readonly IHostingEnvironment _environment;
+        public IConfigurationRoot Configuration { get; }
+
+        public IHostingEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // add various options
             services.Configure<Settings>(Configuration.GetSection("Settings"));
             services.Configure<CyberSourceSettings>(Configuration.GetSection("CyberSource"));
+            services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
 
-            // setup entity framework
-            if (!_environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
+            // setup entity framework / database
+            if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
             {
                 services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
@@ -56,17 +74,20 @@ namespace Payments.Mvc
                 );
             }
 
+            // add identity stores/providers
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddUserManager<ApplicationUserManager>()
                 .AddDefaultTokenProviders();
 
+            // add cas auth
             services.AddAuthentication()
                 .AddCAS("UCDavis", options =>
                 {
                     options.CasServerUrlBase = Configuration["Settings:CasBaseUrl"];
                 });
 
+            // add policy auth
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(PolicyCodes.TeamAdmin, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
@@ -82,16 +103,33 @@ namespace Payments.Mvc
                 .AsUtility()
                 .Create());
 
-            // application services
-            services.AddTransient<IDataSigningService, DataSigningService>();
-            services.AddTransient<IEmailService, SparkpostEmailService>();
-            services.AddTransient<IDirectorySearchService, IetWsSearchService>();
-            services.AddTransient<IFinancialService, FinancialService>();
+            // infrastructure services
+            services.AddSingleton<IDataSigningService, DataSigningService>();
+            services.AddSingleton<IEmailService, SparkpostEmailService>();
+            services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
+            services.AddSingleton<IFinancialService, FinancialService>();
+            services.AddSingleton<ISlothService, SlothService>();
+
+            // register jobs
+            services.AddScoped<MoneyMovementJob>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app,
+            IHostingEnvironment env,
+            ILoggerFactory loggerFactory,
+            IApplicationLifetime appLifetime)
         {
+            // setup logging
+            LoggingConfiguration.Setup(Configuration);
+            app.ConfigureStackifyLogging(Configuration);
+            loggerFactory.AddSerilog();
+
+            appLifetime.ApplicationStopped.Register(Log.CloseAndFlush);
+
+            app.UseMiddleware<CorrelationIdMiddleware>();
+            app.UseMiddleware<LoggingIdentityMiddleware>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -122,7 +160,7 @@ namespace Payments.Mvc
                     name: "admin-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|system)" });
+                    constraints: new { controller = "(account|jobs|system)" });
 
                 routes.MapRoute(
                     name: "team-routes",
