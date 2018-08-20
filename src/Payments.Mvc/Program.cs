@@ -1,14 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -21,20 +16,21 @@ namespace Payments.Mvc
         public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
-#if DEBUG            
             using (var scope = host.Services.CreateScope())
             {
                 var settings = scope.ServiceProvider.GetRequiredService<IOptions<Settings>>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                var rolemanager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var dbInitilizer = new DbInitializer(dbContext, userManager, rolemanager);
+#if DEBUG            
                 if (settings.Value.RebuildDb == "Yes")
                 {
-                    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-                    var rolemanager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                    var dbInitilizer = new DbInitializer(context, userManager, rolemanager);
-                    Task.Run(() => dbInitilizer.RecreateAndInitialize()).Wait();
+                    Task.Run(() => dbInitilizer.Recreate()).Wait();
                 }
-            }
 #endif
+                Task.Run(() => dbInitilizer.Initialize()).Wait();
+            }
 
             host.Run();
         }
