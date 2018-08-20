@@ -23,6 +23,11 @@ namespace Payments.Mvc.Controllers
             return View();
         }
 
+        public IActionResult About()
+        {
+            return View();
+        }
+
         public IActionResult Error()
         {
             ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
