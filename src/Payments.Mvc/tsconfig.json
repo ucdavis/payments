@@ -9,5 +9,5 @@
     "sourceMap": true,
     "skipDefaultLibCheck": true
   },
-  "exclude": ["bin", "node_modules"]
+  "exclude": ["bin", "node_modules", "wwwroot"]
 }
