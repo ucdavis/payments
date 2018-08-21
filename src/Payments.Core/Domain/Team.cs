@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -11,6 +12,7 @@ namespace Payments.Core.Domain
         public Team()
         {
             Accounts = new List<FinancialAccount>();
+            Permissions = new List<TeamPermission>();
         }
 
         [Key]
@@ -28,15 +30,33 @@ namespace Payments.Core.Domain
             ErrorMessage = "Slug may only contain lowercase alphanumeric characters or single hyphens, and cannot begin or end with a hyphen")]
         public string Slug { get; set; }
 
+        [Display(Name = "Active")]
         public bool IsActive { get; set; } = true;
 
-        public List<FinancialAccount> Accounts { get; set; }
+        public IList<FinancialAccount> Accounts { get; set; }
+
+        [JsonIgnore]
+        public IList<TeamPermission> Permissions { get; set; }
 
         [NotMapped]
         public FinancialAccount DefaultAccount {
             get {
                 return Accounts.FirstOrDefault(a => a.IsDefault);
             }
+        }
+
+        public TeamPermission AddPermission(User user, TeamRole role)
+        {
+            var permission = new TeamPermission()
+            {
+                Team = this,
+                User = user,
+                Role = role,
+            };
+
+            Permissions.Add(permission);
+
+            return permission;
         }
     }
 }
