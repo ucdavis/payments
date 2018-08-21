@@ -219,3 +219,5 @@ _Pvt_Extensions
 *.db
 
 src/\.vscode/
+
+*.jfm
