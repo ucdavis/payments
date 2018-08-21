@@ -80,4 +80,8 @@
     <Build Include="dbo\Tables\Logs.sql" />
     <Build Include="dbo\Tables\MoneyMovementJobRecords.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Compare\SqlSchemaCompare_localhost.scmp" />
+    <None Include="Compare\SqlSchemaCompare_test.scmp" />
+  </ItemGroup>
 </Project>
