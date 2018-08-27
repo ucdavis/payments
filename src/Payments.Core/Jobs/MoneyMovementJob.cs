@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.Sloth;
+using Payments.Core.Resources;
 using Payments.Core.Services;
 using Serilog;
 
@@ -37,7 +40,51 @@ namespace Payments.Core.Jobs
                 if (transaction == null) continue;
 
                 // transaction found, bank reconcile was successful
-                invoice.Status = Invoice.StatusCodes.Completed;
+                invoice.Status = Invoice.StatusCodes.Processing;
+
+                // calculate fees and taxes
+                var taxAmount = invoice.TaxAmount;
+                var feeAmount = invoice.Total * FeeSchedule.StandardRate;
+                var incomeAmount = invoice.Total - feeAmount - taxAmount;
+
+                // create transfers
+                var debitHolding = new CreateTransfer()
+                {
+                    Amount = invoice.Total,
+                    Direction = Transfer.CreditDebit.Debit,
+                };
+
+                var feeCredit = new CreateTransfer()
+                {
+                    Amount = feeAmount,
+                    Direction = Transfer.CreditDebit.Credit,
+                };
+
+                var taxCredit = new CreateTransfer()
+                {
+                    Amount = taxAmount,
+                    Direction = Transfer.CreditDebit.Credit,
+                };
+
+                var incomeCredit = new CreateTransfer()
+                {
+                    Amount = incomeAmount,
+                    Direction = Transfer.CreditDebit.Credit,
+                };
+
+                var response = await _slothService.CreateTransaction(new CreateTransaction()
+                {
+                    AutoApprove            = false,
+                    MerchantTrackingNumber = transaction.MerchantTrackingNumber,
+                    TransactionDate        = DateTime.UtcNow,
+                    Transfers = new List<CreateTransfer>()
+                    {
+                        debitHolding,
+                        feeCredit,
+                        taxCredit,
+                        incomeCredit,
+                    },
+                });
             }
 
             await _dbContext.SaveChangesAsync();
