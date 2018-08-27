@@ -57,6 +57,7 @@ namespace Payments.Mvc
             // add various options
             services.Configure<Settings>(Configuration.GetSection("Settings"));
             services.Configure<CyberSourceSettings>(Configuration.GetSection("CyberSource"));
+            services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
 

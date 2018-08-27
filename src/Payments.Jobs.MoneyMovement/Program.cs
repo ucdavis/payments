@@ -67,6 +67,7 @@ namespace Payments.Jobs.MoneyMovement
             IServiceCollection services = new ServiceCollection();
 
             // options viles
+            services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
 
             // db service

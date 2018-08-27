@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Sloth;
 using Payments.Core.Resources;
 using Payments.Core.Services;
@@ -19,11 +21,14 @@ namespace Payments.Core.Jobs
         private readonly ApplicationDbContext _dbContext;
 
         private readonly ISlothService _slothService;
+        private readonly FinanceSettings _financeSettings;
 
-        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService)
+        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService, IOptions<FinanceSettings> financeSettings)
         {
             _dbContext = dbContext;
             _slothService = slothService;
+
+            _financeSettings = financeSettings.Value;
         }
 
         public async Task FindBankReconcileTransactions(ILogger log)
@@ -32,6 +37,8 @@ namespace Payments.Core.Jobs
             var invoices = _dbContext.Invoices
                 .Where(i => i.Status == Invoice.StatusCodes.Paid)
                 .Include(i => i.Payment)
+                .Include(i => i.Team)
+                    .ThenInclude(t => t.DefaultAccount)
                 .ToList();
 
             foreach (var invoice in invoices)
@@ -39,37 +46,47 @@ namespace Payments.Core.Jobs
                 var transaction = await _slothService.GetTransactionsByProcessorId(invoice.Payment.Transaction_Id);
                 if (transaction == null) continue;
 
+                // get team account info
+                var team = invoice.Team;
+                if (team.DefaultAccount == null)
+                {
+                    log.Warning("Team {team} has no default account for payments", team.Name);
+                    continue;
+                }
+
                 // transaction found, bank reconcile was successful
                 invoice.Status = Invoice.StatusCodes.Processing;
 
-                // calculate fees and taxes
-                var taxAmount = invoice.TaxAmount;
+                // calculate fees
                 var feeAmount = invoice.Total * FeeSchedule.StandardRate;
-                var incomeAmount = invoice.Total - feeAmount - taxAmount;
+                var incomeAmount = invoice.Total - feeAmount;
 
                 // create transfers
                 var debitHolding = new CreateTransfer()
                 {
-                    Amount = invoice.Total,
+                    Amount    = invoice.Total,
                     Direction = Transfer.CreditDebit.Debit,
+                    Chart     = _financeSettings.ClearingChart,
+                    Account   = _financeSettings.ClearingAccount,
                 };
 
                 var feeCredit = new CreateTransfer()
                 {
-                    Amount = feeAmount,
+                    Amount    = feeAmount,
                     Direction = Transfer.CreditDebit.Credit,
-                };
-
-                var taxCredit = new CreateTransfer()
-                {
-                    Amount = taxAmount,
-                    Direction = Transfer.CreditDebit.Credit,
+                    Chart     = _financeSettings.FeeChart,
+                    Account   = _financeSettings.FeeAccount,
                 };
 
                 var incomeCredit = new CreateTransfer()
                 {
-                    Amount = incomeAmount,
-                    Direction = Transfer.CreditDebit.Credit,
+                    Amount        = incomeAmount,
+                    Direction     = Transfer.CreditDebit.Credit,
+                    Chart         = team.DefaultAccount.Chart,
+                    Account       = team.DefaultAccount.Account,
+                    SubAccount    = team.DefaultAccount.SubAccount,
+                    ObjectCode    = team.DefaultAccount.Object,
+                    SubObjectCode = team.DefaultAccount.SubObject,
                 };
 
                 var response = await _slothService.CreateTransaction(new CreateTransaction()
@@ -81,7 +98,6 @@ namespace Payments.Core.Jobs
                     {
                         debitHolding,
                         feeCredit,
-                        taxCredit,
                         incomeCredit,
                     },
                 });
