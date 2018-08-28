@@ -4,7 +4,6 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
 using Payments.Mvc.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -77,6 +76,12 @@ namespace Payments.Mvc.Controllers
                 Name = model.Name,
                 Slug = model.Slug,
             };
+
+            // add user to team
+            var user = await _userManager.GetUserAsync(User);
+            var role = await _context.TeamRoles.FirstOrDefaultAsync(r => r.Name == TeamRole.Codes.Admin);
+            team.AddPermission(user, role);
+
             _context.Add(team);
             await _context.SaveChangesAsync();
 
@@ -145,10 +150,6 @@ namespace Payments.Mvc.Controllers
 
             return View(model);
         }
-
-
-
-
 
         /// <summary>
         /// GET: Teams/Edit/5
@@ -259,7 +260,6 @@ namespace Payments.Mvc.Controllers
         {
             return _context.Teams.Any(e => e.Id == id);
         }
-
 
         /// <summary>
         /// 

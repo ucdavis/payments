@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Payments.Core.Domain
 {
@@ -17,8 +15,16 @@ namespace Payments.Core.Domain
         public class Codes
         {
             //public const string Viewer = "Viewer"; Don't use yet
-            public const string Editor = "Editor"; //Can do everything except manage users/roles
-            public const string Admin = "Admin"; //God like powers limited to the Team
+
+            /// <summary>
+            /// Can do everything except manage users/roles
+            /// </summary>
+            public const string Editor = "Editor";
+
+            /// <summary>
+            /// God like powers limited to the Team
+            /// </summary>
+            public const string Admin = "Admin"; 
         }
     }
 }

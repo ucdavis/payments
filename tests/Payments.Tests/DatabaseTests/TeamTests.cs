@@ -14,7 +14,7 @@ namespace Payments.Tests.DatabaseTests
         {
             #region Arrange
             var expectedFields = new List<NameAndType>();
-            expectedFields.Add(new NameAndType("Accounts", "System.Collections.Generic.List`1[Payments.Core.Domain.FinancialAccount]", new List<string>()));
+            expectedFields.Add(new NameAndType("Accounts", "System.Collections.Generic.IList`1[Payments.Core.Domain.FinancialAccount]", new List<string>()));
             expectedFields.Add(new NameAndType("DefaultAccount", "Payments.Core.Domain.FinancialAccount", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
@@ -23,12 +23,19 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("IsActive", "System.Boolean", new List<string>()));
+            expectedFields.Add(new NameAndType("IsActive", "System.Boolean", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Active\")]",
+            }));
             expectedFields.Add(new NameAndType("Name", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Team Name\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
+            }));
+            expectedFields.Add(new NameAndType("Permissions", "System.Collections.Generic.IList`1[Payments.Core.Domain.TeamPermission]", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
             expectedFields.Add(new NameAndType("Slug", "System.String", new List<string>
             {
