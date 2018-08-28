@@ -151,6 +151,7 @@ namespace Payments.Core.Domain
             public static string Draft = "Draft";
             public static string Sent = "Sent";
             public static string Paid = "Paid";
+            public static string Processing = "Processing";
             public static string Completed = "Completed";
             public static string Cancelled = "Cancelled";
         }
