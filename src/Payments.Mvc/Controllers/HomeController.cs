@@ -1,10 +1,12 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
+using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
 
 namespace Payments.Mvc.Controllers
@@ -40,6 +42,41 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> TeamIndex()
         {
             return View();
+        }
+
+        [ResponseCache(Duration = 600)]
+        public async Task<IActionResult> TeamIndexStats()
+        {
+            if (string.IsNullOrWhiteSpace(TeamSlug))
+            {
+                return NotFound();
+            }
+
+            var totalInvoiceCount = await _context.Invoices
+                .AsQueryable()
+                .Where(i => i.Team.Slug == TeamSlug)
+                .CountAsync();
+
+            var lastMonday = DateTime.UtcNow.StartOfWeek(DayOfWeek.Monday).Date;
+            var newInvoiceCount = await _context.Invoices
+                .AsQueryable()
+                .Where(i => i.Team.Slug == TeamSlug)
+                .Where(i => i.CreatedAt > lastMonday)
+                .CountAsync();
+
+            var lastSixMonths = DateTime.UtcNow.AddMonths(-6).Date;
+            var lastSixMonthsAmount = await _context.Invoices
+                .AsQueryable()
+                .Where(i => i.Team.Slug == TeamSlug)
+                .Where(i => i.CreatedAt > lastSixMonths)
+                .SumAsync(i => i.Total);
+
+            return new JsonResult(new
+            {
+                totalInvoiceCount,
+                newInvoiceCount,
+                lastSixMonthsAmount = lastSixMonthsAmount.ToString("C"),
+            });
         }
 
         public IActionResult About()
