@@ -20,7 +20,24 @@ namespace Payments.Mvc.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
+        {
+            // look for users teams, redirect if there's only one
+            var user = await _userManager.GetUserAsync(User);
+            var teams = user.GetTeams().Where(a => a.IsActive).ToList();
+
+            if (teams.Count == 1)
+            {
+                var team = teams[0];
+                return RedirectToAction(nameof(TeamIndex), "Home", new { team = team.Slug });
+            }
+
+            // TODO, figure out the last used team and just redirect there
+
+            return View();
+        }
+
+        public async Task<IActionResult> TeamIndex()
         {
             return View();
         }
@@ -56,7 +73,8 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            return RedirectToAction(nameof(Index), "Home", new { team = team.Slug });
+            return RedirectToAction(nameof(TeamIndex), "Home", new { team = team.Slug });
+
         }
     }
 }

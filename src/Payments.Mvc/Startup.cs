@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -157,19 +158,22 @@ namespace Payments.Mvc
                     defaults: new { controller = "payments", action="pay" });
 
                 routes.MapRoute(
-                    name: "admin-routes",
+                    name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|jobs|system)" });
+                    constraints: new { controller = "(account|jobs|support|system)" });
+
+                routes.MapRoute(
+                    name: "team-index",
+                    template: "{team}",
+                    defaults: new { controller = "home", action = "teamindex" },
+                    constraints: new { team = new RegexInlineRouteConstraint(Team.SlugRegex) });
 
                 routes.MapRoute(
                     name: "team-routes",
                     template: "{team}/{controller=Home}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new
-                    {
-                        controller = "(home|invoices|teams|financialAccounts)",
-                    });
+                    constraints: new { team = new RegexInlineRouteConstraint(Team.SlugRegex) });
 
                 routes.MapRoute(
                     name: "default",
