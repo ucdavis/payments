@@ -117,9 +117,11 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 <div className="card-content invoice-billing">
                     <h2>Billing</h2>
                     <div className="form-group">
+                        <label>Due Date?</label>
                         <DueDateControl value={dueDate} onChange={(d) => this.updateProperty('dueDate', d)} />
                     </div>
                     <div className="form-group">
+                        <label>Income Account</label>
                         <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
                 </div>
