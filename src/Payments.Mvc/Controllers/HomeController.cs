@@ -26,7 +26,8 @@ namespace Payments.Mvc.Controllers
         {
             // look for users teams, redirect if there's only one
             var user = await _userManager.GetUserAsync(User);
-            var teams = user.GetTeams().Where(a => a.IsActive).ToList();
+            var teams = user.GetTeams().Where(a => a.IsActive)
+                .ToList();
 
             if (teams.Count == 1)
             {
@@ -36,7 +37,8 @@ namespace Payments.Mvc.Controllers
 
             // TODO, figure out the last used team and just redirect there
 
-            return View();
+
+            return View(teams);
         }
 
         public async Task<IActionResult> TeamIndex()
