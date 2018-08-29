@@ -17,7 +17,7 @@
     <div class="card-header-primary card-bot-border">
         <div class="card-head d-flex justify-content-between align-items-start">
             <h2>@ViewBag.Title</h2>
-            <a href="@Url.Action("Create")" class="btn btn-primary">Create New Invoice</a>
+            <a asp-action="Create" class="btn btn-primary">Create New Invoice</a>
         </div>
     </div>
 
@@ -57,16 +57,16 @@
                     <td data-sort="@invoice.CreatedAt.Ticks">
                         @invoice.CreatedAt.ToString("d")
                     </td>
-                    <td><a href="@Url.Action("Preview", "Payments", new { id = invoice.Id })">Preview</a></td>
+                    <td><a asp-controller="Payments" asp-action="Preview" asp-route-id="@invoice.Id">Preview</a></td>
                     <td class="invoices-edit-btn-col text-center">
                         @if (invoice.Status == Invoice.StatusCodes.Paid)
                         {
-                            <a href="@Url.Action("Details", new {id = invoice.Id})" class="btn btn-primary">View</a>
+                            <a asp-action="Details" asp-route-id="@invoice.Id" class="btn btn-primary">View</a>
 
                         }
                         else if (!invoice.Sent)
                         {
-                            <a href="@Url.Action("Edit", new {id = invoice.Id})" class="btn btn-primary">Edit</a>
+                            <a asp-action="Edit" asp-route-id="@invoice.Id" class="btn btn-primary">Edit</a>
                         }
                         else
                         {

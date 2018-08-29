@@ -15,7 +15,7 @@
 {
     if (string.IsNullOrWhiteSpace(teamSlug))
     {
-        var defteamSlug = user.GetTeams().Where(a => a.IsActive).FirstOrDefault();
+        var defteamSlug = user.GetTeams().FirstOrDefault(a => a.IsActive);
         if (defteamSlug != null)
         {
             teamSlug = defteamSlug.Slug;
@@ -31,7 +31,7 @@
 }
 
 <nav>
-    <a class="nav-home" href="@Url.Action("Index", "Home")">
+    <a class="nav-home" asp-controller="Home" asp-action="Index">
         <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
@@ -50,7 +50,7 @@
             </div>
         </a>
     }
-    <a class="nav-support" href="@Url.Action("Index", "Home")">
+    <a class="nav-support" asp-controller="Support" asp-action="Index">
         <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/support.svg")
