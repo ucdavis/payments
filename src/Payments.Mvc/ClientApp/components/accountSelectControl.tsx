@@ -51,7 +51,7 @@ export default class AccountSelectControl extends React.Component<IProps, IState
 
         return (
             <div className="input-group">
-                <select className="custom-select" value={value} onChange={(e) => onChange(Number(e.target.value))}>
+                <select className="form-control" value={value} onChange={(e) => onChange(Number(e.target.value))}>
                     { ordered.map(a => <option key={a.id} value={a.id}>{a.name}</option>) }
                 </select>
                 <div className="input-group-append">
