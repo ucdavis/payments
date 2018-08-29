@@ -19,12 +19,13 @@ namespace Payments.Mvc.Controllers
     [Authorize(Policy = PolicyCodes.TeamEditor)]
     public class InvoicesController : SuperController
     {
+        private readonly ApplicationUserManager _userManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly IEmailService _emailService;
 
         public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IEmailService emailService)
-            : base(userManager)
         {
+            _userManager = userManager;
             _dbContext = dbContext;
             _emailService = emailService;
         }

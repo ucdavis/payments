@@ -11,10 +11,12 @@ namespace Payments.Mvc.Controllers
 {
     public class HomeController : SuperController
     {
+        private readonly ApplicationUserManager _userManager;
         private readonly ApplicationDbContext _context;
 
-        public HomeController(ApplicationUserManager userManager, ApplicationDbContext context) : base(userManager)
+        public HomeController(ApplicationUserManager userManager, ApplicationDbContext context)
         {
+            _userManager = userManager;
             _context = context;
         }
 

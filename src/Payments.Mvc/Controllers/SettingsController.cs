@@ -9,10 +9,6 @@ namespace Payments.Mvc.Controllers
 {
     public class SettingsController : SuperController
     {
-        public SettingsController(ApplicationUserManager userManager) : base(userManager)
-        {
-        }
-
         public IActionResult Index()
         {
             return View();

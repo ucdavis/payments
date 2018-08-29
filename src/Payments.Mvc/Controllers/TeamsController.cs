@@ -23,12 +23,13 @@ namespace Payments.Mvc.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IDirectorySearchService _directorySearchService;
+        private readonly ApplicationUserManager _userManager;
 
         public TeamsController(ApplicationDbContext context, IDirectorySearchService directorySearchService, ApplicationUserManager userManager)
-            : base(userManager)
         {
             _context = context;
             _directorySearchService = directorySearchService;
+            _userManager = userManager;
         }
 
         // GET: Teams

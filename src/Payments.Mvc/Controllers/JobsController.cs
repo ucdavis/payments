@@ -21,7 +21,7 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly MoneyMovementJob _moneyMovementJob;
 
-        public JobsController(ApplicationUserManager userManager, ApplicationDbContext dbContext, MoneyMovementJob moneyMovementJob) : base(userManager)
+        public JobsController(ApplicationDbContext dbContext, MoneyMovementJob moneyMovementJob)
         {
             _dbContext = dbContext;
             _moneyMovementJob = moneyMovementJob;
