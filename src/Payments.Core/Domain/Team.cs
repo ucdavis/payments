@@ -26,9 +26,11 @@ namespace Payments.Core.Domain
         [Display(Name = "Team Slug")]
         [Required]
         [StringLength(40, MinimumLength = 3, ErrorMessage = "Slug must be between 3 and 40 characters")]
-        [RegularExpression("^([a-z0-9]+[a-z0-9\\-]?)+[a-z0-9]$",
+        [RegularExpression(SlugRegex,
             ErrorMessage = "Slug may only contain lowercase alphanumeric characters or single hyphens, and cannot begin or end with a hyphen")]
         public string Slug { get; set; }
+
+        public const string SlugRegex = "^([a-z0-9]+[a-z0-9\\-]?)+[a-z0-9]$";
 
         [Display(Name = "Active")]
         public bool IsActive { get; set; } = true;
