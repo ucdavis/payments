@@ -14,13 +14,9 @@
             <div class="form-group col-12">
                 <label>Created Date</label>
                 <div id="filter_createdDatePicker" class="input-group input-daterange">
-                    <div class="input-group-prepend">
-                        <input class="form-control" type="text" placeholder="MM/DD/YYYY" asp-for="CreatedDateStart" asp-format="{0:MM/dd/yyyy}" />
-                    </div>
-                    <span class="input-group-text">to</span>
-                    <div class="input-group-append">
-                        <input class="form-control" type="text" placeholder="MM/DD/YYYY" asp-for="CreatedDateEnd" asp-format="{0:MM/dd/yyyy}" />
-                    </div>
+                    <input class="form-control" type="text" placeholder="MM/DD/YYYY" asp-for="CreatedDateStart" asp-format="{0:MM/dd/yyyy}" />
+                    <span class="add-on">to</span>
+                    <input class="form-control" type="text" placeholder="MM/DD/YYYY" asp-for="CreatedDateEnd" asp-format="{0:MM/dd/yyyy}" />
                 </div>
             </div>
         </div>
