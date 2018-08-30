@@ -1,0 +1,116 @@
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Routing
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Home Page";
+    var teamSlug = HttpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
+}
+
+<div class="card-style">
+    <div class="card-header-primary">
+        <div class="card-head">
+            <h2>Your Payments Dashboard</h2>
+        </div>
+    </div>
+</div>
+
+@if (false)
+{
+    <div class="alert alert-yellow">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <p><span class="sans-bold">You have 5 outstanding invoices |</span> view</p>
+            </div>
+            <div>
+                <img src="/media/remove.svg" alt="x icon">
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-red">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
+            </div>
+            <div>
+                <img src="/media/remove.svg" alt="x icon">
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-green">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
+            </div>
+            <div>
+                <img src="/media/remove.svg" alt="x icon">
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-blue">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
+            </div>
+            <div>
+                <img src="/media/remove.svg" alt="x icon">
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row justify-content-between">
+    <a asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug" class="col-sm-12 col-md-5">
+        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+            <img src="/media/invoices.svg" alt="invoices icon">
+            <div>
+                <h2 class="secondary-font">View my invoices</h2>
+                <p id="totalCountText" class="tertiary-font">0 total  |  0 Outstanding  |  0 Past due</p>
+            </div>
+        </div>
+    </a>
+    <a asp-controller="Invoices" asp-action="Create" asp-route-team="@teamSlug" class="col-sm-12 col-md-5">
+        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+            <img src="/media/newinvoice.svg" alt="new invoice icon">
+            <div>
+                <h2 class="secondary-font">Create new invoice</h2>
+                <p id="newCountText" class="tertiary-font">You've created 0 invoices this week</p>
+            </div>
+        </div>
+    </a>
+    <a asp-controller="Reports" asp-action="Index" asp-route-team="@teamSlug" class="col-sm-12 col-md-5">
+        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+            <img src="/media/statistics.svg" alt="statistics icon">
+            <div>
+                <h2 class="secondary-font">Statistics</h2>
+                <p id="cashTotal" class="tertiary-font">$0.00 over the last 6 months</p>
+            </div>
+        </div>
+    </a>
+    <a asp-controller="Support" asp-action="Index" class="col-sm-12 col-md-5">
+        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+            <img src="/media/support.svg" alt="support icon">
+            <div>
+                <h2 class="secondary-font">Get Support</h2>
+                <p class="tertiary-font">Questions, comments, concerns?</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+@section scripts
+{
+    <script>
+        var statsUrl = '@Url.Action("TeamIndexStats", new {team = teamSlug})';
+        $(function() {
+            $.getJSON(statsUrl)
+                .then(function(results) {
+                    console.log(results);
+
+                    $('#totalCountText').text(`${results.totalInvoiceCount} total`);
+                    $('#newCountText').text(`You've created ${results.newInvoiceCount} invoices this week`);
+                    $('#cashTotal').text(`${results.lastSixMonthsAmount} over the last 6 months`);
+                })
+                .catch(console.error);
+        });
+    </script>
+}

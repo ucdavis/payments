@@ -10,11 +10,8 @@ namespace Payments.Mvc.Controllers
     [Authorize]
     public abstract class SuperController : Controller
     {
-        protected readonly ApplicationUserManager _userManager;
-
-        protected SuperController(ApplicationUserManager userManager)
+        protected SuperController()
         {
-            _userManager = userManager;
         }
 
         public string CurrentUserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

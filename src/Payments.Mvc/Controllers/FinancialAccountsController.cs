@@ -22,7 +22,6 @@ namespace Payments.Mvc.Controllers
         private readonly IFinancialService _financialService;
 
         public FinancialAccountsController(ApplicationDbContext context, IFinancialService financialService, ApplicationUserManager userManager)
-            : base(userManager)
         {
             _context = context;
             _financialService = financialService;

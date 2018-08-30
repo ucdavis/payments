@@ -1,0 +1,44 @@
+﻿@model Payments.Mvc.Models.InvoiceViewModels.InvoiceFilterViewModel
+
+@{
+    var statusCodes = ViewBag.Statuses as IEnumerable<SelectListItem>;
+}
+
+<form class="" id="invoiceFilterForm" asp-controller="Invoices" asp-action="SetFilter" method="post">
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="form-group col-lg-6">
+                <label>Status</label>
+                <select id="filter_statuses" class="form-control selectpicker" asp-for="Statuses" asp-items="statusCodes" data-style="btn-primary"></select>
+            </div>
+            <div class="form-group col-12">
+                <label>Created Date</label>
+                <div id="filter_createdDatePicker" class="input-group input-daterange">
+                    <input class="form-control" type="text" placeholder="MM/DD/YYYY" asp-for="CreatedDateStart" asp-format="{0:MM/dd/yyyy}" />
+                    <span class="add-on">to</span>
+                    <input class="form-control" type="text" placeholder="MM/DD/YYYY" asp-for="CreatedDateEnd" asp-format="{0:MM/dd/yyyy}" />
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 d-flex justify-content-end align-items-end">
+            <div class="d-flex justify-content-end align-items-center">
+                <button class="btn-plain" type="reset">Clear Filter</button>
+                <button class="btn btn-primary" type="submit">Apply Filter <i class="fa fa-fw fa-filter"></i></button>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<script type="text/javascript">
+    window.addEventListener('load', function () {
+        // setup multipick
+        
+
+        // setup datepickers
+        $('#filter_createdDatePicker').datepicker({
+            inputs: $('#filter_createdDatePicker input'),
+            keepEmptyValues: true,
+        });
+    });
+</script>

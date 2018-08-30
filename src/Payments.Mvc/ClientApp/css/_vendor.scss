@@ -49,3 +49,11 @@ input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.input-daterange .add-on {
+  font-size: 1.6rem;
+  line-height: 3.5rem;
+  height: 4rem;
+  padding: 0 2rem;
+  color: $secondary-font;
+}

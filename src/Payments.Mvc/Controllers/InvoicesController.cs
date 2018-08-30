@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -19,12 +20,13 @@ namespace Payments.Mvc.Controllers
     [Authorize(Policy = PolicyCodes.TeamEditor)]
     public class InvoicesController : SuperController
     {
+        private readonly ApplicationUserManager _userManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly IEmailService _emailService;
 
         public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IEmailService emailService)
-            : base(userManager)
         {
+            _userManager = userManager;
             _dbContext = dbContext;
             _emailService = emailService;
         }
@@ -32,14 +34,57 @@ namespace Payments.Mvc.Controllers
         // GET: /<controller>/
         public IActionResult Index()
         {
-            var invoices = _dbContext.Invoices
+
+            var query = _dbContext.Invoices
                 .AsQueryable()
-                .Where(i => i.Team.Slug == TeamSlug)
+                .Where(i => i.Team.Slug == TeamSlug);
+
+            // fetch filter from session
+            var filter = GetInvoiceFilter();
+
+            if (filter.Statuses.Any())
+            {
+                query = query.Where(i => filter.Statuses.Contains(i.Status));
+            }
+
+            if (filter.CreatedDateStart.HasValue)
+            {
+                query = query.Where(i => i.CreatedAt >= filter.CreatedDateStart.Value);
+            }
+
+            if (filter.CreatedDateEnd.HasValue)
+            {
+                query = query.Where(i => i.CreatedAt <= filter.CreatedDateEnd.Value);
+            }
+
+            var invoices = query
                 .Take(100)
-                .OrderByDescending(i => i.Id);
+                .OrderByDescending(i => i.Id)
+                .ToList();
 
+            var model = new InvoiceListViewModel()
+            {
+                Invoices = invoices,
+                Filter = filter
+            };
 
-            return View(invoices);
+            // setup dropdown viewmodels
+            ViewBag.Statuses = Invoice.StatusCodes.GetAllCodes()
+                .Select(c => new SelectListItem
+                {
+                    Text = c,
+                    Value = c,
+                });
+
+            return View(model);
+        }
+
+        public IActionResult SetFilter(InvoiceFilterViewModel model)
+        {
+            // save filter to session
+            SetInvoiceFilter(model);
+
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -390,6 +435,17 @@ namespace Payments.Mvc.Controllers
             }
 
             throw new Exception("Failure to create new invoice link id in max attempts.");
+        }
+
+        private InvoiceFilterViewModel GetInvoiceFilter()
+        {
+            var filter = HttpContext.Session.GetObjectFromJson<InvoiceFilterViewModel>("InvoiceFilter");
+            return filter ?? new InvoiceFilterViewModel();
+        }
+
+        private void SetInvoiceFilter(InvoiceFilterViewModel filter)
+        {
+            HttpContext.Session.SetObjectAsJson("InvoiceFilter", filter);
         }
     }
 }

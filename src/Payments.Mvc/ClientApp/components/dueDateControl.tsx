@@ -24,7 +24,7 @@ export default class DueDateControl extends React.Component<IProps, {}> {
 
         return (
             <DateControl
-                placeholder="optional"
+                placeholder="MM/DD/YYYY"
                 value={value}
                 onChange={onChange}
                 startDate={startDate}
