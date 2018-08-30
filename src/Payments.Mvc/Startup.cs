@@ -96,7 +96,10 @@ namespace Payments.Mvc
             });
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
+            // add application services
             services.AddMvc();
+            services.AddDistributedMemoryCache();
+            services.AddSession();
 
             // add pdf reporting server
             services.AddJsReport(new LocalReporting()
@@ -149,6 +152,8 @@ namespace Payments.Mvc
             app.UseStaticFiles();
 
             app.UseAuthentication();
+
+            app.UseSession();
 
             app.UseMvc(routes =>
             {
