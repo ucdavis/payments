@@ -146,13 +146,25 @@ namespace Payments.Core.Domain
             return dictionary;
         }
 
-        public class StatusCodes
+        public static class StatusCodes
         {
             public static string Draft = "Draft";
             public static string Sent = "Sent";
             public static string Paid = "Paid";
             public static string Completed = "Completed";
             public static string Cancelled = "Cancelled";
+
+            public static string[] GetAllCodes()
+            {
+                return new[]
+                {
+                    Draft,
+                    Sent,
+                    Paid,
+                    Completed,
+                    Cancelled,
+                };
+            }
         }
     }
 }
