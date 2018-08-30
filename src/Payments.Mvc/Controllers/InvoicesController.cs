@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -67,7 +68,14 @@ namespace Payments.Mvc.Controllers
                 Filter = filter
             };
 
-            return View(invoices);
+            // setup dropdown viewmodels
+            ViewBag.Statuses = Invoice.StatusCodes.GetAllCodes()
+                .Select(c => new SelectListItem
+                {
+                    Text = c,
+                    Value = c,
+                });
+
             return View(model);
         }
 
