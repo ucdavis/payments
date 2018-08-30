@@ -1,4 +1,4 @@
-@using Microsoft.AspNetCore.Http
+﻿@using Microsoft.AspNetCore.Http
 @model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -10,7 +10,7 @@
 
 @section AdditionalStyles
 {
-    @Html.Partial("_DataTableStylePartial")
+    <partial name="_DataTableStylePartial" />
 }
 
 <div class="card-style">
@@ -141,10 +141,11 @@
 
 @section scripts
 {
-    @Html.Partial("_DataTableScriptsPartial")
+    <partial name="_DataTableScriptsPartial" />
 
     <script type="text/javascript">
         $(function() {
+            // setup table
             $("#Invoices").DataTable({
                 order: [[ 0, 'asc' ]],
                 columnDefs: [
