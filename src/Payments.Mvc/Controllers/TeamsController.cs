@@ -124,6 +124,7 @@ namespace Payments.Mvc.Controllers
 
             var model = new TeamDetailsModel
             {
+                Id                 = team.Id.ToString(),
                 Name               = team.Name,
                 Slug               = team.Slug,
                 ContactName        = team.ContactName,
