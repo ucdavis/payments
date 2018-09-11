@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Roles;
-using Payments.Mvc.Models.Teams;
 using Payments.Mvc.Models.TeamViewModels;
 
 namespace Payments.Mvc.Controllers
@@ -74,8 +73,12 @@ namespace Payments.Mvc.Controllers
 
             var team = new Team()
             {
-                Name = model.Name,
-                Slug = model.Slug,
+                Name               = model.Name,
+                Slug               = model.Slug,
+                ContactName        = model.ContactName,
+                ContactEmail       = model.ContactEmail,
+                ContactPhoneNumber = model.ContactPhoneNumber,
+                IsActive           = true,
             };
 
             // add user to team
@@ -173,9 +176,12 @@ namespace Payments.Mvc.Controllers
 
             var model = new EditTeamViewModel()
             {
-                Name = team.Name,
-                Slug = team.Slug,
-                IsActive = team.IsActive,
+                Name               = team.Name,
+                Slug               = team.Slug,
+                ContactName        = team.ContactName,
+                ContactEmail       = team.ContactEmail,
+                ContactPhoneNumber = team.ContactPhoneNumber,
+                IsActive           = team.IsActive,
             };
 
             return View(model);
@@ -206,9 +212,18 @@ namespace Payments.Mvc.Controllers
                 return View(model);
             }
 
-            team.Name = model.Name;
-            team.Slug = model.Slug;
-            team.IsActive = model.IsActive;
+            team.Name               = model.Name;
+            team.Slug               = model.Slug;
+            team.ContactName        = model.ContactName;
+            team.ContactEmail       = model.ContactEmail;
+            team.ContactPhoneNumber = model.ContactPhoneNumber;
+
+            // only admins can change active
+            if (User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                team.IsActive = model.IsActive;
+            }
+
             await _context.SaveChangesAsync();
             
             return RedirectToAction(nameof(Details), new { team = team.Slug });
