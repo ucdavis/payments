@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -45,5 +47,25 @@ namespace Payments.Core.Domain
 
         public Team Team { get; set; }
         public int TeamId { get; set; }
+
+        public string GetAccountString()
+        {
+            if (string.IsNullOrWhiteSpace(SubAccount))
+            {
+                return $"{Chart}-{Account}";
+            }
+
+            return $"{Chart}-{Account}-{SubAccount}";
+        }
+
+        public string GetObjectString()
+        {
+            if (string.IsNullOrWhiteSpace(SubObject))
+            {
+                return Object;
+            }
+
+            return $"{Object}-{SubObject}";
+        }
     }
 }

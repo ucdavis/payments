@@ -1,17 +1,22 @@
-﻿@model Payments.Core.Domain.FinancialAccount
+﻿@model FinancialAccount
 
 @{
-    ViewData["Title"] = "Edit Account";
+    ViewData["Title"] = "Edit Financial Account";
 }
 
-<h2>Edit Account</h2>
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+            <span>
+                <a asp-action="Details" asp-controller="Teams">Back to List</a>
+            </span>
+        </div>
+    </div>
 
-<h4>FinancialAccount</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+    <div class="card-content">
         <form asp-action="EditAccount">
-            @Html.Partial("_AccountForm")
+            <partial name="_AccountForm" />
             <div class="form-group">
                 <div class="checkbox">
                     <label>
@@ -26,12 +31,6 @@
     </div>
 </div>
 
-<div>
-    <a asp-action="Details" asp-controller="Teams" >Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }
-
-

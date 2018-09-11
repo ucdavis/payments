@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Roles;
-using Payments.Mvc.Models.Teams;
 using Payments.Mvc.Models.TeamViewModels;
 
 namespace Payments.Mvc.Controllers
@@ -74,8 +73,12 @@ namespace Payments.Mvc.Controllers
 
             var team = new Team()
             {
-                Name = model.Name,
-                Slug = model.Slug,
+                Name               = model.Name,
+                Slug               = model.Slug,
+                ContactName        = model.ContactName,
+                ContactEmail       = model.ContactEmail,
+                ContactPhoneNumber = model.ContactPhoneNumber,
+                IsActive           = true,
             };
 
             // add user to team
@@ -115,12 +118,22 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.GetUserAsync(User);
+            var userCanEdit = User.IsInRole(ApplicationRoleCodes.Admin)
+                              || user.TeamPermissions.Any(a => a.TeamId == team.Id && a.Role.Name == TeamRole.Codes.Admin);
 
-            ViewBag.UserCanEdit = User.IsInRole(ApplicationRoleCodes.Admin) || await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User)
-                                   .AnyAsync(a => a.TeamId == team.Id && a.UserId == userId && a.Role.Name == TeamRole.Codes.Admin);
+            var model = new TeamDetailsModel
+            {
+                Name               = team.Name,
+                Slug               = team.Slug,
+                ContactName        = team.ContactName,
+                ContactEmail       = team.ContactEmail,
+                ContactPhoneNumber = team.ContactPhoneNumber,
+                IsActive           = team.IsActive,
+                UserCanEdit        = userCanEdit
+            };
 
-            return View(team);
+            return View(model);
         }
 
         [Authorize(Policy = "TeamAdmin")]
@@ -144,10 +157,23 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new TeamDetailsModel();
-            model.Team = team;
-            model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
+            var permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
 
+            var user = await _userManager.GetUserAsync(User);
+            var userCanEdit = User.IsInRole(ApplicationRoleCodes.Admin)
+                 ||  user.TeamPermissions.Any(a => a.TeamId == team.Id && a.Role.Name == TeamRole.Codes.Admin);
+
+            var model = new TeamDetailsModel
+            {
+                Name               = team.Name,
+                Slug               = team.Slug,
+                ContactName        = team.ContactName,
+                ContactEmail       = team.ContactEmail,
+                ContactPhoneNumber = team.ContactPhoneNumber,
+                IsActive           = team.IsActive,
+                Permissions        = permissions,
+                UserCanEdit        = userCanEdit
+            };
 
             return View(model);
         }
@@ -173,9 +199,12 @@ namespace Payments.Mvc.Controllers
 
             var model = new EditTeamViewModel()
             {
-                Name = team.Name,
-                Slug = team.Slug,
-                IsActive = team.IsActive,
+                Name               = team.Name,
+                Slug               = team.Slug,
+                ContactName        = team.ContactName,
+                ContactEmail       = team.ContactEmail,
+                ContactPhoneNumber = team.ContactPhoneNumber,
+                IsActive           = team.IsActive,
             };
 
             return View(model);
@@ -206,9 +235,18 @@ namespace Payments.Mvc.Controllers
                 return View(model);
             }
 
-            team.Name = model.Name;
-            team.Slug = model.Slug;
-            team.IsActive = model.IsActive;
+            team.Name               = model.Name;
+            team.Slug               = model.Slug;
+            team.ContactName        = model.ContactName;
+            team.ContactEmail       = model.ContactEmail;
+            team.ContactPhoneNumber = model.ContactPhoneNumber;
+
+            // only admins can change active
+            if (User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                team.IsActive = model.IsActive;
+            }
+
             await _context.SaveChangesAsync();
             
             return RedirectToAction(nameof(Details), new { team = team.Slug });

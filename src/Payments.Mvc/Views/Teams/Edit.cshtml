@@ -1,4 +1,5 @@
-﻿@model Payments.Mvc.Models.TeamViewModels.EditTeamViewModel
+﻿@using Payments.Mvc.Models.Roles
+@model Payments.Mvc.Models.TeamViewModels.EditTeamViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -14,24 +15,43 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control"/>
+                <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control"/>
+                <input asp-for="Slug" class="form-control" />
                 <span asp-validation-for="Slug" class="text-danger"></span>
                 <span id="slugUrl"></span>
             </div>
             <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input asp-for="IsActive"/> @Html.DisplayNameFor(model => model.IsActive)
-                    </label>
-                </div>
+                <label asp-for="ContactName" class="control-label"></label>
+                <input asp-for="ContactName" class="form-control" />
+                <span asp-validation-for="ContactName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default"/>
+                <label asp-for="ContactEmail" class="control-label"></label>
+                <input asp-for="ContactEmail" class="form-control" />
+                <span asp-validation-for="ContactEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContactPhoneNumber" class="control-label"></label>
+                <input asp-for="ContactPhoneNumber" class="form-control" />
+                <span asp-validation-for="ContactPhoneNumber" class="text-danger"></span>
+            </div>
+            
+            @if (User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                            <input asp-for="IsActive"/> @Html.DisplayNameFor(model => model.IsActive)
+                        </label>
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
             </div>
         </form>
     </div>

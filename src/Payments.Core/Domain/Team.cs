@@ -32,6 +32,20 @@ namespace Payments.Core.Domain
 
         public const string SlugRegex = "^([a-z0-9]+[a-z0-9\\-]?)+[a-z0-9]$";
 
+        [StringLength(128)]
+        [Display(Name = "Contact Name")]
+        public string ContactName { get; set; }
+
+        [EmailAddress]
+        [StringLength(128)]
+        [Display(Name = "Contact Email")]
+        public string ContactEmail { get; set; }
+
+        [Phone]
+        [StringLength(40)]
+        [Display(Name = "Contact Phone Number")]
+        public string ContactPhoneNumber { get; set; }
+
         [Display(Name = "Active")]
         public bool IsActive { get; set; } = true;
 
