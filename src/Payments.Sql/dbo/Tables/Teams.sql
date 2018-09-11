@@ -3,6 +3,9 @@
     [IsActive] BIT            NOT NULL,
     [Name]     NVARCHAR (128) NOT NULL,
     [Slug]     NVARCHAR (40)  NOT NULL,
+    [ContactName] NVARCHAR(128) NULL, 
+    [ContactEmail] NVARCHAR(128) NULL, 
+    [ContactPhoneNumber] NVARCHAR(40) NULL, 
     CONSTRAINT [PK_Teams] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
