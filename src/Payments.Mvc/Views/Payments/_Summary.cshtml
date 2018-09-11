@@ -1,12 +1,12 @@
 ﻿@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
 <div class="pay-description">
-    <p class="onepointeight secondary-font">Memo</p>
-    <div class="pay-memo">
-        @if (!string.IsNullOrWhiteSpace(Model.Memo))
-        {
+    @if (!string.IsNullOrWhiteSpace(Model.Memo))
+    {
+        <p class="onepointeight secondary-font">Memo</p>
+        <div class="pay-memo">
             <p>@Model.Memo</p>
-        }
-    </div>
+        </div>
+    }
     <table class="table pay-table">
         <thead>
             <tr>
