@@ -15,6 +15,23 @@ namespace Payments.Tests.DatabaseTests
             #region Arrange
             var expectedFields = new List<NameAndType>();
             expectedFields.Add(new NameAndType("Accounts", "System.Collections.Generic.IList`1[Payments.Core.Domain.FinancialAccount]", new List<string>()));
+            expectedFields.Add(new NameAndType("ContactEmail", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Contact Email\")]",
+                "[System.ComponentModel.DataAnnotations.EmailAddressAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
+            }));
+            expectedFields.Add(new NameAndType("ContactName", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Contact Name\")]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
+            }));
+            expectedFields.Add(new NameAndType("ContactPhoneNumber", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Contact Phone Number\")]",
+                "[System.ComponentModel.DataAnnotations.PhoneAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)40)]",
+            }));
             expectedFields.Add(new NameAndType("DefaultAccount", "Payments.Core.Domain.FinancialAccount", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
