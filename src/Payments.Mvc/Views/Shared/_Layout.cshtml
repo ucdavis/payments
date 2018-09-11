@@ -24,10 +24,10 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-2">
-                @Html.Partial("_LeftNavPartial")
+                <partial name="_LeftNavPartial" />
             </div>
             <div class="col-sm-10">
-                @await Html.PartialAsync("_TopNavPartial")
+                <partial name="_TopNavPartial" />
 
                 @if (!string.IsNullOrWhiteSpace(TempData["ErrorMessage"] as string))
                 {
@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    @Html.Partial("_Footer")
+    <partial name="_Footer" />
 
     <environment names="Development">
         <script src="https://code.jquery.com/jquery-3.3.1.js"></script>

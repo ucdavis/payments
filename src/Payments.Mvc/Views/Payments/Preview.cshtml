@@ -18,7 +18,7 @@
         </div>
     </div>
     <div>
-        @Html.Partial("_TopInfo")
+        <partial name="_TopInfo" />
         <div class="pay-action">
             <h1>@(string.Format("{0:C}", Model.Total))</h1>
             @if (Model.DueDate.HasValue)
@@ -30,8 +30,8 @@
                 Pay Now
             </button>
         </div>
-        @Html.Partial("_Summary")
-        @Html.Partial("_Download", string.Empty)
-        @Html.Partial("_Footer")
+        <partial name="_Summary" />
+        <partial name="_Download" model="string.Empty" />
+        <partial name="_Footer" />
     </div>
 </div>
