@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -118,12 +118,22 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.GetUserAsync(User);
+            var userCanEdit = User.IsInRole(ApplicationRoleCodes.Admin)
+                              || user.TeamPermissions.Any(a => a.TeamId == team.Id && a.Role.Name == TeamRole.Codes.Admin);
 
-            ViewBag.UserCanEdit = User.IsInRole(ApplicationRoleCodes.Admin) || await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User)
-                                   .AnyAsync(a => a.TeamId == team.Id && a.UserId == userId && a.Role.Name == TeamRole.Codes.Admin);
+            var model = new TeamDetailsModel
+            {
+                Name               = team.Name,
+                Slug               = team.Slug,
+                ContactName        = team.ContactName,
+                ContactEmail       = team.ContactEmail,
+                ContactPhoneNumber = team.ContactPhoneNumber,
+                IsActive           = team.IsActive,
+                UserCanEdit        = userCanEdit
+            };
 
-            return View(team);
+            return View(model);
         }
 
         [Authorize(Policy = "TeamAdmin")]
@@ -147,10 +157,23 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new TeamDetailsModel();
-            model.Team = team;
-            model.Permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
+            var permissions = await _context.TeamPermissions.Include(a => a.Role).Include(a => a.User).Where(a => a.TeamId == team.Id).ToListAsync();
 
+            var user = await _userManager.GetUserAsync(User);
+            var userCanEdit = User.IsInRole(ApplicationRoleCodes.Admin)
+                 ||  user.TeamPermissions.Any(a => a.TeamId == team.Id && a.Role.Name == TeamRole.Codes.Admin);
+
+            var model = new TeamDetailsModel
+            {
+                Name               = team.Name,
+                Slug               = team.Slug,
+                ContactName        = team.ContactName,
+                ContactEmail       = team.ContactEmail,
+                ContactPhoneNumber = team.ContactPhoneNumber,
+                IsActive           = team.IsActive,
+                Permissions        = permissions,
+                UserCanEdit        = userCanEdit
+            };
 
             return View(model);
         }
