@@ -117,19 +117,21 @@ namespace Payments.Mvc.Controllers
 
             var model = new PreviewInvoiceViewModel()
             {
-                Id              = invoice.Id.ToString(),
-                CustomerName    = invoice.CustomerName,
-                CustomerEmail   = invoice.CustomerEmail,
-                CustomerAddress = invoice.CustomerAddress,
-                DueDate         = invoice.DueDate,
-                Memo            = invoice.Memo,
-                Items           = invoice.Items,
-                Subtotal        = invoice.Subtotal,
-                Total           = invoice.Total,
-                Discount        = invoice.Discount,
-                TaxAmount       = invoice.TaxAmount,
-                TaxPercent      = invoice.TaxPercent,
-                TeamName        = invoice.Team.Name,
+                Id               = invoice.Id.ToString(),
+                CustomerName     = invoice.CustomerName,
+                CustomerEmail    = invoice.CustomerEmail,
+                CustomerAddress  = invoice.CustomerAddress,
+                DueDate          = invoice.DueDate,
+                Memo             = invoice.Memo,
+                Items            = invoice.Items,
+                Subtotal         = invoice.Subtotal,
+                Total            = invoice.Total,
+                Discount         = invoice.Discount,
+                TaxAmount        = invoice.TaxAmount,
+                TaxPercent       = invoice.TaxPercent,
+                TeamName         = invoice.Team.Name,
+                TeamContactEmail = invoice.Team.ContactEmail,
+                TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
 
             return View(model);
@@ -368,8 +370,8 @@ namespace Payments.Mvc.Controllers
                 Status           = invoice.Status,
                 DueDate          = invoice.DueDate,
                 TeamName         = invoice.Team.Name,
-                TeamContactEmail = "help@payments.ucdavis.edu",
-                TeamContactPhone = "1-800-555-1234",
+                TeamContactEmail = invoice.Team.ContactEmail,
+                TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
 
             // add payment info
