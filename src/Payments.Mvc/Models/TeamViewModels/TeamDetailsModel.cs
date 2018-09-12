@@ -6,7 +6,7 @@ namespace Payments.Mvc.Models.TeamViewModels
 {
     public class TeamDetailsModel
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Display(Name = "Team Name")]
         public string Name { get; set; }
