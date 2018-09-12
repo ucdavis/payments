@@ -34,3 +34,13 @@
         gtag('set', { 'user_id': '@user.Id.GetSHA256Hash()' }); // Set the user ID using signed-in user_id.
     </script>
 }
+
+<script>
+    window.addEventListener('error',
+        function (event) {
+            gtag('event', 'exception', {
+                description: event.message + '| URL: ' + document.location.href + '| File: ' + event.source + '| Line: ' + event.lineno,
+                fatal: true
+            });
+        });
+</script>
