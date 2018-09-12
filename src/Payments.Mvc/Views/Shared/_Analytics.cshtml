@@ -1,0 +1,46 @@
+﻿@inject UserManager<User> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    
+}
+
+<environment names="Development">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125665400-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-125665400-1');
+    </script>
+</environment>
+<environment names="Staging,Production">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125665400-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-125665400-2');
+    </script>
+</environment>
+
+@if (user != null)
+{
+    <script>
+        gtag('set', { 'user_id': '@user.Id.GetSHA256Hash()' }); // Set the user ID using signed-in user_id.
+    </script>
+}
+
+<script>
+    window.addEventListener('error',
+        function (event) {
+            gtag('event', 'exception', {
+                description: event.message + '| URL: ' + document.location.href + '| File: ' + event.source + '| Line: ' + event.lineno,
+                fatal: true
+            });
+        });
+</script>

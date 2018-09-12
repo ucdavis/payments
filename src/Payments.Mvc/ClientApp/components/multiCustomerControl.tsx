@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
-import * as ArrayUtils from '../utils/array.js'; 
+import * as ArrayUtils from '../utils/array';
 
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
