@@ -6,53 +6,64 @@
     var isAdmin = User.IsInRole(ApplicationRoleCodes.Admin);
 }
 
-<h2>Teams</h2>
-@if (isAdmin)
-{
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
-}
-<table class="table">
-    <thead>
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.IsActive)
-        </th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @if (isAdmin)
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+            @if (isAdmin)
+            {
+                <p>
+                    <a asp-controller="Teams" asp-action="Create" asp-route-team="" class="btn btn-primary">
+                        <i class="far fa-plus-square mr-3"></i>
+                        <span>Create New Team</span>
+                    </a>
+                </p>
+            }
+        </div>
+    </div>
+    <div class="card-content">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.IsActive)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
                 {
-                    <span>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id" asp-route-team="@item.Slug">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </span>
-                }
-                else
-                {
-                    <a asp-action="Details" asp-route-team="@item.Slug">Details</a>
-                }
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.IsActive)
+                        </td>
+                        <td class="text-center">
+                            @if (isAdmin)
+                            {
+                                <span>
+                                    <a asp-controller="Settings" asp-action="Edit" asp-route-team="@item.Slug">Edit</a> |
+                                    <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
+                                </span>
+                            }
+                            else
+                            {
+                                <a asp-action="Details" asp-route-team="@item.Slug">Details</a>
+                            }
 
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @section AdditionalStyles
 {

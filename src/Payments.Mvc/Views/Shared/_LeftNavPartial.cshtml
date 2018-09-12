@@ -71,7 +71,7 @@
     }
     else
     {
-        <a class="nav-settings" asp-controller="Teams" asp-action="Details" asp-route-team="@teamSlug">
+        <a class="nav-settings" asp-controller="Settings" asp-action="Index" asp-route-team="@teamSlug">
             <div class="nav-item d-flex flex-center">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
@@ -84,14 +84,14 @@
     || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase)
     || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
     {
-    <a class="" asp-controller="Teams" asp-action="Index" asp-route-team="@teamSlug">
+    <a class="" asp-controller="Teams" asp-action="Index">
         <div class="nav-item d-flex flex-center subnav">
-            <span class="navitem">Teams</span>
+            <span class="navitem">All Teams</span>
         </div>
     </a>
         if (User.IsInRole(ApplicationRoleCodes.Admin) || user.IsTeamAdmin(teamSlug))
         {
-            <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@teamSlug">
+            <a class="" asp-controller="Settings" asp-action="Roles" asp-route-team="@teamSlug">
                 <div class="nav-item d-flex flex-center subnav">
                     <span class="navitem">Roles</span>
                 </div>

@@ -1,0 +1,52 @@
+﻿@using Payments.Mvc.Models.TeamViewModels
+@model CreateTeamPermissionViewModel
+@{
+    ViewData["Title"] = "Add User";
+}
+
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <div>
+                <h2>@ViewBag.Title</h2>
+                <span class="text-muted">
+                    <a asp-action="Roles" class="btn-link"><i class="fa fa-fw fa-chevron-left"></i> back</a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-content">
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="CreatePermission">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="@Model.TeamName" class="control-label"></label>
+                        <input asp-for="@Model.TeamName" class="form-control" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.UserLookup" class="control-label"></label>
+                        <input asp-for="@Model.UserLookup" class="form-control" />
+                        <span asp-validation-for="@Model.UserLookup" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="@Model.SelectedRole" class="control-label"></label>
+                        <select asp-for="@Model.SelectedRole" class="form-control" asp-items="@Model.Roles"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-default" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+

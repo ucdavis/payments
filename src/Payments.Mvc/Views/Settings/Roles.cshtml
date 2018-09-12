@@ -1,0 +1,94 @@
+﻿@using Payments.Mvc.Models.TeamViewModels
+@model TeamDetailsModel
+
+@{
+    ViewData["Title"] = "Team Roles";
+}
+
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <div>
+                <h2>@ViewBag.Title</h2>
+                <span class="text-muted">
+                    <a asp-action="Index" class="btn-link"><i class="fa fa-fw fa-chevron-left"></i> back</a>
+                </span>
+            </div>
+
+            @if (Model.UserCanEdit)
+            {
+                <a asp-action="CreatePermission" class="btn btn-primary"><i class="fa fa-fw fa-plus-square"></i> Add User</a>
+            }
+        </div>
+    </div>
+
+    <div class="card-content">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Permissions[0].Role)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Permissions[0].User.CampusKerberos)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Permissions[0].User.Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Permissions[0].User.Name)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Permissions)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Role.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.CampusKerberos)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.UserName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.Name)
+                        </td>
+                        <td>
+                            <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-team="@Model.Slug">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@section AdditionalStyles
+    {
+    @{ await Html.RenderPartialAsync("_DataTableStylePartial"); }
+}
+
+@section scripts
+    {
+    @{ await Html.RenderPartialAsync("_DataTableScriptsPartial"); }
+
+    <script type="text/javascript">
+        $(function() {
+            $(".table").DataTable({
+                columnDefs: [
+                    {
+                        targets: [-1], orderable: false
+                    },
+                    {
+                        targets: [-1], searchable: false
+                    }
+                ]
+            });
+        });
+    </script>
+}
