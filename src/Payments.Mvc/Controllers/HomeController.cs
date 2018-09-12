@@ -116,7 +116,7 @@ namespace Payments.Mvc.Controllers
 
             if (team == null)
             {
-                return RedirectToAction(nameof(Index), "Home");
+                return RedirectToAction(nameof(Index), "Home", new { team = "" });
             }
 
             return RedirectToAction(nameof(TeamIndex), "Home", new { team = team.Slug });
