@@ -89,7 +89,7 @@ namespace Payments.Mvc.Controllers
             _context.Add(team);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", new { Team = team.Slug });
         }
 
         /// <summary>
