@@ -86,7 +86,14 @@ namespace Payments.Mvc.Controllers
             return View();
         }
 
-        public IActionResult Error()
+        [Route("error/404")]
+        public IActionResult Error404()
+        {
+            return View("NotFound");
+        }
+
+        [Route("error/{code:int}")]
+        public IActionResult Error(int code)
         {
             ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
             return View();

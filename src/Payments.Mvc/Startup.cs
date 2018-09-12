@@ -149,6 +149,8 @@ namespace Payments.Mvc
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
             app.UseStaticFiles();
 
             app.UseAuthentication();
