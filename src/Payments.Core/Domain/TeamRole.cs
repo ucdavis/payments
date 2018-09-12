@@ -10,6 +10,7 @@ namespace Payments.Core.Domain
 
         [Required]
         [StringLength(50)]
+        [Display(Name = "Role Name")]
         public string Name { get; set; }
 
         public class Codes
