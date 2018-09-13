@@ -1,22 +1,117 @@
-﻿@{
-    ViewData["Title"] = "Settings";
+﻿@using System.Security.Claims
+@using Payments.Mvc.Models.Roles
+@model Payments.Mvc.Models.TeamViewModels.TeamDetailsModel
+
+@{
+    ViewData["Title"] = "Team Details";
 }
-<h1>@ViewBag.Title</h1>
+
+@section AdditionalStyles {
+    <partial name="_DataTableStylePartial" />
+}
 
 <div class="card-style">
     <div class="card-header-primary card-bot-border">
-        <h2>Team Settings</h2>
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+
+            @if (Model.UserCanEdit)
+            {
+                <a asp-action="Edit" class="btn btn-primary"><i class="far fa-edit mr-3"></i>Edit Team</a>
+            }
+        </div>
     </div>
 
     <div class="card-content">
+        <div class="row">
+            <dl class="dl-horizontal col-lg">
+                <dt>
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Slug)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Slug)
+                </dd>
+            </dl>
+            <dl class="dl-horizontal col-lg">
+                <dt>
+                    @Html.DisplayNameFor(model => model.ContactName)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.ContactName)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.ContactEmail)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.ContactEmail)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.ContactPhoneNumber)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.ContactPhoneNumber)
+                </dd>
+            </dl>
+        </div>
     </div>
 </div>
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <h2>Account Settings</h2>
+<div class="row justify-content-between">
+
+    <div class="col-sm-12 col-md-5">
+        <a class="" asp-controller="FinancialAccounts" asp-action="Index">
+            <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+                <img src="/media/statistics.svg" alt="statistics icon">
+                <div>
+                    <h2 class="secondary-font">Account</h2>
+                    <p class="tertiary-font">Edit Financial Accounts for Team</p>
+                </div>
+            </div>
+        </a>
     </div>
 
-    <div class="card-content">
+
+    <div class="col-sm-12 col-md-5">
+        <a class="" asp-action="Roles">
+            <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+                <img src="/media/support.svg" alt="support icon">
+                <div>
+                    <h2 class="secondary-font">Users</h2>
+                    <p class="tertiary-font">Edit Users and Roles for Team</p>
+                </div>
+            </div>
+        </a>
     </div>
+
 </div>
+
+<div>
+    <a asp-controller="Teams" asp-action="Index"><i class="fas fa-chevron-left mr-3"></i>Back to List of Teams</a>
+</div>
+
+
+@section scripts
+    {
+    <partial name="_DataTableScriptsPartial" />
+
+    <script type="text/javascript">
+        $(function () {
+            $(".table").DataTable({
+                columnDefs: [
+                    {
+                        targets: [-1], orderable: false
+                    },
+                    {
+                        targets: [-1], searchable: false
+                    }
+                ]
+            });
+        });
+    </script>
+}

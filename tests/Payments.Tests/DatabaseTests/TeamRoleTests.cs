@@ -21,6 +21,7 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Name", "System.String", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Role Name\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)50)]"
             }));

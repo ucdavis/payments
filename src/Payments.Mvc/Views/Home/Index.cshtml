@@ -5,11 +5,16 @@
 
 <h2>Your Teams:</h2>
 
-<div class="d-flex flex-column align-items-start justify-content-center">
+<div class="row flex-column align-items-start justify-content-center">
     @foreach (var team in Model)
     {
-    <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@team.Slug">
-        <td>@team.Name</td>
-    </a>
+        <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@team.Slug" class="col-sm-12 col-md-5">
+            <div class="d-flex align-items-center justify-content-between card-dashboard-button card-style btn-card">
+                <i class="fas fa-users"></i>
+                <span>@team.Name</span>
+                <i class="fas fa-external-link-alt"></i>
+            </div>
+
+        </a>
     }
 </div>

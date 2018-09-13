@@ -7,14 +7,9 @@
 <div class="card-style">
     <div class="card-header-primary card-bot-border">
         <div class="card-head d-flex justify-content-between align-items-start">
-            <div>
-                <h2>@ViewBag.Title</h2>
-                <span>
-                    <a asp-action="Details" asp-controller="Teams">Back to List</a>
-                </span>
-            </div>
+            <h2>@ViewBag.Title</h2>
             <span>
-                <a asp-action="EditAccount" asp-route-id="@Model.FinancialAccount.Id" class="btn btn-primary"><i class="fa fa-fw fa-pencil-square-o"></i> Edit</a>
+                <a asp-action="EditAccount" asp-route-id="@Model.FinancialAccount.Id" class="btn btn-primary"><i class="far fa-edit mr-3"></i> Edit</a>
             </span>
         </div>
     </div>
@@ -36,7 +31,14 @@
                 @Html.DisplayNameFor(model => model.FinancialAccount.IsDefault)
             </dt>
             <dd class="col-md-8">
-                @Html.DisplayFor(model => model.FinancialAccount.IsDefault)
+                @if (Model.FinancialAccount.IsDefault)
+                {
+                    <i class="far fa-check-square"></i>
+                }
+                else
+                {
+                    <i class="far fa-square"></i>
+                }
             </dd>
             <dt class="col-md-4">
                 @Html.DisplayNameFor(model => model.FinancialAccount.Team)
@@ -44,8 +46,6 @@
             <dd class="col-md-8">
                 @Html.DisplayFor(model => model.FinancialAccount.Team.Name)
             </dd>
-        </dl>
-        <dl class="row">
             <dt class="col-md-4">
                 @Html.DisplayNameFor(model => model.FinancialAccount.Chart)
             </dt>
@@ -133,4 +133,7 @@
             <dd class="col-md-8">@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
         </dl>
     </div>
+</div>
+<div>
+    <a asp-action="Index"><i class="fas fa-chevron-left mr-3"></i> Back to Accounts</a>
 </div>

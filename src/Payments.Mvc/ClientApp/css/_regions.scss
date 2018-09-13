@@ -176,7 +176,7 @@ table.invoice-table {
           width:12%;
         }
         td:nth-child(5) {
-          width:30px;
+          width:40px;
         }
       }
     }
@@ -188,10 +188,6 @@ table.invoice-table {
       &:nth-child(5),
       &:nth-child(4) {
         text-align: right;
-      }
-
-      &:nth-child(4) {
-        padding-right:16px;
       }
     }
   }
@@ -206,7 +202,6 @@ table.invoice-table {
 
         &:nth-child(4) {
           text-align: right;
-          padding-right:16px;
         }
 
         &:nth-child(2),

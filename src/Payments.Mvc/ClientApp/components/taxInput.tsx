@@ -34,7 +34,7 @@ export default class DiscountInput extends React.Component<IProps, IState> {
         if (!this.state.hasTax) {
             return (
                 <button className="btn btn-link" onClick={this.addTax}>
-                    <i className="fa fa-plus" /> Add tax
+                    <i className="fas fa-plus mr-2" /> Add tax
                 </button>
             );
         }

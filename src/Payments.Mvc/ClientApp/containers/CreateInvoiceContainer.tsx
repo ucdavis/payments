@@ -8,6 +8,7 @@ import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
+import Alert from '../components/alert';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
@@ -118,9 +119,9 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         <div className="col d-flex justify-content-center align-items-end">
                             { this.renderError() }
                         </div>
-                        <div className="col d-flex justify-content-end align-items-center">
-                            <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
-                            <button className="btn" onClick={this.openSendModal}>Send...</button>
+                        <div className="col d-flex justify-content-end align-items-baseline">
+                            <button className="btn-plain mr-3" onClick={this.onSubmit}>Save and close</button>
+                            <button className="btn" onClick={this.openSendModal}>Send ...</button>
                             { this.renderSendModal() }
                         </div>
                     </div>
@@ -167,12 +168,10 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         }
 
         return (
-            <div className="flex-grow-1 alert alert-danger" role="alert">
-                <strong>Error!</strong> { errorMessage }
-                <button type="button" className="close" aria-label="Close" onClick={this.dismissErrorMessage}>
-                    <i className="fa fa-times" />
-                </button>
-            </div>
+            <Alert className="flex-grow-1 alert-danger" onDismiss={this.dismissErrorMessage}>
+                <strong className="mr-3">Error!</strong>
+                <span>{ errorMessage }</span>
+            </Alert>
         );
     }
 

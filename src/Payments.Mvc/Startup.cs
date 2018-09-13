@@ -149,6 +149,8 @@ namespace Payments.Mvc
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
             app.UseStaticFiles();
 
             app.UseAuthentication();
@@ -166,7 +168,7 @@ namespace Payments.Mvc
                     name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|jobs|support|system)" });
+                    constraints: new { controller = "(account|jobs|support|system|teams)" });
 
                 routes.MapRoute(
                     name: "team-index",

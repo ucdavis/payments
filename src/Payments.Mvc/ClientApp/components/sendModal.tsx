@@ -37,12 +37,12 @@ export default class SendModal extends React.Component<IProps, IState> {
                 <div className="modal-header">
                     <div className="row flex-grow-1">
                         <div className="col-md-3" />
-                        <div className="col-md-6 d-flex justify-content-center">
-                            <span className="modal-title">Send Invoice</span>
+                        <div className="col-md-6 d-flex justify-content-center align-items-center">
+                            <h3 className="modal-title">Send Invoice</h3>
                         </div>
-                        <div className="col-md-3 d-flex justify-content-end align-items-start">
-                            <button type="button" className="close" onClick={onCancel}>
-                                <span aria-hidden="true"><i className="fa fa-fw fa-times" /> Close</span>
+                        <div className="col-md-3 d-flex justify-content-end align-items-center">
+                            <button type="button" className="close m-1" onClick={onCancel}>
+                                <span aria-hidden="true"><i className="fas fa-times" /></span>
                             </button>
                         </div>
                     </div>
@@ -51,9 +51,9 @@ export default class SendModal extends React.Component<IProps, IState> {
                 { this.renderPreviewFrame() }
                 <div className="modal-footer">
                     <div className="flex-grow-1 d-flex justify-content-between align-items-center">
-                        <span><i className="fa fa-fw fa-info" /> This invoice can't be edited after it's sent.</span>
-                        <div>
-                            <button className="btn-plain" onClick={onCancel}>Cancel</button>
+                        <span><i className="fas fa-info mx-3" /> This invoice can't be edited after it's sent.</span>
+                        <div className="d-flex align-items-baseline">
+                            <button className="btn-plain mr-3" onClick={onCancel}>Cancel</button>
                             <button className="btn" onClick={this.onSend}>Send Invoice</button>
                         </div>
                     </div>
