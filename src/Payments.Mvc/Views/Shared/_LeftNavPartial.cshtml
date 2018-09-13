@@ -13,15 +13,20 @@
 
 @if (User.Identity.IsAuthenticated && user != null)
 {
-    using (Html.BeginForm("SetActiveTeam", "Home", FormMethod.Post, new { id = "TeamSelectForm" }))
-    {
-        var teamSelectList = user.GetTeams()
-            .Where(a => a.IsActive)
-            .Select(t => new SelectListItem() {Value = t.Id.ToString(), Text = t.Name, Selected = (t.Slug == teamSlug) })
-            .ToList();
+    var teamSelectList = user.GetTeams()
+        .Where(a => a.IsActive)
+        .Select(t => new SelectListItem() { Value = t.Id.ToString(), Text = t.Name, Selected = (t.Slug == teamSlug) })
+        .ToList();
 
-        @Html.DropDownList("teamId", teamSelectList, "Select Team", new { @class = "team-select-control", onchange= "$('#TeamSelectForm').submit()" })
-    }
+    <form asp-controller="Home" asp-action="SetActiveTeam" method="post" id="TeamSelectForm">
+        <div class="input-group team-select-control">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-users"></i></span>
+            </div>
+            <select name="teamId" class="form-control selectpicker"
+                    asp-items="teamSelectList" data-style="btn-primary" onchange="$('#TeamSelectForm').submit()"></select>
+        </div>
+    </form>
 }
 
 <nav>
