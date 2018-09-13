@@ -6,10 +6,6 @@
     ViewData["Title"] = "Team Details";
 }
 
-@section AdditionalStyles {
-    <partial name="_DataTableStylePartial" />
-}
-
 <div class="card-style">
     <div class="card-header-primary card-bot-border">
         <div class="card-head d-flex justify-content-between align-items-start">
@@ -96,10 +92,7 @@
 </div>
 
 
-@section scripts
-    {
-    <partial name="_DataTableScriptsPartial" />
-
+@section scripts {
     <script type="text/javascript">
         $(function () {
             $(".table").DataTable({
