@@ -20,16 +20,19 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Role", "Payments.Core.Domain.TeamRole", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Role\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
             expectedFields.Add(new NameAndType("RoleId", "System.Int32", new List<string>()));
             expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Team\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
             expectedFields.Add(new NameAndType("TeamId", "System.Int32", new List<string>()));
             expectedFields.Add(new NameAndType("User", "Payments.Core.Domain.User", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"User\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
             expectedFields.Add(new NameAndType("UserId", "System.String", new List<string>()));
