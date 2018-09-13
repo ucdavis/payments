@@ -56,7 +56,7 @@ export default class AccountSelectControl extends React.Component<IProps, IState
                 </select>
                 <div className="input-group-append">
                     <button className="btn btn-outline-secondary" type="button" onClick={this.openModal}>
-                        <i className="fa fa-fw fa-info-circle" />
+                        <i className="fas fa-fw fa-info-circle" />
                     </button>
                 </div>
                 {this.renderModal()}
@@ -75,12 +75,12 @@ export default class AccountSelectControl extends React.Component<IProps, IState
                 <div className="modal-header">
                     <div className="row flex-grow-1">
                         <div className="col-md-3" />
-                        <div className="col-md-6 d-flex justify-content-center">
+                        <div className="col-md-6 d-flex justify-content-center align-items-center">
                             <span className="modal-title">Accounts Details</span>
                         </div>
-                        <div className="col-md-3 d-flex justify-content-end align-items-start">
-                            <button type="button" className="close" onClick={this.closeModal}>
-                                <span aria-hidden="true"><i className="fa fa-fw fa-times" /> Close</span>
+                        <div className="col-md-3 d-flex justify-content-end align-items-center">
+                            <button type="button" className="close m-1" onClick={this.closeModal}>
+                                <span aria-hidden="true"><i className="fas fa-times" /></span>
                             </button>
                         </div>
                     </div>
@@ -136,7 +136,7 @@ export default class AccountSelectControl extends React.Component<IProps, IState
                     </div>
                     <div className="col-md-1 d-flex justify-content-end align-items-center">
                         <button className="btn" onClick={() => this.modalPickAccount(id)}>
-                            <i className="fa fa-share" />
+                            <i className="fas fa-angle-right" />
                         </button>
                     </div>
                 </div>

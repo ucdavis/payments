@@ -167,12 +167,10 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         }
 
         return (
-            <div className="flex-grow-1 alert alert-danger" role="alert">
-                <strong>Error!</strong> { errorMessage }
-                <button type="button" className="close" aria-label="Close" onClick={this.dismissErrorMessage}>
-                    <i className="fa fa-times" />
-                </button>
-            </div>
+            <Alert className="flex-grow-1 alert-danger" onDismiss={this.dismissErrorMessage}>
+                <strong className="mr-3">Error!</strong>
+                <span>{ errorMessage }</span>
+            </Alert>
         );
     }
 

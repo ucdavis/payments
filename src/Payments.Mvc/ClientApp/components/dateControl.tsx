@@ -52,7 +52,7 @@ export default class DateControl extends React.Component<IProps, {}> {
                 />
                 <div className="input-group-append">
                     <button className="btn btn-outline-secondary" type="button">
-                        <i className="fa fa-fw fa-calendar" />
+                        <i className="far fa-fw fa-calendar" />
                     </button>
                 </div>
             </div>
