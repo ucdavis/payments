@@ -63,15 +63,7 @@
     </div>
 </div>
 
-@section AdditionalStyles
-{
-    @{ await Html.RenderPartialAsync("_DataTableStylePartial"); }
-}
-
-@section scripts
-{
-    @{ await Html.RenderPartialAsync("_DataTableScriptsPartial"); }
-    
+@section scripts {
     <script type="text/javascript">
         $(function() {
             $(".table").DataTable();

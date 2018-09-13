@@ -57,12 +57,11 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+    <partial name="_ValidationScriptsParial" />
     <script>
-        $(function() {
+        $(function () {
             var dirtySlug = false;
-            $('#Name').keyup(function() {
+            $('#Name').keyup(function () {
                 if (dirtySlug) {
                     return;
                 }
@@ -76,7 +75,7 @@
                 updateSlugUrl();
             });
 
-            $('#Slug').change(function() {
+            $('#Slug').change(function () {
                 dirtySlug = true;
                 updateSlugUrl();
             });
