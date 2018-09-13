@@ -13,20 +13,52 @@
 
 @if (User.Identity.IsAuthenticated && user != null)
 {
-    var teamSelectList = user.GetTeams()
+    var teams = user.GetTeams().ToList();
+
+    var teamSelectList = teams
         .Where(a => a.IsActive)
         .Select(t => new SelectListItem() { Value = t.Id.ToString(), Text = t.Name, Selected = (t.Slug == teamSlug) })
         .ToList();
 
+    var currentTeam = teams.FirstOrDefault(t => t.Slug == teamSlug);
+
     <form asp-controller="Home" asp-action="SetActiveTeam" method="post" id="TeamSelectForm">
-        <div class="input-group team-select-control">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-users"></i></span>
+        <input id="teamSelectFormTeamId" name="teamId" type="hidden" />
+
+        <button type="button" class="btn dropdown-toggle btn-primary team-select-control" data-toggle="dropdown" role="button" title="Select your team">
+            <div class="title">
+                <div class="title-inner">
+                    <div class="title-inner-inner">
+                        <i class="fas fa-users mr-2"></i>
+                        @if (currentTeam == null)
+                        {
+                            <span>Select your team</span>
+                        }
+                        else
+                        {
+                            <span>@currentTeam.Name</span>
+                        }
+                    </div>
+                </div>
             </div>
-            <select name="teamId" class="form-control selectpicker"
-                    asp-items="teamSelectList" data-style="btn-primary" onchange="$('#TeamSelectForm').submit()"></select>
+        </button>
+
+        <div class="dropdown-menu">
+            @foreach (var t in user.GetTeams())
+            {
+                <button class="team-select-control-item dropdown-item" type="button" data-id="@t.Id">@t.Name</button>
+            }
         </div>
     </form>
+    <script>
+        window.addEventListener('load', function () {
+            $('.team-select-control-item').click(function() {
+                var id = $(this).attr('data-id');
+                $('#teamSelectFormTeamId').val(id);
+                $('#TeamSelectForm').submit();
+            });
+        });
+    </script>
 }
 
 <nav>

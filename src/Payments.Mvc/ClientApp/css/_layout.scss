@@ -49,9 +49,6 @@ body {
 }
 
 .profile {
-  display: flex;
-  align-items: center;
-
   img.profile-picture {
     border-radius: 50%;
     width: 44px;
@@ -68,6 +65,49 @@ body {
     background-color: rgba(255,255,255,.001);
   }
 }
+
+.team-select-control {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  text-align: right;
+  white-space: nowrap;
+  float: none;
+  display: inline-block;
+  margin-left: 0;
+
+  &:before {
+    content: '';
+    display: inline-block;
+  }
+
+  .title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-top: inherit;
+    padding-right: inherit;
+    padding-bottom: inherit;
+    padding-left: inherit;
+    height: 100%;
+    width: 100%;
+    text-align: left;
+
+    .title-inner {
+      padding-right: inherit;
+
+      .title-inner-inner {
+        overflow: hidden;
+      }
+    }
+  }
+}
+
+.team-select-control-item {
+  font-size: 1.4rem;
+  text-align: center;
+}
+
 .card-style {
   background-color: #ffffff;
   box-shadow: $box-shadow;
