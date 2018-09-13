@@ -2,7 +2,7 @@ version: 1.0.0.{build}
 
 environment:
   configuration: Release
-  node_version: "8"
+  node_version: "9"
 
 branches:
   except:
@@ -13,7 +13,6 @@ image: Visual Studio 2017
 init:
 - ps: |
     Install-Product node $env:node_version
-    appveyor-retry choco install octopustools
 
 cache:
 - C:\ProgramData\chocolatey\bin -> appveyor.yml
@@ -23,6 +22,7 @@ cache:
 
 before_build:
 - ps: |
+    appveyor-retry choco install octopustools
     appveyor-retry dotnet restore .\src\Payments.Mvc\
 
 build_script:
