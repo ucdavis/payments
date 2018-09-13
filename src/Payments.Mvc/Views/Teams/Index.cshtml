@@ -41,8 +41,11 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Name)
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.IsActive)
+                        <td class="text-center">
+                            @if (item.IsActive)
+                            {
+                                <i class="far fa-check-square"></i>
+                            }
                         </td>
                         <td class="text-center">
                             @if (isAdmin)
@@ -54,7 +57,7 @@
                             }
                             else
                             {
-                                <a asp-action="Details" asp-route-team="@item.Slug">Details</a>
+                                <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
                             }
 
                         </td>

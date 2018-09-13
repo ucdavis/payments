@@ -61,13 +61,19 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Project)
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.IsDefault)
+                        <td class="text-center">
+                            @if (item.IsDefault)
+                            {
+                                <i class="far fa-check-square"></i>
+                            }
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.IsActive)
+                        <td class="text-center">
+                            @if (item.IsActive)
+                            {
+                                <i class="far fa-check-square"></i>
+                            }
                         </td>
-                        <td>
+                        <td class="text-center">
                             <a asp-action="EditAccount" asp-controller="FinancialAccounts" asp-route-id="@item.Id">Edit</a> |
                             <a asp-action="AccountDetails" asp-controller="FinancialAccounts" asp-route-id="@item.Id">Details</a> |
                             <a asp-action="DeleteAccount" asp-controller="FinancialAccounts" asp-route-id="@item.Id">Delete</a>

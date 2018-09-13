@@ -4,9 +4,9 @@
     var statusCodes = ViewBag.Statuses as IEnumerable<SelectListItem>;
 }
 
-<form class="" id="invoiceFilterForm" asp-controller="Invoices" asp-action="SetFilter" method="post">
-    <div class="row">
-        <div class="col-lg-9">
+<form class="row" id="invoiceFilterForm" asp-controller="Invoices" asp-action="SetFilter" method="post">
+    <div class="col-lg-9">
+        <div class="row">
             <div class="form-group col-lg-6">
                 <label>Status</label>
                 <select id="filter_statuses" class="form-control selectpicker" asp-for="Statuses" asp-items="statusCodes" data-style="btn-primary"></select>
@@ -20,14 +20,13 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 d-flex justify-content-end align-items-end">
-            <div class="d-flex justify-content-end align-items-center">
-                <button class="btn-plain" type="reset">Clear Filter</button>
-                <button class="btn btn-primary" type="submit">Apply Filter <i class="fa fa-fw fa-filter"></i></button>
-            </div>
+    </div>
+    <div class="col-lg-3 d-flex justify-content-end align-items-end">
+        <div class="d-flex justify-content-end align-items-center">
+            <button class="btn-plain" type="reset">Clear Filter</button>
+            <button class="btn btn-primary" type="submit">Apply Filter <i class="fa fa-fw fa-filter"></i></button>
         </div>
     </div>
-
 </form>
 
 <script type="text/javascript">

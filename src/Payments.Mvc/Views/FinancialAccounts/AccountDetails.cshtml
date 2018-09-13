@@ -31,7 +31,14 @@
                 @Html.DisplayNameFor(model => model.FinancialAccount.IsDefault)
             </dt>
             <dd class="col-md-8">
-                @Html.DisplayFor(model => model.FinancialAccount.IsDefault)
+                @if (Model.FinancialAccount.IsDefault)
+                {
+                    <i class="far fa-check-square"></i>
+                }
+                else
+                {
+                    <i class="far fa-square"></i>
+                }
             </dd>
             <dt class="col-md-4">
                 @Html.DisplayNameFor(model => model.FinancialAccount.Team)
@@ -39,8 +46,6 @@
             <dd class="col-md-8">
                 @Html.DisplayFor(model => model.FinancialAccount.Team.Name)
             </dd>
-        </dl>
-        <dl class="row">
             <dt class="col-md-4">
                 @Html.DisplayNameFor(model => model.FinancialAccount.Chart)
             </dt>
