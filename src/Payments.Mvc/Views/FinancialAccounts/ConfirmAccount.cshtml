@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.FinancialModels.FinancialAccountModel
+@model Payments.Mvc.Models.FinancialModels.FinancialAccountModel
 
 @{
     ViewData["Title"] = "Confirm Create Account";
@@ -115,11 +115,11 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsParial"/>
+    <partial name="_ValidationScriptsPartial" />
     <script type="text/javascript">
 
         $('#edit').on('click',
-            function() {
+            function () {
                 $("#confirm").val("false");
                 $("#confirm-create").submit();
             });
