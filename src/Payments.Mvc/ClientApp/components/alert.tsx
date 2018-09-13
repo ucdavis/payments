@@ -1,0 +1,27 @@
+import * as React from 'react';
+
+import { Invoice } from '../models/Invoice';
+import { Team } from '../models/Team';
+
+
+interface IProps {
+    className: string;
+    onDismiss: () => void;
+}
+
+export default class Alert extends React.Component<IProps, {}> {
+    public render() {
+        const { className, onDismiss } = this.props;
+
+        return (
+            <div className={"d-flex justify-content-between align-items-center alert " + className} role="alert">
+                <div>
+                    { this.props.children }
+                </div>
+                <button type="button" className="close" aria-label="Close" onClick={onDismiss}>
+                    <i className="fas fa-times" />
+                </button>
+            </div>
+        );
+    }
+}

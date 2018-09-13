@@ -10,6 +10,7 @@ import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
+import Alert from '../components/alert';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
@@ -134,9 +135,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             { this.renderError() }
                         </div>
                         <div className="col d-flex justify-content-end align-items-center">
-                            <button className="btn-plain" onClick={this.onSubmit}>Save and close</button>
+                            <button className="btn-plain mr-3" onClick={this.onSubmit}>Save and close</button>
                             { !sent &&
-                                <button className="btn" onClick={this.openSendModal}>Send...</button> }
+                                <button className="btn" onClick={this.openSendModal}>Send ...</button> }
                             { !sent && 
                                 this.renderSendModal() }
                         </div>
