@@ -7,6 +7,17 @@ interface IProps {
     onChange: (value: string) => void;
     startDate?: Date;
     placeholder: string;
+    required?: boolean;
+}
+
+// from @types/bootstrap-datepicker
+// https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/bootstrap-datepicker/index.d.ts
+interface DatepickerEventObject extends JQueryEventObject {
+    date: Date;
+    dates: Date[];
+    format(ix?:number): string;
+    format(format?: string): string;
+    format(ix?:number, format?: string): string;
 }
 
 export default class DateControl extends React.Component<IProps, {}> {
