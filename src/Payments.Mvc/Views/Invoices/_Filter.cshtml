@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.InvoiceViewModels.InvoiceFilterViewModel
+@model Payments.Mvc.Models.InvoiceViewModels.InvoiceFilterViewModel
 
 @{
     var statusCodes = ViewBag.Statuses as IEnumerable<SelectListItem>;
@@ -22,7 +22,7 @@
         </div>
     </div>
     <div class="col-lg-3 d-flex justify-content-end align-items-end">
-        <div class="d-flex justify-content-end align-items-center">
+        <div class="d-flex justify-content-end align-items-center form-group">
             <button class="btn-plain" type="reset">Clear Filter</button>
             <button class="btn btn-primary" type="submit">Apply Filter <i class="fas fa-filter"></i></button>
         </div>
