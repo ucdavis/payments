@@ -158,6 +158,10 @@ table.invoice-table {
   tbody {
     &.tbody-invoice-details {
       tr {
+        td {
+          vertical-align: top;
+        }
+
         td:first-child {
           // width:45%;
           padding-right:16px;
