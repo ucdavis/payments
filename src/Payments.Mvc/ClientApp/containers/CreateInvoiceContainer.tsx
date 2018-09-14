@@ -87,6 +87,9 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         customers={customers}
                         onChange={(c) => this.updateProperty('customers', c)}
                     />
+                    <div className="invalid-feedback">
+                        Customer required.
+                    </div>
                 </div>
                 <div className="card-content invoice-items">
                     <h2>Invoice Items</h2>

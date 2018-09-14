@@ -99,6 +99,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                             customer={customer}
                             onChange={(c) => { this.updateProperty("customer", c) }}
                         />
+                        <div className="invalid-feedback">
+                            Customer required.
+                        </div>
                     </div>
                 </div>
                 <div className="card-content invoice-items">
