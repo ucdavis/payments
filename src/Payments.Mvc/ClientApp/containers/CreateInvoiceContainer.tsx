@@ -236,7 +236,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         for (let i = 0; i < ids.length; i++) {
             const id = ids[i];
             // send invoice
-            const url = `/${slug}/send/${id}`;
+            const url = `/${slug}/invoices/send/${id}`;
 
             const response = await fetch(url, {
                 credentials: "same-origin",
