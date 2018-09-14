@@ -11,6 +11,7 @@ import AccountSelectControl from '../components/accountSelectControl';
 import Alert from '../components/alert';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
+import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
 import MultiCustomerControl from '../components/multiCustomerControl';
@@ -34,11 +35,14 @@ interface IState {
     items: InvoiceItem[];
     loading: boolean;
     errorMessage: string;
+    validate: boolean;
 
     isSendModalOpen: boolean;
 }
 
 export default class CreateInvoiceContainer extends React.Component<IProps, IState> {
+    private _formRef: HTMLFormElement;
+
     constructor(props: IProps) {
         super(props);
 
@@ -62,15 +66,16 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             errorMessage: '',
             loading: false,
             isSendModalOpen: false,
+            validate: false,
         };
     }
 
     public render() {
         const { accounts, team } = this.props;
-        const { accountId, dueDate, items, discount, taxPercent, customers, memo, loading } = this.state;
+        const { accountId, dueDate, items, discount, taxPercent, customers, memo, loading, validate } = this.state;
         
         return (
-            <div className="card-style">
+            <InvoiceForm className="card-style" validate={validate} formRef={r => this._formRef = r}>
                 <LoadingModal loading={loading} />
                 <div className="card-header-yellow card-bot-border">
                     <div className="card-head">
@@ -82,6 +87,9 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         customers={customers}
                         onChange={(c) => this.updateProperty('customers', c)}
                     />
+                    <div className="invalid-feedback">
+                        Customer required.
+                    </div>
                 </div>
                 <div className="card-content invoice-items">
                     <h2>Invoice Items</h2>
@@ -126,7 +134,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         </div>
                     </div>
                 </div>
-            </div>
+            </InvoiceForm>
         );
     }
 
@@ -182,6 +190,16 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
     }
 
     private saveInvoice = async () => {
+        // enable validation
+        this.setState({ validate: true });
+
+        // check validation
+        const isValid = this._formRef.checkValidity();
+        if (!isValid) {
+            return false;
+        }
+
+
         const { slug } = this.props.team;
         const { accountId, dueDate, customers, discount, taxPercent, items, memo } = this.state;
 
@@ -236,7 +254,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         for (let i = 0; i < ids.length; i++) {
             const id = ids[i];
             // send invoice
-            const url = `/${slug}/send/${id}`;
+            const url = `/${slug}/invoices/send/${id}`;
 
             const response = await fetch(url, {
                 credentials: "same-origin",

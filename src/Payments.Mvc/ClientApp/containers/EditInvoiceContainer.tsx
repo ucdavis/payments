@@ -11,8 +11,10 @@ import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
 import Alert from '../components/alert';
+import CustomerControl from '../components/customerControl';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
+import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
 import SendModal from '../components/sendModal';
@@ -38,9 +40,12 @@ interface IState {
     loading: boolean;
     errorMessage: string;
     isSendModalOpen: boolean;
+    validate: boolean;
 }
 
 export default class EditInvoiceContainer extends React.Component<IProps, IState> {
+    private _formRef: HTMLFormElement;
+
     constructor(props: IProps) {
         super(props);
 
@@ -69,16 +74,17 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             errorMessage: "",
             loading: false,
             isSendModalOpen: false,
+            validate: false,
         };
     }
 
     public render() {
         const { id, sent, team, accounts } = this.props;
-        const { accountId, customer, dueDate, items, discount, taxPercent, memo, loading } = this.state;
+        const { accountId, customer, dueDate, items, discount, taxPercent, memo, loading, validate } = this.state;
         
 
         return (
-            <div className="card-style">
+            <InvoiceForm className="card-style" validate={validate} formRef={r => this._formRef = r}>
                 <LoadingModal loading={loading} />
                 <div className="card-header-yellow card-bot-border">
                     <div className="card-head">
@@ -89,13 +95,13 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <h3>Customer Info</h3>
                     <div className="form-group">
                         <label>Customer Email</label>
-                        <input
-                            type="email"
-                            className="form-control"
-                            placeholder="johndoe@example.com"
-                            onChange={(e) => { this.updateProperty("customer", { email: e.target.value }) }}
-                            value={customer.email}
+                        <CustomerControl
+                            customer={customer}
+                            onChange={(c) => { this.updateProperty("customer", c) }}
                         />
+                        <div className="invalid-feedback">
+                            Customer required.
+                        </div>
                     </div>
                 </div>
                 <div className="card-content invoice-items">
@@ -143,7 +149,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         </div>
                     </div>
                 </div>
-            </div>
+            </InvoiceForm>
         );
     }
 
@@ -192,6 +198,15 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private saveInvoice = async () => {
+        // enable validation
+        this.setState({ validate: true });
+
+        // check validation
+        const isValid = this._formRef.checkValidity();
+        if (!isValid) {
+            return false;
+        }
+
         const { id } = this.props;
         const { slug } = this.props.team;
         const { accountId, customer, discount, dueDate, taxPercent, items, memo } = this.state;

@@ -37,13 +37,17 @@ export default class DiscountInput extends React.Component<IProps, IState> {
                 </div>
                 <input
                     type="number"
-                    min="0"
+                    min="0.01"
                     step="0.01"
                     className="form-control"
                     placeholder="0.00"
                     value={value}
                     onChange={(e) => { onChange(e.target.value) }}
+                    required={true}
                 />
+                <div className="invalid-feedback">
+                    Set a discount or remove.
+                </div>
             </div>
         );
     }
