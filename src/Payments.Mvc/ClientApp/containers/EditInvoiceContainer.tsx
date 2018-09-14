@@ -11,6 +11,7 @@ import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
 import Alert from '../components/alert';
+import CustomerControl from '../components/customerControl';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
 import LoadingModal from '../components/loadingModal';
@@ -89,12 +90,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <h3>Customer Info</h3>
                     <div className="form-group">
                         <label>Customer Email</label>
-                        <input
-                            type="email"
-                            className="form-control"
-                            placeholder="johndoe@example.com"
-                            onChange={(e) => { this.updateProperty("customer", { email: e.target.value }) }}
-                            value={customer.email}
+                        <CustomerControl
+                            customer={customer}
+                            onChange={(c) => { this.updateProperty("customer", c) }}
                         />
                     </div>
                 </div>

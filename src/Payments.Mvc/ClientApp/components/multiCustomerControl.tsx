@@ -2,6 +2,8 @@ import * as React from 'react';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import * as ArrayUtils from '../utils/array';
 
+import CustomerControl from './customerControl';
+
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 interface IProps {
@@ -45,12 +47,9 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
                 <div className="form-group">
                     <label>Customer Email</label>
                     <div className="input-group">
-                        <input
-                            type="email"
-                            className="form-control"
-                            placeholder="johndoe@example.com"
-                            onChange={(e) => { onChange([{ email: e.target.value }]) }}
-                            value={customer.email}
+                        <CustomerControl
+                            customer={customer}
+                            onChange={(c) => { onChange([c]) }}
                         />
                         <div className="input-group-append">
                             <button className="btn" type="button" onClick={this.enableMultiCustomer}>
