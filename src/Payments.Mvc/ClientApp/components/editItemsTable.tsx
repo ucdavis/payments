@@ -140,17 +140,26 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         placeholder=""
                         value={description}
                         onChange={(e) => { this.updateItemProperty(id, 'description', e.target.value) }}
+                        required={true}
                     />
+                    <div className="invalid-feedback">
+                        Description required
+                    </div>
                 </td>
                 <td>
                     <input
                         type="number"
                         min="0"
+                        step="0.01"
                         className="form-control"
                         placeholder="0"
                         value={quantity}
                         onChange={(e) => { this.updateItemProperty(id, 'quantity', e.target.value) }}
+                        required={true}
                     />
+                    <div className="invalid-feedback">
+                        Quantity required
+                    </div>
                 </td>
                 <td>
                     <div className="input-group">
@@ -159,13 +168,17 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         </div>
                         <input
                             type="number"
-                            min="0"
+                            min="0.01"
                             step="0.01"
                             className="form-control"
                             placeholder="0.00"
                             value={amount}
                             onChange={(e) => { this.updateItemProperty(id, 'amount', e.target.value) }}
+                            required={true}
                         />
+                    </div>
+                    <div className="invalid-feedback">
+                        Price required
                     </div>
                 </td>
                 <td>

@@ -29,7 +29,7 @@ export default class DateControl extends React.Component<IProps, {}> {
     }
 
     public render() {
-        const { value, startDate, placeholder } = this.props;
+        const { value, startDate, placeholder, required } = this.props;
 
         const datePickerOptions = {
             "data-date-container": "body",
@@ -49,6 +49,7 @@ export default class DateControl extends React.Component<IProps, {}> {
                     placeholder={placeholder}
                     value={value}
                     onChange={e => this.onChange(e.target.value)}
+                    required={required}
                 />
                 <div className="input-group-append">
                     <button className="btn btn-outline-secondary" type="button">
