@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -215,6 +215,34 @@ namespace Payments.Mvc.Controllers
             #endregion
 
             return View("Pay", model);
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public ActionResult Cancel(ReceiptResponseModel response)
+        {
+            Log.ForContext("response", response, true).Information("Receipt response received");
+
+            // check signature
+            var dictionary = Request.Form.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
+            if (!_dataSigningService.Check(dictionary, response.Signature))
+            {
+                Log.Error("Check Signature Failure");
+                ErrorMessage = "An error has occurred. Payment not processed. If you experience further problems, contact us.";
+                return StatusCode(500);
+            }
+
+            // find matching invoice
+            var invoice = _dbContext.Invoices.SingleOrDefault(a => a.Id == response.Req_Reference_Number);
+            if (invoice == null)
+            {
+                Log.Error("Order not found {0}", response.Req_Reference_Number);
+                ErrorMessage = "Invoice for payment not found. Please contact technical support.";
+                return NotFound(response.Req_Reference_Number);
+            }
+
+            ErrorMessage = "Payment Process Cancelled";
+            return RedirectToAction(nameof(Pay), new {linkId = invoice.LinkId});
         }
 
         [HttpPost]
