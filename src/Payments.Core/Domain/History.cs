@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
+using Payments.Core.Models.History;
 
 namespace Payments.Core.Domain
 {
@@ -28,5 +28,11 @@ namespace Payments.Core.Domain
         public User Actor { get; set; }
 
         public string ActorId { get; set; }
+
+        public string GetMessage()
+        {
+            var actionType = HistoryActionTypes.GetHistoryActionType(this.Type);
+            return actionType.GetMessage(Data);
+        }
     }
 }

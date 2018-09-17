@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -7,14 +8,37 @@
     Layout = "_Layout";
 
     var scheme = HttpContextAccessor.HttpContext.Request.Scheme;
+
+    var timeline = Model.History.OrderBy(h => h.ActionDateTime);
 }
 
 <div class="card-style">
     <div class="card-header-yellow card-bot-border">
         <div class="card-head">
-            <h2>@ViewBag.Title</h2>
-
+            <h2>@ViewBag.Title for $@Model.Total</h2>
         </div>
+    </div>
+    <div class="card-content history-timeline">
+        @foreach (var action in timeline)
+        {
+            var actionType = HistoryActionTypes.GetHistoryActionType(action.Type);
+
+            <div class="d-flex w-100 history-item">
+                <div class="mt-1 mr-4">
+                    <i class="history-icon fa-fw @actionType.IconClass"></i>
+                </div>
+                <div>
+                    <span>@action.GetMessage()</span><br />
+                    <span class="text-muted">@action.ActionDateTime.ToString("MMM dd, h:mm tt")</span>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card-style">
+    <div class="card-header">
+        <h3>Summary</h3>
     </div>
     <div class="card-content invoice-customer">
         <h2>Customer Info</h2>
@@ -35,56 +59,56 @@
         <h2>Invoice Items</h2>
         <table class="table invoice-table">
             <thead>
-            <tr>
-                <th>Description</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Amount</th>
-                <th />
-            </tr>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th />
+                </tr>
             </thead>
             <tbody>
-            @for (var i = 0; i < Model.Items.Count; i++)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
-                </tr>
-            }
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
+                    </tr>
+                }
             </tbody>
             <tbody>
-            <tr>
-                <td></td>
-                <td>Subtotal</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Subtotal)</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>Discount</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Discount)</td>
-                <td />
-            </tr>
-            <tr>
-                <td />
-                <td>Tax</td>
-                <td>@Html.DisplayFor(x => x.TaxPercent)</td>
-                <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td></td>
+                    <td>Subtotal</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Subtotal)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Discount</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Discount)</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td />
+                    <td>Tax</td>
+                    <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                    <td />
+                </tr>
             </tbody>
             <tfoot>
-            <tr>
-                <td />
-                <td>Total</td>
-                <td />
-                <td>@Html.DisplayFor(x => x.Total)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td />
+                    <td>Total</td>
+                    <td />
+                    <td>@Html.DisplayFor(x => x.Total)</td>
+                    <td />
+                </tr>
             </tfoot>
         </table>
     </div>
