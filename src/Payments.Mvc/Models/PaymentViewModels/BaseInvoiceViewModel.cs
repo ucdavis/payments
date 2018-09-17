@@ -21,7 +21,7 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public decimal TaxPercent { get; set; }
 
-        public List<LineItem> Items { get; set; }
+        public IList<LineItem> Items { get; set; }
 
         public decimal Subtotal { get; set; }
 
