@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.History;
 using Payments.Core.Services;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
@@ -93,6 +94,7 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
+                .Include(i => i.History)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -261,6 +263,15 @@ namespace Payments.Mvc.Controllers
                 });
                 invoice.Items = items.ToList();
 
+                // record action
+                var action = new History()
+                {
+                    Type = HistoryActionTypes.InvoiceCreated.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = user,
+                };
+                invoice.History.Add(action);
+
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
                 _dbContext.Invoices.Add(invoice);
@@ -344,6 +355,16 @@ namespace Payments.Mvc.Controllers
                 SetInvoiceKey(invoice);
             }
 
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceEdited.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user,
+            };
+            invoice.History.Add(action);
+
             // save to db
             invoice.UpdateCalculatedValues();
             _dbContext.SaveChanges();
@@ -388,6 +409,17 @@ namespace Payments.Mvc.Controllers
             invoice.Status = Invoice.StatusCodes.Sent;
             invoice.Sent = true;
             invoice.SentAt = DateTime.UtcNow;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceSent.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user,
+            };
+            invoice.History.Add(action);
+
             await _dbContext.SaveChangesAsync();
 
             return new JsonResult(new
@@ -413,6 +445,16 @@ namespace Payments.Mvc.Controllers
             invoice.Sent = false;
             invoice.SentAt = null;
             invoice.LinkId = null;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceUnlocked.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user,
+            };
+            invoice.History.Add(action);
 
             await _dbContext.SaveChangesAsync();
 

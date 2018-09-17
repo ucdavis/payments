@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.History;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.CyberSource;
 using Payments.Mvc.Models.PaymentViewModels;
@@ -69,7 +70,7 @@ namespace Payments.Mvc.Controllers
                 ViewBag.CyberSourceUrl = _cyberSourceSettings.BaseUrl;
 
                 model.PaymentDictionary = dictionary;
-            }            
+            }
 
             return View(model);
         }
@@ -142,7 +143,10 @@ namespace Payments.Mvc.Controllers
             var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
 
             // fill in totals
-            model.Items.ForEach(i => i.Total = i.Amount * i.Quantity);
+            foreach (var i in model.Items)
+            {
+                i.Total = i.Amount * i.Quantity;
+            }
             model.UpdateCalculatedValues();
 
             return View("preview", model);
@@ -150,7 +154,7 @@ namespace Payments.Mvc.Controllers
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public ActionResult Receipt(ReceiptResponseModel response)
+        public async Task<ActionResult> Receipt(ReceiptResponseModel response)
         {
             Log.ForContext("response", response, true).Information("Receipt response received");
 
@@ -164,7 +168,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // find matching invoice
-            var invoice = _dbContext.Invoices.SingleOrDefault(a => a.Id == response.Req_Reference_Number);
+            var invoice = await _dbContext.Invoices.SingleOrDefaultAsync(a => a.Id == response.Req_Reference_Number);
             if (invoice == null)
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
@@ -189,6 +193,19 @@ namespace Payments.Mvc.Controllers
             var responseValid = CheckResponse(response);
             if (!responseValid.IsValid)
             {
+#if DEBUG
+                // For testing local only, we should process the actual payment
+                // record action
+                var failureAction = new History()
+                {
+                    Type = HistoryActionTypes.PaymentFailed.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                };
+                invoice.History.Add(failureAction);
+
+                await _dbContext.SaveChangesAsync();
+#endif
+
                 // send them back to the pay page with errors
                 ErrorMessage = string.Format("Errors detected: {0}", string.Join(",", responseValid.Errors));
                 return View("Pay", model);
@@ -199,7 +216,7 @@ namespace Payments.Mvc.Controllers
             model.PaidDate = response.AuthorizationDateTime;
             model.Status = Invoice.StatusCodes.Paid;
 
-            #region DEBUG
+#if DEBUG
             // For testing local only, we should process the actual payment
             // Live systems will use the side channel message from cybersource direct to record the payment event
             ViewBag.PaymentDictionary = dictionary;
@@ -209,15 +226,24 @@ namespace Payments.Mvc.Controllers
                 invoice.Payment = payment;
                 invoice.Status = Invoice.StatusCodes.Paid;
             }
-            _dbContext.SaveChanges();
-            #endregion
+
+            // record action
+            var successAction = new History()
+            {
+                Type = HistoryActionTypes.PaymentCompleted.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+            };
+            invoice.History.Add(successAction);
+
+            await _dbContext.SaveChangesAsync();
+#endif
 
             return View("Pay", model);
         }
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public ActionResult Cancel(ReceiptResponseModel response)
+        public async Task<ActionResult> Cancel(ReceiptResponseModel response)
         {
             Log.ForContext("response", response, true).Information("Receipt response received");
 
@@ -239,6 +265,17 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+#if DEBUG
+            // record action
+            var action = new History()
+            {
+                Type = HistoryActionTypes.PaymentFailed.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+            };
+            invoice.History.Add(action);
+            await _dbContext.SaveChangesAsync();
+#endif
+
             ErrorMessage = "Payment Process Cancelled";
             return RedirectToAction(nameof(Pay), new {id = invoice.LinkId});
         }
@@ -246,7 +283,7 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
-        public ActionResult ProviderNotify(ReceiptResponseModel response)
+        public async Task<ActionResult> ProviderNotify(ReceiptResponseModel response)
         {
             Log.ForContext("response", response, true).Information("Provider Notification Received");
 
@@ -271,9 +308,27 @@ namespace Payments.Mvc.Controllers
             {
                 invoice.Payment = payment;
                 invoice.Status = "paid";
+
+                // record action
+                var action = new History()
+                {
+                    Type = HistoryActionTypes.PaymentCompleted.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                };
+                invoice.History.Add(action);
+            }
+            else
+            {
+                // record action
+                var action = new History()
+                {
+                    Type = HistoryActionTypes.PaymentFailed.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                };
+                invoice.History.Add(action);
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return new JsonResult(new { });
         }
 
