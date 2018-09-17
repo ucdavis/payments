@@ -74,8 +74,6 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
-        
-
         [HttpGet]
         [MiddlewareFilter(typeof(JsReportPipeline))]
         public async Task<ActionResult> Pdf(string id)
@@ -161,17 +159,16 @@ namespace Payments.Mvc.Controllers
             if (!_dataSigningService.Check(dictionary, response.Signature))
             {
                 Log.Error("Check Signature Failure");
-                ViewBag.ErrorMessage = "An error has occurred. Payment not processed. If you experience further problems, contact us.";
-                return RedirectToAction("Index", "Home");
+                ErrorMessage = "An error has occurred. Payment not processed. If you experience further problems, contact us.";
+                return StatusCode(500);
             }
-            ViewBag.PaymentDictionary = dictionary;
 
             // find matching invoice
             var invoice = _dbContext.Invoices.SingleOrDefault(a => a.Id == response.Req_Reference_Number);
             if (invoice == null)
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
-                ViewBag.ErrorMessage = "Invoice for payment not found. Please contact technical support.";
+                ErrorMessage = "Invoice for payment not found. Please contact technical support.";
                 return NotFound(response.Req_Reference_Number);
             }
 
@@ -193,18 +190,19 @@ namespace Payments.Mvc.Controllers
             if (!responseValid.IsValid)
             {
                 // send them back to the pay page with errors
-                ViewBag.ErrorMessage = string.Format("Errors detected: {0}", string.Join(",", responseValid.Errors));
+                ErrorMessage = string.Format("Errors detected: {0}", string.Join(",", responseValid.Errors));
                 return View("Pay", model);
             }
 
             // Should be good,   
-            ViewBag.Message = "Payment Processed. Thank You.";
+            Message = "Payment Processed. Thank You.";
             model.PaidDate = response.AuthorizationDateTime;
             model.Status = Invoice.StatusCodes.Paid;
 
             #region DEBUG
             // For testing local only, we should process the actual payment
             // Live systems will use the side channel message from cybersource direct to record the payment event
+            ViewBag.PaymentDictionary = dictionary;
             var payment = ProcessPaymentEvent(response, dictionary);
             if (response.Decision == ReplyCodes.Accept)
             {
@@ -215,6 +213,34 @@ namespace Payments.Mvc.Controllers
             #endregion
 
             return View("Pay", model);
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public ActionResult Cancel(ReceiptResponseModel response)
+        {
+            Log.ForContext("response", response, true).Information("Receipt response received");
+
+            // check signature
+            var dictionary = Request.Form.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
+            if (!_dataSigningService.Check(dictionary, response.Signature))
+            {
+                Log.Error("Check Signature Failure");
+                ErrorMessage = "An error has occurred. Payment not processed. If you experience further problems, contact us.";
+                return StatusCode(500);
+            }
+
+            // find matching invoice
+            var invoice = _dbContext.Invoices.SingleOrDefault(a => a.Id == response.Req_Reference_Number);
+            if (invoice == null)
+            {
+                Log.Error("Order not found {0}", response.Req_Reference_Number);
+                ErrorMessage = "Invoice for payment not found. Please contact technical support.";
+                return NotFound(response.Req_Reference_Number);
+            }
+
+            ErrorMessage = "Payment Process Cancelled";
+            return RedirectToAction(nameof(Pay), new {id = invoice.LinkId});
         }
 
         [HttpPost]
@@ -381,6 +407,20 @@ namespace Payments.Mvc.Controllers
             }
 
             return model;
+        }
+
+        private const string TempDataMessageKey = "Message";
+        private string Message
+        {
+            get => TempData[TempDataMessageKey] as string;
+            set => TempData[TempDataMessageKey] = value;
+        }
+
+        private const string TempDataErrorMessageKey = "ErrorMessage";
+        private string ErrorMessage
+        {
+            get => TempData[TempDataErrorMessageKey] as string;
+            set => TempData[TempDataErrorMessageKey] = value;
         }
     }
 }

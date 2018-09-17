@@ -86,12 +86,14 @@ namespace Payments.Mvc.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [Route("error/404")]
         public IActionResult Error404()
         {
             return View("NotFound");
         }
 
+        [AllowAnonymous]
         [Route("error/{code:int}")]
         public IActionResult Error(int code)
         {

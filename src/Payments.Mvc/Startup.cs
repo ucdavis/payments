@@ -160,6 +160,11 @@ namespace Payments.Mvc
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                    name: "cancel-pay-invoice",
+                    template: "pay/cancel",
+                    defaults: new { controller = "payments", action = "cancel" });
+
+                routes.MapRoute(
                     name: "pay-invoice",
                     template: "pay/{id}",
                     defaults: new { controller = "payments", action="pay" });
