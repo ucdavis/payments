@@ -240,7 +240,7 @@ namespace Payments.Mvc.Controllers
             }
 
             ErrorMessage = "Payment Process Cancelled";
-            return RedirectToAction(nameof(Pay), new {linkId = invoice.LinkId});
+            return RedirectToAction(nameof(Pay), new {id = invoice.LinkId});
         }
 
         [HttpPost]
