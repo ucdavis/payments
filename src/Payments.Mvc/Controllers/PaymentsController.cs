@@ -169,7 +169,7 @@ namespace Payments.Mvc.Controllers
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
                 ErrorMessage = "Invoice for payment not found. Please contact technical support.";
-                return NotFound(response.Req_Reference_Number);
+                return NotFound();
             }
 
             var model = new PaymentInvoiceViewModel()
@@ -236,7 +236,7 @@ namespace Payments.Mvc.Controllers
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
                 ErrorMessage = "Invoice for payment not found. Please contact technical support.";
-                return NotFound(response.Req_Reference_Number);
+                return NotFound();
             }
 
             ErrorMessage = "Payment Process Cancelled";
