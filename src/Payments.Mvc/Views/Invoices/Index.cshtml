@@ -55,7 +55,7 @@
                         <td class="text-center invoices-status-col">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
-                                    <span class="badge" data-level="@invoice.Status">@invoice.Status</span>
+                                    <span class="badge @Invoice.StatusCodes.GetBadgeClass(invoice.Status)" data-level="@invoice.Status">@invoice.Status</span>
                                 </div>
                             </a>
                         </td>
@@ -163,7 +163,6 @@
         </div>
     </div>
 </div>
-
 
 @section scripts
 {

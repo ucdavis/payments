@@ -154,11 +154,11 @@ namespace Payments.Core.Domain
 
         public static class StatusCodes
         {
-            public static string Draft = "Draft";
-            public static string Sent = "Sent";
-            public static string Paid = "Paid";
-            public static string Completed = "Completed";
-            public static string Cancelled = "Cancelled";
+            public const string Draft = "Draft";
+            public const string Sent = "Sent";
+            public const string Paid = "Paid";
+            public const string Completed = "Completed";
+            public const string Cancelled = "Cancelled";
 
             public static string[] GetAllCodes()
             {
@@ -170,6 +170,28 @@ namespace Payments.Core.Domain
                     Completed,
                     Cancelled,
                 };
+            }
+
+            public static string GetBadgeClass(string status)
+            {
+                switch (status)
+                {
+                    case Draft:
+                        return "badge-warning";
+
+                    case Sent:
+                        return "badge-info";
+
+                    case Completed:
+                    case Paid:
+                        return "badge-success";
+
+                    case Cancelled:
+                        return "badge-danger";
+
+                    default:
+                        return "badge-secondary";
+                }
             }
         }
     }
