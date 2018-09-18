@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -7,14 +8,58 @@
     Layout = "_Layout";
 
     var scheme = HttpContextAccessor.HttpContext.Request.Scheme;
+
+    var timeline = Model.History.OrderBy(h => h.ActionDateTime);
 }
 
 <div class="card-style">
     <div class="card-header-yellow card-bot-border">
         <div class="card-head">
-            <h2>@ViewBag.Title</h2>
-
+            <h2>@ViewBag.Title for $@Model.Total</h2>
+            <span class="badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
         </div>
+    </div>
+    <div class="card-content">
+        @if (Model.Status == Invoice.StatusCodes.Paid)
+        {
+
+        }
+        else
+        {
+            <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-primary">Preview</a>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#getShareLinkModal">Share</button>
+        }
+
+        @if (!Model.Sent)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        }
+        else
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#editLockedInvoiceModal">Edit</button>
+        }
+    </div>
+    <div class="card-content history-timeline">
+        @foreach (var action in timeline)
+        {
+            var actionType = HistoryActionTypes.GetHistoryActionType(action.Type);
+
+            <div class="d-flex w-100 history-item">
+                <div class="mt-1 mr-4">
+                    <i class="history-icon fa-fw @actionType.IconClass"></i>
+                </div>
+                <div>
+                    <span>@action.GetMessage()</span><br />
+                    <span class="text-muted">@action.ActionDateTime.ToString("MMM dd, h:mm tt")</span>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card-style">
+    <div class="card-header">
+        <h3>Summary</h3>
     </div>
     <div class="card-content invoice-customer">
         <h2>Customer Info</h2>
@@ -35,56 +80,56 @@
         <h2>Invoice Items</h2>
         <table class="table invoice-table">
             <thead>
-            <tr>
-                <th>Description</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Amount</th>
-                <th />
-            </tr>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th />
+                </tr>
             </thead>
             <tbody>
-            @for (var i = 0; i < Model.Items.Count; i++)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
-                </tr>
-            }
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
+                    </tr>
+                }
             </tbody>
             <tbody>
-            <tr>
-                <td></td>
-                <td>Subtotal</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Subtotal)</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>Discount</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Discount)</td>
-                <td />
-            </tr>
-            <tr>
-                <td />
-                <td>Tax</td>
-                <td>@Html.DisplayFor(x => x.TaxPercent)</td>
-                <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td></td>
+                    <td>Subtotal</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Subtotal)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Discount</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Discount)</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td />
+                    <td>Tax</td>
+                    <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                    <td />
+                </tr>
             </tbody>
             <tfoot>
-            <tr>
-                <td />
-                <td>Total</td>
-                <td />
-                <td>@Html.DisplayFor(x => x.Total)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td />
+                    <td>Total</td>
+                    <td />
+                    <td>@Html.DisplayFor(x => x.Total)</td>
+                    <td />
+                </tr>
             </tfoot>
         </table>
     </div>
@@ -123,7 +168,7 @@
             <dt class="col-2 text-right">Payment page</dt>
             <dd class="col-10">
                 @{
-                    var paymentPageHref = Url.RouteUrl("pay-invoice", new {id = Model.LinkId}, scheme);
+                    var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
                 }
                 <a href="@paymentPageHref">@paymentPageHref</a>
             </dd>
@@ -237,13 +282,60 @@
     </div>
 </div>
 
+<div class="modal fade" id="editLockedInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="unlockInvoiceForm">
+                    <div class="alert alert-danger" role="alert">
+                        Warning! You are about to edit an invoice that has already been sent!
+                    </div>
+                    <p>
+                        Continuing will prevent your customer from paying this invoice unil you send it again!
+                    </p>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="unlockInvoiceFormSubmit" class="btn btn-primary">Unlock Invoice</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="getShareLinkModal" tabindex="-1" role="dialog" aria-labelledby="getShareLinkModalLabel" areia-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="getShareLinkModalLabel">Share Invoice</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Share Link
+                <input type="text" id="shareLinkModalInput" class="form-control" readonly />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
 {
     @Html.AntiForgeryToken()
 }
 
 @section scripts
-{
+    {
     <script>
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
@@ -308,5 +400,23 @@
                     }, 500);
                 });
         });
+
+        var unlockUrl = "@Url.Action("Unlock", new { id = Model.Id })";
+        $('#editLockedInvoiceModal').on('show.bs.modal',
+            function(event) {
+                var modal = $(this);
+                modal.find('#unlockInvoiceForm').attr("action", unlockUrl);
+            });
+
+        $('#unlockInvoiceFormSubmit').click(function() {
+            $('#unlockInvoiceForm').submit();
+        });
+
+        var shareLinkBaseUrl = "@Url.RouteUrl("pay-invoice", new { id = Model.Id }, scheme)";
+        $('#getShareLinkModal').on('show.bs.modal',
+            function(event) {
+                var modal = $(this);
+                modal.find('#shareLinkModalInput').val(shareLinkBaseUrl);
+            });
     </script>
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -12,6 +13,8 @@ namespace Payments.Core.Domain
         public Invoice()
         {
             Items = new List<LineItem>();
+            History = new List<History>();
+
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -54,7 +57,7 @@ namespace Payments.Core.Domain
         [Required]
         public Team Team { get; set; }
 
-        public List<LineItem> Items { get; set; }
+        public IList<LineItem> Items { get; set; }
 
         public bool Sent { get; set; }
 
@@ -63,6 +66,9 @@ namespace Payments.Core.Domain
 
         [DisplayName("Created On")]
         public DateTime CreatedAt { get; set; }
+
+        [JsonIgnore]
+        public IList<History> History { get; set; }
 
         // ----------------------
         // Calculated Values
@@ -148,11 +154,11 @@ namespace Payments.Core.Domain
 
         public static class StatusCodes
         {
-            public static string Draft = "Draft";
-            public static string Sent = "Sent";
-            public static string Paid = "Paid";
-            public static string Completed = "Completed";
-            public static string Cancelled = "Cancelled";
+            public const string Draft = "Draft";
+            public const string Sent = "Sent";
+            public const string Paid = "Paid";
+            public const string Completed = "Completed";
+            public const string Cancelled = "Cancelled";
 
             public static string[] GetAllCodes()
             {
@@ -164,6 +170,28 @@ namespace Payments.Core.Domain
                     Completed,
                     Cancelled,
                 };
+            }
+
+            public static string GetBadgeClass(string status)
+            {
+                switch (status)
+                {
+                    case Draft:
+                        return "badge-warning";
+
+                    case Sent:
+                        return "badge-info";
+
+                    case Completed:
+                    case Paid:
+                        return "badge-success";
+
+                    case Cancelled:
+                        return "badge-danger";
+
+                    default:
+                        return "badge-secondary";
+                }
             }
         }
     }
