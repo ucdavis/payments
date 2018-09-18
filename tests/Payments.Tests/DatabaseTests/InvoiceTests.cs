@@ -39,11 +39,15 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
             expectedFields.Add(new NameAndType("DueDate", "System.Nullable`1[System.DateTime]", new List<string>()));
+            expectedFields.Add(new NameAndType("History", "System.Collections.Generic.IList`1[Payments.Core.Domain.History]", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("Items", "System.Collections.Generic.List`1[Payments.Core.Domain.LineItem]", new List<string>()));
+            expectedFields.Add(new NameAndType("Items", "System.Collections.Generic.IList`1[Payments.Core.Domain.LineItem]", new List<string>()));
             expectedFields.Add(new NameAndType("LinkId", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Memo", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DataTypeAttribute((System.ComponentModel.DataAnnotations.DataType)9)]",
@@ -76,7 +80,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
 
-
+            
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(Invoice));
