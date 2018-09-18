@@ -232,9 +232,6 @@ table.invoice-table {
 table.dataTable {
   border: 1px solid $borders;
   border-collapse: collapse !important;
-  .odd td {
-    background-color:#f9f9f9;
-  }
   th, td {
 
   }
