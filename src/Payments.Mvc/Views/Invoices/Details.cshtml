@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
@@ -9,7 +9,7 @@
 
     var scheme = HttpContextAccessor.HttpContext.Request.Scheme;
 
-    var timeline = Model.History.OrderBy(h => h.ActionDateTime);
+    var timeline = Model.History.OrderByDescending(h => h.ActionDateTime);
 }
 
 <div class="card-style">
