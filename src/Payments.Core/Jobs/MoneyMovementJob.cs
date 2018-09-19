@@ -38,7 +38,7 @@ namespace Payments.Core.Jobs
                 .Where(i => i.Status == Invoice.StatusCodes.Paid)
                 .Include(i => i.Payment)
                 .Include(i => i.Team)
-                    .ThenInclude(t => t.DefaultAccount)
+                    .ThenInclude(t => t.Accounts)
                 .ToList();
 
             foreach (var invoice in invoices)
