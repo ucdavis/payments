@@ -12,6 +12,10 @@ namespace Payments.Core.Models.History
         public string GetMessage(string data)
         {
             var d = DeserializeData(data);
+            if (d == null)
+            {
+                return "Payment Successful";
+            }
 
             return $"{d.Amount:C2} payment successful";
         }
