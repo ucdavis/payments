@@ -56,26 +56,33 @@
 </div>
 
 <div class="card-style">
-    <div class="card-header d-flex justify-content-between align-items-baseline">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h3>Summary</h3>
+        
+        <div>
+            <a asp-controller="Payments" asp-action="Pdf" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-download mr-3"></i>
+                Download PDF
+            </a>
 
-        @if (Model.Status != Invoice.StatusCodes.Paid)
-        {
-            if (!Model.Sent)
+            @if (Model.Status != Invoice.StatusCodes.Paid)
             {
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
-                    <i class="far fa-edit mr-3"></i>
-                    Edit
-                </a>
+                if (!Model.Sent)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="far fa-edit mr-3"></i>
+                        Edit
+                    </a>
+                }
+                else
+                {
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#editLockedInvoiceModal">
+                        <i class="far fa-edit mr-3"></i>
+                        Edit
+                    </button>
+                }
             }
-            else
-            {
-                <button class="btn btn-primary" data-toggle="modal" data-target="#editLockedInvoiceModal">
-                    <i class="far fa-edit mr-3"></i>
-                    Edit
-                </button>
-            }
-        }
+        </div>
     </div>
     <div class="card-content invoice-customer">
         <h2>Customer Info</h2>
