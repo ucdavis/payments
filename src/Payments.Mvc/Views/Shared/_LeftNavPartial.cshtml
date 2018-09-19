@@ -134,6 +134,18 @@
             </a>
         }
     }
+    
+    @if (User.IsInRole(ApplicationRoleCodes.Admin))
+    {
+        <a class="nav-system" asp-controller="System" asp-action="Index">
+            <div class="nav-item">
+                <div class="svgwrapper">
+                    @Html.InlineSvg("/wwwroot/media/navicons/system.svg")
+                </div>
+                <span class="nav-text">System</span>
+            </div>
+        </a>
+    }
 
     @if (User.Identity.IsAuthenticated && user != null)
     {
