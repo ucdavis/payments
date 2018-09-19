@@ -41,10 +41,18 @@ namespace Payments.Core.Jobs
                     .ThenInclude(t => t.Accounts)
                 .ToList();
 
+            log.Information("{count} invoices found expecting reconciliation", invoices.Count);
+
             foreach (var invoice in invoices)
             {
                 var transaction = await _slothService.GetTransactionsByProcessorId(invoice.Payment.Transaction_Id);
-                if (transaction == null) continue;
+                if (transaction == null)
+                {
+                    log.Warning("No reconcilation found for invoice id: {id}", invoice.Id);
+                    continue;
+                };
+
+                log.Information("Invoice {id} reconciliation found with transaction: {transactionId}", invoice.Id, transaction.Id);
 
                 // get team account info
                 var team = invoice.Team;
@@ -101,6 +109,8 @@ namespace Payments.Core.Jobs
                         incomeCredit,
                     },
                 });
+
+                log.Information("Transaction created with ID: {id}", response.Id);
             }
 
             await _dbContext.SaveChangesAsync();
