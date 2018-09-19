@@ -20,6 +20,10 @@ namespace Payments.Mvc.Controllers
             _signInManager = signInManager;
         }
 
+        public ActionResult Index()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Emulate(string id)
         {
