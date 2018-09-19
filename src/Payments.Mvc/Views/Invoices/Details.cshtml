@@ -19,7 +19,7 @@
             <span class="badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
         </div>
     </div>
-    <div class="card-content">
+    <div class="card-content card-bot-border">
         @if (Model.Status == Invoice.StatusCodes.Paid)
         {
 
