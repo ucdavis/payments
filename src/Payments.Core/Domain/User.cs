@@ -31,6 +31,7 @@ namespace Payments.Core.Domain
         public override string Email { get; set; }
 
         [StringLength(50)] // cache for campus kerb, also providerKey for the UCD login provider
+        [Display(Name = "Campus Kerberos")]
         public string CampusKerberos { get; set; }
 
         public virtual ICollection<TeamPermission> TeamPermissions { get; set; }

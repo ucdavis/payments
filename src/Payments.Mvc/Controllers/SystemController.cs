@@ -11,11 +11,12 @@ namespace Payments.Mvc.Controllers
     [Authorize(Roles = ApplicationRoleCodes.Admin)]
     public class SystemController : SuperController
     {
+        private readonly ApplicationUserManager _userManager;
         private readonly SignInManager<User> _signInManager;
 
         public SystemController(ApplicationUserManager userManager, SignInManager<User> signInManager)
-            : base(userManager)
         {
+            _userManager = userManager;
             _signInManager = signInManager;
         }
 

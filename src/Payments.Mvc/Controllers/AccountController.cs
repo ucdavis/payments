@@ -17,6 +17,7 @@ namespace Payments.Mvc.Controllers
     [Route("[controller]/[action]")]
     public class AccountController : SuperController
     {
+        private readonly ApplicationUserManager _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IDirectorySearchService _directorySearchService;
         private readonly ILogger _logger;
@@ -26,8 +27,8 @@ namespace Payments.Mvc.Controllers
                 SignInManager<User> signInManager,
                 IDirectorySearchService directorySearchService,
                 ILogger<AccountController> logger)
-            : base(userManager)
         {
+            _userManager = userManager;
             _signInManager = signInManager;
             _directorySearchService = directorySearchService;
             _logger = logger;

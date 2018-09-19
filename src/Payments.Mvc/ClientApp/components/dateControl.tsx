@@ -7,6 +7,17 @@ interface IProps {
     onChange: (value: string) => void;
     startDate?: Date;
     placeholder: string;
+    required?: boolean;
+}
+
+// from @types/bootstrap-datepicker
+// https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/bootstrap-datepicker/index.d.ts
+interface DatepickerEventObject extends JQueryEventObject {
+    date: Date;
+    dates: Date[];
+    format(ix?:number): string;
+    format(format?: string): string;
+    format(ix?:number, format?: string): string;
 }
 
 export default class DateControl extends React.Component<IProps, {}> {
@@ -29,7 +40,7 @@ export default class DateControl extends React.Component<IProps, {}> {
     }
 
     public render() {
-        const { value, startDate, placeholder } = this.props;
+        const { value, startDate, placeholder, required } = this.props;
 
         const datePickerOptions = {
             "data-date-container": "body",
@@ -49,10 +60,11 @@ export default class DateControl extends React.Component<IProps, {}> {
                     placeholder={placeholder}
                     value={value}
                     onChange={e => this.onChange(e.target.value)}
+                    required={required}
                 />
                 <div className="input-group-append">
                     <button className="btn btn-outline-secondary" type="button">
-                        <i className="fa fa-fw fa-calendar" />
+                        <i className="far fa-fw fa-calendar" />
                     </button>
                 </div>
             </div>

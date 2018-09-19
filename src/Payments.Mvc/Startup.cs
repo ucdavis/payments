@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -96,7 +97,10 @@ namespace Payments.Mvc
             });
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
+            // add application services
             services.AddMvc();
+            services.AddDistributedMemoryCache();
+            services.AddSession();
 
             // add pdf reporting server
             services.AddJsReport(new LocalReporting()
@@ -146,31 +150,48 @@ namespace Payments.Mvc
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
             app.UseStaticFiles();
 
             app.UseAuthentication();
 
+            app.UseSession();
+
             app.UseMvc(routes =>
             {
+                routes.MapRoute(
+                    name: "receipt-pay-invoice",
+                    template: "pay/receipt",
+                    defaults: new { controller = "payments", action = "receipt" });
+
+                routes.MapRoute(
+                    name: "cancel-pay-invoice",
+                    template: "pay/cancel",
+                    defaults: new { controller = "payments", action = "cancel" });
+
                 routes.MapRoute(
                     name: "pay-invoice",
                     template: "pay/{id}",
                     defaults: new { controller = "payments", action="pay" });
 
                 routes.MapRoute(
-                    name: "admin-routes",
+                    name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|jobs|system)" });
+                    constraints: new { controller = "(account|jobs|support|system|teams)" });
+
+                routes.MapRoute(
+                    name: "team-index",
+                    template: "{team}",
+                    defaults: new { controller = "home", action = "teamindex" },
+                    constraints: new { team = new RegexInlineRouteConstraint(Team.SlugRegex) });
 
                 routes.MapRoute(
                     name: "team-routes",
                     template: "{team}/{controller=Home}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new
-                    {
-                        controller = "(home|invoices|teams|financialAccounts)",
-                    });
+                    constraints: new { team = new RegexInlineRouteConstraint(Team.SlugRegex) });
 
                 routes.MapRoute(
                     name: "default",

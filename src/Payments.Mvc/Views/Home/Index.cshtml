@@ -1,91 +1,20 @@
+﻿@model IList<Team>
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Index";
 }
 
-<div class="card-style">
-  <div class="card-header-primary">
-      <div class="card-head">
-        <h2>Your Payments Dashboard</h2>
-      </div>
-  </div>
-</div>
-<div class="alert alert-yellow">
-  <div class="d-flex justify-content-between align-items-center">
-    <div>
-      <p><span class="sans-bold">You have 5 outstanding invoices |</span> view</p>
-    </div>
-    <div>
-      <img src="/media/remove.svg" alt="x icon">
-    </div>
-  </div>
-</div>
-<div class="alert alert-red">
-  <div class="d-flex justify-content-between align-items-center">
-    <div>
-      <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
-    </div>
-    <div>
-      <img src="/media/remove.svg" alt="x icon">
-    </div>
-  </div>
-</div>
-<div class="alert alert-green">
-  <div class="d-flex justify-content-between align-items-center">
-    <div>
-      <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
-    </div>
-    <div>
-      <img src="/media/remove.svg" alt="x icon">
-    </div>
-  </div>
-</div>
-<div class="alert alert-blue">
-  <div class="d-flex justify-content-between align-items-center">
-    <div>
-      <p><span class="sans-bold">You have 1 past due invoices |</span> view</p>
-    </div>
-    <div>
-      <img src="/media/remove.svg" alt="x icon">
-    </div>
-  </div>
-</div>
-<div class="row justify-content-between">
-  <div class="col-sm-12 col-md-5">
-    <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
-      <img src="/media/invoices.svg" alt="invoices icon">
-      <div>
-        <h2 class="secondary-font">View my invoices</h2>
-        <p class="tertiary-font">55 total  |  5 Outstanding  |  3 Past due</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-12 col-md-5">
-    <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
-      <img src="/media/newinvoice.svg" alt="new invoice icon">
-      <div>
-        <h2 class="secondary-font">Create new invoice</h2>
-        <p class="tertiary-font">You've made 12 invoices</p>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="row justify-content-between">
-  <div class="col-sm-12 col-md-5">
-    <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
-      <img src="/media/statistics.svg" alt="statistics icon">
-      <div>
-        <h2 class="secondary-font">Statistics</h2>
-        <p class="tertiary-font">$122.44 over the last 6 months</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-12 col-md-5">
-    <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
-      <img src="/media/support.svg" alt="support icon">
-      <div>
-        <h2 class="secondary-font">Get Support</h2>
-        <p class="tertiary-font">Questions, comments, concerns?</p>
-      </div>
-    </div>
-  </div>
+<h2>Your Teams:</h2>
+
+<div class="row flex-column align-items-start justify-content-center">
+    @foreach (var team in Model)
+    {
+        <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@team.Slug" class="col-sm-12 col-md-5">
+            <div class="d-flex align-items-center justify-content-between card-dashboard-button card-style btn-card">
+                <i class="fas fa-users"></i>
+                <span>@team.Name</span>
+                <i class="fas fa-external-link-alt"></i>
+            </div>
+
+        </a>
+    }
 </div>

@@ -29,8 +29,14 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("IsActive", "System.Boolean", new List<string>()));
-            expectedFields.Add(new NameAndType("IsDefault", "System.Boolean", new List<string>()));
+            expectedFields.Add(new NameAndType("IsActive", "System.Boolean", new List<string>
+            {
+                "[System.ComponentModel.DisplayNameAttribute(\"Active\")]",
+            }));
+            expectedFields.Add(new NameAndType("IsDefault", "System.Boolean", new List<string>
+            {
+                "[System.ComponentModel.DisplayNameAttribute(\"Default\")]",
+            }));
             expectedFields.Add(new NameAndType("Name", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",

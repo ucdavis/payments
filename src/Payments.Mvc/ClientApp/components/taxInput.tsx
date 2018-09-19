@@ -10,7 +10,7 @@ interface IState {
     value: string;
 }
 
-export default class DiscountInput extends React.Component<IProps, IState> {
+export default class TaxInput extends React.Component<IProps, IState> {
 
     constructor(props) {
         super(props);
@@ -34,7 +34,7 @@ export default class DiscountInput extends React.Component<IProps, IState> {
         if (!this.state.hasTax) {
             return (
                 <button className="btn btn-link" onClick={this.addTax}>
-                    <i className="fa fa-plus" /> Add tax
+                    <i className="fas fa-plus mr-2" /> Add tax
                 </button>
             );
         }
@@ -43,16 +43,20 @@ export default class DiscountInput extends React.Component<IProps, IState> {
             <div className="input-group">
                 <input
                     type="number"
-                    min="0"
+                    min="0.001"
                     step="0.0001"
                     className="form-control"
-                    placeholder=""
+                    placeholder="0.00"
                     value={value}
                     onBlur={(e) => { onChange(e.target.value) }}
                     onChange={(e) => { this.setState({ value: e.target.value }); }}
+                    required={true}
                 />
                 <div className="input-group-append">
                     <span className="input-group-text">%</span>
+                </div>
+                <div className="invalid-feedback">
+                    Set a tax or remove.
                 </div>
             </div>
         );

@@ -17,6 +17,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("AccessFailedCount", "System.Int32", new List<string>()));
             expectedFields.Add(new NameAndType("CampusKerberos", "System.String", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Campus Kerberos\")]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)50)]",
             }));
             expectedFields.Add(new NameAndType("ConcurrencyStamp", "System.String", new List<string>()));

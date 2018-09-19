@@ -18,6 +18,12 @@
   margin-bottom: 40px;
 }
 
+.pay-alert {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 761px;
+}
+
 .pay-card-style {
   margin: 0 auto;
   max-width: 761px;
@@ -158,6 +164,10 @@ table.invoice-table {
   tbody {
     &.tbody-invoice-details {
       tr {
+        td {
+          vertical-align: top;
+        }
+
         td:first-child {
           // width:45%;
           padding-right:16px;
@@ -176,7 +186,7 @@ table.invoice-table {
           width:12%;
         }
         td:nth-child(5) {
-          width:30px;
+          width:40px;
         }
       }
     }
@@ -188,10 +198,6 @@ table.invoice-table {
       &:nth-child(5),
       &:nth-child(4) {
         text-align: right;
-      }
-
-      &:nth-child(4) {
-        padding-right:16px;
       }
     }
   }
@@ -206,7 +212,6 @@ table.invoice-table {
 
         &:nth-child(4) {
           text-align: right;
-          padding-right:16px;
         }
 
         &:nth-child(2),
@@ -227,9 +232,6 @@ table.invoice-table {
 table.dataTable {
   border: 1px solid $borders;
   border-collapse: collapse !important;
-  .odd td {
-    background-color:#f9f9f9;
-  }
   th, td {
 
   }
@@ -280,8 +282,6 @@ table.dataTable {
 table#Invoices {
   tbody {
     tr {
-      cursor: pointer;
-
       td.invoices-edit-btn {
         width:30px;
       }
@@ -349,5 +349,23 @@ table#Invoices {
 .send-invoice-modal {
   .modal-body + .modal-body {
     border-top: 1px solid $borders;
+  }
+}
+
+// invoice details page
+.history-timeline {
+
+  padding: 0;
+
+  .history-item {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .history-item + .history-item {
+    border-top: 1px solid $borders;
+  }
+  
+  .history-icon {
+    font-size: 2.5rem;
   }
 }

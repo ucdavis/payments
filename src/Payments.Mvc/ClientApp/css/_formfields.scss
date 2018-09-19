@@ -14,18 +14,17 @@
     border: none;
     font-family: $sans-bold;
     padding: 0 7px 0 45px;
-    width: 400px;
     position: relative;
     transition: box-shadow .2s ease-in-out;
   }
 }
+
 label {
   font-size:1.6rem;
 }
+
 .form-control {
   font-size:1.6rem;
+  height: 4rem;
 }
 
-.custom-select {
-  height: 40px;
-}

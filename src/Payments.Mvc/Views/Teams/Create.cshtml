@@ -1,46 +1,67 @@
-﻿@model Payments.Mvc.Models.Teams.CreateTeamViewModel
+﻿@using Payments.Mvc.Models.TeamViewModels
+@model CreateTeamViewModel
 
 @{
     ViewData["Title"] = "Create";
 }
 
-<h2>Create</h2>
-
-<h4>Team</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+            <a asp-action="Index">Back</a>
+        </div>
+    </div>
+    <div class="card-content">
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Slug" class="control-label"></label>
+                        <input asp-for="Slug" class="form-control" />
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                        <span id="slugUrl"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ContactName" class="control-label"></label>
+                        <input asp-for="ContactName" class="form-control" />
+                        <span asp-validation-for="ContactName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ContactEmail" class="control-label"></label>
+                        <input asp-for="ContactEmail" class="form-control" />
+                        <span asp-validation-for="ContactEmail" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ContactPhoneNumber" class="control-label"></label>
+                        <input asp-for="ContactPhoneNumber" class="form-control" />
+                        <span asp-validation-for="ContactPhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-default" />
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-                <span id="slugUrl"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index"><i class="fas fa-chevron-left mr-3"></i> Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+    <partial name="_ValidationScriptsPartial" />
     <script>
-        $(function() {
+        $(function () {
             var dirtySlug = false;
-            $('#Name').keyup(function() {
+            $('#Name').keyup(function () {
                 if (dirtySlug) {
                     return;
                 }
@@ -54,7 +75,7 @@
                 updateSlugUrl();
             });
 
-            $('#Slug').change(function() {
+            $('#Slug').change(function () {
                 dirtySlug = true;
                 updateSlugUrl();
             });

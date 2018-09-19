@@ -1,7 +1,6 @@
-export function distinct(array, selector) {
+export function distinct<T>(array: T[], selector: (item: T) => any): T[] {
   const map = {};
-  for (let i = 0; i < array.length; i++) {
-    const item = array[i];
+  for (const item of array) {
     const key = selector(item);
     map[key] = item;
   }

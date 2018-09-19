@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
-import * as ArrayUtils from '../utils/array.js'; 
+import * as ArrayUtils from '../utils/array';
+
+import CustomerControl from './customerControl';
 
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -45,17 +47,14 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
                 <div className="form-group">
                     <label>Customer Email</label>
                     <div className="input-group">
-                        <input
-                            type="email"
-                            className="form-control"
-                            placeholder="johndoe@example.com"
-                            onChange={(e) => { onChange([{ email: e.target.value }]) }}
-                            value={customer.email}
+                        <CustomerControl
+                            customer={customer}
+                            onChange={(c) => { onChange([c]) }}
                         />
                         <div className="input-group-append">
                             <button className="btn" type="button" onClick={this.enableMultiCustomer}>
-                                <i className="fa fa-plus mr-3" />
-                                <i className="fa fa-users mr-2" />
+                                <i className="fas fa-plus mr-3" />
+                                <i className="fas fa-users mr-3" />
                                 Bill Multiple Customers
                             </button>
                         </div>
@@ -78,9 +77,9 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
                     onChange={(e) => { this.updateProperty("multiCustomerInput", e.target.value) }}
                     value={multiCustomerInput}
                 />
-                <div className="row justify-content-end">
+                <div className="d-flex justify-content-end">
                     <button className="btn" type="button" onClick={this.disableMultiCustomer}>
-                        <i className="fa fa-user mr-2" />
+                        <i className="fas fa-user mr-2" />
                         Bill Single Customer
                     </button>
                 </div>
@@ -92,7 +91,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
         return (
             <span className="badge badge-primary" key={customer.email}>
                 {customer.email}
-                <button className="btn-plain" onClick={() => this.removeCustomer(customer.email)}><i className="fa fa-times" /></button>
+                <button className="btn-plain" onClick={() => this.removeCustomer(customer.email)}><i className="fas fa-times" /></button>
             </span>
         );
     }

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.History;
 using Payments.Core.Services;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
@@ -19,12 +21,13 @@ namespace Payments.Mvc.Controllers
     [Authorize(Policy = PolicyCodes.TeamEditor)]
     public class InvoicesController : SuperController
     {
+        private readonly ApplicationUserManager _userManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly IEmailService _emailService;
 
         public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IEmailService emailService)
-            : base(userManager)
         {
+            _userManager = userManager;
             _dbContext = dbContext;
             _emailService = emailService;
         }
@@ -32,14 +35,57 @@ namespace Payments.Mvc.Controllers
         // GET: /<controller>/
         public IActionResult Index()
         {
-            var invoices = _dbContext.Invoices
+
+            var query = _dbContext.Invoices
                 .AsQueryable()
-                .Where(i => i.Team.Slug == TeamSlug)
+                .Where(i => i.Team.Slug == TeamSlug);
+
+            // fetch filter from session
+            var filter = GetInvoiceFilter();
+
+            if (filter.Statuses.Any())
+            {
+                query = query.Where(i => filter.Statuses.Contains(i.Status));
+            }
+
+            if (filter.CreatedDateStart.HasValue)
+            {
+                query = query.Where(i => i.CreatedAt >= filter.CreatedDateStart.Value);
+            }
+
+            if (filter.CreatedDateEnd.HasValue)
+            {
+                query = query.Where(i => i.CreatedAt <= filter.CreatedDateEnd.Value);
+            }
+
+            var invoices = query
                 .Take(100)
-                .OrderByDescending(i => i.Id);
+                .OrderByDescending(i => i.Id)
+                .ToList();
 
+            var model = new InvoiceListViewModel()
+            {
+                Invoices = invoices,
+                Filter = filter
+            };
 
-            return View(invoices);
+            // setup dropdown viewmodels
+            ViewBag.Statuses = Invoice.StatusCodes.GetAllCodes()
+                .Select(c => new SelectListItem
+                {
+                    Text = c,
+                    Value = c,
+                });
+
+            return View(model);
+        }
+
+        public IActionResult SetFilter(InvoiceFilterViewModel model)
+        {
+            // save filter to session
+            SetInvoiceFilter(model);
+
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -48,6 +94,7 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
+                .Include(i => i.History)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -216,6 +263,15 @@ namespace Payments.Mvc.Controllers
                 });
                 invoice.Items = items.ToList();
 
+                // record action
+                var action = new History()
+                {
+                    Type = HistoryActionTypes.InvoiceCreated.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = user,
+                };
+                invoice.History.Add(action);
+
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
                 _dbContext.Invoices.Add(invoice);
@@ -299,6 +355,16 @@ namespace Payments.Mvc.Controllers
                 SetInvoiceKey(invoice);
             }
 
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceEdited.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user,
+            };
+            invoice.History.Add(action);
+
             // save to db
             invoice.UpdateCalculatedValues();
             _dbContext.SaveChanges();
@@ -343,6 +409,17 @@ namespace Payments.Mvc.Controllers
             invoice.Status = Invoice.StatusCodes.Sent;
             invoice.Sent = true;
             invoice.SentAt = DateTime.UtcNow;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceSent.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user,
+            };
+            invoice.History.Add(action);
+
             await _dbContext.SaveChangesAsync();
 
             return new JsonResult(new
@@ -369,6 +446,16 @@ namespace Payments.Mvc.Controllers
             invoice.SentAt = null;
             invoice.LinkId = null;
 
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceUnlocked.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user,
+            };
+            invoice.History.Add(action);
+
             await _dbContext.SaveChangesAsync();
 
             return RedirectToAction("Edit", "Invoices", new {id});
@@ -390,6 +477,17 @@ namespace Payments.Mvc.Controllers
             }
 
             throw new Exception("Failure to create new invoice link id in max attempts.");
+        }
+
+        private InvoiceFilterViewModel GetInvoiceFilter()
+        {
+            var filter = HttpContext.Session.GetObjectFromJson<InvoiceFilterViewModel>("InvoiceFilter");
+            return filter ?? new InvoiceFilterViewModel();
+        }
+
+        private void SetInvoiceFilter(InvoiceFilterViewModel filter)
+        {
+            HttpContext.Session.SetObjectAsJson("InvoiceFilter", filter);
         }
     }
 }

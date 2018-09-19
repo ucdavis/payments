@@ -72,6 +72,10 @@ p a.action-btn {
 }
 .btn {
   @include main-btn;
+
+  *, *:hover {
+    color: #fff !important;
+  }
 }
 .btn-gold {
   @include main-btn;
@@ -130,7 +134,10 @@ p a.action-btn {
   padding: 9px 16px;
 
   img {
-    margin-right: 1rem;
+    margin-left: 1rem;
+    margin-right: 2rem;
+
+    width: 40px;
   }
 }
 

@@ -3,6 +3,8 @@
 @{
     ViewBag.Title = $"Pay Invoice {Model.Id}";
     Layout = "_PaymentsLayout";
+
+    var downloadLink = Url.Action("Pdf", new {id = Model.LinkId});
 }
 
 <div class="card-style pay-card-style">
@@ -11,7 +13,7 @@
         </div>
     </div>
     <div>
-        @Html.Partial("_TopInfo")
+        <partial name="_TopInfo" />
         <div class="pay-action">
             @if (Model.Status == Invoice.StatusCodes.Sent)
             {
@@ -29,7 +31,7 @@
                     }
                     <input type="hidden" name="signature" value="@ViewBag.Signature" />
                     <button type="submit" class="btn-gold btn-md" aria-hidden="true">
-                        <i class="fa fa-credit-card" aria-hidden="true"></i>
+                        <i class="fas fa-credit-card mr-3" aria-hidden="true"></i>
                         Pay Now
                     </button>
                 </form>
@@ -40,8 +42,8 @@
                 <h2>@Model.Total.ToString("C") USD paid @Model.PaidDate.ToString("D")</h2>
             }
         </div>
-        @Html.Partial("_Summary")
-        @Html.Partial("_Download", Url.Action("Pdf", new { id = Model.LinkId }))
-        @Html.Partial("_Footer")
+        <partial name="_Summary" />
+        <partial name="_Download" model="@downloadLink" />
+        <partial name="_Footer" />
     </div>
 </div>

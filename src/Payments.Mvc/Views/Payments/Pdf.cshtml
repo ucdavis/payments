@@ -11,7 +11,7 @@
         </div>
     </div>
     <div>
-        @Html.Partial("_TopInfo")
+        <partial name="_TopInfo" />
         <div class="pay-action">
             @if (Model.Status == Invoice.StatusCodes.Sent)
             {
@@ -27,7 +27,7 @@
                 <h2>@Model.Total.ToString("C") USD paid @Model.PaidDate.ToString("D")</h2>
             }
         </div>
-        @Html.Partial("_Summary")
-        @Html.Partial("_Footer")
+        <partial name="_Summary" />
+        <partial name="_Footer" />
     </div>
 </div>

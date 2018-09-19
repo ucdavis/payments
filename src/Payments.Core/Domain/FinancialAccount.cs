@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Payments.Core.Domain
@@ -60,12 +60,34 @@ namespace Payments.Core.Domain
         [DisplayFormat(NullDisplayText = "---------")]
         public string Project { get; set; }
 
+        [DisplayName("Default")]
         public bool IsDefault { get; set; }
 
+        [DisplayName("Active")]
         public bool IsActive { get; set; } = true;
 
         public Team Team { get; set; }
 
         public int TeamId { get; set; }
+
+        public string GetAccountString()
+        {
+            if (string.IsNullOrWhiteSpace(SubAccount))
+            {
+                return $"{Chart}-{Account}";
+            }
+
+            return $"{Chart}-{Account}-{SubAccount}";
+        }
+
+        public string GetObjectString()
+        {
+            if (string.IsNullOrWhiteSpace(SubObject))
+            {
+                return Object;
+            }
+
+            return $"{Object}-{SubObject}";
+        }
     }
 }

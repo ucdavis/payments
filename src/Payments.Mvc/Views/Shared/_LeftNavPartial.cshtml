@@ -13,25 +13,56 @@
 
 @if (User.Identity.IsAuthenticated && user != null)
 {
-    if (string.IsNullOrWhiteSpace(teamSlug))
-    {
-        var defteamSlug = user.GetTeams().Where(a => a.IsActive).FirstOrDefault();
-        if (defteamSlug != null)
-        {
-            teamSlug = defteamSlug.Slug;
-        }
-    }
-    using (Html.BeginForm("SetActiveTeam", "Home", FormMethod.Post, new { id = "TeamSelectForm" }))
-    {
-        var teamSelectList = user.GetTeams().Where(a => a.IsActive)
-            .Select(t => new SelectListItem() {Value = t.Id.ToString(), Text = t.Name, Selected = (t.Slug == teamSlug) });
+    var teams = user.GetTeams().ToList();
 
-        @Html.DropDownList("teamId", teamSelectList, "Select Team", new { @class = "team-select-control", onchange= "$('#TeamSelectForm').submit()" })
-    }
+    var teamSelectList = teams
+        .Where(a => a.IsActive)
+        .Select(t => new SelectListItem() { Value = t.Id.ToString(), Text = t.Name, Selected = (t.Slug == teamSlug) })
+        .ToList();
+
+    var currentTeam = teams.FirstOrDefault(t => t.Slug == teamSlug);
+
+    <form asp-controller="Home" asp-action="SetActiveTeam" method="post" id="TeamSelectForm">
+        <input id="teamSelectFormTeamId" name="teamId" type="hidden" />
+
+        <button type="button" class="btn dropdown-toggle btn-primary team-select-control" data-toggle="dropdown" role="button" title="Select your team">
+            <div class="title">
+                <div class="title-inner">
+                    <div class="title-inner-inner">
+                        <i class="fas fa-users mr-2"></i>
+                        @if (currentTeam == null)
+                        {
+                            <span>Select your team</span>
+                        }
+                        else
+                        {
+                            <span>@currentTeam.Name</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </button>
+
+        <div class="dropdown-menu">
+            @foreach (var t in user.GetTeams())
+            {
+                <button class="team-select-control-item dropdown-item" type="button" data-id="@t.Id">@t.Name</button>
+            }
+        </div>
+    </form>
+    <script>
+        window.addEventListener('load', function () {
+            $('.team-select-control-item').click(function() {
+                var id = $(this).attr('data-id');
+                $('#teamSelectFormTeamId').val(id);
+                $('#TeamSelectForm').submit();
+            });
+        });
+    </script>
 }
 
 <nav>
-    <a class="nav-home" href="@Url.Action("Index", "Home")">
+    <a class="nav-home" asp-controller="Home" asp-action="Index">
         <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
@@ -50,7 +81,7 @@
             </div>
         </a>
     }
-    <a class="nav-support" href="@Url.Action("Index", "Home")">
+    <a class="nav-support" asp-controller="Support" asp-action="Index">
         <div class="nav-item d-flex flex-center">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/support.svg")
@@ -58,9 +89,9 @@
             <span class="navitem">Support</span>
         </div>
     </a>
-    @if (string.IsNullOrWhiteSpace(teamSlug) || teamSlug == "----")
+    @if (string.IsNullOrWhiteSpace(teamSlug))
     {
-        <a class="nav-settings" asp-controller="Teams" asp-action="Index" asp-route-team="@(string.IsNullOrWhiteSpace(teamSlug) ? "----" : teamSlug)">
+        <a class="nav-settings" asp-controller="Teams" asp-action="Index">
             <div class="nav-item d-flex flex-center">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
@@ -71,7 +102,7 @@
     }
     else
     {
-        <a class="nav-settings" asp-controller="Teams" asp-action="Details" asp-route-team="@teamSlug">
+        <a class="nav-settings" asp-controller="Settings" asp-action="Index" asp-route-team="@teamSlug">
             <div class="nav-item d-flex flex-center">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
@@ -79,29 +110,29 @@
                 <span class="navitem">Settings</span>
             </div>
         </a>
-    }
-    @if (string.Equals("settings", controller, StringComparison.OrdinalIgnoreCase)
-    || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase)
-    || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
-    {
-    <a class="" asp-controller="Teams" asp-action="Index" asp-route-team="@teamSlug">
-        <div class="nav-item d-flex flex-center subnav">
-            <span class="navitem">Teams</span>
-        </div>
-    </a>
-        if (User.IsInRole(ApplicationRoleCodes.Admin) || user.IsTeamAdmin(teamSlug))
+        if (string.Equals("settings", controller, StringComparison.OrdinalIgnoreCase)
+           || string.Equals("teams", controller, StringComparison.OrdinalIgnoreCase)
+           || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
         {
-            <a class="" asp-controller="Teams" asp-action="Roles" asp-route-team="@teamSlug">
+            <a class="" asp-controller="Teams" asp-action="Index">
                 <div class="nav-item d-flex flex-center subnav">
-                    <span class="navitem">Roles</span>
+                    <span class="navitem">All Teams</span>
+                </div>
+            </a>
+            if (User.IsInRole(ApplicationRoleCodes.Admin) || user.IsTeamAdmin(teamSlug))
+            {
+                <a class="" asp-controller="Settings" asp-action="Roles" asp-route-team="@teamSlug">
+                    <div class="nav-item d-flex flex-center subnav">
+                        <span class="navitem">Roles</span>
+                    </div>
+                </a>
+            }
+            <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@teamSlug">
+                <div class="nav-item d-flex flex-center subnav">
+                    <span class="navitem">Accounts</span>
                 </div>
             </a>
         }
-    <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@teamSlug">
-        <div class="nav-item d-flex flex-center subnav">
-            <span class="navitem">Accounts</span>
-        </div>
-    </a>
     }
 
     @if (User.Identity.IsAuthenticated && user != null)

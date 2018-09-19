@@ -11,6 +11,7 @@ using Payments.Core.Extensions;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.FinancialModels;
 using Payments.Mvc.Models.Roles;
+using Payments.Mvc.Models.TeamViewModels;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
@@ -20,12 +21,13 @@ namespace Payments.Mvc.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
+        private readonly ApplicationUserManager _userManager;
 
         public FinancialAccountsController(ApplicationDbContext context, IFinancialService financialService, ApplicationUserManager userManager)
-            : base(userManager)
         {
             _context = context;
             _financialService = financialService;
+            _userManager = userManager;
         }
 
         [Authorize(Policy = "TeamEditor")]
@@ -62,7 +64,23 @@ namespace Payments.Mvc.Controllers
                 Message = "Warning! There are multiple active default accounts. Please set only one as your default.";
             }
 
-            return View(team);
+            var user = await _userManager.GetUserAsync(User);
+            var userCanEdit = User.IsInRole(ApplicationRoleCodes.Admin)
+                              || user.TeamPermissions.Any(a => a.TeamId == team.Id && a.Role.Name == TeamRole.Codes.Admin);
+
+            var model = new TeamDetailsModel
+            {
+                Name               = team.Name,
+                Slug               = team.Slug,
+                ContactName        = team.ContactName,
+                ContactEmail       = team.ContactEmail,
+                ContactPhoneNumber = team.ContactPhoneNumber,
+                IsActive           = team.IsActive,
+                Accounts           = team.Accounts,
+                UserCanEdit        = userCanEdit
+            };
+
+            return View(model);
         }
 
         /// <summary>
