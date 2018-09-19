@@ -63,51 +63,51 @@
 
 <nav>
     <a class="nav-home" asp-controller="Home" asp-action="Index">
-        <div class="nav-item d-flex flex-center">
+        <div class="nav-item">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/home.svg")
             </div>
-            <span class="navitem">Home</span>
+            <span class="nav-text">Home</span>
         </div>
     </a>
     @if (!string.IsNullOrWhiteSpace(teamSlug))
     {
         <a class="nav-invoices" asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug">
-            <div class="nav-item d-flex flex-center">
+            <div class="nav-item">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
                 </div>
-                <span class="navitem">Invoices</span>
+                <span class="nav-text">Invoices</span>
             </div>
         </a>
     }
     <a class="nav-support" asp-controller="Support" asp-action="Index">
-        <div class="nav-item d-flex flex-center">
+        <div class="nav-item">
             <div class="svgwrapper">
                 @Html.InlineSvg("/wwwroot/media/navicons/support.svg")
             </div>
-            <span class="navitem">Support</span>
+            <span class="nav-text">Support</span>
         </div>
     </a>
     @if (string.IsNullOrWhiteSpace(teamSlug))
     {
         <a class="nav-settings" asp-controller="Teams" asp-action="Index">
-            <div class="nav-item d-flex flex-center">
+            <div class="nav-item">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
                 </div>
-                <span class="navitem">Settings</span>
+                <span class="nav-text">Settings</span>
             </div>
         </a>
     }
     else
     {
         <a class="nav-settings" asp-controller="Settings" asp-action="Index" asp-route-team="@teamSlug">
-            <div class="nav-item d-flex flex-center">
+            <div class="nav-item">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/settings.svg")
                 </div>
-                <span class="navitem">Settings</span>
+                <span class="nav-text">Settings</span>
             </div>
         </a>
         if (string.Equals("settings", controller, StringComparison.OrdinalIgnoreCase)
@@ -115,21 +115,21 @@
            || string.Equals("financialAccounts", controller, StringComparison.OrdinalIgnoreCase))
         {
             <a class="" asp-controller="Teams" asp-action="Index">
-                <div class="nav-item d-flex flex-center subnav">
-                    <span class="navitem">All Teams</span>
+                <div class="nav-item subnav">
+                    <span class="nav-text">All Teams</span>
                 </div>
             </a>
             if (User.IsInRole(ApplicationRoleCodes.Admin) || user.IsTeamAdmin(teamSlug))
             {
                 <a class="" asp-controller="Settings" asp-action="Roles" asp-route-team="@teamSlug">
-                    <div class="nav-item d-flex flex-center subnav">
-                        <span class="navitem">Roles</span>
+                    <div class="nav-item subnav">
+                        <span class="nav-text">Roles</span>
                     </div>
                 </a>
             }
             <a class="" asp-controller="FinancialAccounts" asp-action="Index" asp-route-team="@teamSlug">
-                <div class="nav-item d-flex flex-center subnav">
-                    <span class="navitem">Accounts</span>
+                <div class="nav-item subnav">
+                    <span class="nav-text">Accounts</span>
                 </div>
             </a>
         }
@@ -138,11 +138,11 @@
     @if (User.Identity.IsAuthenticated && user != null)
     {
         <form asp-action="logout" asp-controller="account" method="post">
-            <button class="nav-item nav-logout btn-plain d-flex flex-center">
+            <button class="nav-item nav-logout btn-plain">
                 <div class="svgwrapper">
                     @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
                 </div>
-                <span class="navitem">Sign Out</span>
+                <span class="nav-text">Sign Out</span>
             </button>
         </form>
     }
