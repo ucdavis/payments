@@ -153,6 +153,7 @@
     position: relative;
     display: block;
     width: 100%;
+    padding: 0.25rem 0.5rem;
 }
 
 #cal-week-box {
@@ -377,7 +378,7 @@
         }
 
 .event {
-    display: block;
+    display: inline-block;
     background-color: #c3c3c3;
     width: 12px;
     height: 12px;
