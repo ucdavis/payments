@@ -16,8 +16,9 @@ namespace Payments.Tests.DatabaseTests
 
             expectedFields.Add(new NameAndType("Account", "System.String", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.RegularExpressionAttribute(\"[A-Z0-9]*\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
-                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)7)]",                
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)7)]",  
             }));
             expectedFields.Add(new NameAndType("Chart", "System.String", new List<string>
             {
