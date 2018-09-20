@@ -146,6 +146,10 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         const { team } = this.props;
         const { dueDate, customers, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
+        if (!isSendModalOpen) {
+            return null;
+        }
+
         let customer: InvoiceCustomer;
         if (customers.length > 1) {
             customer = { address: '', email: 'Multiple Customers', name: 'Multiple Customers' };
