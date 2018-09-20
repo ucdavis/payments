@@ -3,6 +3,7 @@ import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import * as ArrayUtils from '../utils/array';
 
 import CustomerControl from './customerControl';
+import EditCustomerModal from './editCustomerModal';
 
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -14,6 +15,8 @@ interface IProps {
 interface IState {
     hasMultipleCustomers: boolean;
     multiCustomerInput: string;
+    showEditModal: boolean;
+    editModalCustomer: InvoiceCustomer | undefined;
 }
 
 export default class MultiCustomerControl extends React.Component<IProps, IState> {
@@ -23,76 +26,114 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
         const { customers } = props;
 
         this.state = {
-            hasMultipleCustomers: customers && customers.length,
+            editModalCustomer: undefined,
+            hasMultipleCustomers: customers && customers.length > 1,
             multiCustomerInput: "",
+            showEditModal: false,
         }
     }
 
     public render() {
         return (
             <div className="multi-customer-control">
-                <h2>Customer Info</h2>
+                <div className="d-flex justify-content-between">
+                    <h2>Customer Info</h2>
+                    { this.renderToggle() }
+                </div>
                 { this.renderContent() }
             </div>
         );
     }
 
-    private renderContent() {
-        const { customers, onChange } = this.props;
-        const { hasMultipleCustomers, multiCustomerInput } = this.state;
+    private renderToggle() {
+        const { hasMultipleCustomers } = this.state;
 
         if (!hasMultipleCustomers) {
-            const customer = customers.length ? customers[0] : {};
             return (
-                <div className="form-group">
-                    <label>Customer Email</label>
-                    <div className="input-group">
-                        <CustomerControl
-                            customer={customer}
-                            onChange={(c) => { onChange([c]) }}
-                        />
-                        <div className="input-group-append">
-                            <button className="btn" type="button" onClick={this.enableMultiCustomer}>
-                                <i className="fas fa-plus mr-3" />
-                                <i className="fas fa-users mr-3" />
-                                Bill Multiple Customers
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <button className="btn" type="button" onClick={this.enableMultiCustomer}>
+                    <i className="fas fa-plus mr-3" />
+                    <i className="fas fa-users mr-3" />
+                    Bill Multiple Customers
+                </button>
+            );
+        }
+
+        return (
+            <button className="btn" type="button" onClick={this.disableMultiCustomer}>
+                <i className="fas fa-user mr-2" />
+                Bill Single Customer
+            </button>
+        );
+    }
+
+    private renderContent() {
+        const { customers, onChange } = this.props;
+        const { hasMultipleCustomers, showEditModal, editModalCustomer, multiCustomerInput } = this.state;
+
+        if (!hasMultipleCustomers) {
+            // use first or empty customer
+            // TODO: there should be a better way to handle this
+            const customer = customers.length 
+                ? customers[0]
+                : { name: '', email: '', address: '' };
+                
+            return (
+                <CustomerControl
+                    customer={customer}
+                    onChange={(c) => { onChange([c]) }}
+                />
             );
         }
 
         return (
             <div className="form-group">
-                <label>Customer Emails</label>
-                <div className="email-badge-row">
-                    {customers.map(c => this.renderCustomerTag(c))}
+                <div className="d-flex justify-content-between">
+                    <label>Enter customer emails in bulk:</label>
                 </div>
+                
                 <textarea
                     rows={4}
-                    className="form-control mb-2"
+                    className="form-control mb-4"
                     placeholder="user1@example.com; user2@example.com"
                     onBlur={(e) => { this.updateCustomerList(e.target.value) }}
                     onChange={(e) => { this.updateProperty("multiCustomerInput", e.target.value) }}
                     value={multiCustomerInput}
                 />
-                <div className="d-flex justify-content-end">
-                    <button className="btn" type="button" onClick={this.disableMultiCustomer}>
-                        <i className="fas fa-user mr-2" />
-                        Bill Single Customer
-                    </button>
+
+                <div className="email-badge-row">
+                    {customers.map(c => this.renderCustomerTag(c))}
                 </div>
+
+                { showEditModal &&
+                    <EditCustomerModal
+                        isModalOpen={showEditModal}
+                        customer={editModalCustomer}
+                        onCancel={this.closeEditModal}
+                        onConfirm={this.saveEditModal}
+                    />
+                }
             </div>
         );
     }
 
     private renderCustomerTag(customer: InvoiceCustomer) {
+        let text = customer.email;
+        if (customer.name) {
+            text = `${customer.name} <${customer.email}>`;
+        }
+
         return (
-            <span className="badge badge-primary" key={customer.email}>
-                {customer.email}
-                <button className="btn-plain" onClick={() => this.removeCustomer(customer.email)}><i className="fas fa-times" /></button>
-            </span>
+            <div className="input-group mb-2" key={text}>
+                <input type="text" className="form-control" value={text} readOnly={true} />
+                <div className="input-group-append">
+                    <button className="btn btn-primary" onClick={() => this.editCustomer(customer)}>
+                        <i className="far fa-fw fa-edit"/>
+                    </button>
+                    <button className="btn btn-primary" onClick={() => this.removeCustomer(customer.email)}>
+                        <i className="fas fa-fw fa-times" />
+                    </button>
+                </div>
+            </div>
         );
     }
 
@@ -127,7 +168,11 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
 
         emails.forEach(e => {
             if (emailRegex.test(e)) {
-                validCustomers.push({ email: e });
+                validCustomers.push({
+                    address: '',
+                    email: e,
+                    name: '',
+                });
             } else {
                 invalidEmails.push(e);
             }
@@ -148,6 +193,37 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
         onChange(sortedCustomers);
         this.setState({
             multiCustomerInput: invalidEmails.join("\n"),
+        });
+    }
+
+    private editCustomer = (customer: InvoiceCustomer) => {
+        this.setState({
+            editModalCustomer: customer,
+            showEditModal: true,
+        });
+    }
+
+    private closeEditModal = () => {
+        this.setState({
+            showEditModal: false,
+        });
+    }
+
+    private saveEditModal = (customer: InvoiceCustomer) => {
+        const { customers, onChange } = this.props;
+        const { editModalCustomer } = this.state;
+
+        // find customer being edited,
+        const index = customers.findIndex(c => c.email === editModalCustomer.email);
+        
+        // then replace it
+        const newCustomers = [...customers];
+        newCustomers[index] = customer;
+
+        onChange(newCustomers)
+
+        this.setState({
+            showEditModal: false,
         });
     }
 
