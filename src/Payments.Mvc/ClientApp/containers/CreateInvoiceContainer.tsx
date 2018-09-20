@@ -126,7 +126,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                 <div className="card-foot invoice-action">
                     <div className="row flex-between flex-center">
                         <div className="col">
-                            <button className="btn-plain color-unitrans">Cancel</button>
+                            <button className="btn-plain color-unitrans" onClick={this.onCancel}>Cancel</button>
                         </div>
                         <div className="col d-flex justify-content-center align-items-end">
                             { this.renderError() }
@@ -195,6 +195,10 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         this.setState({
             [name]: value,
         });
+    }
+
+    private onCancel = () => {
+        window.history.go(-1);
     }
 
     private saveInvoice = async () => {
