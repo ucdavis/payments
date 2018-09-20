@@ -60,6 +60,7 @@ namespace Payments.Mvc.Controllers
             // fetch records
             var records = await _dbContext.MoneyMovementJobRecords
                 .Where(r => r.RanOn >= start && r.RanOn <= end)
+                .OrderBy(r => r.RanOn)
                 .ToListAsync();
 
             // js epoch is 1/1/1970
@@ -69,7 +70,7 @@ namespace Payments.Mvc.Controllers
             var events = records.Select(r => new
             {
                 id     = r.Id,
-                title  = r.Name,
+                title  = $"{r.Name} - {r.RanOn:MMM dd, h:mm tt}",
                 @class = "event-success",
                 url    = Url.Action(nameof(MoneyMovementDetails), new { id = r.Id }),
                 start  = (r.RanOn.Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch,
