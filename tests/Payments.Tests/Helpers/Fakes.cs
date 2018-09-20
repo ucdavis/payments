@@ -6,6 +6,9 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Payments.Core.Domain;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using Payments.Mvc.Identity;
 
 namespace payments.Tests.Helpers
 {
@@ -25,6 +28,20 @@ namespace payments.Tests.Helpers
                 new Mock<IServiceProvider>().Object,
                 new Mock<ILogger<UserManager<User>>>().Object)
         { }
+    }
+
+    public class FakeApplicationUserManager : ApplicationUserManager{
+        public FakeApplicationUserManager()
+            : base(new Mock<IUserStore<User>>().Object, 
+                  new Mock<IOptions<IdentityOptions>>().Object, 
+                  new Mock<IPasswordHasher<User>>().Object, 
+                  new IUserValidator<User>[0], 
+                  new IPasswordValidator<User>[0], 
+                  new Mock<ILookupNormalizer>().Object, 
+                  new Mock<IdentityErrorDescriber>().Object, 
+                  new Mock<IServiceProvider>().Object, 
+                  new Mock<ILogger<UserManager<User>>>().Object)
+        {}
     }
 
     /// <summary>
