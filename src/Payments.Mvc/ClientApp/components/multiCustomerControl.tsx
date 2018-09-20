@@ -68,7 +68,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
 
     private renderContent() {
         const { customers, onChange } = this.props;
-        const { hasMultipleCustomers, showEditModal, editModalCustomer, multiCustomerInput } = this.state;
+        const { hasMultipleCustomers, multiCustomerInput } = this.state;
 
         if (!hasMultipleCustomers) {
             // use first or empty customer
@@ -104,14 +104,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
                     {customers.map(c => this.renderCustomerTag(c))}
                 </div>
 
-                { showEditModal &&
-                    <EditCustomerModal
-                        isModalOpen={showEditModal}
-                        customer={editModalCustomer}
-                        onCancel={this.closeEditModal}
-                        onConfirm={this.saveEditModal}
-                    />
-                }
+                { this.renderEditModal() }
             </div>
         );
     }
@@ -134,6 +127,23 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
                     </button>
                 </div>
             </div>
+        );
+    }
+
+    private renderEditModal() {
+        const { showEditModal, editModalCustomer } = this.state;
+
+        if (!showEditModal) {
+            return null;
+        }
+
+        return (
+            <EditCustomerModal
+                isModalOpen={showEditModal}
+                customer={editModalCustomer}
+                onCancel={this.closeEditModal}
+                onConfirm={this.saveEditModal}
+            />
         );
     }
 
