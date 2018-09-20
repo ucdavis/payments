@@ -148,9 +148,18 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
     }
 
     private enableMultiCustomer = () => {
+        const { customers, onChange } = this.props;
+
         this.setState({
             hasMultipleCustomers: true,
-        })
+        });
+
+        // clear empty customers
+        if (!customers || !customers.length) {
+            return;
+        }
+        const newCustomers = customers.filter(c => c.email);
+        onChange(newCustomers);
     }
 
     private disableMultiCustomer = () => {
