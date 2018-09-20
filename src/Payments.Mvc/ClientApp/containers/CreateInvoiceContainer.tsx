@@ -50,7 +50,11 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
         this.state = {
             accountId: defaultAccount ? defaultAccount.id : 0,
-            customers: [],
+            customers: [{
+                address: '',
+                email: '',
+                name: ''
+            }],
             discount: 0,
             dueDate: '',
             ids: undefined,
@@ -142,15 +146,15 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         const { team } = this.props;
         const { dueDate, customers, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
-        let emailLine = '';
+        let customer: InvoiceCustomer;
         if (customers.length > 1) {
-            emailLine = 'Multiple Customers';
-        } else if (customers.length > 0) {
-            emailLine = customers[0].email;
+            customer = { address: '', email: 'Multiple Customers', name: 'Multiple Customers' };
+        } else {
+            customer = customers[0];
         }
 
         const invoice = {
-            customer: { email: emailLine },
+            customer,
             discount,
             dueDate: dueDate ? new Date(dueDate) : undefined,
             items,
