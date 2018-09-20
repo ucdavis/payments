@@ -7,9 +7,6 @@ namespace Payments.Core.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User>
     {
-        [Obsolete("Just use for tests")]
-        public ApplicationDbContext() { }
-
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         { }

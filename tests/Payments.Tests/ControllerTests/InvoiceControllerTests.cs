@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using payments.Tests.Helpers;
 using Payments.Core.Data;
@@ -42,7 +43,8 @@ namespace payments.Tests.ControllerTests
         {
             var mockDataProvider = new Mock<SessionStateTempDataProvider>();
 
-            MockDbContext = new Mock<ApplicationDbContext>();
+
+            MockDbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
             MockEmailService = new Mock<IEmailService>();
             MockUserManager = new Mock<FakeApplicationUserManager>();
 
