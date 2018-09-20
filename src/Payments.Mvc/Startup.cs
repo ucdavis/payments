@@ -115,7 +115,10 @@ namespace Payments.Mvc
             services.AddSingleton<IFinancialService, FinancialService>();
             services.AddSingleton<ISlothService, SlothService>();
 
-            // register jobs
+            // register job services
+            // add jobs services
+            services.AddHostedService<QueuedHostedService>();
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddScoped<MoneyMovementJob>();
         }
 
