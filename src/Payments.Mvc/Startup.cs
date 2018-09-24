@@ -91,9 +91,11 @@ namespace Payments.Mvc
             // add policy auth
             services.AddAuthorization(options =>
             {
+                options.AddPolicy(PolicyCodes.ApiKey, policy => policy.Requirements.Add(new VerifyApiKeyRequirement()));
                 options.AddPolicy(PolicyCodes.TeamAdmin, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
                 options.AddPolicy(PolicyCodes.TeamEditor, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin, TeamRole.Codes.Editor)));
             });
+            services.AddScoped<IAuthorizationHandler, VerifyApiKeyRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             // add application services
@@ -131,6 +133,7 @@ namespace Payments.Mvc
 
             appLifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
+            app.UseMiddleware<ApiKeyMiddleware>();
             app.UseMiddleware<CorrelationIdMiddleware>();
             app.UseMiddleware<LoggingIdentityMiddleware>();
 
