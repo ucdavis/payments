@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using AspNetCore.Security.CAS;
 using jsreport.AspNetCore;
@@ -144,7 +145,13 @@ namespace Payments.Mvc
                 {
                     Description = "API Key Authentication",
                     Name = ApiKeyMiddleware.HeaderKey,
-                    In = "header"
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    { "apiKey", new string[] { } }
                 });
             });
 
