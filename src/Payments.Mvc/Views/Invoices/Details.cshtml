@@ -60,11 +60,14 @@
         <h3>Summary</h3>
         
         <div>
-            <a asp-controller="Payments" asp-action="Pdf" asp-route-id="@Model.Id" class="btn btn-primary">
-                <i class="fas fa-download mr-3"></i>
-                Download PDF
-            </a>
-
+            @if (!string.IsNullOrWhiteSpace(Model.LinkId))
+            {
+                 <a asp-controller="Payments" asp-action="Pdf" asp-route-id="@Model.LinkId" class="btn btn-primary">
+                    <i class="fas fa-download mr-3"></i>
+                    Download PDF
+                </a>
+            }
+            
             @if (Model.Status != Invoice.StatusCodes.Paid)
             {
                 if (!Model.Sent)
