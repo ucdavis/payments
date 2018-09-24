@@ -2,10 +2,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Payments.Mvc.Identity;
 
 namespace Payments.Mvc.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [AutoValidateAntiforgeryToken]
     [Authorize]
     public abstract class SuperController : Controller
