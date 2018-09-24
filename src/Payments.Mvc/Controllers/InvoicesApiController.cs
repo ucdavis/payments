@@ -20,6 +20,8 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Invoice), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<Invoice>> Get(int id)
         {
             if (id <= 0)
@@ -42,6 +44,8 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         public async Task<IActionResult> Create([FromBody] CreateInvoiceViewModel model)
         {
             var team = await GetAuthorizedTeam();
