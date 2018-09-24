@@ -6,6 +6,7 @@
     [ContactName] NVARCHAR(128) NULL, 
     [ContactEmail] NVARCHAR(128) NULL, 
     [ContactPhoneNumber] NVARCHAR(40) NULL, 
+    [ApiKey] NVARCHAR(50) NULL, 
     CONSTRAINT [PK_Teams] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 

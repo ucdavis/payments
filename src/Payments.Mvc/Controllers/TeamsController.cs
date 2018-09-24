@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -74,6 +75,7 @@ namespace Payments.Mvc.Controllers
                 ContactEmail       = model.ContactEmail,
                 ContactPhoneNumber = model.ContactPhoneNumber,
                 IsActive           = true,
+                ApiKey             = Guid.NewGuid().ToString("N").ToUpper()
             };
 
             // add user to team
