@@ -172,7 +172,6 @@ namespace Payments.Mvc
 
             appLifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
-            app.UseMiddleware<ApiKeyMiddleware>();
             app.UseMiddleware<CorrelationIdMiddleware>();
             app.UseMiddleware<LoggingIdentityMiddleware>();
 
@@ -196,6 +195,8 @@ namespace Payments.Mvc
             app.UseStaticFiles();
 
             app.UseAuthentication();
+
+            app.UseMiddleware<ApiKeyMiddleware>();
 
             app.UseSession();
 
