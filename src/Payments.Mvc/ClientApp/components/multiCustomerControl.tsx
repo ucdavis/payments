@@ -188,15 +188,28 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
         const invalidEmails = [];
 
         emails.forEach(e => {
+
+            // check for outlook format first
+            const outlookResult = outlookRegex.exec(e);
+            if (outlookResult && outlookResult[1]) {
+                validCustomers.push({
+                    address: '',
+                    email: outlookResult[2],
+                    name: outlookResult[1],
+                });
+                return;
+            }
+
             if (emailRegex.test(e)) {
                 validCustomers.push({
                     address: '',
                     email: e,
                     name: '',
                 });
-            } else {
-                invalidEmails.push(e);
+                return;
             }
+
+            invalidEmails.push(e);
         });
 
         // remove duplicates, map to customer
