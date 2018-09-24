@@ -164,7 +164,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                 <td>
                     <div className="input-group">
                         <div className="input-group-prepend">
-                            <span className="input-group-text">$</span>
+                            <span className="input-group-text">
+                                <i className="fas fa-dollar-sign" />
+                            </span>
                         </div>
                         <input
                             type="number"
