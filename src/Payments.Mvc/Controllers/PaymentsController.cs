@@ -85,7 +85,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Team)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
 
-            if (invoice == null)
+            if (invoice == null || string.IsNullOrWhiteSpace(id))
             {
                 return NotFound();
             }

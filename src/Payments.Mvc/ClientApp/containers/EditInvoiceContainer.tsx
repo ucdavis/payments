@@ -93,16 +93,10 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 </div>
                 <div className="card-content invoice-customer">
                     <h3>Customer Info</h3>
-                    <div className="form-group">
-                        <label>Customer Email</label>
-                        <CustomerControl
-                            customer={customer}
-                            onChange={(c) => { this.updateProperty("customer", c) }}
-                        />
-                        <div className="invalid-feedback">
-                            Customer required.
-                        </div>
-                    </div>
+                    <CustomerControl
+                        customer={customer}
+                        onChange={(c) => { this.updateProperty("customer", c) }}
+                    />
                 </div>
                 <div className="card-content invoice-items">
                     <h3>Invoice Items</h3>
@@ -135,7 +129,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 <div className="card-foot invoice-action">
                     <div className="row flex-between flex-center">
                         <div className="col">
-                            <button className="btn-plain color-unitrans">Cancel</button>
+                            <button className="btn-plain color-unitrans" onClick={this.onCancel}>Cancel</button>
                         </div>
                         <div className="col d-flex justify-content-center align-items-end">
                             { this.renderError() }
@@ -195,6 +189,10 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         this.setState({
             [name]: value
         });
+    }
+
+    private onCancel = () => {
+        window.history.go(-1);
     }
 
     private saveInvoice = async () => {
