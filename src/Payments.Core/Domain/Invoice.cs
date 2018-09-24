@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -24,7 +25,11 @@ namespace Payments.Core.Domain
         public string LinkId { get; set; }
 
         [Required]
+        [JsonIgnore]
         public User Creator { get; set; }
+
+        [NotMapped]
+        public string CreatedBy => Creator?.Name;
 
         [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
@@ -54,8 +59,12 @@ namespace Payments.Core.Domain
 
         public PaymentEvent Payment { get; set; }
 
+        [JsonIgnore]
         [Required]
         public Team Team { get; set; }
+
+        [NotMapped]
+        public string TeamName => Team?.Name;
 
         public IList<LineItem> Items { get; set; }
 
