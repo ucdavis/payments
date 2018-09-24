@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using AspNetCore.Security.CAS;
 using jsreport.AspNetCore;
 using jsreport.Binary;
@@ -26,6 +28,7 @@ using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
 using Serilog;
 using StackifyLib;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Payments.Mvc
 {
@@ -109,6 +112,42 @@ namespace Payments.Mvc
                 .AsUtility()
                 .Create());
 
+            // add swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info
+                {
+                    Title = "Payments API v1",
+                    Version = "v1",
+                    Description = "Accept and process credit card payments for CA&ES",
+                    Contact = new Contact()
+                    {
+                        Name = "John Knoll",
+                        Email = "jpknoll@ucdavis.edu"
+                    },
+                    License = new License()
+                    {
+                        Name = "MIT",
+                        Url = "https://www.github.com/ucdavis/payments/LICENSE"
+                    },
+                    Extensions =
+                    {
+                        {"ProjectUrl", "https://www.github.com/ucdavis/payments"}
+                    }
+                });
+
+                var xmlFilePath = Path.Combine(AppContext.BaseDirectory, "Payments.Mvc.xml");
+                c.IncludeXmlComments(xmlFilePath);
+                c.EnableAnnotations();
+
+                c.AddSecurityDefinition("apiKey", new ApiKeyScheme()
+                {
+                    Description = "API Key Authentication",
+                    Name = ApiKeyMiddleware.HeaderKey,
+                    In = "header"
+                });
+            });
+
             // infrastructure services
             services.AddSingleton<IDataSigningService, DataSigningService>();
             services.AddSingleton<IEmailService, SparkpostEmailService>();
@@ -159,6 +198,17 @@ namespace Payments.Mvc
             app.UseAuthentication();
 
             app.UseSession();
+
+            // add swagger docs and ui
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = "api-docs/{documentName}/swagger.json";
+            });
+            app.UseSwaggerUI(c =>
+            {
+                c.RoutePrefix = "api-docs";
+                c.SwaggerEndpoint("/api-docs/v1/swagger.json", "Payments API v1");
+            });
 
             app.UseMvc(routes =>
             {
