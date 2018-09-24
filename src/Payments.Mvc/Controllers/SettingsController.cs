@@ -54,6 +54,7 @@ namespace Payments.Mvc.Controllers
                 ContactName        = team.ContactName,
                 ContactEmail       = team.ContactEmail,
                 ContactPhoneNumber = team.ContactPhoneNumber,
+                ApiKey             = userCanEdit ? team.ApiKey : "",
                 IsActive           = team.IsActive,
                 UserCanEdit        = userCanEdit
             };
