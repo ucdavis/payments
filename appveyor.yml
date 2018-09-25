@@ -18,8 +18,8 @@ cache:
 - C:\ProgramData\chocolatey\bin -> appveyor.yml
 - C:\ProgramData\chocolatey\lib -> appveyor.yml
 - '%USERPROFILE%\.nuget\packages -> **\*.csproj'
-- '%APPDATA%\npm-cache -> **\package.json'          # npm cache
-- '**\node_modules -> **\package.json'              # local npm modules
+- '%APPDATA%\npm-cache -> **\package.json'
+- '**\node_modules -> **\package.json'
 
 before_build:
 - ps: |
