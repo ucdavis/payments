@@ -19,8 +19,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("Actor", "Payments.Core.Domain.User", new List<string>()));
-            expectedFields.Add(new NameAndType("ActorId", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("Actor", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Data", "System.String", new List<string>()));
 
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>
@@ -35,7 +34,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
-                        
+                       
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(History));

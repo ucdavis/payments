@@ -15,6 +15,10 @@ namespace Payments.Tests.DatabaseTests
             #region Arrange
             var expectedFields = new List<NameAndType>();
             expectedFields.Add(new NameAndType("Accounts", "System.Collections.Generic.IList`1[Payments.Core.Domain.FinancialAccount]", new List<string>()));
+            expectedFields.Add(new NameAndType("ApiKey", "System.String", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("ContactEmail", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Contact Email\")]",

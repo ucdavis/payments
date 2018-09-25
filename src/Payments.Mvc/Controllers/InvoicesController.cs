@@ -240,7 +240,6 @@ namespace Payments.Mvc.Controllers
                 var invoice = new Invoice
                 {
                     Account         = account,
-                    Creator         = user,
                     Team            = team,
                     Discount        = model.Discount,
                     TaxPercent      = model.TaxPercent,
@@ -268,7 +267,7 @@ namespace Payments.Mvc.Controllers
                 {
                     Type = HistoryActionTypes.InvoiceCreated.TypeCode,
                     ActionDateTime = DateTime.UtcNow,
-                    Actor = user,
+                    Actor = user.Name,
                 };
                 invoice.History.Add(action);
 
@@ -361,7 +360,7 @@ namespace Payments.Mvc.Controllers
             {
                 Type = HistoryActionTypes.InvoiceEdited.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
-                Actor = user,
+                Actor = user.Name,
             };
             invoice.History.Add(action);
 
@@ -416,7 +415,7 @@ namespace Payments.Mvc.Controllers
             {
                 Type = HistoryActionTypes.InvoiceSent.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
-                Actor = user,
+                Actor = user.Name,
             };
             invoice.History.Add(action);
 
@@ -457,7 +456,7 @@ namespace Payments.Mvc.Controllers
             {
                 Type = HistoryActionTypes.InvoiceUnlocked.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
-                Actor = user,
+                Actor = user.Name,
             };
             invoice.History.Add(action);
 

@@ -21,6 +21,9 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "Contact Phone Number")]
         public string ContactPhoneNumber { get; set; }
 
+        [Display(Name = "ApiKey")]
+        public string ApiKey { get; set; }
+
         [Display(Name = "Active?")]
         public bool IsActive { get; set; }
 

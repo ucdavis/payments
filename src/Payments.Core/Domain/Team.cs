@@ -54,6 +54,9 @@ namespace Payments.Core.Domain
         [JsonIgnore]
         public IList<TeamPermission> Permissions { get; set; }
 
+        [JsonIgnore]
+        public string ApiKey { get; set; }
+        
         [NotMapped]
         public FinancialAccount DefaultAccount {
             get {

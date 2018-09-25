@@ -62,7 +62,10 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"---\")]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)3)]",
             }));
-            expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>()));
+            expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("TeamId", "System.Int32", new List<string>()));
             #endregion Arrange
 
