@@ -307,7 +307,7 @@ namespace Payments.Mvc.Controllers
             if (response.Decision == ReplyCodes.Accept)
             {
                 invoice.Payment = payment;
-                invoice.Status = "paid";
+                invoice.Status = Invoice.StatusCodes.Paid;
 
                 // record action
                 var action = new History()
