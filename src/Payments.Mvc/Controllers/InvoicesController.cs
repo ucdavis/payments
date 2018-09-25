@@ -240,7 +240,6 @@ namespace Payments.Mvc.Controllers
                 var invoice = new Invoice
                 {
                     Account         = account,
-                    Creator         = user,
                     Team            = team,
                     Discount        = model.Discount,
                     TaxPercent      = model.TaxPercent,

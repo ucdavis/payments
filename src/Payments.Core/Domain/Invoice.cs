@@ -24,13 +24,6 @@ namespace Payments.Core.Domain
 
         public string LinkId { get; set; }
 
-        [Required]
-        [JsonIgnore]
-        public User Creator { get; set; }
-
-        [NotMapped]
-        public string CreatedBy => Creator?.Name;
-
         [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
 
@@ -101,11 +94,6 @@ namespace Payments.Core.Domain
 
         protected internal static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Invoice>()
-                .HasOne(i => i.Creator)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.Entity<Invoice>()
                 .HasOne(i => i.Team)
                 .WithMany()
