@@ -440,6 +440,11 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            if (invoice.Status != Invoice.StatusCodes.Sent)
+            {
+                return NotFound();
+            }
+
             invoice.Status = Invoice.StatusCodes.Draft;
             invoice.Sent = false;
             invoice.SentAt = null;
