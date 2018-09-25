@@ -267,7 +267,7 @@ namespace Payments.Mvc.Controllers
                 {
                     Type = HistoryActionTypes.InvoiceCreated.TypeCode,
                     ActionDateTime = DateTime.UtcNow,
-                    Actor = user,
+                    Actor = user.Name,
                 };
                 invoice.History.Add(action);
 
@@ -360,7 +360,7 @@ namespace Payments.Mvc.Controllers
             {
                 Type = HistoryActionTypes.InvoiceEdited.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
-                Actor = user,
+                Actor = user.Name,
             };
             invoice.History.Add(action);
 
@@ -415,7 +415,7 @@ namespace Payments.Mvc.Controllers
             {
                 Type = HistoryActionTypes.InvoiceSent.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
-                Actor = user,
+                Actor = user.Name,
             };
             invoice.History.Add(action);
 
@@ -451,7 +451,7 @@ namespace Payments.Mvc.Controllers
             {
                 Type = HistoryActionTypes.InvoiceUnlocked.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
-                Actor = user,
+                Actor = user.Name,
             };
             invoice.History.Add(action);
 

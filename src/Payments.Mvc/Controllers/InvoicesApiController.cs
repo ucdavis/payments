@@ -107,7 +107,7 @@ namespace Payments.Mvc.Controllers
                 {
                     Type = HistoryActionTypes.InvoiceCreated.TypeCode,
                     ActionDateTime = DateTime.UtcNow,
-                    //Actor = user,
+                    Actor = "API",
                 };
                 invoice.History.Add(action);
 
