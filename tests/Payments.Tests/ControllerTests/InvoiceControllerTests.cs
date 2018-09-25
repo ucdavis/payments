@@ -107,7 +107,7 @@ namespace payments.Tests.ControllerTests
 
             InvoiceData[0].History.ShouldNotBeNull();
             InvoiceData[0].History.Count.ShouldBe(1);
-            InvoiceData[0].History[0].Actor.FirstName.ShouldBe("FirstName2");
+            InvoiceData[0].History[0].Actor.ShouldBe("FirstName2 LastName2");
             InvoiceData[0].History[0].Type.ShouldBe(HistoryActionTypes.InvoiceUnlocked.TypeCode);
             InvoiceData[0].History[0].ActionDateTime.ShouldNotBeNull();
         }

@@ -20,10 +20,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("CreatedAt", "System.DateTime", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Created On\")]",
             }));
-            expectedFields.Add(new NameAndType("Creator", "Payments.Core.Domain.User", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
-            }));
+
             expectedFields.Add(new NameAndType("CustomerAddress", "System.String", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Customer Address\")]",
             }));
@@ -73,14 +70,19 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>
             {
-                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",                
+            }));
+            expectedFields.Add(new NameAndType("TeamName", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
             }));
             expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
 
-            
+
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(Invoice));
