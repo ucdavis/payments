@@ -1,0 +1,78 @@
+﻿@using Newtonsoft.Json
+@using Payments.Core.Models.Notifications
+
+@{
+    ViewData["Title"] = "WebHooks";
+}
+
+@section AdditionalStyles {
+    <link href="css/prism.css" rel="stylesheet" />
+}
+
+<div class="card-style">
+    <div class="card-header-yellow card-bot-border">
+        <div class="card-head">
+            <div class="row mb-2">
+                <div class="col-8">
+                    <h2>@ViewBag.Title</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-content">
+        <p>
+            Webhooks allow you to subscribe to certain events on payments.ucdavis.edu.
+            When one of those events is triggered, we'll send a HTTP POST payload to the webhook's configured URL.
+        </p>
+
+        <h3 class="">Events</h3>
+
+        <table class="table table-bordered my-3">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <code>
+                        @PaidNotification.Name
+                    </code>
+                </td>
+                <td>
+                    <p>
+                        Any time an invoice is successfully paid for.
+                    </p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3 class="">Payloads</h3>
+
+        <div class="accordion my-3" id="notification_payloads">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn-plain" type="button" data-toggle="collapse" data-target="#notification_@PaidNotification.Name">
+                            @PaidNotification.Name
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="notification_@PaidNotification.Name" class="collapse show" data-parent="#notification_payloads">
+                    <div class="card-body">
+                        <pre><code class="language-json">@JsonConvert.SerializeObject(new PaidNotification(), Formatting.Indented)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="js/prism.js"></script>
+    <script></script>
+}
