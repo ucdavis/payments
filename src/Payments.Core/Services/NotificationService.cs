@@ -13,9 +13,11 @@ namespace Payments.Core.Services
     public interface INotificationService
     {
         Task SendPaidNotification(PaidNotification notification);
+
+        Task TestWebHook(WebHook webHook);
     }
 
-    public class NotificationService
+    public class NotificationService : INotificationService
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -42,6 +44,16 @@ namespace Payments.Core.Services
             {
                 await SendWebHookPayload(webHook, notification);
             }
+        }
+
+        public async Task TestWebHook(WebHook webHook)
+        {
+            var notification = new
+            {
+                name = "test"
+            };
+
+            await SendWebHookPayload(webHook, notification);
         }
 
         private async Task SendWebHookPayload(WebHook webHook, object payload)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -10,10 +10,12 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Core.Services;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Models.TeamViewModels;
+using Payments.Mvc.Models.WebHookModels;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
@@ -22,12 +24,14 @@ namespace Payments.Mvc.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IDirectorySearchService _directorySearchService;
+        private readonly INotificationService _notificationService;
         private readonly ApplicationUserManager _userManager;
 
-        public SettingsController(ApplicationDbContext context, IDirectorySearchService directorySearchService, ApplicationUserManager userManager)
+        public SettingsController(ApplicationDbContext context, IDirectorySearchService directorySearchService, INotificationService notificationService, ApplicationUserManager userManager)
         {
             _context = context;
             _directorySearchService = directorySearchService;
+            _notificationService = notificationService;
             _userManager = userManager;
         }
 
@@ -348,6 +352,31 @@ namespace Payments.Mvc.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Roles), new { team = team.Slug });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
+        public async Task<IActionResult> TestWebHook(int id)
+        {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var webHook = await _context.WebHooks
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == team.Id);
+            if (webHook == null)
+            {
+                return NotFound();
+            }
+
+            await _notificationService.TestWebHook(webHook);
+
+            Message = "Test Notification Sent";
+
+            return RedirectToAction(nameof(WebHooks), new { team = team.Slug });
         }
     }
 }
