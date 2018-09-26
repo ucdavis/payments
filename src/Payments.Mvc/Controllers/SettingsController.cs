@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -352,6 +352,131 @@ namespace Payments.Mvc.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Roles), new { team = team.Slug });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
+        public async Task<IActionResult> WebHooks()
+        {
+            var team = await _context.Teams
+                .Include(t => t.WebHooks)
+                .SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var hooks = team.WebHooks;
+
+            return View(hooks);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
+        public IActionResult CreateWebHook()
+        {
+            var model = new CreateWebHookViewModel()
+            {
+                IsActive = true
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
+        public async Task<IActionResult> CreateWebHook(CreateWebHookViewModel model)
+        {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            // check model
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // create webhook and add it
+            var webHook = new WebHook()
+            {
+                Team          = team,
+                Url           = model.Url,
+                ContentType   = model.ContentType,
+                IsActive      = model.IsActive,
+                TriggerOnPaid = model.TriggerOnPaid
+            };
+
+            team.WebHooks.Add(webHook);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(WebHooks), new { team = team.Slug });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
+        public async Task<IActionResult> EditWebHook(int id)
+        {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var webHook = await _context.WebHooks
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == team.Id);
+            if (webHook == null)
+            {
+                return NotFound();
+            }
+
+            var model = new EditWebHookViewModel()
+            {
+                Id            = webHook.Id,
+                Url           = webHook.Url,
+                IsActive      = webHook.IsActive,
+                TriggerOnPaid = webHook.TriggerOnPaid,
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = PolicyCodes.TeamAdmin)]
+        public async Task<IActionResult> EditWebHook(int id, EditWebHookViewModel model)
+        {
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var webHook = await _context.WebHooks
+                .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == team.Id);
+            if (webHook == null)
+            {
+                return NotFound();
+            }
+
+            // check model
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // update model
+            webHook.Url           = model.Url;
+            webHook.ContentType   = model.ContentType;
+            webHook.IsActive      = model.IsActive;
+            webHook.TriggerOnPaid = model.TriggerOnPaid;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(WebHooks), new { team = team.Slug });
         }
 
         [HttpPost]
