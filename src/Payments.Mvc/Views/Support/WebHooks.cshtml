@@ -1,5 +1,6 @@
 ﻿@using Newtonsoft.Json
 @using Payments.Core.Models.Notifications
+@using Payments.Mvc.Resources
 
 @{
     ViewData["Title"] = "WebHooks";
@@ -43,7 +44,7 @@
                 </td>
                 <td>
                     <p>
-                        Any time an invoice is successfully paid for.
+                        @WebHookDescriptions.PaidNotifications
                     </p>
                 </td>
             </tr>
