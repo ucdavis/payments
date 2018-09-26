@@ -1,0 +1,81 @@
+﻿@model IEnumerable<WebHook>
+@{
+    ViewData["Title"] = "WebHooks";
+}
+
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+            <a asp-action="CreateWebHook" class="btn btn-primary"><i class="fas fa-code mr-3"></i> Add Web Hook</a>
+        </div>
+    </div>
+
+    <div class="card-content">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Url)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.IsActive)
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        <code>
+                            @Html.DisplayFor(modelItem => item.Url)
+                        </code>
+                    </td>
+                    <td>
+                        @if (item.IsActive)
+                        {
+                            <i class="far fa-check-square"></i>
+                        }
+                    </td>
+                    <td class="text-center">
+                        <a asp-action="EditWebHook" asp-route-id="@item.Id" class="btn btn-primary">
+                            <i class="far fa-edit mr-3"></i> Edit
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <form asp-action="TestWebHook" asp-route-id="@item.Id">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-vial mr-3"></i> Test
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div>
+    <a asp-action="Index"><i class="fas fa-chevron-left mr-3"></i> Back to Team</a>
+</div>
+
+
+@section scripts {
+    <script type="text/javascript">
+        $(function() {
+            $(".table").DataTable({
+                columnDefs: [
+                    {
+                        targets: [-1, -2], orderable: false
+                    },
+                    {
+                        targets: [-1, -2], searchable: false
+                    }
+                ]
+            });
+        });
+    </script>
+}
