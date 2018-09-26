@@ -13,6 +13,7 @@ namespace Payments.Core.Domain
         {
             Accounts = new List<FinancialAccount>();
             Permissions = new List<TeamPermission>();
+            WebHooks = new List<WebHook>();
         }
 
         [Key]
@@ -53,6 +54,9 @@ namespace Payments.Core.Domain
 
         [JsonIgnore]
         public IList<TeamPermission> Permissions { get; set; }
+
+        [JsonIgnore]
+        public IList<WebHook> WebHooks { get; set; }
 
         [JsonIgnore]
         public string ApiKey { get; set; }
