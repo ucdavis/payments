@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
+using Payments.Core.Models.Notifications;
+using Payments.Core.Services;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.CyberSource;
 using Payments.Mvc.Models.PaymentViewModels;
@@ -22,14 +24,16 @@ namespace Payments.Mvc.Controllers
 {
     public class PaymentsController : Controller
     {
-        private readonly IDataSigningService _dataSigningService;
         private readonly ApplicationDbContext _dbContext;
+        private readonly IDataSigningService _dataSigningService;
+        private readonly INotificationService _notificationService;
         private readonly CyberSourceSettings _cyberSourceSettings;
 
-        public PaymentsController(IDataSigningService dataSigningService, ApplicationDbContext dbContext, IOptions<CyberSourceSettings> cyberSourceSettings)
+        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IOptions<CyberSourceSettings> cyberSourceSettings)
         {
-            _dataSigningService = dataSigningService;
             _dbContext = dbContext;
+            _dataSigningService = dataSigningService;
+            _notificationService = notificationService;
             _cyberSourceSettings = cyberSourceSettings.Value;
         }
 
@@ -316,6 +320,12 @@ namespace Payments.Mvc.Controllers
                     ActionDateTime = DateTime.UtcNow,
                 };
                 invoice.History.Add(action);
+
+                // process notifications
+                await _notificationService.SendPaidNotification(new PaidNotification()
+                {
+                    InvoiceId = invoice.Id
+                });
             }
             else
             {

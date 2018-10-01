@@ -17,5 +17,10 @@ namespace Payments.Mvc.Controllers
         {
             return View();
         }
+
+        public IActionResult WebHooks()
+        {
+            return View();
+        }
     }
 }

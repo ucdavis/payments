@@ -162,6 +162,7 @@ namespace Payments.Mvc
             services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
             services.AddSingleton<IFinancialService, FinancialService>();
             services.AddSingleton<ISlothService, SlothService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             // register job services
             // add jobs services

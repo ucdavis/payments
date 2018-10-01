@@ -1,0 +1,51 @@
+﻿@using Payments.Mvc.Resources
+@model Payments.Mvc.Models.WebHookModels.WebHookViewModel
+
+
+<div class="card-content card-bot-border">
+    <p>We’ll send a <code>POST</code> request to the URL below with details of any subscribed events.</p>
+</div>
+<div class="card-content card-bot-border">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="Url" class="control-label"></label>
+            <input asp-for="Url" class="form-control" />
+            <span asp-validation-for="Url" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+<div class="card-content card-bot-border">
+    <h3 class="mb-3">Which events would you like to trigger this webhook?</h3>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <div class="checkbox">
+                <label class="d-flex align-items-baseline">
+                    <input asp-for="TriggerOnPaid" class="pull-left" />
+                    <span class="pl-3">
+                        @Html.DisplayNameFor(model => model.TriggerOnPaid) <br />
+                        <span class="text-small">@WebHookDescriptions.PaidNotifications</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card-content">
+    <div class="form-group">
+        <div class="checkbox">
+            <label class="d-flex align-items-baseline">
+                <input asp-for="IsActive" />
+                <span class="pl-3">
+                    @Html.DisplayNameFor(model => model.IsActive) <br />
+                    <span class="text-small">We will deliver event details when this hook is triggered.</span>
+                </span>
+            </label>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end align-items-center">
+        <input type="submit" value="Save" class="btn btn-default" />
+    </div>
+</div>

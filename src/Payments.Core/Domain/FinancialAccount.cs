@@ -49,6 +49,7 @@ namespace Payments.Core.Domain
         [DisplayName("Active")]
         public bool IsActive { get; set; } = true;
         
+        [Required]
         [JsonIgnore]
         public Team Team { get; set; }
 

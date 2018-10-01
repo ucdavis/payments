@@ -26,6 +26,8 @@ namespace Payments.Core.Data
 
         public virtual DbSet<FinancialAccount> FinancialAccounts { get; set; }
 
+        public virtual DbSet<WebHook> WebHooks { get; set; }
+
         public virtual DbSet<LogMessage> Logs { get; set; }
 
         public virtual DbSet<MoneyMovementJobRecord> MoneyMovementJobRecords { get; set; }
