@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,10 @@ namespace Payments.Core.Services
     public interface ISlothService
     {
         Task<Transaction> GetTransactionsByProcessorId(string id);
+
         Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey);
+
+        Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction);
     }
 
     public class SlothService : ISlothService
@@ -50,6 +54,18 @@ namespace Payments.Core.Services
             }
         }
 
+        public async Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction)
+        {
+            using (var client = GetHttpClient())
+            {
+                var url = "transactions";
+
+                var response = await client.PostAsJsonAsync(url, transaction);
+                var result = await response.GetContentOrNullAsync<CreateSlothTransactionResponse>();
+                return result;
+            }
+        }
+
         private HttpClient GetHttpClient()
         {
             var client = new HttpClient()
@@ -60,5 +76,10 @@ namespace Payments.Core.Services
 
             return client;
         }
+    }
+
+    public class CreateSlothTransactionResponse
+    {
+        public string Id { get; set; }
     }
 }

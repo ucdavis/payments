@@ -16,8 +16,9 @@ namespace Payments.Tests.DatabaseTests
 
             expectedFields.Add(new NameAndType("Account", "System.String", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.RegularExpressionAttribute(\"[A-Z0-9]*\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
-                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)7)]",                
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)7)]",  
             }));
             expectedFields.Add(new NameAndType("Chart", "System.String", new List<string>
             {
@@ -42,11 +43,6 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
             }));
-            expectedFields.Add(new NameAndType("Object", "System.String", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
-                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)4)]",
-            }));
             expectedFields.Add(new NameAndType("Project", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"---------\")]",
@@ -56,11 +52,6 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"-----\")]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)5)]",
-            }));
-            expectedFields.Add(new NameAndType("SubObject", "System.String", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(NullDisplayText = \"---\")]",
-                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)3)]",
             }));
             expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>
             {

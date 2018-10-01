@@ -23,32 +23,37 @@ ul.main-nav {
 nav {
   margin-top: 3rem;
 
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+
   .nav-item {
     padding:8px 0px;
+    display: flex;
+    justify-content: start;
   }
 
-  .navitem {
+  .nav-text {
     color:$secondary-font;
     font-size: 1.8rem;
     font-family: $sans-bold;
   }
-  &:hover .navitem {
+  &:hover .nav-text {
     color:$primary-font;
   }
   
   .svgwrapper {
     margin-right:18px;
-    width:34px;
-  }
-  .btn-plain {
-
+    width: 40px;
+    display: flex;
+    justify-content: center;
   }
 
   .subnav {
     // svg size and margin
-    margin-left: 34px  + 18px;
+    margin-left: 40px  + 18px;
   
-    .navitem {
+    .nav-text {
       font-size: 1.6rem;
     }
   }
@@ -68,10 +73,25 @@ nav {
 //   // fill:lighten( $tertiary-color,5% );
 //   fill:#A0A1A2;
 // }
-g#home-tertiary, g#invoices-secondary, g#invoices-tertiary, g#support-secondary, g#support-tertiary, g#settings-tertiary, g#logout-secondary, g#logout-tertiary {
+g#home-tertiary,
+g#invoices-secondary,
+g#invoices-tertiary,
+g#support-secondary,
+g#support-tertiary,
+g#settings-tertiary,
+g#system-secondary,
+g#system-tertiary,
+g#logout-secondary,
+g#logout-tertiary {
   fill:#BBBBBB;
 }
-g#home-primary, g#invoices-primary, g#support-primary, g#settings-secondary, g#settings-primary, g#logout-primary {
+g#home-primary,
+g#invoices-primary,
+g#support-primary,
+g#settings-secondary,
+g#settings-primary,
+g#system-primary,
+g#logout-primary {
  fill:#979797;
 }
 g#settings-secondary {
@@ -110,6 +130,13 @@ a.nav-settings:hover {
   //   fill:$tertiary-font;
   // }
 }
+
+a.nav-system:hover {
+  g#system-primary {
+    fill:$primary-color;
+  }
+}
+
 button.nav-logout:hover {
   g#logout-primary {
     fill:$primary-color;

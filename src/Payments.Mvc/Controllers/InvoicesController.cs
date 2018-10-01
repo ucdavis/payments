@@ -126,8 +126,6 @@ namespace Payments.Mvc.Controllers
                     a.Chart,
                     a.Account,
                     a.SubAccount,
-                    a.Object,
-                    a.SubObject,
                     a.Project,
                 });
 
@@ -167,8 +165,6 @@ namespace Payments.Mvc.Controllers
                     a.Chart,
                     a.Account,
                     a.SubAccount,
-                    a.Object,
-                    a.SubObject,
                     a.Project,
                 });
 

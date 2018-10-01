@@ -38,6 +38,7 @@ namespace Payments.Core.Data
 
             Invoice.OnModelCreating(builder);
             LogMessage.OnModelCreating(builder);
+            MoneyMovementJobRecord.OnModelCreating(builder);
         }
     }
 }
