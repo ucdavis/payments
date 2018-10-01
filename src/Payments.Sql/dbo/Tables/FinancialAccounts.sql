@@ -6,10 +6,8 @@
     [IsActive]    BIT            NOT NULL,
     [IsDefault]   BIT            NOT NULL,
     [Name]        NVARCHAR (128) NOT NULL,
-    [Object]      NVARCHAR (4)   NOT NULL,
     [Project]     NVARCHAR (9)   NULL,
     [SubAccount]  NVARCHAR (5)   NULL,
-    [SubObject]   NVARCHAR (3)   NULL,
     [TeamId]      INT            NOT NULL,
     CONSTRAINT [PK_FinancialAccounts] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_FinancialAccounts_Teams_TeamId] FOREIGN KEY ([TeamId]) REFERENCES [dbo].[Teams] ([Id]) ON DELETE CASCADE

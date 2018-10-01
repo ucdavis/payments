@@ -218,7 +218,7 @@ namespace Payments.Tests.DatabaseTests
         {
             var scType = typeof(Invoice.StatusCodes);
             var props = scType.GetFields();
-            props.Length.ShouldBe(5);
+            props.Length.ShouldBe(6);
             
             //props[0].Name.ShouldBe("Draft");
             Invoice.StatusCodes.Draft.ShouldBe("Draft");
@@ -226,6 +226,7 @@ namespace Payments.Tests.DatabaseTests
             Invoice.StatusCodes.Paid.ShouldBe("Paid");
             Invoice.StatusCodes.Completed.ShouldBe("Completed");
             Invoice.StatusCodes.Cancelled.ShouldBe("Cancelled");
+            Invoice.StatusCodes.Processing.ShouldBe("Processing");
         }
     }
 }

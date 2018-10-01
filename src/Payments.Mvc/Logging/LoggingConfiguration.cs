@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
@@ -28,6 +29,14 @@ namespace Payments.Mvc.Logging
 
             // create global logger with standard configuration
             Log.Logger = GetConfiguration().CreateLogger();
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => Log.Fatal(e.ExceptionObject as Exception, e.ExceptionObject.ToString());
+
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) => Log.CloseAndFlush();
+
+#if DEBUG
+            Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
+#endif
 
             _loggingSetup = true;
         }

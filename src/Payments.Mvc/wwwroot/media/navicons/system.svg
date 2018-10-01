@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="26px" height="26px" viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>system</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="edit-invoice" transform="translate(-103.000000, -350.000000)">
+            <g id="leftnav" transform="translate(28.000000, 114.000000)">
+                <g id="system" transform="translate(75.000000, 236.000000)">
+                    <g id="system-tertiary" transform="translate(0.000000, 18.000000)" fill="#A0A1A2">
+                        <path d="M20.8,5.40065 C20.0824,5.40065 19.5,4.81825 19.5,4.10065 C19.5,3.38305 20.0824,2.80065 20.8,2.80065 C21.5176,2.80065 22.1,3.38305 22.1,4.10065 C22.1,4.81825 21.5176,5.40065 20.8,5.40065 M23.4,0.20065 L2.6,0.20065 C1.1648,0.20065 0,1.36545 0,2.80065 L0,5.40065 C0,6.83585 1.1648,8.00065 2.6,8.00065 L23.4,8.00065 C24.8365,8.00065 26,6.83585 26,5.40065 L26,2.80065 C26,1.36545 24.8365,0.20065 23.4,0.20065" id="Fill-122"></path>
+                    </g>
+                    <g id="system-primary" transform="translate(7.000000, 4.000000)" fill="#BBBBBB">
+                        <polygon id="Fill-123" points="0.15 8.35 11.85 8.35 11.85 0.55 0.15 0.55"></polygon>
+                    </g>
+                    <g id="system-secondary" transform="translate(2.000000, 0.000000)" fill="#A0A1A2">
+                        <path d="M18.15,13.00065 C18.15,13.35945 17.8588,13.65065 17.5,13.65065 L4.5,13.65065 C4.1412,13.65065 3.85,13.35945 3.85,13.00065 L3.85,3.90065 C3.85,3.54185 4.1412,3.25065 4.5,3.25065 L17.5,3.25065 C17.8588,3.25065 18.15,3.54185 18.15,3.90065 L18.15,13.00065 Z M18.8,0.00065 L3.2,0.00065 C1.7661,0.00065 0.6,1.16675 0.6,2.60065 L0.6,14.30065 C0.6,15.73455 1.7661,16.90065 3.2,16.90065 L18.8,16.90065 C20.2339,16.90065 21.4,15.73455 21.4,14.30065 L21.4,2.60065 C21.4,1.16675 20.2339,0.00065 18.8,0.00065 L18.8,0.00065 Z" id="Fill-124"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

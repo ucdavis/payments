@@ -154,6 +154,7 @@ namespace Payments.Core.Domain
             public const string Draft = "Draft";
             public const string Sent = "Sent";
             public const string Paid = "Paid";
+            public const string Processing = "Processing";
             public const string Completed = "Completed";
             public const string Cancelled = "Cancelled";
 
@@ -164,6 +165,7 @@ namespace Payments.Core.Domain
                     Draft,
                     Sent,
                     Paid,
+                    Processing,
                     Completed,
                     Cancelled,
                 };
@@ -176,6 +178,7 @@ namespace Payments.Core.Domain
                     case Draft:
                         return "badge-warning";
 
+                    case Processing:
                     case Sent:
                         return "badge-info";
 

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
@@ -19,25 +15,29 @@ namespace Payments.Core.Domain
 
         public string Description { get; set; }
 
+        /// <summary>
+        /// Chart Code.
+        /// </summary>
         [StringLength(1)]
         [Required]
         public string Chart { get; set; }
 
+        /// <summary>
+        /// Account used in the general ledger.
+        /// Accounts are specific to a Chart Code.
+        /// </summary>
         [StringLength(7)]
+        [RegularExpression("[A-Z0-9]*")]
         [Required]
         public string Account { get; set; }
 
-        [StringLength(4)]
-        [Required]
-        public string Object { get; set; }
-
+        /// <summary>
+        /// Sub-Account is an optional accounting unit attribute.
+        /// Chart Code and Account are part of Sub-Account key.
+        /// </summary>
         [StringLength(5)]
         [DisplayFormat(NullDisplayText = "-----")]
         public string SubAccount { get; set; }
-
-        [StringLength(3)]
-        [DisplayFormat(NullDisplayText = "---")]
-        public string SubObject { get; set; }
 
         [StringLength(9)]
         [DisplayFormat(NullDisplayText = "---------")]
@@ -51,6 +51,7 @@ namespace Payments.Core.Domain
         
         [JsonIgnore]
         public Team Team { get; set; }
+
         public int TeamId { get; set; }
 
         public string GetAccountString()
@@ -61,16 +62,6 @@ namespace Payments.Core.Domain
             }
 
             return $"{Chart}-{Account}-{SubAccount}";
-        }
-
-        public string GetObjectString()
-        {
-            if (string.IsNullOrWhiteSpace(SubObject))
-            {
-                return Object;
-            }
-
-            return $"{Object}-{SubObject}";
         }
     }
 }

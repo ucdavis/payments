@@ -127,7 +127,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     </div>
                 </div>
                 <div className="card-foot invoice-action">
-                    <div className="row flex-between flex-center">
+                    <div className="row justify-content-between align-items-center">
                         <div className="col">
                             <button className="btn-plain color-unitrans" onClick={this.onCancel}>Cancel</button>
                         </div>
