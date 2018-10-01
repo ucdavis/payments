@@ -74,18 +74,20 @@ namespace Payments.Core.Jobs
                     // create transfers
                     var debitHolding = new CreateTransfer()
                     {
-                        Amount    = invoice.Total,
-                        Direction = Transfer.CreditDebit.Debit,
-                        Chart     = _financeSettings.ClearingChart,
-                        Account   = _financeSettings.ClearingAccount,
+                        Amount        = invoice.Total,
+                        Direction     = Transfer.CreditDebit.Debit,
+                        Chart         = _financeSettings.ClearingChart,
+                        Account       = _financeSettings.ClearingAccount,
+                        ObjectCode    = ObjectCodes.Income,
                     };
 
                     var feeCredit = new CreateTransfer()
                     {
-                        Amount    = feeAmount,
-                        Direction = Transfer.CreditDebit.Credit,
-                        Chart     = _financeSettings.FeeChart,
-                        Account   = _financeSettings.FeeAccount,
+                        Amount        = feeAmount,
+                        Direction     = Transfer.CreditDebit.Credit,
+                        Chart         = _financeSettings.FeeChart,
+                        Account       = _financeSettings.FeeAccount,
+                        ObjectCode    = ObjectCodes.Income,
                     };
 
                     var incomeCredit = new CreateTransfer()
@@ -95,8 +97,7 @@ namespace Payments.Core.Jobs
                         Chart         = team.DefaultAccount.Chart,
                         Account       = team.DefaultAccount.Account,
                         SubAccount    = team.DefaultAccount.SubAccount,
-                        ObjectCode    = team.DefaultAccount.Object,
-                        SubObjectCode = team.DefaultAccount.SubObject,
+                        ObjectCode    = ObjectCodes.Income,
                     };
 
                     var response = await _slothService.CreateTransaction(new CreateTransaction()

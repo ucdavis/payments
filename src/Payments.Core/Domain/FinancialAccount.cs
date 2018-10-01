@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -31,30 +32,12 @@ namespace Payments.Core.Domain
         public string Account { get; set; }
 
         /// <summary>
-        /// Object codes represent all income, expense, asset, liability and fund balance classification
-        ///  that are assigned to transactions and help identify the nature of the transaction.
-        /// Object Codes are specific to a Chart Code.
-        /// </summary>
-        [StringLength(4)]
-        [Required]
-        public string Object { get; set; }
-
-        /// <summary>
         /// Sub-Account is an optional accounting unit attribute.
         /// Chart Code and Account are part of Sub-Account key.
         /// </summary>
         [StringLength(5)]
         [DisplayFormat(NullDisplayText = "-----")]
         public string SubAccount { get; set; }
-
-        /// <summary>
-        /// Sub-Object is an optional accounting unit attribute that allows finer 
-        ///  distinctions within a particular object code on an account.
-        /// Sub-Object codes are specific to a Chart Code, Account and Object Code combination.
-        /// </summary>
-        [StringLength(3)]
-        [DisplayFormat(NullDisplayText = "---")]
-        public string SubObject { get; set; }
 
         [StringLength(9)]
         [DisplayFormat(NullDisplayText = "---------")]
@@ -79,16 +62,6 @@ namespace Payments.Core.Domain
             }
 
             return $"{Chart}-{Account}-{SubAccount}";
-        }
-
-        public string GetObjectString()
-        {
-            if (string.IsNullOrWhiteSpace(SubObject))
-            {
-                return Object;
-            }
-
-            return $"{Object}-{SubObject}";
         }
     }
 }

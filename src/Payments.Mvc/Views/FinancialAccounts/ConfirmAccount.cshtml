@@ -41,22 +41,10 @@
                             @Html.DisplayFor(model => model.Account)
                         </dd>
                         <dt>
-                            @Html.DisplayNameFor(model => model.Object)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.Object)
-                        </dd>
-                        <dt>
                             @Html.DisplayNameFor(model => model.SubAccount)
                         </dt>
                         <dd>
                             @Html.DisplayFor(model => model.SubAccount)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.SubObject)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.SubObject)
                         </dd>
                         <dt>
                             @Html.DisplayNameFor(model => model.Project)
@@ -74,28 +62,25 @@
                     <dl class="dl-horizontal">
                         <dt>Account Name</dt>
                         <dd>@Html.DisplayFor(model => model.KfsAccount.accountName)</dd>
+
                         @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubAccountName))
                         {
                             <dt>Sub Account Name</dt>
                             <dd>@Html.DisplayFor(model => model.KfsAccount.SubAccountName)</dd>
                         }
+
                         @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.ProjectName))
                         {
                             <dt>Project Name</dt>
                             <dd>@Html.DisplayFor(model => model.KfsAccount.ProjectName)</dd>
                         }
+
                         @if (Model.KfsAccount.accountExpirationDate.HasValue)
                         {
                             <dt>Account Expiration Date</dt>
                             <dd>@Html.DisplayFor(model => model.KfsAccount.accountExpirationDate)</dd>
                         }
-                        <dt>Object Name</dt>
-                        <dd>@Html.DisplayFor(model => model.KfsAccount.ObjectName)</dd>
-                        @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubObjectName))
-                        {
-                            <dt>Sub Object Name</dt>
-                            <dd>@Html.DisplayFor(model => model.KfsAccount.SubObjectName)</dd>
-                        }
+                        
                         <dt>Sub Fund Group Type Code</dt>
                         <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
                         <dt>Sub Fund Group Name</dt>
@@ -104,9 +89,7 @@
 
                     <input type="hidden" asp-for="Chart" />
                     <input type="hidden" asp-for="Account" />
-                    <input type="hidden" asp-for="Object" />
                     <input type="hidden" asp-for="SubAccount" />
-                    <input type="hidden" asp-for="SubObject" />
                     <input type="hidden" asp-for="Project" />
                     <input type="hidden" asp-for="IsDefault" />
 

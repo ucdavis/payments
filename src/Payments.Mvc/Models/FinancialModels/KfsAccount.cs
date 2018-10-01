@@ -20,8 +20,6 @@ namespace Payments.Mvc.Models.FinancialModels
 
         public string ProjectName { get; set; } //Different Lookup
         public string SubAccountName { get; set; } //Different Lookup
-        public string ObjectName { get; set; } //Different Lookup
-        public string SubObjectName { get; set; } //Different Lookup
 
         public bool IsValidIncomeAccount
         {

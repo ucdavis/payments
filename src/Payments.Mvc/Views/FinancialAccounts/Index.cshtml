@@ -27,9 +27,6 @@
                         @Html.DisplayNameFor(model => model.Accounts[0].Account)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Accounts[0].Object)
-                    </th>
-                    <th>
                         @Html.DisplayNameFor(model => model.Accounts[0].Project)
                     </th>
                     <th>
@@ -50,9 +47,6 @@
                         </td>
                         <td>
                             @item.GetAccountString()
-                        </td>
-                        <td>
-                            @item.GetObjectString()
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Project)

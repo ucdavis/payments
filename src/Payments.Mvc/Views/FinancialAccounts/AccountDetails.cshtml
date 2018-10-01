@@ -71,20 +71,6 @@
                 }
             </dd>
             <dt class="col-md-4">
-                @Html.DisplayNameFor(model => model.FinancialAccount.Object)
-            </dt>
-            <dd class="col-md-8">
-                @Html.DisplayFor(model => model.FinancialAccount.Object)
-                @if (!Model.IsObjectValid)
-                {
-                    <span style="color: red"> ** Object is Invalid</span>
-                }
-                else
-                {
-                    <span> (@Model.KfsAccount.ObjectName)</span>
-                }
-            </dd>
-            <dt class="col-md-4">
                 @Html.DisplayNameFor(model => model.FinancialAccount.SubAccount)
             </dt>
             <dd class="col-md-8">
@@ -92,20 +78,6 @@
                 @if (!string.IsNullOrWhiteSpace(Model.FinancialAccount.SubAccount))
                 {
                     <span> (@Model.KfsAccount.SubAccountName)</span>
-                }
-            </dd>
-            <dt class="col-md-4">
-                @Html.DisplayNameFor(model => model.FinancialAccount.SubObject)
-            </dt>
-            <dd class="col-md-8">
-                @Html.DisplayFor(model => model.FinancialAccount.SubObject)
-                @if (Model.IsSubObjectValid.HasValue && !Model.IsSubObjectValid.Value)
-                {
-                    <span style="color: red"> ** Sub Object is Invalid</span>
-                }
-                else if (Model.IsSubObjectValid.HasValue && Model.IsSubObjectValid.Value)
-                {
-                    <span> (@Model.KfsAccount.SubObjectName)</span>
                 }
             </dd>
             <dt class="col-md-4">
