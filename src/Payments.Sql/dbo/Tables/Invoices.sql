@@ -2,7 +2,6 @@
     [Id]                    INT             IDENTITY (1, 1) NOT NULL,
     [AccountId]             INT             NULL,
     [CreatedAt]             DATETIME2 (7)   NOT NULL,
-    [CreatorId]             NVARCHAR (450)  NOT NULL,
     [CustomerAddress]       NVARCHAR (MAX)  NULL,
     [CustomerEmail]         NVARCHAR (MAX)  NULL,
     [CustomerName]          NVARCHAR (MAX)  NULL,
@@ -20,7 +19,6 @@
     [TeamId]                INT             NOT NULL,
     [Total]                 DECIMAL (18, 2) NOT NULL,
     CONSTRAINT [PK_Invoices] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Invoices_AspNetUsers_CreatorId] FOREIGN KEY ([CreatorId]) REFERENCES [dbo].[AspNetUsers] ([Id]),
     CONSTRAINT [FK_Invoices_FinancialAccounts_AccountId] FOREIGN KEY ([AccountId]) REFERENCES [dbo].[FinancialAccounts] ([Id]),
     CONSTRAINT [FK_Invoices_PaymentEvents_PaymentTransaction_Id] FOREIGN KEY ([PaymentTransaction_Id]) REFERENCES [dbo].[PaymentEvents] ([Transaction_Id]),
     CONSTRAINT [FK_Invoices_Teams_TeamId] FOREIGN KEY ([TeamId]) REFERENCES [dbo].[Teams] ([Id])
@@ -35,11 +33,6 @@ CREATE NONCLUSTERED INDEX [IX_Invoices_TeamId]
 GO
 CREATE NONCLUSTERED INDEX [IX_Invoices_PaymentTransaction_Id]
     ON [dbo].[Invoices]([PaymentTransaction_Id] ASC);
-
-
-GO
-CREATE NONCLUSTERED INDEX [IX_Invoices_CreatorId]
-    ON [dbo].[Invoices]([CreatorId] ASC);
 
 
 GO

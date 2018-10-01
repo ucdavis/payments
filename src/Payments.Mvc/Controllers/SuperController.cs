@@ -2,10 +2,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Payments.Mvc.Identity;
 
 namespace Payments.Mvc.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [AutoValidateAntiforgeryToken]
     [Authorize]
     public abstract class SuperController : Controller
@@ -16,20 +16,12 @@ namespace Payments.Mvc.Controllers
 
         public string CurrentUserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        private const string TempDataMessageKey = "Message";
-        private const string TempDataErrorMessageKey = "ErrorMessage";
 
-        public string Message
-        {
-            get => TempData[TempDataMessageKey] as string;
-            set => TempData[TempDataMessageKey] = value;
-        }
+        [TempData(Key = "Message")]
+        public string Message { get; set; }
 
-        public string ErrorMessage
-        {
-            get => TempData[TempDataErrorMessageKey] as string;
-            set => TempData[TempDataErrorMessageKey] = value;
-        }
+        [TempData(Key = "ErrorMessage")]
+        public string ErrorMessage { get;set; }
 
         public string TeamSlug => ControllerContext.RouteData.Values["team"] as string;
     }

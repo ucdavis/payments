@@ -12,6 +12,8 @@ namespace payments.Tests.Helpers
             {
                 rtValue.Items.Add(CreateValidEntities.LineItem(i+1));
             }
+            rtValue.Team = new Team();
+            rtValue.Team.Slug = "testSlug";
 
             rtValue.CustomerEmail = $"test{counter}@test.com";
             rtValue.CustomerName = $"CustomerName{counter}";
@@ -32,6 +34,21 @@ namespace payments.Tests.Helpers
             rtValue.Quantity = counter ?? 1;
             rtValue.Total = rtValue.Amount * rtValue.Quantity;
             rtValue.Description = $"Description{counter}";
+
+            return rtValue;
+        }
+
+        public static User User(int? counter)
+        {
+            var rtValue = new User();
+            rtValue.FirstName = string.Format("FirstName{0}", counter);
+            rtValue.LastName = string.Format("LastName{0}", counter);
+            rtValue.Name = string.Format("{0} {1}", rtValue.FirstName, rtValue.LastName);
+            rtValue.Email = $"test{counter}@testy.com";
+
+
+
+            rtValue.Id = (counter ?? 99).ToString();
 
             return rtValue;
         }

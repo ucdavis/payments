@@ -25,9 +25,7 @@ namespace Payments.Core.Domain
 
         public string Data { get; set; }
 
-        public User Actor { get; set; }
-
-        public string ActorId { get; set; }
+        public string Actor { get; set; }
 
         public string GetMessage()
         {
