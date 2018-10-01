@@ -56,6 +56,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
             expectedFields.Add(new NameAndType("TeamId", "System.Int32", new List<string>()));
             #endregion Arrange
