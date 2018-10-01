@@ -51,8 +51,8 @@ namespace Payments.Jobs.MoneyMovement
                 // create job service
                 var moneyMovementJob = provider.GetService<MoneyMovementJob>();
 
-                // call methods
-                Task.Run(() => moneyMovementJob.FindBankReconcileTransactions(_log)).Wait();
+                // call method
+                moneyMovementJob.FindBankReconcileTransactions(_log).GetAwaiter().GetResult();
             }
             finally
             {
