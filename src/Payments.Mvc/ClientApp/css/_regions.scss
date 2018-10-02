@@ -465,3 +465,37 @@ table#Invoices {
     font-size: 2.5rem;
   }
 }
+
+.search-results {
+
+  .search-header {
+    .svgwrapper svg {
+      width: 20px;
+    }
+
+    h3 {
+      margin: 0;
+    }
+
+    .count {
+      color: $secondary-font;
+      font-weight: bold;
+    }
+  }
+
+  .card-content {
+    padding: 0;
+
+    table {
+      th:first-child,
+      td:first-child {
+        padding-left: 1.5rem;
+      }
+
+      th:last-child,
+      td:last-child {
+        padding-right: 1.5rem;
+      }
+    }
+  }
+}

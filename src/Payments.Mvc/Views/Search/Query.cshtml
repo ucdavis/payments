@@ -1,0 +1,100 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Routing
+@model Payments.Mvc.Models.SearchViewModels.SearchResultsViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Search Results";
+
+    var teamSlug = HttpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
+}
+
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card-style search-results">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head">
+            <div class="search-header d-flex justify-content-start align-items-center">
+                <div class="svgwrapper mr-3">
+                    @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
+                </div>
+                <h3 class="mr-3">Invoices</h3>
+                <span class="count">@Model.Invoices.Count</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-content">
+        <table id="Invoices" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th></th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Sent At</th>
+                    <th>Created</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model.Invoices)
+                {
+                    <tr data-id="@invoice.Id">
+                        <td class="invoices-id-col">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                                <div>
+                                    @invoice.Id
+                                </div>
+                            </a>
+                        </td>
+                        <td class="text-center invoices-status-col">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                                <div>
+                                    <span class="badge @Invoice.StatusCodes.GetBadgeClass(invoice.Status)" data-level="@invoice.Status">@invoice.Status</span>
+                                </div>
+                            </a>
+                        </td>
+                        <td class="invoices-customer-col">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                                <div>
+                                    @invoice.CustomerEmail
+                                </div>
+                            </a>
+                        </td>
+                        <td class="text-right" data-sort="@invoice.Total">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                                <div>
+                                    $@invoice.Total.ToString("F2")
+                                </div>
+                            </a>
+                        </td>
+                        <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                                <div>
+                                    @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
+                                </div>
+                            </a>
+                        </td>
+                        <td data-sort="@invoice.CreatedAt.Ticks">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                                <div>
+                                    @invoice.CreatedAt.ToString("d")
+                                </div>
+                            </a>
+                        </td>
+                        <td class="invoices-edit-btn-col text-center">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id" class="btn">
+                                <div>View <i class="fas fa-external-link-alt ml-3"></i></div>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
