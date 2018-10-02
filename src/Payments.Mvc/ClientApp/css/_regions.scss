@@ -139,7 +139,7 @@ table.table {
   }
 }
 
-// Invoice table
+// Invoice edit table
 table.invoice-table {
   border-collapse: collapse;
   margin-bottom:0px;
@@ -219,6 +219,102 @@ table.invoice-table {
         &:nth-child(4), {
           border-top: 1px solid $borders;
         }
+      }
+    }
+  }
+}
+
+// Invoice details table
+table.invoice-details-table {
+  border-collapse: collapse;
+  margin-bottom: 0px;
+  width: 100%;
+
+  td {
+    padding: 12px 0px;
+  }
+
+  thead {
+    th {
+      font-size: 1.8rem;
+      font-family: $sans-reg;
+      border-bottom: 1px solid $borders;
+      color: $secondary-font;
+      font-weight: inherit;
+      padding:0px;
+      padding-top:8px;
+
+    }
+
+    th:nth-child(3) {
+      text-align: right;
+    }
+    th:nth-child(4) {
+      text-align: right;
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        vertical-align: top;
+        font-size: 1.6rem;
+        font-family: $sans-reg;
+        color: $secondary-font;
+        border: none;
+      }
+
+      td:first-child {
+        padding-right: 16px;
+      }
+      td:nth-child(2) {
+        width: 12%;
+        padding-right: 16px;
+      }
+      td:nth-child(3) {
+        width: 12%;
+        text-align: right;
+      }
+      td:nth-child(4) {
+        width: 12%;
+        text-align: right;
+      }
+    }
+  }
+
+  tbody:nth-child(3) {
+    tr:first-child {
+      td:nth-child(2),
+      td:nth-child(3),
+      td:nth-child(4), {
+        border-top: 1px solid $borders;
+      }
+    }
+  }
+
+  tfoot {
+    tr {
+      td {
+        font-size: 1.6rem;
+        font-family: $sans-bold;
+        color: $primary-font;
+        
+        &:nth-child(2),
+        &:nth-child(3),
+        &:nth-child(4), {
+          border-top: 1px solid $borders;
+        }
+
+        &:nth-child(3),
+        &:nth-child(4) {
+          text-align: right;
+        }
+      }
+    }
+
+    tr:last-child {
+      td {
+
       }
     }
   }
