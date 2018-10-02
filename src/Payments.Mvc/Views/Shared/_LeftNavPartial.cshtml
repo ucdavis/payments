@@ -80,6 +80,15 @@
                 <span class="nav-text">Invoices</span>
             </div>
         </a>
+
+            <a class="nav-reports" asp-controller="Reports" asp-action="Index" asp-route-team="@teamSlug">
+                <div class="nav-item">
+                    <div class="svgwrapper">
+                        @Html.InlineSvg("/wwwroot/media/navicons/reports.svg")
+                    </div>
+                    <span class="nav-text">Reports</span>
+                </div>
+            </a>
     }
     <a class="nav-support" asp-controller="Support" asp-action="Index">
         <div class="nav-item">
