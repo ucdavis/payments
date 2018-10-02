@@ -16,21 +16,23 @@
     </div>
 </div>
 
-<div class="card-style search-results">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head">
-            <div class="search-header d-flex justify-content-start align-items-center">
-                <div class="svgwrapper mr-3">
-                    @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
+@if (Model.Invoices.Any())
+{
+    <div class="card-style search-results">
+        <div class="card-header-primary card-bot-border">
+            <div class="card-head">
+                <div class="search-header d-flex justify-content-start align-items-center">
+                    <div class="svgwrapper mr-3">
+                        @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
+                    </div>
+                    <h3 class="mr-3">Invoices</h3>
+                    <span class="count">@Model.Invoices.Count</span>
                 </div>
-                <h3 class="mr-3">Invoices</h3>
-                <span class="count">@Model.Invoices.Count</span>
             </div>
         </div>
-    </div>
-    <div class="card-content">
-        <table id="Invoices" class="table table-hover">
-            <thead>
+        <div class="card-content">
+            <table id="Invoices" class="table table-hover">
+                <thead>
                 <tr>
                     <th>Invoice Number</th>
                     <th></th>
@@ -40,8 +42,8 @@
                     <th>Created</th>
                     <th></th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 @foreach (var invoice in Model.Invoices)
                 {
                     <tr data-id="@invoice.Id">
@@ -94,7 +96,8 @@
                         </td>
                     </tr>
                 }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+}
