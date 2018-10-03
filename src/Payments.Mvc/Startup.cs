@@ -65,6 +65,7 @@ namespace Payments.Mvc
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
+            services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -162,6 +163,8 @@ namespace Payments.Mvc
             services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
             services.AddSingleton<IFinancialService, FinancialService>();
             services.AddSingleton<ISlothService, SlothService>();
+            services.AddSingleton<IStorageService, StorageService>();
+
             services.AddScoped<INotificationService, NotificationService>();
 
             // register job services
