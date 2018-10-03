@@ -13,6 +13,7 @@ namespace Payments.Core.Domain
     {
         public Invoice()
         {
+            Attachments = new List<InvoiceAttachment>();
             Items = new List<LineItem>();
             History = new List<History>();
 
@@ -51,6 +52,9 @@ namespace Payments.Core.Domain
         public FinancialAccount Account { get; set; }
 
         public PaymentEvent Payment { get; set; }
+
+        [JsonIgnore]
+        public IList<InvoiceAttachment> Attachments { get; set; }
 
         [JsonIgnore]
         [Required]

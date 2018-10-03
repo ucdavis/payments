@@ -20,6 +20,8 @@ namespace Payments.Core.Data
 
         public virtual DbSet<PaymentEvent> PaymentEvents { get; set; }
 
+        public virtual DbSet<InvoiceAttachment> InvoiceAttachments { get; set; }
+
         public virtual DbSet<TeamRole> TeamRoles { get; set; }
 
         public virtual DbSet<TeamPermission> TeamPermissions { get; set; }
