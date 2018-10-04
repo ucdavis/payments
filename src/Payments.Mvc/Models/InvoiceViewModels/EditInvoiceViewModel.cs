@@ -20,6 +20,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
         public IList<EditInvoiceItemViewModel> Items { get; set; }
 
+        public IList<EditInvoiceAttachmentViewModel> Attachments { get; set; }
+
         public DateTime? DueDate { get; set; }
     }
 
@@ -48,5 +50,18 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
         [Range(0.01, int.MaxValue)]
         public decimal Amount { get; set; }
+    }
+
+    public class EditInvoiceAttachmentViewModel
+    {
+        public int Id { get; set; }
+
+        public string Identifier { get; set; }
+
+        public string FileName { get; set; }
+
+        public string ContentType { get; set; }
+
+        public int Size { get; set; }
     }
 }
