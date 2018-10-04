@@ -34,13 +34,7 @@ class FileUpload extends React.Component<IProps, IState> {
         super(props);
 
         this.state = {
-            attachmentsUploading: [{
-                contentType: 'application/pdf',
-                fileName: 'another-invoice.pdf',
-                identifier: uuidv4(),
-                progress: 66,
-                size: 123456789,
-            }],
+            attachmentsUploading: [],
         };
     }
 
