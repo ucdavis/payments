@@ -3,12 +3,14 @@ import * as React from 'react';
 import "isomorphic-fetch";
 
 import { Account } from '../models/Account';
+import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
 import Alert from '../components/alert';
+import AttachmentsControl from '../components/attachmentsControl';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
 import InvoiceForm from '../components/invoiceForm';
@@ -19,6 +21,7 @@ import SendModal from '../components/sendModal';
 
 declare var antiForgeryToken: string;
 
+
 interface IProps {
     accounts: Account[];
     team: Team;
@@ -27,6 +30,7 @@ interface IProps {
 interface IState {
     ids: number[] | undefined;
     accountId: number;
+    attachments: InvoiceAttachment[],
     customers: InvoiceCustomer[];
     dueDate: string;
     discount: number;
@@ -50,6 +54,12 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
         this.state = {
             accountId: defaultAccount ? defaultAccount.id : 0,
+            attachments: [{
+                contentType: 'image/jpeg',
+                fileName: 'Gunrock_and_Scott_02_2018.jpg',
+                identifier: '8504fbed-10d6-439d-b3b4-d0707dd6a866-Gunrock_and_Scott_02_2018.jpg',
+                size: 943732,
+            }],
             customers: [{
                 address: '',
                 email: '',
@@ -76,7 +86,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
     public render() {
         const { accounts, team } = this.props;
-        const { accountId, dueDate, items, discount, taxPercent, customers, memo, loading, validate } = this.state;
+        const { accountId, attachments, dueDate, items, discount, taxPercent, customers, memo, loading, validate } = this.state;
         
         return (
             <InvoiceForm className="card-style" validate={validate} formRef={r => this._formRef = r}>
@@ -122,6 +132,12 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         <label>Income Account</label>
                         <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
+                </div>
+                <div className="card-content invoice-attachments">
+                    <h2>Attachments</h2>
+                    <AttachmentsControl
+                        attachments={attachments}
+                        onChange={(v) => this.updateProperty('attachments', v)} />
                 </div>
                 <div className="card-foot invoice-action">
                     <div className="row justify-content-between align-items-center">
@@ -213,11 +229,12 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
 
         const { slug } = this.props.team;
-        const { accountId, dueDate, customers, discount, taxPercent, items, memo } = this.state;
+        const { accountId, attachments, dueDate, customers, discount, taxPercent, items, memo } = this.state;
 
         // create submit object
         const invoice = {
             accountId,
+            attachments,
             customers,
             discount,
             dueDate,

@@ -2,6 +2,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom'; 
 import { AppContainer } from 'react-hot-loader';
 
+import TeamContext from '../contexts/TeamContext';
+
 import CreateInvoiceContainer from '../containers/CreateInvoiceContainer';
 
 import { Account } from '../models/Account';
@@ -15,10 +17,12 @@ function renderApp() {
     // configuration and injects the app into a DOM element.
     ReactDOM.render( 
         <AppContainer>
-            <CreateInvoiceContainer
-                accounts={accounts}
-                team={team}
-            />
+            <TeamContext.Provider value={team}>
+                <CreateInvoiceContainer
+                    accounts={accounts}
+                    team={team}
+                />
+            </TeamContext.Provider>
         </AppContainer>, 
         document.getElementById('react-app') 
     ); 
