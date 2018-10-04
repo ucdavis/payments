@@ -34,6 +34,15 @@ namespace Payments.Core.Data
 
         public virtual DbSet<MoneyMovementJobRecord> MoneyMovementJobRecords { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+#if DEBUG
+            optionsBuilder.EnableSensitiveDataLogging();
+#endif
+        }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
