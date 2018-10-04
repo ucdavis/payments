@@ -10,7 +10,7 @@ namespace Payments.Core.Domain
 
         public string Identifier { get; set; }
 
-        public string Description { get; set; }
+        public string FileName { get; set; }
 
         public string ContentType { get; set; }
 
@@ -21,5 +21,25 @@ namespace Payments.Core.Domain
 
         [Required]
         public int TeamId { get; set; }
+
+        public string GetSizeText()
+        {
+            if (Size <= 0)
+            {
+                return "0 B";
+            }
+
+            if (Size < 1024)
+            {
+                return $"{Size} B";
+            }
+
+            if (Size < (1024 * 1024))
+            {
+                return $"{Size / 1024} KB";
+            }
+
+            return $"{Size / 1024 / 1024} MB";
+        }
     }
 }
