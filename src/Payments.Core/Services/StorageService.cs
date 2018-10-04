@@ -30,6 +30,8 @@ namespace Payments.Core.Services
 
         string GetFullUriFromIdentifier(string identifier);
 
+        Task<CloudBlob> DownloadFile(string identifier);
+
         Task<string> UploadFile(IFormFile file);
     }
 
@@ -86,6 +88,12 @@ namespace Payments.Core.Services
                 AccessUrl  = accessUrl,
                 Url        = blob.Uri.AbsoluteUri,
             };
+        }
+
+        public async Task<CloudBlob> DownloadFile(string identifier)
+        {
+            var container = await GetContainer();
+            return container.GetBlobReference(identifier);
         }
 
         public async Task UploadFiles(params UploadRequest[] files)
