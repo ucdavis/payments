@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,6 +32,7 @@ namespace Payments.Mvc.Controllers
             var team = await GetAuthorizedTeam();
 
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Attachments)
                 .Include(i => i.Items)
                 .FirstOrDefaultAsync(i => i.Id == id && i.Team.Id == team.Id);
 
