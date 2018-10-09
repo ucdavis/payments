@@ -155,6 +155,8 @@ namespace Payments.Mvc
                 {
                     { "apiKey", new string[] { } }
                 });
+
+                c.OperationFilter<FileOperationFilter>();
             });
 
             // infrastructure services
