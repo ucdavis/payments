@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +14,15 @@ namespace Payments.Mvc.Controllers
     [Route("api/invoices")]
     public class InvoicesApiController : ApiController
     {
-
         public InvoicesApiController(ApplicationDbContext dbContext) : base(dbContext)
         {
         }
 
+        /// <summary>
+        /// Fetch invoice details
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Invoice), 200)]
         [ProducesResponseType(404)]
@@ -43,7 +47,12 @@ namespace Payments.Mvc.Controllers
 
             return invoice;
         }
-
+        
+        /// <summary>
+        /// Create invoice
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]

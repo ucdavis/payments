@@ -18,20 +18,25 @@ namespace Payments.Mvc.Controllers
             _storageService = storageService;
         }
 
+        /// <summary>
+        /// Get Attachment
+        /// </summary>
+        /// <param name="id">Identifier for file</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetFile(string id, string filename)
+        public async Task<IActionResult> GetFile(string id)
         {
             var blob = await _storageService.DownloadFile(id);
 
             var stream = await blob.OpenReadAsync();
 
-            return File(stream, blob.Properties.ContentType, filename);
+            return File(stream, blob.Properties.ContentType, id);
         }
 
         /// <summary>
         /// Upload Attachment
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name="file">File to upload</param>
         /// <returns>Identifier used to attach to an invoice or retrieve</returns>
         [HttpPost]
         [ProducesResponseType(200)]
