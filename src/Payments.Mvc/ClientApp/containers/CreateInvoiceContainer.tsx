@@ -3,6 +3,7 @@ import * as React from 'react';
 import "isomorphic-fetch";
 
 import { Account } from '../models/Account';
+import { CreateInvoice } from '../models/CreateInvoice';
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
@@ -226,12 +227,12 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         const { accountId, attachments, dueDate, customers, discount, taxPercent, items, memo } = this.state;
 
         // create submit object
-        const invoice = {
+        const invoice: CreateInvoice = {
             accountId,
             attachments,
             customers,
             discount,
-            dueDate,
+            dueDate: new Date(dueDate),
             items,
             memo,
             taxPercent,

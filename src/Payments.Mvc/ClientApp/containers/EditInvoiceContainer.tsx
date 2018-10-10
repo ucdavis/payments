@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import "isomorphic-fetch";
 
 import { Account } from '../models/Account';
-import { Invoice } from '../models/Invoice';
+import { EditInvoice } from '../models/EditInvoice';
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
@@ -26,7 +26,7 @@ declare var antiForgeryToken: string;
 interface IProps {
     accounts: Account[];
     id: number;
-    invoice: Invoice;
+    invoice: EditInvoice;
     sent: boolean;
     team: Team;
 }
@@ -219,12 +219,12 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const { accountId, attachments, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
         // create submit object
-        const invoice = {
+        const invoice: EditInvoice = {
             accountId,
             attachments,
             customer,
             discount,
-            dueDate,
+            dueDate: new Date(dueDate),
             items,
             memo,
             taxPercent,
