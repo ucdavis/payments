@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -16,11 +17,9 @@ namespace Payments.Core.Domain
 
         public long Size { get; set; }
 
+        [JsonIgnore]
         [Required]
-        public int InvoiceId { get; set; }
-
-        [Required]
-        public int TeamId { get; set; }
+        public Invoice Invoice { get; set; }
 
         public string GetSizeText()
         {
