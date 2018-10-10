@@ -91,12 +91,15 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
     public class CreateInvoiceAttachmentViewModel
     {
+        /// <summary>
+        /// Identifier returned from upload api
+        /// </summary>
         public string Identifier { get; set; }
 
         public string FileName { get; set; }
 
         public string ContentType { get; set; }
 
-        public int Size { get; set; }
+        public long Size { get; set; }
     }
 }
