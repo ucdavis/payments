@@ -60,7 +60,6 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             items.push({
                 amount: 0,
                 description: '',
-                id: 0,
                 quantity: 0,
             });
         }
