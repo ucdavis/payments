@@ -7,12 +7,12 @@ import TeamContext from '../contexts/TeamContext';
 import EditInvoiceContainer from '../containers/EditInvoiceContainer';
 
 import { Account } from '../models/Account';
-import { Invoice } from '../models/Invoice';
+import { EditInvoice } from '../models/EditInvoice';
 import { Team } from '../models/Team';
 
 declare var accounts: Account[]
 declare var id: number;
-declare var model: Invoice;
+declare var model: EditInvoice;
 declare var sent: boolean;
 declare var team: Team;
 
