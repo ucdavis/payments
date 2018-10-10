@@ -46,6 +46,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
                 .Include(i => i.Team)
+                .Include(i => i.Attachments)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
 
             if (invoice == null)
