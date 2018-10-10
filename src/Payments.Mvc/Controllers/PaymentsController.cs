@@ -27,13 +27,15 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IDataSigningService _dataSigningService;
         private readonly INotificationService _notificationService;
+        private readonly IStorageService _storageService;
         private readonly CyberSourceSettings _cyberSourceSettings;
 
-        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IOptions<CyberSourceSettings> cyberSourceSettings)
+        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IStorageService storageService, IOptions<CyberSourceSettings> cyberSourceSettings)
         {
             _dbContext = dbContext;
             _dataSigningService = dataSigningService;
             _notificationService = notificationService;
+            _storageService = storageService;
             _cyberSourceSettings = cyberSourceSettings.Value;
         }
 
@@ -101,6 +103,37 @@ namespace Payments.Mvc.Controllers
                 .Recipe(Recipe.PhantomPdf);
 
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> File(string id, int fileId)
+        {
+            if (string.IsNullOrWhiteSpace(id) || fileId <= 0)
+            {
+                return NotFound();
+            }
+
+            // fetch invoice and attachments
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Attachments)
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            var attachment = invoice.Attachments.FirstOrDefault(a => a.Id == fileId);
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            // get file
+            var blob = await _storageService.DownloadFile(attachment.Identifier);
+            var stream = await blob.OpenReadAsync();
+
+            // ship it
+            return File(stream, attachment.ContentType, attachment.FileName);
         }
 
         [Authorize]

@@ -246,6 +246,11 @@ namespace Payments.Mvc
                     defaults: new { controller = "payments", action="pay" });
 
                 routes.MapRoute(
+                    name: "invoice-file",
+                    template: "file/{id}/{fileId}",
+                    defaults: new { controller = "payments", action = "file" });
+
+                routes.MapRoute(
                     name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
