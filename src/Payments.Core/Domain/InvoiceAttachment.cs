@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Payments.Core.Domain
@@ -14,7 +14,7 @@ namespace Payments.Core.Domain
 
         public string ContentType { get; set; }
 
-        public int Size { get; set; }
+        public long Size { get; set; }
 
         [Required]
         public int InvoiceId { get; set; }
