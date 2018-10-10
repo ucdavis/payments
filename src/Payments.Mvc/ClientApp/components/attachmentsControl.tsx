@@ -36,7 +36,7 @@ class AttachmentsControl extends React.Component<IProps, {}> {
 
         const sizeText = this.getSizeText(attachment.size);
 
-        const href = `${team.slug}/files/getfile/${attachment.identifier}?filename=${attachment.fileName}`;
+        const href = `${team.slug}/files/getfile/${attachment.identifier}`;
 
         // break out extension
         const parts = attachment.fileName.split('.');
