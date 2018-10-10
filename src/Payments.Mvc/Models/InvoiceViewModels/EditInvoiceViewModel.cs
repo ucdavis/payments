@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -62,6 +62,6 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
         public string ContentType { get; set; }
 
-        public int Size { get; set; }
+        public long Size { get; set; }
     }
 }
