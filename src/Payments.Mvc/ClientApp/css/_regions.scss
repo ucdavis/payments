@@ -64,6 +64,24 @@
   }
 }
 
+.pay-attachments {
+
+  padding: $card-thick-padding;
+  width: 100%;
+
+  .pay-attachment {
+    display: flex;
+    align-items: center;
+    background-color: $bg-color;
+    padding: 16px 0;
+    margin: 16px 0;
+
+    h4 {
+      margin: 0;
+    }
+  }
+}
+
 .pay-footer {
   padding: 16px;
   text-align: center;
