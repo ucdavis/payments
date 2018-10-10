@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -111,6 +111,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
                 .Include(i => i.Team)
+                .Include(i => i.Attachments)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
@@ -127,6 +128,7 @@ namespace Payments.Mvc.Controllers
                 DueDate          = invoice.DueDate,
                 Memo             = invoice.Memo,
                 Items            = invoice.Items,
+                Attachments      = invoice.Attachments,
                 Subtotal         = invoice.Subtotal,
                 Total            = invoice.Total,
                 Discount         = invoice.Discount,
@@ -453,6 +455,7 @@ namespace Payments.Mvc.Controllers
                 CustomerAddress  = invoice.CustomerAddress,
                 Memo             = invoice.Memo,
                 Items            = invoice.Items,
+                Attachments      = invoice.Attachments,
                 Subtotal         = invoice.Subtotal,
                 Total            = invoice.Total,
                 Discount         = invoice.Discount,
