@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import axios, { CancelTokenSource, AxiosResponse } from 'axios';
+import axios, { AxiosResponse, CancelTokenSource } from 'axios';
 import Dropzone, { FileWithPreview } from 'react-dropzone';
 import { compose, fromRenderProps } from 'recompose';
 
