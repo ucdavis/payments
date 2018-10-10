@@ -54,12 +54,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
         this.state = {
             accountId: defaultAccount ? defaultAccount.id : 0,
-            attachments: [{
-                contentType: 'image/jpeg',
-                fileName: 'Gunrock_and_Scott_02_2018.jpg',
-                identifier: '8504fbed-10d6-439d-b3b4-d0707dd6a866-Gunrock_and_Scott_02_2018.jpg',
-                size: 943732,
-            }],
+            attachments: [],
             customers: [{
                 address: '',
                 email: '',
@@ -71,7 +66,6 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             items: [{
                 amount: 0,
                 description: '',
-                id: 0,
                 quantity: 0,
             }],
             memo: '',
