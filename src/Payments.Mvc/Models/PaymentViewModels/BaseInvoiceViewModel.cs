@@ -23,6 +23,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public IList<LineItem> Items { get; set; }
 
+        public IList<InvoiceAttachment> Attachments { get; set; }
+
         public decimal Subtotal { get; set; }
 
         public decimal TaxAmount { get; set; }
