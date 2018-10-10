@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -40,8 +40,6 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
     public class EditInvoiceItemViewModel
     {
-        public int Id { get; set; }
-
         [MaxLength(100)]
         public string Description { get; set; }
 
@@ -54,8 +52,9 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
     public class EditInvoiceAttachmentViewModel
     {
-        public int Id { get; set; }
-
+        /// <summary>
+        /// Identifier returned from upload api
+        /// </summary>
         public string Identifier { get; set; }
 
         public string FileName { get; set; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,7 +32,6 @@ namespace Payments.Mvc.Controllers
             _emailService = emailService;
         }
 
-        // GET: /<controller>/
         public IActionResult Index()
         {
 
@@ -186,18 +185,16 @@ namespace Payments.Mvc.Controllers
                 },
                 Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
                 {
-                    Id          = i.Id,
                     Amount      = i.Amount,
                     Description = i.Description,
                     Quantity    = i.Quantity,
                 }).ToList(),
                 Attachments = invoice.Attachments.Select(a => new EditInvoiceAttachmentViewModel()
                 {
-                    Id          = a.Id,
-                    Identifier  = a.Identifier,
-                    FileName    = a.FileName,
-                    ContentType = a.ContentType,
-                    Size        = a.Size,
+                    Identifier   = a.Identifier,
+                    FileName     = a.FileName,
+                    ContentType  = a.ContentType,
+                    Size         = a.Size,
                 }).ToList()
             };
 
