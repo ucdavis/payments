@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Services;
 using Payments.Mvc.Models.Roles;
@@ -22,24 +23,36 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFile(string id, string filename)
+        public async Task<IActionResult> GetFile(int id)
         {
-            var blob = await _storageService.DownloadFile(id);
+            var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
+            var attachment = await _dbContext.InvoiceAttachments
+                .FirstOrDefaultAsync(a => a.Id == id && a.Invoice.Team.Id == team.Id);
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            // get file
+            var blob = await _storageService.DownloadFile(attachment.Identifier);
             var stream = await blob.OpenReadAsync();
-
-            return File(stream, blob.Properties.ContentType, filename);
+            
+            // ship it
+            return File(stream, attachment.ContentType, attachment.FileName);
         }
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
+            // upload file to azure
             var identifier = await _storageService.UploadFile(file);
+
             return new JsonResult(new
             {
                 success = true,
-                identifier
+                identifier,
             });
         }
     }

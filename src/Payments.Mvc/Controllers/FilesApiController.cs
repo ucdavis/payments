@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Services;
 
@@ -24,13 +25,22 @@ namespace Payments.Mvc.Controllers
         /// <param name="id">Identifier for file</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetFile(string id)
+        public async Task<IActionResult> GetFile(int id)
         {
-            var blob = await _storageService.DownloadFile(id);
+            var team = await GetAuthorizedTeam();
 
+            var attachment = await _dbContext.InvoiceAttachments
+                .FirstOrDefaultAsync(a => a.Id == id && a.Invoice.Team.Id == team.Id);
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            // fetch file and ship
+            var blob = await _storageService.DownloadFile(attachment.Identifier);
             var stream = await blob.OpenReadAsync();
 
-            return File(stream, blob.Properties.ContentType, id);
+            return File(stream, attachment.ContentType, attachment.FileName);
         }
 
         /// <summary>
@@ -42,12 +52,13 @@ namespace Payments.Mvc.Controllers
         [ProducesResponseType(200)]
         public async Task<IActionResult> UploadAttachment(IFormFile file)
         {
+            // upload file to azure
             var identifier = await _storageService.UploadFile(file);
 
             return new JsonResult(new
             {
                 success = true,
-                identifier
+                identifier,
             });
         }
     }
