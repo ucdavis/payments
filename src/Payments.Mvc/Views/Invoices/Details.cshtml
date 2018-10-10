@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
@@ -155,12 +155,15 @@
             </tfoot>
         </table>
     </div>
-    <div class="card-content invoice-memo">
-        <h2>Memo</h2>
-        <div class="form-group">
-            @Html.DisplayFor(x => x.Memo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    @if (!string.IsNullOrWhiteSpace(Model.Memo))
+    {
+        <div class="card-content invoice-memo">
+            <h2>Memo</h2>
+            <div class="form-group">
+                @Html.DisplayFor(x => x.Memo, new {htmlAttributes = new {@class = "form-control", @readonly = "readonly"}})
+            </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="card-style">
