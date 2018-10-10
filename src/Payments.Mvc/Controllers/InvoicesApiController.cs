@@ -112,6 +112,16 @@ namespace Payments.Mvc.Controllers
                 });
                 invoice.Items = items.ToList();
 
+                // add attachments
+                var attachments = model.Attachments.Select(a => new InvoiceAttachment()
+                {
+                    Identifier  = a.Identifier,
+                    FileName    = a.FileName,
+                    ContentType = a.ContentType,
+                    Size        = a.Size,
+                });
+                invoice.Attachments = attachments.ToList();
+
                 // record action
                 var action = new History()
                 {
