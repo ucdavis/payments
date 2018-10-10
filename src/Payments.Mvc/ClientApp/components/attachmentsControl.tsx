@@ -15,10 +15,7 @@ interface IProps {
     onChange: (value: InvoiceAttachment[]) => void;
 }
 
-interface IState {
-}
-
-class AttachmentsControl extends React.Component<IProps, IState> {
+class AttachmentsControl extends React.Component<IProps, {}> {
 
     public render() {
         const { attachments } = this.props;
