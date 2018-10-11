@@ -76,10 +76,13 @@
   .pay-attachment {
     display: flex;
     align-items: center;
-    background-color: $bg-color;
     padding: 16px 0;
     margin: 16px 0;
-    box-shadow: $box-shadow;
+    border: 1px solid $borders;
+    
+    &:hover {
+      box-shadow: $box-shadow;
+    }
 
     p {
       margin: 0;
