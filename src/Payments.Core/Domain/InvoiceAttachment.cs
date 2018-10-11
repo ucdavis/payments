@@ -40,5 +40,20 @@ namespace Payments.Core.Domain
 
             return $"{Size / 1024 / 1024} MB";
         }
+
+        public string GetFileIcon()
+        {
+            if (ContentType == "application/pdf")
+            {
+                return "far fa-file-pdf";
+            }
+
+            if (ContentType.StartsWith("image"))
+            {
+                return "far fa-file-image";
+            }
+
+            return "far fa-file";
+        }
     }
 }

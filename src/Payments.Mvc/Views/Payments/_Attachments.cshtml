@@ -17,8 +17,13 @@
                 ? Url.Action("GetFile", "Files", new { id = attachment.Id })
                 : Url.Action("File", new { id = linkId, fileId = attachment.Id });
 
+            var iconClass = attachment.GetFileIcon();
+
             <a class="pay-attachment" target="_blank" href="@href">
-                <p class="col-6">@attachment.FileName</p>
+                <p class="col-6">
+                    <i class="@iconClass fa-fw"></i>
+                    @attachment.FileName
+                </p>
                 <span class="col-5 text-right">@attachment.GetSizeText()</span>
                 <div class="col-1 text-right">
                     <i class="fas fa-download"></i>
