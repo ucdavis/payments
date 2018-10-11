@@ -141,6 +141,17 @@ p a.action-btn {
   }
 }
 
+.btn-hover {
+  &:hover {
+    box-shadow: $box-shadow;
+  }
+
+  &.btn-plain {
+    padding: 1rem;
+    border-radius: 3px;
+  }
+}
+
 .media {
   margin-bottom: 16px;
 
