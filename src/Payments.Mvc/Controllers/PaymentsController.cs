@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using jsreport.AspNetCore;
 using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -51,13 +52,13 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null)
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             // the customer isn't allowed access to draft or cancelled invoices
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             var model = CreateInvoicePaymentViewModel(invoice);
@@ -94,7 +95,7 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null || string.IsNullOrWhiteSpace(id))
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             var model = CreateInvoicePaymentViewModel(invoice);
@@ -111,7 +112,7 @@ namespace Payments.Mvc.Controllers
         {
             if (string.IsNullOrWhiteSpace(id) || fileId <= 0)
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             // fetch invoice and attachments
@@ -120,13 +121,13 @@ namespace Payments.Mvc.Controllers
                 .FirstOrDefaultAsync(i => i.LinkId == id);
             if (invoice == null)
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             var attachment = invoice.Attachments.FirstOrDefault(a => a.Id == fileId);
             if (attachment == null)
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             // get file
@@ -213,7 +214,7 @@ namespace Payments.Mvc.Controllers
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
                 ErrorMessage = "Invoice for payment not found. Please contact technical support.";
-                return NotFound();
+                return PublicNotFound();
             }
 
             var model = new PaymentInvoiceViewModel()
@@ -302,7 +303,7 @@ namespace Payments.Mvc.Controllers
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
                 ErrorMessage = "Invoice for payment not found. Please contact technical support.";
-                return NotFound();
+                return PublicNotFound();
             }
 
 #if DEBUG
@@ -509,6 +510,16 @@ namespace Payments.Mvc.Controllers
             }
 
             return model;
+        }
+
+        /// <summary>
+        /// override NotFound to return 
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult PublicNotFound()
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            return View("NotFound");
         }
 
         private const string TempDataMessageKey = "Message";
