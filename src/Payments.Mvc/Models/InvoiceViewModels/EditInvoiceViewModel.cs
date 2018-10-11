@@ -20,6 +20,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
         public IList<EditInvoiceItemViewModel> Items { get; set; }
 
+        public IList<EditInvoiceAttachmentViewModel> Attachments { get; set; }
+
         public DateTime? DueDate { get; set; }
     }
 
@@ -38,8 +40,6 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
     public class EditInvoiceItemViewModel
     {
-        public int Id { get; set; }
-
         [MaxLength(100)]
         public string Description { get; set; }
 
@@ -48,5 +48,19 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
         [Range(0.01, int.MaxValue)]
         public decimal Amount { get; set; }
+    }
+
+    public class EditInvoiceAttachmentViewModel
+    {
+        /// <summary>
+        /// Identifier returned from upload api
+        /// </summary>
+        public string Identifier { get; set; }
+
+        public string FileName { get; set; }
+
+        public string ContentType { get; set; }
+
+        public long Size { get; set; }
     }
 }

@@ -20,6 +20,8 @@ namespace Payments.Core.Data
 
         public virtual DbSet<PaymentEvent> PaymentEvents { get; set; }
 
+        public virtual DbSet<InvoiceAttachment> InvoiceAttachments { get; set; }
+
         public virtual DbSet<TeamRole> TeamRoles { get; set; }
 
         public virtual DbSet<TeamPermission> TeamPermissions { get; set; }
@@ -31,6 +33,15 @@ namespace Payments.Core.Data
         public virtual DbSet<LogMessage> Logs { get; set; }
 
         public virtual DbSet<MoneyMovementJobRecord> MoneyMovementJobRecords { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+#if DEBUG
+            optionsBuilder.EnableSensitiveDataLogging();
+#endif
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
+@model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
 
 @{
     ViewBag.Title = $"Pay Invoice {Model.Id}";
@@ -43,6 +43,7 @@
             }
         </div>
         <partial name="_Summary" />
+        <partial name="_Attachments" />
         <partial name="_Download" model="@downloadLink" />
         <partial name="_Footer" />
     </div>

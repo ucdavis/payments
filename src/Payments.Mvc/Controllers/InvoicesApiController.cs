@@ -14,11 +14,15 @@ namespace Payments.Mvc.Controllers
     [Route("api/invoices")]
     public class InvoicesApiController : ApiController
     {
-
         public InvoicesApiController(ApplicationDbContext dbContext) : base(dbContext)
         {
         }
 
+        /// <summary>
+        /// Fetch invoice details
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Invoice), 200)]
         [ProducesResponseType(404)]
@@ -32,6 +36,7 @@ namespace Payments.Mvc.Controllers
             var team = await GetAuthorizedTeam();
 
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Attachments)
                 .Include(i => i.Items)
                 .FirstOrDefaultAsync(i => i.Id == id && i.Team.Id == team.Id);
 
@@ -42,7 +47,12 @@ namespace Payments.Mvc.Controllers
 
             return invoice;
         }
-
+        
+        /// <summary>
+        /// Create invoice
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -101,6 +111,16 @@ namespace Payments.Mvc.Controllers
                     Total       = i.Quantity * i.Amount,
                 });
                 invoice.Items = items.ToList();
+
+                // add attachments
+                var attachments = model.Attachments.Select(a => new InvoiceAttachment()
+                {
+                    Identifier  = a.Identifier,
+                    FileName    = a.FileName,
+                    ContentType = a.ContentType,
+                    Size        = a.Size,
+                });
+                invoice.Attachments = attachments.ToList();
 
                 // record action
                 var action = new History()

@@ -32,6 +32,7 @@
 .pay-top {
   text-align: center;
   padding: $card-thick-padding;
+
   p {
     font-size: 2rem;
     margin-bottom: 0;
@@ -44,6 +45,7 @@
   text-align: center;
   border-top:1px solid $borders;
   border-bottom:1px solid $borders;
+  
   p {
     font-size: 2rem;
     margin: 18px 0;
@@ -58,9 +60,30 @@
   background-color: $bg-color;
   padding: $card-thick-padding;
   text-align: center;
+  border-top:1px solid $borders;
+  border-bottom:1px solid $borders;
 
   h3 {
     margin:12px 0px 24px 0;
+  }
+}
+
+.pay-attachments {
+
+  padding: $card-thick-padding;
+  width: 100%;
+
+  .pay-attachment {
+    display: flex;
+    align-items: center;
+    background-color: $bg-color;
+    padding: 16px 0;
+    margin: 16px 0;
+    box-shadow: $box-shadow;
+
+    p {
+      margin: 0;
+    }
   }
 }
 
@@ -349,6 +372,12 @@ table#Invoices {
 .send-invoice-modal {
   .modal-body + .modal-body {
     border-top: 1px solid $borders;
+  }
+}
+
+.invoice-attachments {
+  .invoice-attachment {
+    
   }
 }
 

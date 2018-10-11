@@ -65,6 +65,7 @@ namespace Payments.Mvc
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
+            services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -154,6 +155,8 @@ namespace Payments.Mvc
                 {
                     { "apiKey", new string[] { } }
                 });
+
+                c.OperationFilter<FileOperationFilter>();
             });
 
             // infrastructure services
@@ -162,6 +165,8 @@ namespace Payments.Mvc
             services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
             services.AddSingleton<IFinancialService, FinancialService>();
             services.AddSingleton<ISlothService, SlothService>();
+            services.AddSingleton<IStorageService, StorageService>();
+
             services.AddScoped<INotificationService, NotificationService>();
 
             // register job services
@@ -239,6 +244,11 @@ namespace Payments.Mvc
                     name: "pay-invoice",
                     template: "pay/{id}",
                     defaults: new { controller = "payments", action="pay" });
+
+                routes.MapRoute(
+                    name: "invoice-file",
+                    template: "file/{id}/{fileId}",
+                    defaults: new { controller = "payments", action = "file" });
 
                 routes.MapRoute(
                     name: "non-team-routes",

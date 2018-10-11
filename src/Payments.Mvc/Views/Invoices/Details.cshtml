@@ -58,7 +58,7 @@
         <div>
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
             {
-                 <a asp-controller="Payments" asp-action="Pdf" asp-route-id="@Model.LinkId" class="btn btn-primary">
+                <a asp-controller="Payments" asp-action="Pdf" asp-route-id="@Model.LinkId" class="btn btn-primary">
                     <i class="fas fa-download mr-3"></i>
                     Download PDF
                 </a>
@@ -102,66 +102,99 @@
         <h2>Invoice Items</h2>
         <table class="table invoice-table">
             <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Amount</th>
-                    <th />
-                </tr>
+            <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th />
+            </tr>
             </thead>
             <tbody>
-                @for (var i = 0; i < Model.Items.Count; i++)
-                {
-                    <tr>
-                        <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
-                        <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
-                        <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
-                        <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
-                    </tr>
-                }
+            @for (var i = 0; i < Model.Items.Count; i++)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                    <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
+                    <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
+                    <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
+                </tr>
+            }
             </tbody>
             <tbody>
-                <tr>
-                    <td></td>
-                    <td>Subtotal</td>
-                    <td></td>
-                    <td>@Html.DisplayFor(x => x.Subtotal)</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>Discount</td>
-                    <td></td>
-                    <td>@Html.DisplayFor(x => x.Discount)</td>
-                    <td />
-                </tr>
-                <tr>
-                    <td />
-                    <td>Tax</td>
-                    <td>@Html.DisplayFor(x => x.TaxPercent)</td>
-                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                    <td />
-                </tr>
+            <tr>
+                <td></td>
+                <td>Subtotal</td>
+                <td></td>
+                <td>@Html.DisplayFor(x => x.Subtotal)</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Discount</td>
+                <td></td>
+                <td>@Html.DisplayFor(x => x.Discount)</td>
+                <td />
+            </tr>
+            <tr>
+                <td />
+                <td>Tax</td>
+                <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                <td />
+            </tr>
             </tbody>
             <tfoot>
-                <tr>
-                    <td />
-                    <td>Total</td>
-                    <td />
-                    <td>@Html.DisplayFor(x => x.Total)</td>
-                    <td />
-                </tr>
+            <tr>
+                <td />
+                <td>Total</td>
+                <td />
+                <td>@Html.DisplayFor(x => x.Total)</td>
+                <td />
+            </tr>
             </tfoot>
         </table>
     </div>
-    <div class="card-content invoice-memo">
-        <h2>Memo</h2>
-        <div class="form-group">
-            @Html.DisplayFor(x => x.Memo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+    @if (!string.IsNullOrWhiteSpace(Model.Memo))
+    {
+        <div class="card-content invoice-memo">
+            <h2>Memo</h2>
+            <div class="form-group">
+                @Html.DisplayFor(x => x.Memo, new {htmlAttributes = new {@class = "form-control", @readonly = "readonly"}})
+            </div>
         </div>
+    }
+</div>
+
+<div class="card-style">
+    <div class="card-header">
+        <h3>Attachments</h3>
     </div>
-    
+    <div class="card-content invoice-attachments">
+        @foreach (var a in Model.Attachments)
+        {
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="col-9 d-flex align-items-center">
+                    <i class="fa-2x mr-4 fas fa-file"></i>
+                    <div class="input-group">
+                        <input class="form-control" value="@a.FileName" readonly>
+                    </div>
+                </div>
+                    
+                <span class="col-2 d-flex justify-content-center">@a.GetSizeText()</span>
+
+                <div class="col-1 d-flex justify-content-end align-items-center">
+                    <a class="btn-link btn-invoice-delete mx-2" target='_blank' asp-controller="Files" asp-action="GetFile" asp-route-id="@a.Id">
+                        <i class="fas fa-download"></i>
+                    </a>
+
+                    <button class="btn-link btn-invoice-delete ml-2">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 <div class="card-style">
@@ -352,8 +385,8 @@
     @Html.AntiForgeryToken()
 }
 
-@section scripts
-    {
+@section scripts {
+
     <script>
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();

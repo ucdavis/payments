@@ -2,7 +2,7 @@ import { InvoiceAttachment } from './InvoiceAttachment';
 import { InvoiceCustomer } from './InvoiceCustomer';
 import { InvoiceItem } from './InvoiceItem';
 
-export interface Invoice {
+export interface EditInvoice {
     accountId: number;
     customer: InvoiceCustomer;
     memo: string;

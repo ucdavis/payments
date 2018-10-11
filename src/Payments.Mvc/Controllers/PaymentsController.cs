@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using jsreport.AspNetCore;
 using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -27,13 +28,15 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IDataSigningService _dataSigningService;
         private readonly INotificationService _notificationService;
+        private readonly IStorageService _storageService;
         private readonly CyberSourceSettings _cyberSourceSettings;
 
-        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IOptions<CyberSourceSettings> cyberSourceSettings)
+        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IStorageService storageService, IOptions<CyberSourceSettings> cyberSourceSettings)
         {
             _dbContext = dbContext;
             _dataSigningService = dataSigningService;
             _notificationService = notificationService;
+            _storageService = storageService;
             _cyberSourceSettings = cyberSourceSettings.Value;
         }
 
@@ -44,17 +47,18 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
                 .Include(i => i.Team)
+                .Include(i => i.Attachments)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
 
             if (invoice == null)
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             // the customer isn't allowed access to draft or cancelled invoices
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             var model = CreateInvoicePaymentViewModel(invoice);
@@ -91,7 +95,7 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null || string.IsNullOrWhiteSpace(id))
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             var model = CreateInvoicePaymentViewModel(invoice);
@@ -103,6 +107,37 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> File(string id, int fileId)
+        {
+            if (string.IsNullOrWhiteSpace(id) || fileId <= 0)
+            {
+                return PublicNotFound();
+            }
+
+            // fetch invoice and attachments
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Attachments)
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+            if (invoice == null)
+            {
+                return PublicNotFound();
+            }
+
+            var attachment = invoice.Attachments.FirstOrDefault(a => a.Id == fileId);
+            if (attachment == null)
+            {
+                return PublicNotFound();
+            }
+
+            // get file
+            var blob = await _storageService.DownloadFile(attachment.Identifier);
+            var stream = await blob.OpenReadAsync();
+
+            // ship it
+            return File(stream, attachment.ContentType, attachment.FileName);
+        }
+
         [Authorize]
         [HttpGet]
         public async Task<ActionResult> Preview(int id)
@@ -111,6 +146,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
                 .Include(i => i.Team)
+                .Include(i => i.Attachments)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
@@ -127,6 +163,7 @@ namespace Payments.Mvc.Controllers
                 DueDate          = invoice.DueDate,
                 Memo             = invoice.Memo,
                 Items            = invoice.Items,
+                Attachments      = invoice.Attachments,
                 Subtotal         = invoice.Subtotal,
                 Total            = invoice.Total,
                 Discount         = invoice.Discount,
@@ -177,7 +214,7 @@ namespace Payments.Mvc.Controllers
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
                 ErrorMessage = "Invoice for payment not found. Please contact technical support.";
-                return NotFound();
+                return PublicNotFound();
             }
 
             var model = new PaymentInvoiceViewModel()
@@ -266,7 +303,7 @@ namespace Payments.Mvc.Controllers
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
                 ErrorMessage = "Invoice for payment not found. Please contact technical support.";
-                return NotFound();
+                return PublicNotFound();
             }
 
 #if DEBUG
@@ -453,6 +490,7 @@ namespace Payments.Mvc.Controllers
                 CustomerAddress  = invoice.CustomerAddress,
                 Memo             = invoice.Memo,
                 Items            = invoice.Items,
+                Attachments      = invoice.Attachments,
                 Subtotal         = invoice.Subtotal,
                 Total            = invoice.Total,
                 Discount         = invoice.Discount,
@@ -472,6 +510,16 @@ namespace Payments.Mvc.Controllers
             }
 
             return model;
+        }
+
+        /// <summary>
+        /// override NotFound to return 
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult PublicNotFound()
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            return View("NotFound");
         }
 
         private const string TempDataMessageKey = "Message";

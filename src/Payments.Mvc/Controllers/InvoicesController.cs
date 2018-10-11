@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,7 +32,6 @@ namespace Payments.Mvc.Controllers
             _emailService = emailService;
         }
 
-        // GET: /<controller>/
         public IActionResult Index()
         {
 
@@ -92,6 +91,7 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Attachments)
                 .Include(i => i.Items)
                 .Include(i => i.Payment)
                 .Include(i => i.History)
@@ -139,6 +139,7 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Account)
                 .Include(i => i.Items)
+                .Include(i => i.Attachments)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -184,10 +185,16 @@ namespace Payments.Mvc.Controllers
                 },
                 Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
                 {
-                    Id          = i.Id,
                     Amount      = i.Amount,
                     Description = i.Description,
                     Quantity    = i.Quantity,
+                }).ToList(),
+                Attachments = invoice.Attachments.Select(a => new EditInvoiceAttachmentViewModel()
+                {
+                    Identifier   = a.Identifier,
+                    FileName     = a.FileName,
+                    ContentType  = a.ContentType,
+                    Size         = a.Size,
                 }).ToList()
             };
 
@@ -258,6 +265,16 @@ namespace Payments.Mvc.Controllers
                 });
                 invoice.Items = items.ToList();
 
+                // add attachments
+                var attachments = model.Attachments.Select(a => new InvoiceAttachment()
+                {
+                    Identifier  = a.Identifier,
+                    FileName    = a.FileName,
+                    ContentType = a.ContentType,
+                    Size        = a.Size,
+                });
+                invoice.Attachments = attachments.ToList();
+
                 // record action
                 var action = new History()
                 {
@@ -289,6 +306,7 @@ namespace Payments.Mvc.Controllers
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Include(i => i.Attachments)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -343,6 +361,16 @@ namespace Payments.Mvc.Controllers
                 Total       = i.Quantity * i.Amount,
             });
             invoice.Items = items.ToList();
+
+            // add attachments
+            var attachments = model.Attachments.Select(a => new InvoiceAttachment()
+            {
+                Identifier  = a.Identifier,
+                FileName    = a.FileName,
+                ContentType = a.ContentType,
+                Size        = a.Size,
+            });
+            invoice.Attachments = attachments.ToList();
 
             // editing a sent invoice will modify the link id
             if (invoice.Sent)

@@ -2,9 +2,9 @@ import { InvoiceAttachment } from './InvoiceAttachment';
 import { InvoiceCustomer } from './InvoiceCustomer';
 import { InvoiceItem } from './InvoiceItem';
 
-export interface Invoice {
+export interface CreateInvoice {
     accountId: number;
-    customer: InvoiceCustomer;
+    customers: InvoiceCustomer[];
     memo: string;
     discount: number;
     dueDate?: Date;

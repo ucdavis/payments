@@ -28,3 +28,20 @@ label {
   height: 4rem;
 }
 
+.invoice-attachments-control {
+  .file-upload {
+    // border-bottom: 1px solid $borders;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.dropzone {
+  border: 3px dashed $borders;
+  padding: 3rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
