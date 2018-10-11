@@ -17,6 +17,10 @@ namespace Payments.Tests.DatabaseTests
             var expectedFields = new List<NameAndType>();
 
             expectedFields.Add(new NameAndType("Account", "Payments.Core.Domain.FinancialAccount", new List<string>()));
+            expectedFields.Add(new NameAndType("Attachments", "System.Collections.Generic.IList`1[Payments.Core.Domain.InvoiceAttachment]", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("CreatedAt", "System.DateTime", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Created On\")]",
             }));
