@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
+using Payments.Mvc.Models.Roles;
 
 namespace Payments.Mvc.Controllers
 {
@@ -41,12 +42,21 @@ namespace Payments.Mvc.Controllers
             return View(teams);
         }
 
+        [Authorize(Policy = PolicyCodes.TeamEditor)]
         public async Task<IActionResult> TeamIndex()
         {
+            // find team
+            var team = await _context.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
             return View();
         }
 
         [ResponseCache(Duration = 600)]
+        [Authorize(Policy = PolicyCodes.TeamEditor)]
         public async Task<IActionResult> TeamIndexStats()
         {
             if (string.IsNullOrWhiteSpace(TeamSlug))
@@ -122,7 +132,6 @@ namespace Payments.Mvc.Controllers
             }
 
             return RedirectToAction(nameof(TeamIndex), "Home", new { team = team.Slug });
-
         }
     }
 }
