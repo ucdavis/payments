@@ -48,8 +48,8 @@ export default class CustomerControl extends React.Component<IProps, {}> {
                             value={email}
                             required={true}
                         />
-                        <div className="invalid-feedback">
-                            Email required.
+                        <div className="invalid-feedback text-right">
+                            Email required
                         </div>
                     </div>
                 </div>
