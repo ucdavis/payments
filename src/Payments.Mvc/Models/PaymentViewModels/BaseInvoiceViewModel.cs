@@ -5,8 +5,14 @@ using Payments.Core.Domain;
 
 namespace Payments.Mvc.Models.PaymentViewModels
 {
-    public class BaseInvoiceViewModel
+    public abstract class BaseInvoiceViewModel
     {
+        protected BaseInvoiceViewModel()
+        {
+            Items = new List<LineItem>();
+            Attachments = new List<InvoiceAttachment>();
+        }
+
         public string Id { get; set; }
 
         public string CustomerName { get; set; }
