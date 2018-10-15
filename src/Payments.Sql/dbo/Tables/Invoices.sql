@@ -18,6 +18,8 @@
     [TaxPercent]            DECIMAL (18, 5) NOT NULL,
     [TeamId]                INT             NOT NULL,
     [Total]                 DECIMAL (18, 2) NOT NULL,
+    [Deleted]				BIT				NOT NULL DEFAULT 0, 
+    [DeletedAt]				DATETIME2		NULL, 
     CONSTRAINT [PK_Invoices] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_Invoices_FinancialAccounts_AccountId] FOREIGN KEY ([AccountId]) REFERENCES [dbo].[FinancialAccounts] ([Id]),
     CONSTRAINT [FK_Invoices_PaymentEvents_PaymentTransaction_Id] FOREIGN KEY ([PaymentTransaction_Id]) REFERENCES [dbo].[PaymentEvents] ([Transaction_Id]),

@@ -37,7 +37,8 @@ namespace Payments.Mvc.Controllers
 
             var query = _dbContext.Invoices
                 .AsQueryable()
-                .Where(i => i.Team.Slug == TeamSlug);
+                .Where(i => i.Team.Slug == TeamSlug)
+                .Where(i => !i.Deleted);
 
             // fetch filter from session
             var filter = GetInvoiceFilter();

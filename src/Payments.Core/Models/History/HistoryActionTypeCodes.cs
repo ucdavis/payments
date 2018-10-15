@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,6 +15,7 @@ namespace Payments.Core.Models.History
         public static readonly IHistoryActionType InvoiceUnlocked = new InvoiceUnlockedHistoryActionType();
 
         public static readonly IHistoryActionType InvoiceClosed = new InvoiceClosedHistoryActionType();
+        public static readonly IHistoryActionType InvoiceDeleted = new InvoiceDeletedHistoryActionType();
 
         public static readonly IHistoryActionType PaymentCompleted = new PaymentCompletedHistoryActionType();
 
@@ -43,8 +44,9 @@ namespace Payments.Core.Models.History
             }
 
             if (string.Equals(InvoiceClosed.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(InvoiceDeleted.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
             {
-                return InvoiceClosed;
+                return InvoiceDeleted;
             }
 
             if (string.Equals(PaymentCompleted.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))

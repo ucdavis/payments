@@ -73,6 +73,11 @@ namespace Payments.Core.Domain
         [DisplayName("Created On")]
         public DateTime CreatedAt { get; set; }
 
+        public bool Deleted { get; set; }
+
+        [DisplayName("Deleted On")]
+        public DateTime? DeletedAt { get; set; }
+
         [JsonIgnore]
         public IList<History> History { get; set; }
 
@@ -161,6 +166,7 @@ namespace Payments.Core.Domain
             public const string Processing = "Processing";
             public const string Completed = "Completed";
             public const string Cancelled = "Cancelled";
+            public const string Deleted = "Deleted";
 
             public static string[] GetAllCodes()
             {
