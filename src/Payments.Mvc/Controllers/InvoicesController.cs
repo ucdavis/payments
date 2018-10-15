@@ -529,6 +529,46 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // you can only cancel invoices if they are sent, otherwise just delete it
+            if (invoice.Status != Invoice.StatusCodes.Sent)
+            {
+                return NotFound();
+            }
+
+            // mark as cancelled and remove link
+            invoice.Status = Invoice.StatusCodes.Cancelled;
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceCancelled.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             // find item
