@@ -1,4 +1,4 @@
-@using Microsoft.AspNetCore.Http
+﻿@using Microsoft.AspNetCore.Http
 @using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
@@ -72,7 +72,7 @@
 <div class="card-style">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h3>Summary</h3>
-        
+
         <div>
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
             {
@@ -81,7 +81,7 @@
                     Download PDF
                 </a>
             }
-            
+
             @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
             {
                 if (!Model.Sent)
@@ -120,56 +120,56 @@
         <h2>Invoice Items</h2>
         <table class="table invoice-table">
             <thead>
-            <tr>
-                <th>Description</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Amount</th>
-                <th />
-            </tr>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th />
+                </tr>
             </thead>
             <tbody>
-            @for (var i = 0; i < Model.Items.Count; i++)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
-                </tr>
-            }
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
+                    </tr>
+                }
             </tbody>
             <tbody>
-            <tr>
-                <td></td>
-                <td>Subtotal</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Subtotal)</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>Discount</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Discount)</td>
-                <td />
-            </tr>
-            <tr>
-                <td />
-                <td>Tax</td>
-                <td>@Html.DisplayFor(x => x.TaxPercent)</td>
-                <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td></td>
+                    <td>Subtotal</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Subtotal)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Discount</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Discount)</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td />
+                    <td>Tax</td>
+                    <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                    <td />
+                </tr>
             </tbody>
             <tfoot>
-            <tr>
-                <td />
-                <td>Total</td>
-                <td />
-                <td>@Html.DisplayFor(x => x.Total)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td />
+                    <td>Total</td>
+                    <td />
+                    <td>@Html.DisplayFor(x => x.Total)</td>
+                    <td />
+                </tr>
             </tfoot>
         </table>
     </div>
@@ -178,7 +178,7 @@
         <div class="card-content invoice-memo">
             <h2>Memo</h2>
             <div class="form-group">
-                @Html.DisplayFor(x => x.Memo, new {htmlAttributes = new {@class = "form-control", @readonly = "readonly"}})
+                @Html.DisplayFor(x => x.Memo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
             </div>
         </div>
     }
@@ -200,7 +200,7 @@
                         <input class="form-control" value="@a.FileName" readonly>
                     </div>
                 </div>
-                    
+
                 <span class="col-2 d-flex justify-content-center">@a.GetSizeText()</span>
 
                 <div class="col-1 d-flex justify-content-end align-items-center">
@@ -380,8 +380,8 @@
     </div>
 </form>
 
-<div class="modal fade" id="getShareLinkModal" tabindex="-1" role="dialog" aria-labelledby="getShareLinkModalLabel" areia-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="getShareLinkModal" tabindex="-1" role="dialog" aria-labelledby="getShareLinkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="getShareLinkModalLabel">Share Invoice</h5>
