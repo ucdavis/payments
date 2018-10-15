@@ -491,6 +491,44 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> MarkPaid(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // TODO: determine if this requirment is true
+            // you can only mark a paid invoice if it's been sent
+            if (invoice.Status != Invoice.StatusCodes.Sent)
+            {
+                return BadRequest();
+            }
+
+            // mark as complete!
+            invoice.Status = Invoice.StatusCodes.Completed;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.MarkPaid.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             // find item

@@ -21,6 +21,8 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType PaymentFailed = new PaymentFailedHistoryActionType();
 
+        public static readonly IHistoryActionType MarkPaid = new MarkPaidHistoryActionType();
+
         public static IHistoryActionType GetHistoryActionType(string actionType)
         {
             if (string.Equals(InvoiceCreated.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
@@ -57,6 +59,11 @@ namespace Payments.Core.Models.History
             if (string.Equals(PaymentFailed.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
             {
                 return PaymentFailed;
+            }
+
+            if (string.Equals(MarkPaid.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
+            {
+                return MarkPaid;
             }
 
             return null;
