@@ -490,6 +490,50 @@ namespace Payments.Mvc.Controllers
             return RedirectToAction("Edit", "Invoices", new {id});
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // you can only delete invoices that are drafts
+            if (invoice.Status != Invoice.StatusCodes.Draft)
+            {
+                return NotFound();
+            }
+
+            // mark as deleted
+            invoice.Status = Invoice.StatusCodes.Deleted;
+            invoice.Deleted = true;
+            invoice.DeletedAt = DateTime.UtcNow;
+
+            // remove links
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceDeleted.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Invoices");
+        }
+
         private void SetInvoiceKey(Invoice invoice)
         {
             for (var attempt = 0; attempt < 10; attempt++)
