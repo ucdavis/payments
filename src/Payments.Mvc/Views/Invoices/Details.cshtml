@@ -353,32 +353,32 @@
     </div>
 </div>
 
-<div class="modal fade" id="editLockedInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" id="unlockInvoiceForm">
+<form method="POST" id="unlockInvoiceForm" asp-action="Unlock" asp-route-id="@Model.Id">
+    <div class="modal fade" id="editLockedInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         Warning! You are about to edit an invoice that has already been sent!
                     </div>
                     <p>
                         Continuing will prevent your customer from paying this invoice unil you send it again!
                     </p>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" id="unlockInvoiceFormSubmit" class="btn btn-primary">Unlock Invoice</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="unlockInvoiceFormSubmit" class="btn btn-primary">Unlock Invoice</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</form>
 
 <div class="modal fade" id="getShareLinkModal" tabindex="-1" role="dialog" aria-labelledby="getShareLinkModalLabel" areia-hidden="true">
     <div class="modal-dialog" role="document">
@@ -524,17 +524,6 @@
                         $('#sendInvoiceFormResult').show();
                     }, 500);
                 });
-        });
-
-        var unlockUrl = "@Url.Action("Unlock", new { id = Model.Id })";
-        $('#editLockedInvoiceModal').on('show.bs.modal',
-            function(event) {
-                var modal = $(this);
-                modal.find('#unlockInvoiceForm').attr("action", unlockUrl);
-            });
-
-        $('#unlockInvoiceFormSubmit').click(function() {
-            $('#unlockInvoiceForm').submit();
         });
     </script>
 }
