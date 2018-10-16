@@ -1,7 +1,7 @@
 @model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
 
 @{
-    ViewBag.Title = $"Pay Invoice {Model.Id}";
+    ViewBag.Title = $"Pay Invoice #{Model.Id}";
     Layout = "_PaymentsLayout";
 
     var downloadLink = Url.Action("Pdf", new {id = Model.LinkId});

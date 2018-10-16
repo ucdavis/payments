@@ -38,11 +38,16 @@ namespace Payments.Mvc.Controllers
 
             var query = _dbContext.Invoices
                 .AsQueryable()
-                .Where(i => i.Team.Slug == TeamSlug)
-                .Where(i => !i.Deleted);
+                .Where(i => i.Team.Slug == TeamSlug);
 
             // fetch filter from session
             var filter = GetInvoiceFilter();
+
+            // hide deleted unless explicitly asked to show
+            if (!filter.ShowDeleted)
+            {
+                query = query.Where(i => !i.Deleted);
+            }
 
             if (filter.Statuses.Any())
             {
@@ -58,6 +63,9 @@ namespace Payments.Mvc.Controllers
             {
                 query = query.Where(i => i.CreatedAt <= filter.CreatedDateEnd.Value);
             }
+
+            // get count for display reasons
+            //var count = query.Count();
 
             var invoices = query
                 .Take(100)
