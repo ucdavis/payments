@@ -243,7 +243,7 @@
     </div>
 </div>
 
-@if (Model.Payment != null)
+@if (Model.Paid)
 {
     <div class="card-style">
         <div class="card-header">
@@ -253,13 +253,13 @@
             <dl class="row">
                 <dt class="col-2 text-right">Amount</dt>
                 <dd class="col-10">
-                    $@Model.Payment.Auth_Amount
+                    $@Model.Total
                 </dd>
             </dl>
             <dl class="row">
                 <dt class="col-2 text-right">Paid on</dt>
                 <dd class="col-10">
-                    @Model.Payment.OccuredAt.ToString("g")
+                    @Model.PaidAt?.ToString("g")
                 </dd>
             </dl>
         </div>

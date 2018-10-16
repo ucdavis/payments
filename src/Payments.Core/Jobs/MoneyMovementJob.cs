@@ -38,7 +38,6 @@ namespace Payments.Core.Jobs
                 // get all invoices that are waiting for reconcile
                 var invoices = _dbContext.Invoices
                     .Where(i => i.Status == Invoice.StatusCodes.Paid)
-                    .Include(i => i.Payment)
                     .Include(i => i.Team)
                         .ThenInclude(t => t.Accounts)
                     .ToList();
@@ -47,7 +46,7 @@ namespace Payments.Core.Jobs
 
                 foreach (var invoice in invoices)
                 {
-                    var transaction = await _slothService.GetTransactionsByProcessorId(invoice.Payment.Transaction_Id);
+                    var transaction = await _slothService.GetTransactionsByProcessorId(invoice.PaymentProcessorId);
                     if (transaction == null)
                     {
                         log.Warning("No reconcilation found for invoice id: {id}", invoice.Id);

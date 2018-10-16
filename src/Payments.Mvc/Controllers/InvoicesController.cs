@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
+using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
@@ -94,7 +95,6 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Attachments)
                 .Include(i => i.Items)
-                .Include(i => i.Payment)
                 .Include(i => i.History)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
@@ -510,8 +510,11 @@ namespace Payments.Mvc.Controllers
                 return BadRequest();
             }
 
-            // mark as complete!
+            // mark as complete with payment!
             invoice.Status = Invoice.StatusCodes.Completed;
+            invoice.Paid = true;
+            invoice.PaidAt = DateTime.UtcNow;
+            invoice.PaymentType = PaymentTypes.Manual;
 
             // record action
             var user = await _userManager.GetUserAsync(User);
