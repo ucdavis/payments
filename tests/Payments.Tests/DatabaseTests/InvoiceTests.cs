@@ -36,6 +36,11 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("CustomerName", "System.String", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Customer Name\")]",
             }));
+            expectedFields.Add(new NameAndType("Deleted", "System.Boolean", new List<string>()));
+            expectedFields.Add(new NameAndType("DeletedAt", "System.Nullable`1[System.DateTime]", new List<string>
+            {
+                "[System.ComponentModel.DisplayNameAttribute(\"Deleted On\")]",
+            }));
             expectedFields.Add(new NameAndType("Discount", "System.Decimal", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
@@ -53,7 +58,13 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Memo", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DataTypeAttribute((System.ComponentModel.DataAnnotations.DataType)9)]",
             }));
-            expectedFields.Add(new NameAndType("Payment", "Payments.Core.Domain.PaymentEvent", new List<string>()));
+            expectedFields.Add(new NameAndType("Paid", "System.Boolean", new List<string>()));
+            expectedFields.Add(new NameAndType("PaidAt", "System.Nullable`1[System.DateTime]", new List<string>
+            {
+                "[System.ComponentModel.DisplayNameAttribute(\"Paid On\")]",
+            }));
+            expectedFields.Add(new NameAndType("PaymentProcessorId", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("PaymentType", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Sent", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("SentAt", "System.Nullable`1[System.DateTime]", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Sent At\")]",
@@ -85,8 +96,6 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
-
-
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(Invoice));
@@ -222,7 +231,7 @@ namespace Payments.Tests.DatabaseTests
         {
             var scType = typeof(Invoice.StatusCodes);
             var props = scType.GetFields();
-            props.Length.ShouldBe(6);
+            props.Length.ShouldBe(7);
             
             //props[0].Name.ShouldBe("Draft");
             Invoice.StatusCodes.Draft.ShouldBe("Draft");
@@ -231,6 +240,7 @@ namespace Payments.Tests.DatabaseTests
             Invoice.StatusCodes.Completed.ShouldBe("Completed");
             Invoice.StatusCodes.Cancelled.ShouldBe("Cancelled");
             Invoice.StatusCodes.Processing.ShouldBe("Processing");
+            Invoice.StatusCodes.Deleted.ShouldBe("Deleted");
         }
     }
 }
