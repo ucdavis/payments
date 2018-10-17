@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
+using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
@@ -42,6 +43,12 @@ namespace Payments.Mvc.Controllers
             // fetch filter from session
             var filter = GetInvoiceFilter();
 
+            // hide deleted unless explicitly asked to show
+            if (!filter.ShowDeleted)
+            {
+                query = query.Where(i => !i.Deleted);
+            }
+
             if (filter.Statuses.Any())
             {
                 query = query.Where(i => filter.Statuses.Contains(i.Status));
@@ -56,6 +63,9 @@ namespace Payments.Mvc.Controllers
             {
                 query = query.Where(i => i.CreatedAt <= filter.CreatedDateEnd.Value);
             }
+
+            // get count for display reasons
+            //var count = query.Count();
 
             var invoices = query
                 .Take(100)
@@ -93,7 +103,6 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Attachments)
                 .Include(i => i.Items)
-                .Include(i => i.Payment)
                 .Include(i => i.History)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
@@ -487,6 +496,131 @@ namespace Payments.Mvc.Controllers
             await _dbContext.SaveChangesAsync();
 
             return RedirectToAction("Edit", "Invoices", new {id});
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkPaid(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // TODO: determine if this requirment is true
+            // you can only mark a paid invoice if it's been sent
+            if (invoice.Status != Invoice.StatusCodes.Sent)
+            {
+                return BadRequest();
+            }
+
+            // mark as complete with payment!
+            invoice.Status = Invoice.StatusCodes.Completed;
+            invoice.Paid = true;
+            invoice.PaidAt = DateTime.UtcNow;
+            invoice.PaymentType = PaymentTypes.Manual;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.MarkPaid.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // you can only cancel invoices if they are sent, otherwise just delete it
+            if (invoice.Status != Invoice.StatusCodes.Sent)
+            {
+                return NotFound();
+            }
+
+            // mark as cancelled and remove link
+            invoice.Status = Invoice.StatusCodes.Cancelled;
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceCancelled.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // you can only delete invoices that are drafts
+            if (invoice.Status != Invoice.StatusCodes.Draft)
+            {
+                return NotFound();
+            }
+
+            // mark as deleted
+            invoice.Status = Invoice.StatusCodes.Deleted;
+            invoice.Deleted = true;
+            invoice.DeletedAt = DateTime.UtcNow;
+
+            // remove links
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceDeleted.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Invoices");
         }
 
         private void SetInvoiceKey(Invoice invoice)

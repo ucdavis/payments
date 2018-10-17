@@ -14,6 +14,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Notifications;
+using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.CyberSource;
@@ -45,7 +46,6 @@ namespace Payments.Mvc.Controllers
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
-                .Include(i => i.Payment)
                 .Include(i => i.Team)
                 .Include(i => i.Attachments)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
@@ -89,7 +89,6 @@ namespace Payments.Mvc.Controllers
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
-                .Include(i => i.Payment)
                 .Include(i => i.Team)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
 
@@ -144,7 +143,6 @@ namespace Payments.Mvc.Controllers
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
-                .Include(i => i.Payment)
                 .Include(i => i.Team)
                 .Include(i => i.Attachments)
                 .FirstOrDefaultAsync(i => i.Id == id);
@@ -197,6 +195,13 @@ namespace Payments.Mvc.Controllers
         [IgnoreAntiforgeryToken]
         public async Task<ActionResult> Receipt(ReceiptResponseModel response)
         {
+#if DEBUG
+            // For testing local only, we should process the actual payment
+            // Live systems will use the side channel message from cybersource direct to record the payment event
+            // This will duplicate some log messages. That is OKAY
+            await ProviderNotify(response);
+#endif
+
             Log.ForContext("response", response, true).Information("Receipt response received");
 
             // check signature
@@ -209,7 +214,12 @@ namespace Payments.Mvc.Controllers
             }
 
             // find matching invoice
-            var invoice = await _dbContext.Invoices.SingleOrDefaultAsync(a => a.Id == response.Req_Reference_Number);
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .Include(i => i.Attachments)
+                .SingleOrDefaultAsync(a => a.Id == response.Req_Reference_Number);
+
             if (invoice == null)
             {
                 Log.Error("Order not found {0}", response.Req_Reference_Number);
@@ -217,67 +227,22 @@ namespace Payments.Mvc.Controllers
                 return PublicNotFound();
             }
 
-            var model = new PaymentInvoiceViewModel()
-            {
-                CustomerName    = invoice.CustomerName,
-                CustomerEmail   = invoice.CustomerEmail,
-                CustomerAddress = invoice.CustomerAddress,
-                Memo            = invoice.Memo,
-                Items           = invoice.Items,
-                Subtotal        = invoice.Subtotal,
-                Total           = invoice.Total,
-                Discount        = invoice.Discount,
-                TaxAmount       = invoice.TaxAmount,
-                TaxPercent      = invoice.TaxPercent,
-            };
 
             var responseValid = CheckResponse(response);
             if (!responseValid.IsValid)
             {
-#if DEBUG
-                // For testing local only, we should process the actual payment
-                // record action
-                var failureAction = new History()
-                {
-                    Type = HistoryActionTypes.PaymentFailed.TypeCode,
-                    ActionDateTime = DateTime.UtcNow,
-                };
-                invoice.History.Add(failureAction);
-
-                await _dbContext.SaveChangesAsync();
-#endif
-
                 // send them back to the pay page with errors
                 ErrorMessage = string.Format("Errors detected: {0}", string.Join(",", responseValid.Errors));
-                return View("Pay", model);
+                return RedirectToAction(nameof(Pay), new { id = invoice.LinkId });
             }
 
-            // Should be good,   
+            // Should be good 
             Message = "Payment Processed. Thank You.";
+
+            // Fake payment status
+            var model = CreateInvoicePaymentViewModel(invoice);
+            model.Paid = true;
             model.PaidDate = response.AuthorizationDateTime;
-            model.Status = Invoice.StatusCodes.Paid;
-
-#if DEBUG
-            // For testing local only, we should process the actual payment
-            // Live systems will use the side channel message from cybersource direct to record the payment event
-            ViewBag.PaymentDictionary = dictionary;
-            var payment = ProcessPaymentEvent(response, dictionary);
-            if (response.Decision == ReplyCodes.Accept)
-            {
-                invoice.Payment = payment;
-                invoice.Status = Invoice.StatusCodes.Paid;
-            }
-
-            // record action
-            var successAction = new History()
-            {
-                Type = HistoryActionTypes.PaymentCompleted.TypeCode,
-                ActionDateTime = DateTime.UtcNow,
-            };
-            invoice.History.Add(successAction);
-
-            await _dbContext.SaveChangesAsync();
-#endif
 
             return View("Pay", model);
         }
@@ -286,6 +251,13 @@ namespace Payments.Mvc.Controllers
         [IgnoreAntiforgeryToken]
         public async Task<ActionResult> Cancel(ReceiptResponseModel response)
         {
+#if DEBUG
+            // For testing local only, we should process the actual payment
+            // Live systems will use the side channel message from cybersource direct to record the payment event
+            // This will duplicate some log messages. That is OKAY
+            await ProviderNotify(response);
+#endif
+
             Log.ForContext("response", response, true).Information("Receipt response received");
 
             // check signature
@@ -306,19 +278,8 @@ namespace Payments.Mvc.Controllers
                 return PublicNotFound();
             }
 
-#if DEBUG
-            // record action
-            var action = new History()
-            {
-                Type = HistoryActionTypes.PaymentFailed.TypeCode,
-                ActionDateTime = DateTime.UtcNow,
-            };
-            invoice.History.Add(action);
-            await _dbContext.SaveChangesAsync();
-#endif
-
             ErrorMessage = "Payment Process Cancelled";
-            return RedirectToAction(nameof(Pay), new {id = invoice.LinkId});
+            return RedirectToAction(nameof(Pay), new { id = invoice.LinkId });
         }
 
         [HttpPost]
@@ -336,8 +297,10 @@ namespace Payments.Mvc.Controllers
                 return new JsonResult(new { });
             }
 
-            var payment = ProcessPaymentEvent(response, dictionary);
+            // record payment process in db
+            var payment = await ProcessPaymentEvent(response, dictionary);
 
+            // try to find matching invoice
             var invoice = _dbContext.Invoices.SingleOrDefault(a => a.Id == response.Req_Reference_Number);
             if (invoice == null)
             {
@@ -345,10 +308,16 @@ namespace Payments.Mvc.Controllers
                 return new JsonResult(new { });
             }
 
+            // associate invoice
+            payment.Invoice = invoice;
+
             if (response.Decision == ReplyCodes.Accept)
             {
-                invoice.Payment = payment;
                 invoice.Status = Invoice.StatusCodes.Paid;
+                invoice.Paid = true;
+                invoice.PaidAt = response.AuthorizationDateTime;
+                invoice.PaymentType = PaymentTypes.CreditCard;
+                invoice.PaymentProcessorId = response.Transaction_Id;
 
                 // record action
                 var action = new History()
@@ -379,25 +348,33 @@ namespace Payments.Mvc.Controllers
             return new JsonResult(new { });
         }
 
-        private PaymentEvent ProcessPaymentEvent(ReceiptResponseModel response, Dictionary<string, string> dictionary)
+        private async Task<PaymentEvent> ProcessPaymentEvent(ReceiptResponseModel response, Dictionary<string, string> dictionary)
         {
+            // create and record event
             var paymentEvent = new PaymentEvent
             {
-                Transaction_Id       = response.Transaction_Id,
-                Auth_Amount          = response.Auth_Amount,
-                Decision             = response.Decision,
-                Reason_Code          = response.Reason_Code,
-                Req_Reference_Number = response.Req_Reference_Number,
-                ReturnedResults      = JsonConvert.SerializeObject(dictionary)
+                Processor       = "CyberSource",
+                ProcessorId     = response.Transaction_Id,
+                Decision        = response.Decision,
+                OccuredAt       = response.AuthorizationDateTime,
+                ReturnedResults = JsonConvert.SerializeObject(dictionary),
             };
 
+            if (decimal.TryParse(response.Auth_Amount, out decimal amount))
+            {
+                paymentEvent.Amount = amount;
+            }
+
             _dbContext.PaymentEvents.Add(paymentEvent);
+            await _dbContext.SaveChangesAsync();
 
             return paymentEvent;
         }
 
         private CheckResponseResults CheckResponse(ReceiptResponseModel response)
         {
+            var contextLog = Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code);
+
             var rtValue = new CheckResponseResults();
             //Ok, check response
             // general error, bad request
@@ -405,22 +382,21 @@ namespace Payments.Mvc.Controllers
                 response.Reason_Code == ReasonCodes.BadRequestError ||
                 response.Reason_Code == ReasonCodes.MerchantAccountError)
             {
-                Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code)
-                    .Warning("Unsuccessful Reply");
+                contextLog.Warning("Unsuccessful Reply");
                 rtValue.Errors.Add("An error has occurred. If you experience further problems, please contact us");
             }
 
             // this is only possible on a hosted payment page
             if (string.Equals(response.Decision, ReplyCodes.Cancel))
             {
-                Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code).Warning("Cancelled Reply");
+                contextLog.Warning("Cancelled Reply");
                 rtValue.Errors.Add("The payment process was canceled before it could complete. If you experience further problems, please contact us");
             }
 
             // manual review required
             if (string.Equals(response.Decision, ReplyCodes.Review))
             {
-                Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code).Warning("Manual Review Reply");
+                contextLog.Warning("Manual Review Reply");
                 rtValue.Errors.Add("Error with Credit Card. Please contact issuing bank. If you experience further problems, please contact us");
             }
 
@@ -429,19 +405,19 @@ namespace Payments.Mvc.Controllers
             {
                 if (response.Reason_Code == ReasonCodes.AvsFailure)
                 {
-                    Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code).Warning("Avs Failure");
+                    contextLog.Warning("Avs Failure");
                     rtValue.Errors.Add("We’re sorry, but it appears that the billing address that you entered does not match the billing address registered with your card. Please verify that the billing address and zip code you entered are the ones registered with your card issuer and try again. If you experience further problems, please contact us");
                 }
 
                 if (response.Reason_Code == ReasonCodes.BankTimeoutError ||
                     response.Reason_Code == ReasonCodes.ProcessorTimeoutError)
                 {
-                    Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code).Error("Bank Timeout Error");
+                    contextLog.Error("Bank Timeout Error");
                     rtValue.Errors.Add("Error contacting Credit Card issuing bank. Please wait a few minutes and try again. If you experience further problems, please contact us");
                 }
                 else
                 {
-                    Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code).Warning("Declined Card Error");
+                    contextLog.Warning("Declined Card Error");
                     rtValue.Errors.Add("We’re sorry but your credit card was declined. Please use an alternative credit card and try submitting again. If you experience further problems, please contact us");
                 }
             }
@@ -453,7 +429,7 @@ namespace Payments.Mvc.Controllers
                 //I Don't think this can happen.
                 //TODO: credit card was partially billed. flag transaction for review
                 //TODO: send to general error page
-                Log.ForContext("decision", response.Decision).ForContext("reason", response.Reason_Code).Error("Partial Payment Error");
+                contextLog.Error("Partial Payment Error");
                 rtValue.Errors.Add("We’re sorry but a Partial Payment Error was detected. Please contact us");
             }
 
@@ -461,7 +437,7 @@ namespace Payments.Mvc.Controllers
             {
                 if (response.Decision != ReplyCodes.Accept)
                 {
-                    Log.Error("Got past all the other checks. But it still wasn't Accepted");
+                    contextLog.Error("Got past all the other checks. But it still wasn't Accepted");
                     rtValue.Errors.Add("Unknown Error. Please contact us.");
                 }
                 else
@@ -478,6 +454,7 @@ namespace Payments.Mvc.Controllers
             public bool IsValid { get; set; } = false;
             public IList<string> Errors { get; set; } = new List<string>();
         }
+
         private PaymentInvoiceViewModel CreateInvoicePaymentViewModel(Invoice invoice)
         {
             // update team contact info
@@ -496,18 +473,13 @@ namespace Payments.Mvc.Controllers
                 Discount         = invoice.Discount,
                 TaxAmount        = invoice.TaxAmount,
                 TaxPercent       = invoice.TaxPercent,
-                Status           = invoice.Status,
                 DueDate          = invoice.DueDate,
+                Paid             = invoice.Paid,
+                PaidDate         = invoice.PaidAt,
                 TeamName         = invoice.Team.Name,
                 TeamContactEmail = invoice.Team.ContactEmail,
                 TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
-
-            // add payment info
-            if (invoice.Status == Invoice.StatusCodes.Paid || invoice.Status == Invoice.StatusCodes.Completed)
-            {
-                model.PaidDate = invoice.Payment.OccuredAt;
-            }
 
             return model;
         }

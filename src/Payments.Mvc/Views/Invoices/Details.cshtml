@@ -14,9 +14,19 @@
 
 <div class="card-style">
     <div class="card-header-yellow card-bot-border">
-        <div class="card-head">
-            <h2>@ViewBag.Title for $@Model.Total</h2>
-            <span class="badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
+        <div class="card-head d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+                <h2 class="m0">@ViewBag.Title for $@Model.Total</h2>
+                <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
+            </div>
+
+            @if (Model.Status == Invoice.StatusCodes.Draft)
+            {
+                <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">
+                    <i class="far fa-trash-alt text-danger"></i>
+                    Delete draft
+                </button>
+            }
         </div>
     </div>
     <div class="card-content card-bot-border">
@@ -31,6 +41,14 @@
                 <i class="far fa-envelope mr-3"></i>
                 @(!Model.Sent ? "Send" : "Resend")
             </a>
+        }
+
+        @if (Model.Status == Invoice.StatusCodes.Sent)
+        {
+            <button class="btn btn-primary" data-toggle="modal" data-target="#markPaidModal">
+                <i class="far fa-check-square"></i>
+                Mark as paid
+            </button>
         }
     </div>
     <div class="card-content history-timeline">
@@ -54,7 +72,7 @@
 <div class="card-style">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h3>Summary</h3>
-        
+
         <div>
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
             {
@@ -63,7 +81,7 @@
                     Download PDF
                 </a>
             }
-            
+
             @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
             {
                 if (!Model.Sent)
@@ -102,56 +120,56 @@
         <h2>Invoice Items</h2>
         <table class="table invoice-table">
             <thead>
-            <tr>
-                <th>Description</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Amount</th>
-                <th />
-            </tr>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th />
+                </tr>
             </thead>
             <tbody>
-            @for (var i = 0; i < Model.Items.Count; i++)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
-                </tr>
-            }
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
+                        <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
+                    </tr>
+                }
             </tbody>
             <tbody>
-            <tr>
-                <td></td>
-                <td>Subtotal</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Subtotal)</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>Discount</td>
-                <td></td>
-                <td>@Html.DisplayFor(x => x.Discount)</td>
-                <td />
-            </tr>
-            <tr>
-                <td />
-                <td>Tax</td>
-                <td>@Html.DisplayFor(x => x.TaxPercent)</td>
-                <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td></td>
+                    <td>Subtotal</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Subtotal)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Discount</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.Discount)</td>
+                    <td />
+                </tr>
+                <tr>
+                    <td />
+                    <td>Tax</td>
+                    <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                    <td />
+                </tr>
             </tbody>
             <tfoot>
-            <tr>
-                <td />
-                <td>Total</td>
-                <td />
-                <td>@Html.DisplayFor(x => x.Total)</td>
-                <td />
-            </tr>
+                <tr>
+                    <td />
+                    <td>Total</td>
+                    <td />
+                    <td>@Html.DisplayFor(x => x.Total)</td>
+                    <td />
+                </tr>
             </tfoot>
         </table>
     </div>
@@ -160,7 +178,7 @@
         <div class="card-content invoice-memo">
             <h2>Memo</h2>
             <div class="form-group">
-                @Html.DisplayFor(x => x.Memo, new {htmlAttributes = new {@class = "form-control", @readonly = "readonly"}})
+                @Html.DisplayFor(x => x.Memo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
             </div>
         </div>
     }
@@ -182,7 +200,7 @@
                         <input class="form-control" value="@a.FileName" readonly>
                     </div>
                 </div>
-                    
+
                 <span class="col-2 d-flex justify-content-center">@a.GetSizeText()</span>
 
                 <div class="col-1 d-flex justify-content-end align-items-center">
@@ -225,7 +243,7 @@
     </div>
 </div>
 
-@if (Model.Payment != null)
+@if (Model.Paid)
 {
     <div class="card-style">
         <div class="card-header">
@@ -235,13 +253,13 @@
             <dl class="row">
                 <dt class="col-2 text-right">Amount</dt>
                 <dd class="col-10">
-                    $@Model.Payment.Auth_Amount
+                    $@Model.Total
                 </dd>
             </dl>
             <dl class="row">
                 <dt class="col-2 text-right">Paid on</dt>
                 <dd class="col-10">
-                    @Model.Payment.OccuredAt.ToString("g")
+                    @Model.PaidAt?.ToString("g")
                 </dd>
             </dl>
         </div>
@@ -335,35 +353,35 @@
     </div>
 </div>
 
-<div class="modal fade" id="editLockedInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" id="unlockInvoiceForm">
+<form method="POST" id="unlockInvoiceForm" asp-action="Unlock" asp-route-id="@Model.Id">
+    <div class="modal fade" id="editLockedInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editLockedInvoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         Warning! You are about to edit an invoice that has already been sent!
                     </div>
                     <p>
                         Continuing will prevent your customer from paying this invoice unil you send it again!
                     </p>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" id="unlockInvoiceFormSubmit" class="btn btn-primary">Unlock Invoice</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="unlockInvoiceFormSubmit" class="btn btn-primary">Unlock Invoice</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</form>
 
-<div class="modal fade" id="getShareLinkModal" tabindex="-1" role="dialog" aria-labelledby="getShareLinkModalLabel" areia-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="getShareLinkModal" tabindex="-1" role="dialog" aria-labelledby="getShareLinkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="getShareLinkModalLabel">Share Invoice</h5>
@@ -381,6 +399,60 @@
         </div>
     </div>
 </div>
+
+<form method="POST" id="markPaidForm" asp-action="MarkPaid" asp-route-id="@Model.Id">
+    <div class="modal fade" id="markPaidModal" tabindex="-1" role="dialog" aria-labelledby="markPaidModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="markPaidModalLabel">Mark Invoice Paid?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        Warning! You are about to mark this invoice as paid!
+                    </div>
+                    <p>
+                        Continuing will close this invoice and mark it paid. This is irreversible!
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="markPaidFormSubmit" class="btn btn-primary">Mark as paid</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form method="POST" id="deleteDraftForm" asp-action="Delete" asp-route-id="@Model.Id">
+    <div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-labelledby="deleteDraftModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteDraftModalLabel">Delete Invoice?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        Warning! You are about to delete this invoice!
+                    </div>
+                    <p>
+                        Continuing will close this invoice and delete. This is irreversible!
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="delteDraftFormSubmit" class="btn btn-primary">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
 {
@@ -452,17 +524,6 @@
                         $('#sendInvoiceFormResult').show();
                     }, 500);
                 });
-        });
-
-        var unlockUrl = "@Url.Action("Unlock", new { id = Model.Id })";
-        $('#editLockedInvoiceModal').on('show.bs.modal',
-            function(event) {
-                var modal = $(this);
-                modal.find('#unlockInvoiceForm').attr("action", unlockUrl);
-            });
-
-        $('#unlockInvoiceFormSubmit').click(function() {
-            $('#unlockInvoiceForm').submit();
         });
     </script>
 }
