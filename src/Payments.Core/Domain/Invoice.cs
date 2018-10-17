@@ -70,6 +70,7 @@ namespace Payments.Core.Domain
 
         public bool Paid { get; set; }
 
+        [DisplayName("Paid On")]
         public DateTime? PaidAt { get; set; }
 
         public string PaymentType { get; set; }
