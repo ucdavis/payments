@@ -231,19 +231,15 @@ namespace Payments.Mvc
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "receipt-pay-invoice",
-                    template: "pay/receipt",
-                    defaults: new { controller = "payments", action = "receipt" });
-
-                routes.MapRoute(
-                    name: "cancel-pay-invoice",
-                    template: "pay/cancel",
-                    defaults: new { controller = "payments", action = "cancel" });
+                    name: "pay-responses",
+                    template: "pay/{action}",
+                    defaults: new { controller = "payments" },
+                    constraints: new { action = "(receipt|cancel|providernotify)" });
 
                 routes.MapRoute(
                     name: "pay-invoice",
                     template: "pay/{id}",
-                    defaults: new { controller = "payments", action="pay" });
+                    defaults: new { controller = "payments", action = "pay" });
 
                 routes.MapRoute(
                     name: "invoice-file",
