@@ -112,6 +112,7 @@ namespace Payments.Mvc
             // add pdf reporting server
             services.AddJsReport(new LocalReporting()
                 .UseBinary(JsReportBinary.GetBinary())
+                .Configure(c => c.FileSystemStore().BaseUrlAsWorkingDirectory())
                 .AsUtility()
                 .Create());
 

@@ -1,0 +1,119 @@
+﻿@model Invoice
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <base href="~/" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" />
+    <link rel="stylesheet" href="~/dist/site.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/report.css" asp-append-version="true" />
+    
+    <style>
+    </style>
+
+</head>
+<body>
+    @Html.InlineSvg("/wwwroot/media/logo.svg")
+
+    <div class="row my-4">
+        <div class="col">
+            <h1>@Model.Team.Name</h1>
+        </div>
+        <div class="col">
+            <h1 class="text-right">Invoice #@Model.Id</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <h5>Payable to</h5>
+            <p>@Model.Team.Name</p>
+            <p>@Model.Team.ContactName</p>
+            <p>@Model.Team.ContactEmail</p>
+            <p>@Model.Team.ContactPhoneNumber</p>
+        </div>
+
+        <div class="col">
+            <h5>Bill to</h5>
+            <p>@Model.CustomerEmail</p>
+        </div>
+
+        <div class="col">
+            <h5>Invoice Number</h5>
+            <p>#@Model.Id</p>
+        </div>
+    </div>
+
+    <div class="pay-amount mb-4">
+        <h2 class="text-center">
+            @(string.Format("{0:C}", Model.Total)) <span class="secondary-font">due @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("D") : "")</span>
+        </h2>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Memo))
+    {
+        <h3 class="secondary-font mb-4">Memo</h3>
+        <div class="pay-memo mb-4">
+            <p>@Model.Memo</p>
+        </div>
+    }
+
+    <table class="table pay-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th class="text-right">Qty</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr data-id="@item.Id">
+                    <td>@item.Description</td>
+                    <td class="text-right">@item.Quantity</td>
+                    <td class="text-right">$@item.Amount.ToString("F2")</td>
+                    <td class="text-right">$@item.Total.ToString("F2")</td>
+                </tr>
+            }
+
+            @if (Model.Discount > 0)
+            {
+                <tr>
+                    <td></td>
+                    <td class="text-right">Discount</td>
+                    <td></td>
+                    <td class="text-right">-$@Model.Discount.ToString("F2")</td>
+                </tr>
+            }
+
+            @if (Model.TaxAmount > 0)
+            {
+                <tr>
+                    <td></td>
+                    <td class="text-right">Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
+                    <td></td>
+                    <td class="text-right">$@Model.TaxAmount.ToString("F2")</td>
+                </tr>
+            }
+            <tr>
+                <td></td>
+                <td class="text-right">Total:</td>
+                <td></td>
+                <td class="text-right">$@Model.Total.ToString("F2")</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

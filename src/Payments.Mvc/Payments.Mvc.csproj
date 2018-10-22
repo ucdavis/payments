@@ -28,31 +28,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Files not to publish (note that the 'dist' subfolders are re-added below) -->
     <Content Remove="ClientApp\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Resources\WebHookDescriptions.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>WebHookDescriptions.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\WebHookDescriptions.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>WebHookDescriptions.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyDocumentationFile" AfterTargets="ComputeFilesToPublish">
