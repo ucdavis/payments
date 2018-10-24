@@ -12,18 +12,18 @@ interface IState {
 
 export default class TaxInput extends React.Component<IProps, IState> {
 
-    constructor(props) {
+    constructor(props: IProps) {
         super(props);
 
         this.state = {
             hasTax: !!props.value,
-            value: props.value,
+            value: props.value.toFixed(4),
         };
     }
 
-    public componentWillReceiveProps(nextProps) {
+    public componentWillReceiveProps(nextProps: IProps) {
         this.setState({
-            value: nextProps.value,
+            value: nextProps.value.toFixed(4),
         });
     }
 
