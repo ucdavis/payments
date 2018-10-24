@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
@@ -76,7 +76,7 @@
         <div>
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
             {
-                <a asp-controller="Payments" asp-action="Pdf" asp-route-id="@Model.LinkId" class="btn btn-primary">
+                <a asp-controller="Pdf" asp-action="Invoice" asp-route-id="@Model.LinkId" class="btn btn-primary">
                     <i class="fas fa-download mr-3"></i>
                     Download PDF
                 </a>
