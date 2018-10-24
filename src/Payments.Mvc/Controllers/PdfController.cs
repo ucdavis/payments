@@ -22,7 +22,7 @@ namespace Payments.Mvc.Controllers
 
         [HttpGet("/pdf/{id}")]
         [MiddlewareFilter(typeof(JsReportPipeline))]
-        public async Task<ActionResult> Invoice(string id, bool debug = false, bool store = false)
+        public async Task<ActionResult> Invoice(string id)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
@@ -52,24 +52,6 @@ namespace Payments.Mvc.Controllers
                         MarginRight = "25px"
                     };
                 });
-
-            if (store)
-            {
-                HttpContext.JsReportFeature()
-                    .OnAfterRender((r) => {
-                        using (var file = System.IO.File.Open("report.pdf", FileMode.Create))
-                        {
-                            r.Content.CopyTo(file);
-                        }
-                        r.Content.Seek(0, SeekOrigin.Begin);
-                    });
-            }
-
-            if (debug)
-            {
-                HttpContext.JsReportFeature()
-                    .DebugLogsToResponse();
-            }
 
             return View(invoice);
         }
