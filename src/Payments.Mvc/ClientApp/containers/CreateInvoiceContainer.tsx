@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import "isomorphic-fetch";
 
+import { uuidv4 } from "../utils/string";
+
 import { Account } from '../models/Account';
 import { CreateInvoice } from '../models/CreateInvoice';
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
@@ -67,6 +69,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             items: [{
                 amount: 0,
                 description: '',
+                id: uuidv4(),
                 quantity: 0,
             }],
             memo: '',
