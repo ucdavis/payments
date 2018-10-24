@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using jsreport.AspNetCore;
-using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -79,29 +77,6 @@ namespace Payments.Mvc.Controllers
 
                 model.PaymentDictionary = dictionary;
             }
-
-            return View(model);
-        }
-
-        [HttpGet]
-        [MiddlewareFilter(typeof(JsReportPipeline))]
-        public async Task<ActionResult> Pdf(string id)
-        {
-            var invoice = await _dbContext.Invoices
-                .Include(i => i.Items)
-                .Include(i => i.Team)
-                .FirstOrDefaultAsync(i => i.LinkId == id);
-
-            if (invoice == null || string.IsNullOrWhiteSpace(id))
-            {
-                return PublicNotFound();
-            }
-
-            var model = CreateInvoicePaymentViewModel(invoice);
-
-            // TODO: Change this to ChromePdf when it's available on Local            
-            HttpContext.JsReportFeature()
-                .Recipe(Recipe.PhantomPdf);
 
             return View(model);
         }

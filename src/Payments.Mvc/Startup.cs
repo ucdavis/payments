@@ -5,6 +5,7 @@ using AspNetCore.Security.CAS;
 using jsreport.AspNetCore;
 using jsreport.Binary;
 using jsreport.Local;
+using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -112,6 +113,13 @@ namespace Payments.Mvc
             // add pdf reporting server
             services.AddJsReport(new LocalReporting()
                 .UseBinary(JsReportBinary.GetBinary())
+                .Configure(c =>
+                {
+                    c.AllowLocalFilesAccess = true;
+                    c.FileSystemStore().BaseUrlAsWorkingDirectory();
+                    return c;
+                })
+                .RunInDirectory(Environment.ContentRootPath)
                 .AsUtility()
                 .Create());
 

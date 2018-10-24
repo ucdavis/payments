@@ -3,6 +3,8 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import "isomorphic-fetch";
 
+import { uuidv4 } from "../utils/string";
+
 import { Account } from '../models/Account';
 import { EditInvoice } from '../models/EditInvoice';
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
@@ -54,12 +56,16 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         const { invoice } = this.props;
 
+        // assign random ids
+        const items = invoice.items || [];
+        items.forEach(i => i.id = uuidv4())
+
         // require at least one item
-        const items = invoice.items;
         if (!items || items.length < 1) {
             items.push({
                 amount: 0,
                 description: '',
+                id: uuidv4(),
                 quantity: 0,
             });
         }
