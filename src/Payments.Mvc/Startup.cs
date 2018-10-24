@@ -113,6 +113,7 @@ namespace Payments.Mvc
             services.AddJsReport(new LocalReporting()
                 .UseBinary(JsReportBinary.GetBinary())
                 .Configure(c => c.FileSystemStore().BaseUrlAsWorkingDirectory())
+                .RunInDirectory(Environment.ContentRootPath)
                 .AsUtility()
                 .Create());
 
