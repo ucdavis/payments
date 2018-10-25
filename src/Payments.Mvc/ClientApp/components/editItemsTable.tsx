@@ -1,8 +1,12 @@
 import * as React from 'react';
+
+import { uuidv4 } from '../utils/string';
+
 import { InvoiceItem } from '../models/InvoiceItem';
 
-import DiscountInput from '../components/discountInput';
-import TaxInput from '../components/taxInput';
+import CurrencyControl from './currencyControl';
+import DiscountInput from './discountInput';
+import TaxInput from './taxInput';
 
 interface IProps {
     items: InvoiceItem[];
@@ -15,7 +19,7 @@ interface IProps {
 
 interface IState {
     items: {
-        byId: number[];
+        byId: string[];
         byHash: {
             [key: number]: InvoiceItem;
         };
@@ -23,7 +27,7 @@ interface IState {
 }
 
 export default class EditItemsTable extends React.Component<IProps, IState> {
-    constructor(props) {
+    constructor(props: IProps) {
         super(props);
 
         // map array to object
@@ -43,7 +47,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         };
     }
 
-    public componentWillReceiveProps(nextProps) {
+    public componentWillReceiveProps(nextProps: IProps) {
         const items: IState["items"] = {
             byHash: {},
             byId: [],
@@ -72,7 +76,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     <tr>
                         <th>Description</th>
                         <th>Qty</th>
-                        <th>Price</th>
+                        <th className="text-center">Price</th>
                         <th>Amount</th>
                         <th/>
                     </tr>
@@ -97,8 +101,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td>Discount</td>
                         <td><DiscountInput value={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
                         <td>{ 
-                                discount !== 0 && 
-                                <span>-${ (Number(discount)).toFixed(2) }</span>
+                                (discount !== 0) && 
+                                <span>-${ discount.toFixed(2) }</span>
                             }
                         </td>
                         <td />
@@ -108,7 +112,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td>Tax</td>
                         <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
                         <td>{
-                                taxPercent !== 0 &&
+                                (taxPercent !== 0) &&
                                 <span>${ tax.toFixed(2) }</span>
                             }
                         </td>
@@ -128,7 +132,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         );
     }
 
-    private renderItem(id: number, item: InvoiceItem) {
+    private renderItem(id: string, item: InvoiceItem) {
         const { description, quantity, amount } = item;
 
         return (
@@ -149,7 +153,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                 <td>
                     <input
                         type="number"
-                        min="0"
+                        min="0.01"
                         step="0.01"
                         className="form-control"
                         placeholder="0"
@@ -157,7 +161,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         onChange={(e) => { this.updateItemProperty(id, 'quantity', e.target.value) }}
                         required={true}
                     />
-                    <div className="invalid-feedback">
+                    <div className="invalid-feedback text-center">
                         Quantity required
                     </div>
                 </td>
@@ -168,19 +172,13 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                                 <i className="fas fa-dollar-sign" />
                             </span>
                         </div>
-                        <input
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            className="form-control"
-                            placeholder="0.00"
+                        <CurrencyControl
                             value={amount}
-                            onChange={(e) => { this.updateItemProperty(id, 'amount', e.target.value) }}
-                            required={true}
+                            onChange={(v) => { this.updateItemProperty(id, 'amount', v) }}
                         />
-                    </div>
-                    <div className="invalid-feedback">
-                        Price required
+                        <div className="invalid-feedback text-center ml-4">
+                            Price required
+                        </div>
                     </div>
                 </td>
                 <td>
@@ -198,8 +196,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     private createNewItem = () => {
         const items = this.state.items;
 
-        // needs new id logic
-        const id = items.byId.reduce((max, value) => Math.max(max, value), 0) + 1;
+        const id = uuidv4();
 
         const newItems = {
             byHash: {
@@ -217,7 +214,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.onItemsChange(newItems);
     }
 
-    private removeItem = (id) => {
+    private removeItem = (id: string) => {
         const items = this.state.items;
         const newHash = {...items.byHash};
         delete newHash[id];
@@ -235,7 +232,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         }
     }
 
-    private updateItem = (id, item) => {
+    private updateItem = (id: string, item: InvoiceItem) => {
         const items = this.state.items;
         const newHash = {...items.byHash};
         newHash[id] = item;
@@ -248,26 +245,27 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.onItemsChange(newItems);
     }
 
-    private updateItemProperty = (id, name, value) => {
+    private updateItemProperty = (id: string, name: string, value) => {
         const item = this.state.items.byHash[id];
         item[name] = value;
         this.updateItem(id, item);
     }
 
-    private onItemsChange = (newItems) => {
+    private onItemsChange = (newItems: IState["items"]) => {
         // this.setState({ item: newItems });
 
         const itemArray = newItems.byId.map(i => newItems.byHash[i]);
         this.props.onItemsChange(itemArray);
     }
 
-    private onDiscountChange = (value) => {
+    private onDiscountChange = (value: number) => {
         this.props.onDiscountChange(value);
     }
 
-    private onTaxPercentChange = (value) => {
+    private onTaxPercentChange = (value: string) => {
+        const tax = Number(value);
         // pass up the actual rate
-        this.props.onTaxPercentChange(value / 100);
+        this.props.onTaxPercentChange(tax / 100);
     }
 
     private calculateSubTotal = () => {

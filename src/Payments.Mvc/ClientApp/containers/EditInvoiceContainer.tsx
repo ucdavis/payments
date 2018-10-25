@@ -3,14 +3,18 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import "isomorphic-fetch";
 
+import { uuidv4 } from "../utils/string";
+
 import { Account } from '../models/Account';
-import { Invoice } from '../models/Invoice';
+import { EditInvoice } from '../models/EditInvoice';
+import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceItem } from '../models/InvoiceItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
 import Alert from '../components/alert';
+import AttachmentsControl from '../components/attachmentsControl';
 import CustomerControl from '../components/customerControl';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
@@ -24,13 +28,14 @@ declare var antiForgeryToken: string;
 interface IProps {
     accounts: Account[];
     id: number;
-    invoice: Invoice;
+    invoice: EditInvoice;
     sent: boolean;
     team: Team;
 }
 
 interface IState {
     accountId: number;
+    attachments: InvoiceAttachment[],
     customer: InvoiceCustomer;
     discount: number;
     dueDate: string;
@@ -51,19 +56,23 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         const { invoice } = this.props;
 
+        // assign random ids
+        const items = invoice.items || [];
+        items.forEach(i => i.id = uuidv4())
+
         // require at least one item
-        const items = invoice.items;
         if (!items || items.length < 1) {
             items.push({
                 amount: 0,
                 description: '',
-                id: 0,
+                id: uuidv4(),
                 quantity: 0,
             });
         }
 
         this.state = {
             accountId: invoice.accountId,
+            attachments: invoice.attachments,
             customer: invoice.customer,
             discount: invoice.discount || 0,
             dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
@@ -80,7 +89,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
     public render() {
         const { id, sent, team, accounts } = this.props;
-        const { accountId, customer, dueDate, items, discount, taxPercent, memo, loading, validate } = this.state;
+        const { accountId, attachments, customer, dueDate, items, discount, taxPercent, memo, loading, validate } = this.state;
         
 
         return (
@@ -125,6 +134,12 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         <label>Income Account</label>
                         <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
+                </div>
+                <div className="card-content invoice-attachments">
+                    <h2>Attachments</h2>
+                    <AttachmentsControl
+                        attachments={attachments}
+                        onChange={(v) => this.updateProperty('attachments', v)} />
                 </div>
                 <div className="card-foot invoice-action">
                     <div className="row justify-content-between align-items-center">
@@ -207,14 +222,15 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         const { id } = this.props;
         const { slug } = this.props.team;
-        const { accountId, customer, discount, dueDate, taxPercent, items, memo } = this.state;
+        const { accountId, attachments, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
         // create submit object
-        const invoice = {
+        const invoice: EditInvoice = {
             accountId,
+            attachments,
             customer,
             discount,
-            dueDate,
+            dueDate: new Date(dueDate),
             items,
             memo,
             taxPercent,

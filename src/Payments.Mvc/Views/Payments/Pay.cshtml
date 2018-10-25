@@ -1,10 +1,10 @@
-﻿@model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
+@model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
 
 @{
-    ViewBag.Title = $"Pay Invoice {Model.Id}";
+    ViewBag.Title = $"Pay Invoice #{Model.Id}";
     Layout = "_PaymentsLayout";
 
-    var downloadLink = Url.Action("Pdf", new {id = Model.LinkId});
+    var downloadLink = Url.Action("Invoice", "Pdf", new {id = Model.LinkId});
 }
 
 <div class="card-style pay-card-style">
@@ -15,7 +15,7 @@
     <div>
         <partial name="_TopInfo" />
         <div class="pay-action">
-            @if (Model.Status == Invoice.StatusCodes.Sent)
+            @if (!Model.Paid)
             {
                 <h1>@(string.Format("{0:C}", Model.Total))</h1>
 
@@ -36,13 +36,17 @@
                     </button>
                 </form>
             }
-            else if (Model.Status == Invoice.StatusCodes.Paid || Model.Status == Invoice.StatusCodes.Completed)
+            else
             {
                 <h1>Invoice Paid</h1>
-                <h2>@Model.Total.ToString("C") USD paid @Model.PaidDate.ToString("D")</h2>
+                if (Model.PaidDate.HasValue)
+                {
+                    <h2>@Model.Total.ToString("C") USD paid @Model.PaidDate.Value.ToString("D")</h2>
+                }
             }
         </div>
         <partial name="_Summary" />
+        <partial name="_Attachments" />
         <partial name="_Download" model="@downloadLink" />
         <partial name="_Footer" />
     </div>

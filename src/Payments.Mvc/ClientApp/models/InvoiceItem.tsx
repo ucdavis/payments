@@ -1,5 +1,5 @@
 export interface InvoiceItem {
-    id: number;
+    id: string;
     description: string;
     quantity: number;
     amount: number;

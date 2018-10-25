@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -11,24 +10,26 @@ namespace Payments.Core.Domain
         {
             OccuredAt = DateTime.UtcNow;
         }
-        [Key]
-        public string Transaction_Id { get; set; }
 
-        /// <summary>
-        /// Unique merchant-generated order reference or tracking number for each transaction.
-        /// (Order Id)
-        /// </summary>
-        public int Req_Reference_Number { get; set; }
+        [Key]
+        public int Id { get; set; }
+
+        public string Processor { get; set; }
+
+        public string ProcessorId { get; set; }
 
         public string Decision { get; set; }
 
-        public int Reason_Code { get; set; }
-        public string Auth_Amount { get; set; }
+        public decimal Amount { get; set; }
 
         /// <summary>
         /// Json of what CyberSource returned including fields above
         /// </summary>
+        [JsonIgnore]
         public string ReturnedResults { get; set; }
+
         public DateTime OccuredAt { get; set; }
+
+        public Invoice Invoice { get; set; }
     }
 }

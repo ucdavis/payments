@@ -1,0 +1,69 @@
+﻿@model Invoice
+
+<!DOCTYPE html>
+<html>
+<head>
+    @Html.EmbedCss("/wwwroot/css/pdf.css")
+
+    <style>
+        /* defining explicit font-size solves the scaling issue */
+        html, body {
+            font-size: 10px;
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: stretch;
+            width: 100%;
+            margin-left: 40px;
+            margin-right: 40px;
+            border-top: 3px solid grey;
+            padding-top: 25px;
+            padding-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .col {
+            flex-grow: 1;
+            padding: 0 10px;
+        }
+
+        .text-strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="footer">
+        <div class="row">
+            <div class="col">
+                <p class="text-strong">Pay with card</p>
+                <p>Visit</p>
+                @{
+                    var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, "https");
+                }
+                <p class="text-strong">@(paymentPageHref)</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p><span class="text-strong">Questions?</span> Call @Model.Team.Name at @Model.Team.ContactPhoneNumber</p>
+            </div>
+            <div class="col" style="text-align: right;">
+                <p>
+                    #@Model.Id - Page number <span class="pageNumber"></span> of <span class="totalPages"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

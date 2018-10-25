@@ -14,11 +14,15 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType InvoiceUnlocked = new InvoiceUnlockedHistoryActionType();
 
-        public static readonly IHistoryActionType InvoiceClosed = new InvoiceClosedHistoryActionType();
+        public static readonly IHistoryActionType InvoiceCancelled = new InvoiceCancelledHistoryActionType();
+
+        public static readonly IHistoryActionType InvoiceDeleted = new InvoiceDeletedHistoryActionType();
 
         public static readonly IHistoryActionType PaymentCompleted = new PaymentCompletedHistoryActionType();
 
         public static readonly IHistoryActionType PaymentFailed = new PaymentFailedHistoryActionType();
+
+        public static readonly IHistoryActionType MarkPaid = new MarkPaidHistoryActionType();
 
         public static IHistoryActionType GetHistoryActionType(string actionType)
         {
@@ -42,9 +46,14 @@ namespace Payments.Core.Models.History
                 return InvoiceUnlocked;
             }
 
-            if (string.Equals(InvoiceClosed.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(InvoiceCancelled.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
             {
-                return InvoiceClosed;
+                return InvoiceCancelled;
+            }
+
+            if (string.Equals(InvoiceDeleted.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
+            {
+                return InvoiceDeleted;
             }
 
             if (string.Equals(PaymentCompleted.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
@@ -55,6 +64,11 @@ namespace Payments.Core.Models.History
             if (string.Equals(PaymentFailed.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
             {
                 return PaymentFailed;
+            }
+
+            if (string.Equals(MarkPaid.TypeCode, actionType, StringComparison.OrdinalIgnoreCase))
+            {
+                return MarkPaid;
             }
 
             return null;

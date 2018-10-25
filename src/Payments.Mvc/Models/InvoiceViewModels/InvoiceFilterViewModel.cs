@@ -12,6 +12,8 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
         public IList<string> Statuses { get; set; }
 
+        public bool ShowDeleted { get; set; }
+
         public DateTime? CreatedDateStart { get; set; }
 
         public DateTime? CreatedDateEnd { get; set; }

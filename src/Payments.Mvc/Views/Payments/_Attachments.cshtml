@@ -1,0 +1,34 @@
+﻿@using Payments.Mvc.Models.PaymentViewModels
+@model BaseInvoiceViewModel
+
+@{
+    // check for link id
+    var linkId = (Model as PaymentInvoiceViewModel)?.LinkId;
+}
+
+@if (Model.Attachments.Any())
+{
+    <div class="pay-attachments">
+        <h class="onepointeight secondary-font">Attachments</h>
+        @foreach (var attachment in Model.Attachments)
+        {
+            // set url
+            var href = string.IsNullOrWhiteSpace(linkId)
+                ? Url.Action("GetFile", "Files", new { id = attachment.Id })
+                : Url.Action("File", new { id = linkId, fileId = attachment.Id });
+
+            var iconClass = attachment.GetFileIcon();
+
+            <a class="pay-attachment" target="_blank" href="@href">
+                <p class="col-6">
+                    <i class="@iconClass fa-fw"></i>
+                    @attachment.FileName
+                </p>
+                <span class="col-5 text-right">@attachment.GetSizeText()</span>
+                <div class="col-1 text-right">
+                    <i class="fas fa-download"></i>
+                </div>
+            </a>
+        }
+    </div>
+}

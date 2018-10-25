@@ -1,3 +1,4 @@
+import { InvoiceAttachment } from './InvoiceAttachment';
 import { InvoiceCustomer } from './InvoiceCustomer';
 import { InvoiceItem } from './InvoiceItem';
 
@@ -9,4 +10,5 @@ export interface Invoice {
     dueDate?: Date;
     taxPercent: number;
     items: InvoiceItem[];
+    attachments: InvoiceAttachment[];
 }

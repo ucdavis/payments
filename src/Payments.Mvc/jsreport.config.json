@@ -1,0 +1,24 @@
+{
+  "extensions": {
+    "assets": {
+      "allowedFiles":  "wwwroot/**/*.*",
+      "searchOnDiskIfNotFoundInStore": true
+    },
+    "logger": {
+      "console": {
+        "transport": "console",
+        "level": "debug"
+      },
+      "file": {
+        "transport": "file",
+        "level": "info",
+        "filename": "logs/log.txt"
+      },
+      "error": {
+        "transport": "file",
+        "level": "error",
+        "filename": "logs/error.txt"
+      }
+    }
+  }
+}

@@ -1,11 +1,13 @@
 ﻿CREATE TABLE [dbo].[PaymentEvents] (
-    [Transaction_Id]       NVARCHAR (450) NOT NULL,
-    [Auth_Amount]          NVARCHAR (MAX) NULL,
-    [Decision]             NVARCHAR (MAX) NULL,
-    [OccuredAt]            DATETIME2 (7)  NOT NULL,
-    [Reason_Code]          INT            NOT NULL,
-    [Req_Reference_Number] INT            NOT NULL,
-    [ReturnedResults]      NVARCHAR (MAX) NULL,
-    CONSTRAINT [PK_PaymentEvents] PRIMARY KEY CLUSTERED ([Transaction_Id] ASC)
+	[Id]				INT				IDENTITY (1, 1) NOT NULL,
+    [Processor]     NVARCHAR (50)	NOT NULL,
+    [ProcessorId]       NVARCHAR (50)	NULL,
+    [Amount]			DECIMAL			NOT NULL,
+    [Decision]          NVARCHAR (50)	NOT NULL,
+    [OccuredAt]         DATETIME2 (7)	NOT NULL,
+    [ReturnedResults]   NVARCHAR (MAX)	NULL,
+    [InvoiceId]			INT				NULL, 
+    CONSTRAINT [PK_PaymentEvents] PRIMARY KEY CLUSTERED ([Id] ASC), 
+    CONSTRAINT [FK_PaymentEvents_Invoices] FOREIGN KEY ([InvoiceId]) REFERENCES [Invoices]([Id])
 );
 

@@ -5,6 +5,7 @@ using AspNetCore.Security.CAS;
 using jsreport.AspNetCore;
 using jsreport.Binary;
 using jsreport.Local;
+using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -65,6 +66,7 @@ namespace Payments.Mvc
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
+            services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -111,6 +113,13 @@ namespace Payments.Mvc
             // add pdf reporting server
             services.AddJsReport(new LocalReporting()
                 .UseBinary(JsReportBinary.GetBinary())
+                .Configure(c =>
+                {
+                    c.AllowLocalFilesAccess = true;
+                    c.FileSystemStore().BaseUrlAsWorkingDirectory();
+                    return c;
+                })
+                .RunInDirectory(Environment.ContentRootPath)
                 .AsUtility()
                 .Create());
 
@@ -154,6 +163,8 @@ namespace Payments.Mvc
                 {
                     { "apiKey", new string[] { } }
                 });
+
+                c.OperationFilter<FileOperationFilter>();
             });
 
             // infrastructure services
@@ -162,6 +173,8 @@ namespace Payments.Mvc
             services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
             services.AddSingleton<IFinancialService, FinancialService>();
             services.AddSingleton<ISlothService, SlothService>();
+            services.AddSingleton<IStorageService, StorageService>();
+
             services.AddScoped<INotificationService, NotificationService>();
 
             // register job services
@@ -226,19 +239,20 @@ namespace Payments.Mvc
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "receipt-pay-invoice",
-                    template: "pay/receipt",
-                    defaults: new { controller = "payments", action = "receipt" });
-
-                routes.MapRoute(
-                    name: "cancel-pay-invoice",
-                    template: "pay/cancel",
-                    defaults: new { controller = "payments", action = "cancel" });
+                    name: "pay-responses",
+                    template: "pay/{action}",
+                    defaults: new { controller = "payments" },
+                    constraints: new { action = "(receipt|cancel|providernotify)" });
 
                 routes.MapRoute(
                     name: "pay-invoice",
                     template: "pay/{id}",
-                    defaults: new { controller = "payments", action="pay" });
+                    defaults: new { controller = "payments", action = "pay" });
+
+                routes.MapRoute(
+                    name: "invoice-file",
+                    template: "file/{id}/{fileId}",
+                    defaults: new { controller = "payments", action = "file" });
 
                 routes.MapRoute(
                     name: "non-team-routes",

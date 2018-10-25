@@ -5,8 +5,14 @@ using Payments.Core.Domain;
 
 namespace Payments.Mvc.Models.PaymentViewModels
 {
-    public class BaseInvoiceViewModel
+    public abstract class BaseInvoiceViewModel
     {
+        protected BaseInvoiceViewModel()
+        {
+            Items = new List<LineItem>();
+            Attachments = new List<InvoiceAttachment>();
+        }
+
         public string Id { get; set; }
 
         public string CustomerName { get; set; }
@@ -22,6 +28,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public decimal TaxPercent { get; set; }
 
         public IList<LineItem> Items { get; set; }
+
+        public IList<InvoiceAttachment> Attachments { get; set; }
 
         public decimal Subtotal { get; set; }
 

@@ -57,3 +57,17 @@ input[type=number]::-webkit-outer-spin-button {
   padding: 0 2rem;
   color: $secondary-font;
 }
+
+// fix spacing on checkboxes
+.form-check {
+  padding-left: 2rem;
+
+  .form-check-input {
+    margin-top: 0.6rem;
+    margin-left: -2rem;
+  }
+}
+
+.progress-bar {
+  background-color: $primary-color;
+}

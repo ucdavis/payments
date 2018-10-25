@@ -1,9 +1,5 @@
 import * as React from 'react';
 
-import { Invoice } from '../models/Invoice';
-import { Team } from '../models/Team';
-
-
 interface IProps {
     className: string;
     onDismiss: () => void;
