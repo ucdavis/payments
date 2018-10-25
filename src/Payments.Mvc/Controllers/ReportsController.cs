@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+using jsreport.AspNetCore;
+using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +17,12 @@ namespace Payments.Mvc.Controllers
     public class ReportsController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IJsReportMVCService _jsReportMvcService;
 
-        public ReportsController(ApplicationDbContext dbContext)
+        public ReportsController(ApplicationDbContext dbContext, IJsReportMVCService jsReportMvcService)
         {
             _dbContext = dbContext;
+            _jsReportMvcService = jsReportMvcService;
         }
 
         public IActionResult Index()
@@ -45,7 +50,6 @@ namespace Payments.Mvc.Controllers
             var query = _dbContext.Invoices
                 .AsQueryable()
                 .Include(i => i.Items)
-                .Include(i => i.Payment)
                 .Where(i => i.Team.Slug == TeamSlug);
 
             // for this fiscal year
@@ -53,8 +57,8 @@ namespace Payments.Mvc.Controllers
             var fiscalEnd = new DateTime(model.FiscalYear, 7, 1);
 
             query = query.Where(i =>
-                   i.Payment.OccuredAt >= fiscalStart
-                && i.Payment.OccuredAt <= fiscalEnd);
+                   i.PaidAt >= fiscalStart
+                && i.PaidAt <= fiscalEnd);
 
             var invoices = query
                 .OrderByDescending(i => i.Id)
@@ -63,6 +67,37 @@ namespace Payments.Mvc.Controllers
             model.Invoices = invoices;
 
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> SalesLog()
+        {
+            var invoices = await _dbContext.Invoices
+                .Include(i => i.Account)
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .ToListAsync();
+
+            return View(invoices);
+        }
+
+        [HttpGet]
+        [MiddlewareFilter(typeof(JsReportPipeline))]
+        public async Task<ActionResult> SalesLogExport()
+        {
+            var invoices = await _dbContext.Invoices
+                .Include(i => i.Account)
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .ToListAsync();
+
+            ViewBag.Export = true;
+
+            HttpContext.JsReportFeature()
+                .Recipe(Recipe.HtmlToXlsx)
+                .Configure(r => { });
+
+            return View("_SalesLogTable", invoices);
         }
     }
 }

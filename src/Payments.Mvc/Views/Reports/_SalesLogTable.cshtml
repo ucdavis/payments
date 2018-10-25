@@ -1,0 +1,75 @@
+﻿@model IList<Invoice>
+
+@{
+
+    if ((bool) ViewBag.Export)
+    {
+        Layout = "_ExcelExportLayout";
+    }
+    else
+    {
+        Layout = null;
+    }
+}
+
+<html>
+<head>
+    @if ((bool)ViewBag.Export)
+    {
+        <style>
+            table {
+                line-height: 0;
+            }
+
+            tr {
+                height: 20px;
+            }
+
+            th {
+                text-align: left;
+            }
+        </style>
+    }
+</head>
+<body>
+    <table id="SalesLog" class="table">
+        <thead classs="thead-light">
+            @if ((bool)ViewBag.Export)
+            {
+                <tr>
+                    <th>Credit Card Merchant Sales Log</th>
+                </tr>
+            }
+            <tr>
+                <th>Sales Person</th>
+                <th>Transaction Date</th>
+                <th>Transaction Description</th>
+                <th>Transaction Type</th>
+                <th>Transaction Location</th>
+                <th>Income Amount</th>
+                <th>Sale Amount</th>
+                <th>Sales Tax Rate</th>
+                <th>Sales Tax Amount</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var invoice in Model)
+            {
+                <tr>
+                    <td>@invoice.TeamName</td>
+                    <td>@invoice.PaidAt</td>
+                    <td>@invoice.Memo</td>
+                    <td>Retail Goods</td>
+                    <td>UC Davis Campus</td>
+                    <td>@invoice.Account.GetAccountString()</td>
+                    <td>@invoice.Subtotal.ToString("C")</td>
+                    <td>@invoice.TaxPercent.ToString("P")</td>
+                    <td>@invoice.TaxAmount.ToString("C")</td>
+                    <td>@invoice.Total.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>
