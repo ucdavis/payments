@@ -4,8 +4,9 @@ import { uuidv4 } from '../utils/string';
 
 import { InvoiceItem } from '../models/InvoiceItem';
 
-import DiscountInput from '../components/discountInput';
-import TaxInput from '../components/taxInput';
+import CurrencyControl from './currencyControl';
+import DiscountInput from './discountInput';
+import TaxInput from './taxInput';
 
 interface IProps {
     items: InvoiceItem[];
@@ -75,7 +76,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     <tr>
                         <th>Description</th>
                         <th>Qty</th>
-                        <th>Price</th>
+                        <th className="text-center">Price</th>
                         <th>Amount</th>
                         <th/>
                     </tr>
@@ -100,8 +101,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td>Discount</td>
                         <td><DiscountInput value={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
                         <td>{ 
-                                discount !== 0 && 
-                                <span>-${ (Number(discount)).toFixed(2) }</span>
+                                (discount !== 0) && 
+                                <span>-${ discount.toFixed(2) }</span>
                             }
                         </td>
                         <td />
@@ -111,7 +112,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td>Tax</td>
                         <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
                         <td>{
-                                taxPercent !== 0 &&
+                                (taxPercent !== 0) &&
                                 <span>${ tax.toFixed(2) }</span>
                             }
                         </td>
@@ -171,15 +172,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                                 <i className="fas fa-dollar-sign" />
                             </span>
                         </div>
-                        <input
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            className="form-control"
-                            placeholder="0.00"
+                        <CurrencyControl
                             value={amount}
-                            onChange={(e) => { this.updateItemProperty(id, 'amount', e.target.value) }}
-                            required={true}
+                            onChange={(v) => { this.updateItemProperty(id, 'amount', v) }}
                         />
                         <div className="invalid-feedback text-center ml-4">
                             Price required
@@ -263,9 +258,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.props.onItemsChange(itemArray);
     }
 
-    private onDiscountChange = (value: string) => {
-        const discount = Number(value);
-        this.props.onDiscountChange(discount);
+    private onDiscountChange = (value: number) => {
+        this.props.onDiscountChange(value);
     }
 
     private onTaxPercentChange = (value: string) => {
