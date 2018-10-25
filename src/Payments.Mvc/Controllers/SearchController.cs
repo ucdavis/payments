@@ -24,7 +24,6 @@ namespace Payments.Mvc.Controllers
             var query = _dbContext.Invoices
                 .AsQueryable()
                 .Include(i => i.Items)
-                .Include(i => i.Payment)
                 .Where(i => i.Team.Slug == TeamSlug);
 
             var invoices = query
