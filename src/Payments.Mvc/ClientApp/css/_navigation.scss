@@ -76,6 +76,7 @@ nav {
 g#home-tertiary,
 g#invoices-secondary,
 g#invoices-tertiary,
+g#reports-secondary,
 g#support-secondary,
 g#support-tertiary,
 g#settings-tertiary,
@@ -87,6 +88,7 @@ g#logout-tertiary {
 }
 g#home-primary,
 g#invoices-primary,
+g#reports-primary,
 g#support-primary,
 g#settings-secondary,
 g#settings-primary,
@@ -113,6 +115,16 @@ a.nav-invoices:hover {
   //   fill:$tertiary-font;
   // }
 }
+
+a.nav-reports:hover {
+  g#reports-primary {
+    fill:$primary-color;
+  }
+  // g#invoices-secondary {
+  //   fill:$tertiary-font;
+  // }
+}
+
 a.nav-support:hover {
   g#support-primary {
     fill:$primary-color;

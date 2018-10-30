@@ -34,6 +34,8 @@ namespace Payments.Core.Data
 
         public virtual DbSet<MoneyMovementJobRecord> MoneyMovementJobRecords { get; set; }
 
+        public virtual DbSet<TaxReportJobRecord> TaxReportJobRecords { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
@@ -50,6 +52,7 @@ namespace Payments.Core.Data
             Invoice.OnModelCreating(builder);
             LogMessage.OnModelCreating(builder);
             MoneyMovementJobRecord.OnModelCreating(builder);
+            TaxReportJobRecord.OnModelCreating(builder);
         }
     }
 }

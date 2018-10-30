@@ -1,0 +1,74 @@
+﻿@model Payments.Mvc.Models.ReportViewModels.TaxReportViewModel
+
+@{
+    ViewData["Title"] = "Tax Report";
+}
+
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+        </div>
+    </div>
+    <div class="card-content bot-border">
+        <form method="post">
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label asp-for="FiscalYear"></label>
+                    <input asp-for="FiscalYear" class="form-control" />
+                </div>
+                <div class="form-group col-12">
+                </div>
+            </div>
+            <div class="d-flex justify-content-end align-items-end">
+                <div class="d-flex justify-content-end align-items-center form-group">
+                    <button class="btn btn-primary" type="submit">Run Report <i class="fas fa-chart-line ml-3"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+    @if (Model.Invoices != null)
+    {
+        <div class="card-content">
+            @if (Model.Invoices.Any())
+            {
+                var taxTotal = Model.Invoices.Sum(i => i.TaxAmount);
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Invoice ID</th>
+                            <th>Total</th>
+                            <th>Tax %</th>
+                            <th>Tax $</th>
+                        </tr>
+                    </thead>
+                    @foreach (var invoice in Model.Invoices)
+                    {
+                    <tbody>
+                        <tr>
+                            <td>@invoice.Id</td>
+                            <td>@invoice.Total.ToString("C")</td>
+                            <td>@invoice.TaxPercent.ToString("P")</td>
+                            <td>@invoice.TaxAmount.ToString("C")</td>
+                        </tr>
+                    </tbody>
+                    }
+
+                    <tfoot>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td>Total</td>
+                        <td>@taxTotal.ToString("C")</td>
+                    </tr>
+                    </tfoot>
+                </table>
+            }
+            else
+            {
+                <span>No invoices found for fiscal year</span>
+            }
+        </div>
+    }
+</div>
+

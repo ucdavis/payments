@@ -67,6 +67,7 @@ namespace Payments.Mvc
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
             services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
+            services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -99,10 +100,12 @@ namespace Payments.Mvc
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(PolicyCodes.ApiKey, policy => policy.Requirements.Add(new VerifyApiKeyRequirement()));
+                options.AddPolicy(PolicyCodes.ServiceKey, policy => policy.Requirements.Add(new VerifyServiceKeyRequirement()));
                 options.AddPolicy(PolicyCodes.TeamAdmin, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
                 options.AddPolicy(PolicyCodes.TeamEditor, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin, TeamRole.Codes.Editor)));
             });
             services.AddScoped<IAuthorizationHandler, VerifyApiKeyRequirementHandler>();
+            services.AddScoped<IAuthorizationHandler, VerifyServiceKeyRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             // add application services
@@ -182,6 +185,7 @@ namespace Payments.Mvc
             services.AddHostedService<QueuedHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddScoped<MoneyMovementJob>();
+            services.AddScoped<TaxReportJob>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -219,9 +223,10 @@ namespace Payments.Mvc
 
             app.UseStaticFiles();
 
+            // various authentication middlewares
             app.UseAuthentication();
-
             app.UseMiddleware<ApiKeyMiddleware>();
+            app.UseMiddleware<ServiceKeyMiddleware>();
 
             app.UseSession();
 
@@ -258,7 +263,7 @@ namespace Payments.Mvc
                     name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|jobs|support|system|teams)" });
+                    constraints: new { controller = "(account|jobs|support|system|teams|reportservices)" });
 
                 routes.MapRoute(
                     name: "team-index",

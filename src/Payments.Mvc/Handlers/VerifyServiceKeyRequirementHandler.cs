@@ -7,12 +7,12 @@ using Payments.Mvc.Identity;
 
 namespace Payments.Mvc.Handlers
 {
-    public class VerifyApiKeyRequirementHandler : AuthorizationHandler<VerifyApiKeyRequirement>
+    public class VerifyServiceKeyRequirementHandler : AuthorizationHandler<VerifyServiceKeyRequirement>
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, VerifyApiKeyRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, VerifyServiceKeyRequirement requirement)
         {
             if (context.User.HasClaim(c => c.Type == ClaimTypes.AuthenticationMethod
-                                        && c.Value == ApiKeyMiddleware.AuthenticationMethodValue))
+                                        && c.Value == ServiceKeyMiddleware.AuthenticationMethodValue))
             {
                 context.Succeed(requirement);
             }

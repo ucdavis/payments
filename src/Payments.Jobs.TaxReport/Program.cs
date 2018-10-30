@@ -10,7 +10,7 @@ using Payments.Core.Services;
 using Payments.Jobs.Core;
 using Serilog;
 
-namespace Payments.Jobs.MoneyMovement
+namespace Payments.Jobs.TaxReport
 {
     public class Program : JobBase
     {
@@ -22,11 +22,11 @@ namespace Payments.Jobs.MoneyMovement
             Configure();
 
             // log run
-            var jobRecord = new MoneyMovementJobRecord()
+            var jobRecord = new TaxReportJobRecord()
             {
-                Id     = Guid.NewGuid().ToString(),
-                Name   = MoneyMovementJob.JobName,
-                RanOn  = DateTime.UtcNow,
+                Id = Guid.NewGuid().ToString(),
+                Name = TaxReportJob.JobName,
+                RanOn = DateTime.UtcNow,
                 Status = "Running",
             };
 
@@ -42,16 +42,16 @@ namespace Payments.Jobs.MoneyMovement
             var dbContext = provider.GetService<ApplicationDbContext>();
 
             // save log to db
-            dbContext.MoneyMovementJobRecords.Add(jobRecord);
+            dbContext.TaxReportJobRecords.Add(jobRecord);
             dbContext.SaveChanges();
 
             try
             {
                 // create job service
-                var moneyMovementJob = provider.GetService<MoneyMovementJob>();
+                var taxReportJob = provider.GetService<TaxReportJob>();
 
                 // call method
-                moneyMovementJob.FindBankReconcileTransactions(_log).GetAwaiter().GetResult();
+                taxReportJob.EmailMonthlyTaxReport(_log).GetAwaiter().GetResult();
             }
             finally
             {
@@ -66,8 +66,7 @@ namespace Payments.Jobs.MoneyMovement
             IServiceCollection services = new ServiceCollection();
 
             // options files
-            services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
-            services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
+            services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
 
             // db service
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -75,9 +74,9 @@ namespace Payments.Jobs.MoneyMovement
             );
 
             // required services
-            services.AddTransient<ISlothService, SlothService>();
+            services.AddTransient<IEmailService, SparkpostEmailService>();
 
-            services.AddSingleton<MoneyMovementJob>();
+            services.AddSingleton<TaxReportJob>();
 
             return services.BuildServiceProvider();
         }
