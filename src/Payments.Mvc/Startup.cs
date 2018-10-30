@@ -67,6 +67,7 @@ namespace Payments.Mvc
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
             services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
+            services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -99,10 +100,12 @@ namespace Payments.Mvc
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(PolicyCodes.ApiKey, policy => policy.Requirements.Add(new VerifyApiKeyRequirement()));
+                options.AddPolicy(PolicyCodes.ServiceKey, policy => policy.Requirements.Add(new VerifyServiceKeyRequirement()));
                 options.AddPolicy(PolicyCodes.TeamAdmin, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin)));
                 options.AddPolicy(PolicyCodes.TeamEditor, policy => policy.Requirements.Add(new VerifyTeamPermission(TeamRole.Codes.Admin, TeamRole.Codes.Editor)));
             });
             services.AddScoped<IAuthorizationHandler, VerifyApiKeyRequirementHandler>();
+            services.AddScoped<IAuthorizationHandler, VerifyServiceKeyRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             // add application services
@@ -219,9 +222,10 @@ namespace Payments.Mvc
 
             app.UseStaticFiles();
 
+            // various authentication middlewares
             app.UseAuthentication();
-
             app.UseMiddleware<ApiKeyMiddleware>();
+            app.UseMiddleware<ServiceKeyMiddleware>();
 
             app.UseSession();
 
