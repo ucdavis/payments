@@ -1,8 +1,11 @@
 ﻿@model IList<Invoice>
 
 @{
+    var export = (bool) (ViewBag.Export ?? false);
 
-    if ((bool) ViewBag.Export)
+
+
+    if (export)
     {
         Layout = "_ExcelExportLayout";
     }
@@ -14,7 +17,7 @@
 
 <html>
 <head>
-    @if ((bool)ViewBag.Export)
+    @if (export)
     {
         <style>
             table {
@@ -34,7 +37,7 @@
 <body>
     <table id="SalesLog" class="table">
         <thead classs="thead-light">
-            @if ((bool)ViewBag.Export)
+            @if (export)
             {
                 <tr>
                     <th>Credit Card Merchant Sales Log</th>

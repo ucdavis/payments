@@ -13,16 +13,13 @@ using Payments.Mvc.Models.Roles;
 
 namespace Payments.Mvc.Controllers
 {
-    [Authorize(Policy = PolicyCodes.TeamEditor)]
     public class ReportsController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly IJsReportMVCService _jsReportMvcService;
 
-        public ReportsController(ApplicationDbContext dbContext, IJsReportMVCService jsReportMvcService)
+        public ReportsController(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _jsReportMvcService = jsReportMvcService;
         }
 
         public IActionResult Index()
@@ -31,6 +28,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = PolicyCodes.TeamEditor)]
         public IActionResult TaxReport()
         {
             var lastFiscalYear = DateTime.UtcNow.FiscalYear() - 1;
@@ -44,6 +42,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = PolicyCodes.TeamEditor)]
         public IActionResult TaxReport(TaxReportViewModel model)
         {
             // get all invoices for team
@@ -67,37 +66,6 @@ namespace Payments.Mvc.Controllers
             model.Invoices = invoices;
 
             return View(model);
-        }
-
-        [HttpGet]
-        public async Task<ActionResult> SalesLog()
-        {
-            var invoices = await _dbContext.Invoices
-                .Include(i => i.Account)
-                .Include(i => i.Items)
-                .Include(i => i.Team)
-                .ToListAsync();
-
-            return View(invoices);
-        }
-
-        [HttpGet]
-        [MiddlewareFilter(typeof(JsReportPipeline))]
-        public async Task<ActionResult> SalesLogExport()
-        {
-            var invoices = await _dbContext.Invoices
-                .Include(i => i.Account)
-                .Include(i => i.Items)
-                .Include(i => i.Team)
-                .ToListAsync();
-
-            ViewBag.Export = true;
-
-            HttpContext.JsReportFeature()
-                .Recipe(Recipe.HtmlToXlsx)
-                .Configure(r => { });
-
-            return View("_SalesLogTable", invoices);
         }
     }
 }
