@@ -10,7 +10,7 @@ namespace Payments.Mvc.Identity
 {
     public class ApiKeyMiddleware
     {
-        public const string HeaderKey = "X-Auth-Token";
+        public const string HeaderKey = "Authorization";
         public const string AuthenticationMethodValue = "ApiKey";
 
         private readonly RequestDelegate _next;
