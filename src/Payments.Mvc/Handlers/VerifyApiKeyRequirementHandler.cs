@@ -11,7 +11,8 @@ namespace Payments.Mvc.Handlers
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, VerifyApiKeyRequirement requirement)
         {
-            if (context.User.HasClaim(c => c.Type == ClaimTypes.AuthenticationMethod && c.Value == ApiKeyMiddleware.AuthenticationMethodValue))
+            if (context.User.HasClaim(c => c.Type == ClaimTypes.AuthenticationMethod
+                                        && c.Value == ApiKeyMiddleware.AuthenticationMethodValue))
             {
                 context.Succeed(requirement);
             }
