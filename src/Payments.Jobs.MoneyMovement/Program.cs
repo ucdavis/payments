@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,7 +65,7 @@ namespace Payments.Jobs.MoneyMovement
         {
             IServiceCollection services = new ServiceCollection();
 
-            // options viles
+            // options files
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
 
