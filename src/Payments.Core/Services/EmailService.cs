@@ -12,6 +12,8 @@ namespace Payments.Core.Services
     public interface IEmailService
     {
         Task SendInvoice(Invoice invoice);
+
+        Task SendTaxReport(Recipient recipient, Attachment report);
     }
 
     public class SparkpostEmailService : IEmailService
@@ -42,6 +44,7 @@ namespace Payments.Core.Services
                 { "memo", invoice.Memo },
             };
 
+            // build email
             var transmission = new Transmission();
             transmission.Content.TemplateId = "invoice-send";
             transmission.Recipients = new List<Recipient>()
@@ -49,6 +52,24 @@ namespace Payments.Core.Services
                 new Recipient() { Address = new Address(invoice.CustomerEmail, invoice.CustomerName), SubstitutionData = data },
             };
 
+            // ship it
+            var result = await client.Transmissions.Send(transmission);
+            Log.ForContext("result", result).Information("Sent Email");
+        }
+
+        public async Task SendTaxReport(Recipient recipient, Attachment report)
+        {
+            var client = GetClient();
+
+            // build email
+            var transmission = new Transmission();
+            transmission.Content.Subject = "New Report Ready";
+            transmission.Content.From = new Address("donotreply@payments-mail.ucdavis.edu", "UC Davis Payments");
+            transmission.Content.Text = "New report ready";
+            transmission.Content.Attachments = new List<Attachment>(){ report };
+            transmission.Recipients = new List<Recipient>() { recipient };
+
+            // ship it
             var result = await client.Transmissions.Send(transmission);
             Log.ForContext("result", result).Information("Sent Email");
         }

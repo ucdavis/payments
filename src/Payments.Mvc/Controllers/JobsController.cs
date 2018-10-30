@@ -10,6 +10,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Jobs;
 using Payments.Mvc.Logging;
+using Payments.Mvc.Models.JobViewModels;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
 
@@ -32,6 +33,7 @@ namespace Payments.Mvc.Controllers
             return View();
         }
 
+        #region Money Movement
         public async Task<IActionResult> MoneyMovement()
         {
             return View();
@@ -130,5 +132,118 @@ namespace Payments.Mvc.Controllers
 
             return RedirectToAction(nameof(MoneyMovementDetails), new { id = jobRecord.Id });
         }
+        #endregion
+
+        #region TaxReport
+        public async Task<IActionResult> TaxReport(int year)
+        {
+            if (year <= 0)
+            {
+                year = DateTime.UtcNow.Year;
+            }
+
+            var model = new TaxReportViewModel()
+            {
+                Year = year,
+            };
+
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> TaxReportDetails(string id)
+        {
+            var record = await _dbContext.TaxReportJobRecords
+                .Include(r => r.Logs)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            return View(record);
+        }
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public async Task<IActionResult> TaxReportRecords(double from, double to, int utc_offset_from, int utc_offset_to)
+        {
+            // js offsets are in minutes
+            var startOffset = new TimeSpan(0, utc_offset_from, 0);
+            var endOffset = new TimeSpan(0, utc_offset_to, 0);
+
+            // js ticks are in milliseconds, remove offset to utc
+            var start = new DateTime(1970, 1, 1).AddMilliseconds(from) - startOffset;
+            var end = new DateTime(1970, 1, 1).AddMilliseconds(to) - endOffset;
+
+            // fetch records
+            var records = await _dbContext.TaxReportJobRecords
+                .Where(r => r.RanOn >= start && r.RanOn <= end)
+                .OrderBy(r => r.RanOn)
+                .ToListAsync();
+
+            // js epoch is 1/1/1970
+            var jsEpoch = new DateTime(1970, 1, 1).Ticks / 10_000;
+
+            // format for js, add offset to local, reset to js epoch
+            var events = records.Select(r => new
+            {
+                id = r.Id,
+                title = $"{r.Name} - {r.RanOn:MMM dd, h:mm tt}",
+                @class = "event-success",
+                url = Url.Action(nameof(TaxReportDetails), new { id = r.Id }),
+                start = (r.RanOn.Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch,
+                end = (r.RanOn.Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch + 1,
+            });
+
+
+            return new JsonResult(new
+            {
+                success = 1,
+                result = events,
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TaxReportRun()
+        {
+            // log run
+            var jobRecord = new TaxReportJobRecord()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = TaxReportJob.JobName,
+                RanOn = DateTime.UtcNow,
+                Status = "Running",
+            };
+            _dbContext.TaxReportJobRecords.Add(jobRecord);
+            await _dbContext.SaveChangesAsync();
+
+            // build task and add to queue
+            _queue.QueueBackgroundWorkItem(async (token, serviceProvider) =>
+            {
+                var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                var taxReportJob = serviceProvider.GetRequiredService<TaxReportJob>();
+
+                // find job record
+                var scopedRecord = await dbContext.TaxReportJobRecords.FindAsync(jobRecord.Id);
+
+                // build custom logger
+                var log = LoggingConfiguration.GetJobConfiguration()
+                    .CreateLogger()
+                    .ForContext("jobname", scopedRecord.Name)
+                    .ForContext("jobid", scopedRecord.Id);
+
+                try
+                {
+                    // call methods
+                    log.Information("Starting Job");
+                    await taxReportJob.EmailMonthlyTaxReport(log);
+                }
+                finally
+                {
+                    // record status
+                    scopedRecord.Status = "Finished";
+                    await dbContext.SaveChangesAsync(token);
+                }
+            });
+
+            return RedirectToAction(nameof(TaxReportDetails), new { id = jobRecord.Id });
+        }
+        #endregion
     }
 }

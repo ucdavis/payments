@@ -185,6 +185,7 @@ namespace Payments.Mvc
             services.AddHostedService<QueuedHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddScoped<MoneyMovementJob>();
+            services.AddScoped<TaxReportJob>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -262,7 +263,7 @@ namespace Payments.Mvc
                     name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|jobs|support|system|teams)" });
+                    constraints: new { controller = "(account|jobs|support|system|teams|reportservices)" });
 
                 routes.MapRoute(
                     name: "team-index",
