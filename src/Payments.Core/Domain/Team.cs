@@ -12,6 +12,7 @@ namespace Payments.Core.Domain
         public Team()
         {
             Accounts = new List<FinancialAccount>();
+            Coupons = new List<Coupon>();
             Permissions = new List<TeamPermission>();
             WebHooks = new List<WebHook>();
         }
@@ -50,7 +51,11 @@ namespace Payments.Core.Domain
         [Display(Name = "Active")]
         public bool IsActive { get; set; } = true;
 
+        [JsonIgnore]
         public IList<FinancialAccount> Accounts { get; set; }
+
+        [JsonIgnore]
+        public IList<Coupon> Coupons { get; set; }
 
         [JsonIgnore]
         public IList<TeamPermission> Permissions { get; set; }

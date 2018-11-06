@@ -18,6 +18,8 @@ namespace Payments.Core.Data
 
         public virtual DbSet<LineItem> LineItems { get; set; }
 
+        public virtual DbSet<Coupon> Coupons { get; set; }
+
         public virtual DbSet<PaymentEvent> PaymentEvents { get; set; }
 
         public virtual DbSet<InvoiceAttachment> InvoiceAttachments { get; set; }
@@ -49,6 +51,7 @@ namespace Payments.Core.Data
         {
             base.OnModelCreating(builder);
 
+            Coupon.OnModelCreating(builder);
             Invoice.OnModelCreating(builder);
             LogMessage.OnModelCreating(builder);
             MoneyMovementJobRecord.OnModelCreating(builder);

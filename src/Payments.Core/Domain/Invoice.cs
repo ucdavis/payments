@@ -49,6 +49,8 @@ namespace Payments.Core.Domain
 
         public string Status { get; set; }
 
+        public Coupon Coupon { get; set; }
+
         public FinancialAccount Account { get; set; }
 
         [JsonIgnore]
