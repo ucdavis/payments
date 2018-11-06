@@ -1,35 +1,55 @@
 import * as React from 'react';
-import CurrencyControl from './currencyControl';
+
+import { Coupon } from '../models/Coupon';
+import { InvoiceDiscount } from '../models/InvoiceDiscount';
+
+import CouponSelectControl from './couponSelectControl';
  
 interface IProps {
-    value: number;
-    onChange: (value: number) => void;
+    coupons: Coupon[];
+    discount: InvoiceDiscount;
+    onChange: (value: InvoiceDiscount) => void;
 }
 
 interface IState {
-    hasDiscount: boolean;
+    isModalOpen: boolean
 }
 
 export default class DiscountInput extends React.PureComponent<IProps, IState> {
-
-    private _inputRef: React.RefObject<HTMLInputElement>;
 
     constructor(props: IProps) {
         super(props);
 
         this.state = {
-            hasDiscount: !!props.value,
+            isModalOpen: false,
         };
-
-        this._inputRef = React.createRef<HTMLInputElement>();
     }
 
     public render() {
-        const { onChange, value } = this.props;
+        const { coupons, discount } = this.props;
+        const { isModalOpen } = this.state;
 
-        if (!this.state.hasDiscount) {
+        return (
+            <div>
+                { this.renderControl() }
+                <CouponSelectControl
+                    isModalOpen={isModalOpen}
+                    onClose={this.closeModal}
+                    onChange={this.onChange}
+                    coupons={coupons}
+                    value={discount}
+                />
+            </div>
+
+        )
+    }
+
+    private renderControl() {
+        const { discount } = this.props;
+
+        if (!discount.hasDiscount) {
             return (
-                <button className="btn btn-link" onClick={this.addDiscount}>
+                <button className="btn btn-link" onClick={this.openModal}>
                     <i className="fas fa-plus mr-2" /> Add coupon
                 </button>
             );
@@ -38,9 +58,11 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
         return (
             <div className="input-group">
                 <div className="input-group-prepend">
-                    <span className="input-group-text">$</span>
+                    <span className="input-group-text">
+                        <i className="fas fa-dollar-sign" />
+                    </span>
                 </div>
-                <CurrencyControl value={value} onChange={onChange} inputRef={this._inputRef} />
+                <input className="form-control text-right" value={discount.maunalAmount.toFixed(2)} readOnly={true} />
                 <div className="invalid-feedback">
                     Set a discount or remove.
                 </div>
@@ -48,11 +70,15 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
         );
     }
 
-    private addDiscount = () => {
-        this.setState({ hasDiscount: true });
+    private openModal = () => {
+        this.setState({ isModalOpen: true });
+    }
 
-        if (this._inputRef.current) {
-            this._inputRef.current.focus();
-        }
+    private closeModal = () => {
+        this.setState({ isModalOpen: false });
+    }
+
+    private onChange = (value: InvoiceDiscount) => {
+        this.props.onChange(value);
     }
 }

@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import { uuidv4 } from '../utils/string';
 
+import { Coupon } from '../models/Coupon';
+import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
 
 import CurrencyControl from './currencyControl';
@@ -9,11 +11,12 @@ import DiscountInput from './discountInput';
 import TaxInput from './taxInput';
 
 interface IProps {
+    coupons: Coupon[];
     items: InvoiceItem[];
-    discount: number;
+    discount: InvoiceDiscount;
     taxPercent: number;
     onItemsChange: (value: InvoiceItem[]) => void;
-    onDiscountChange: (value: number) => void;
+    onDiscountChange: (value: InvoiceDiscount) => void;
     onTaxPercentChange: (value: number) => void;
 }
 
@@ -63,12 +66,13 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     public render() {
-        const { discount, taxPercent } = this.props;
+        const { coupons, discount, taxPercent } = this.props;
         const { items } = this.state;
 
-        const subtotal = this.calculateSubTotal();
-        const tax = this.calculateTaxAmount();
-        const total = this.calculateTotal();
+        const discountCalc = this.calculateDiscount();
+        const subtotalCalc = this.calculateSubTotal();
+        const taxCalc = this.calculateTaxAmount();
+        const totalCalc = this.calculateTotal();
 
         return (
             <table className="table invoice-table">
@@ -93,16 +97,16 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         </td>
                         <td>Subtotal</td>
                         <td />
-                        <td>${ subtotal.toFixed(2) }</td>
+                        <td>${ subtotalCalc.toFixed(2) }</td>
                         <td />
                     </tr>
                     <tr>
                         <td />
                         <td>Discount</td>
-                        <td><DiscountInput value={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
+                        <td><DiscountInput coupons={coupons} discount={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
                         <td>{ 
-                                (discount !== 0) && 
-                                <span>-${ discount.toFixed(2) }</span>
+                                (discountCalc !== 0) && 
+                                <span>-${ discountCalc.toFixed(2) }</span>
                             }
                         </td>
                         <td />
@@ -113,7 +117,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
                         <td>{
                                 (taxPercent !== 0) &&
-                                <span>${ tax.toFixed(2) }</span>
+                                <span>${ taxCalc.toFixed(2) }</span>
                             }
                         </td>
                         <td />
@@ -124,7 +128,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td />
                         <td>Total</td>
                         <td />
-                        <td>${ total.toFixed(2) }</td>
+                        <td>${ totalCalc.toFixed(2) }</td>
                         <td />
                     </tr>
                 </tfoot>
@@ -258,7 +262,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.props.onItemsChange(itemArray);
     }
 
-    private onDiscountChange = (value: number) => {
+    private onDiscountChange = (value: InvoiceDiscount) => {
         this.props.onDiscountChange(value);
     }
 
@@ -278,14 +282,42 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         return sum;
     }
 
+    private calculateDiscount = () => {
+        const { coupons, discount } = this.props;
+
+        if (!discount.hasDiscount) {
+            return 0;
+        }
+
+        if (discount.couponId) {
+            // get selected coupon
+            const selectedCoupon = coupons.find(c => c.id === discount.couponId);
+            if (!selectedCoupon) {
+                return 0;
+            }
+
+            const { discountAmount, discountPercentage } = selectedCoupon;
+
+            if (discountAmount) {
+                return discountAmount;
+            }
+            
+            const sub = this.calculateSubTotal();
+            return sub * discountPercentage;
+        }
+
+        return discount.maunalAmount;
+    }
+
     private calculateTaxAmount = () => {
-        const { discount, taxPercent } = this.props;
+        const { taxPercent } = this.props;
+        const discount = this.calculateDiscount();
         const sub = this.calculateSubTotal();
         return (sub - discount) * taxPercent;
     }
 
     private calculateTotal = () => {
-        const { discount } = this.props;
+        const discount = this.calculateDiscount();
         const sub = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         return sub - discount + tax;
