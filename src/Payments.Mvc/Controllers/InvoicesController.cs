@@ -71,6 +71,12 @@ namespace Payments.Mvc.Controllers
                 .OrderByDescending(i => i.Id)
                 .ToList();
 
+            // update totals
+            foreach (var invoice in invoices)
+            {
+                invoice.UpdateCalculatedValues();
+            }
+
             var model = new InvoiceListViewModel()
             {
                 Invoices = invoices,
@@ -112,6 +118,9 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
+
+            // update totals
+            invoice.UpdateCalculatedValues();
 
             return View(invoice);
         }
