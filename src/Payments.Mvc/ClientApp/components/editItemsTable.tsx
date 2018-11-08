@@ -274,6 +274,12 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.props.onDiscountChange(value);
     }
 
+    private removeDiscount = () => {
+        this.props.onDiscountChange({
+            hasDiscount: false,
+        });
+    }
+
     private onTaxPercentChange = (value: string) => {
         const tax = Number(value);
         // pass up the actual rate
