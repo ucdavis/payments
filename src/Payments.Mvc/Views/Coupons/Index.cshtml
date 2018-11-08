@@ -1,0 +1,104 @@
+﻿@using Microsoft.AspNetCore.Http
+@model IEnumerable<Coupon>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewBag.Title = "Coupons";
+}
+
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+            <a class="btn btn-primary" data-toggle="modal" data-target="#createCouponModal"><i class="far fa-plus-square mr-3"></i> Create New Coupon</a>
+        </div>
+    </div>
+
+    <div class="card-content">
+        <table id="Coupons" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Coupon Code</th>
+                    <th>Percentage</th>
+                    <th>Amount</th>
+                    <th>Expires At</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var coupon in Model)
+                {
+                    <tr data-id="@coupon.Id">
+                        <td class="coupon-name-col">
+                            <a asp-action="Details" asp-route-id="@coupon.Id">
+                                <div>
+                                    @coupon.Name
+                                </div>
+                            </a>
+                        </td>
+                        <td class="text-center coupon-code-col">
+                            <a asp-action="Details" asp-route-id="@coupon.Id">
+                                <div class="text-mono">
+                                    @coupon.Code
+                                </div>
+                            </a>
+                        </td>
+                        <td class="text-right coupon-percentage-col">
+                            <a asp-action="Details" asp-route-id="@coupon.Id">
+                                @if (coupon.DiscountPercent.HasValue)
+                                {
+                                    <div>
+                                        @coupon.DiscountPercent.Value.ToString("P")
+                                    </div>
+                                }
+                            </a>
+                        </td>
+                        <td class="text-right coupon-amount-col">
+                            <a asp-action="Details" asp-route-id="@coupon.Id">
+                                @if (coupon.DiscountAmount.HasValue)
+                                {
+                                    <div>
+                                        @coupon.DiscountAmount.Value.ToString("C")
+                                    </div>
+                                }
+                            </a>
+                        </td>
+                        <td data-sort="@(coupon.ExpiresAt?.Ticks ?? 0)">
+                            <a asp-action="Details" asp-route-id="@coupon.Id">
+                                @if (coupon.ExpiresAt.HasValue)
+                                {
+                                    <div>
+                                        @coupon.ExpiresAt.Value.ToString("d")
+                                    </div>
+                                }
+                            </a>
+                        </td>
+                        <td class="invoices-edit-btn-col text-center">
+                            <a asp-action="Details" asp-route-id="@coupon.Id" class="btn">
+                                <div>View <i class="fas fa-external-link-alt ml-3"></i></div>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+    
+<partial name="_CreateCouponModal" model="null" />
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(function() {
+            // setup table
+            $("#Coupons").DataTable({
+                order: [[ 0, 'asc' ]],
+                columnDefs: [
+                    { orderable: false, targets: -1 },
+                ],
+            });
+        });
+    </script>
+}
