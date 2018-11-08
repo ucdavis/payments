@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { uuidv4 } from '../utils/string';
+import { isAfter } from 'date-fns';
 
 import { Coupon } from '../models/Coupon';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
@@ -22,7 +22,7 @@ interface IProps {
 
 interface IState {
     items: {
-        byId: string[];
+        byId: number[];
         byHash: {
             [key: number]: InvoiceItem;
         };
@@ -143,7 +143,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         );
     }
 
-    private renderItem(id: string, item: InvoiceItem) {
+    private renderItem(id: number, item: InvoiceItem) {
         const { description, quantity, amount } = item;
 
         return (
@@ -207,25 +207,26 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     private createNewItem = () => {
         const items = this.state.items;
 
-        const id = uuidv4();
+        const maxId = Math.max(...items.byId);
+        const newId = maxId + 1;
 
-        const newItems = {
+        const newItems: IState["items"] = {
             byHash: {
                 ...items.byHash,
-                [id]: {
+                [newId]: {
                     amount: 0,
                     description: '',
-                    id,
+                    id: newId,
                     quantity: 0,
                 },
             },
-            byId: [...items.byId, id],
+            byId: [...items.byId, newId],
         };
 
         this.onItemsChange(newItems);
     }
 
-    private removeItem = (id: string) => {
+    private removeItem = (id: number) => {
         const items = this.state.items;
         const newHash = {...items.byHash};
         delete newHash[id];
@@ -243,7 +244,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         }
     }
 
-    private updateItem = (id: string, item: InvoiceItem) => {
+    private updateItem = (id: number, item: InvoiceItem) => {
         const items = this.state.items;
         const newHash = {...items.byHash};
         newHash[id] = item;
@@ -256,15 +257,13 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.onItemsChange(newItems);
     }
 
-    private updateItemProperty = (id: string, name: string, value) => {
+    private updateItemProperty = (id: number, name: string, value) => {
         const item = this.state.items.byHash[id];
         item[name] = value;
         this.updateItem(id, item);
     }
 
     private onItemsChange = (newItems: IState["items"]) => {
-        // this.setState({ item: newItems });
-
         const itemArray = newItems.byId.map(i => newItems.byHash[i]);
         this.props.onItemsChange(itemArray);
     }
