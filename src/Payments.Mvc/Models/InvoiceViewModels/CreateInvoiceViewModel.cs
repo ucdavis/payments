@@ -14,6 +14,11 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public IList<CreateInvoiceCustomerViewModel> Customers { get; set; }
 
         /// <summary>
+        /// Coupon to be applied to order
+        /// </summary>
+        public int CouponId { get; set; }
+
+        /// <summary>
         /// Dollar amount discount to be applied to entire order
         /// </summary>
         [Range(0, int.MaxValue)]

@@ -12,6 +12,11 @@ namespace Payments.Mvc.Models.InvoiceViewModels
 
         public string Memo { get; set; }
 
+        /// <summary>
+        /// Coupon to be applied to order
+        /// </summary>
+        public int CouponId { get; set; }
+
         [Range(0, int.MaxValue)]
         public decimal Discount { get; set; }
 
