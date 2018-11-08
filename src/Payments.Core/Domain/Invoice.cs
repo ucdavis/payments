@@ -105,6 +105,13 @@ namespace Payments.Core.Domain
 
         public void UpdateCalculatedValues()
         {
+            // check for expired coupon on unpaid invoices
+            if (!Paid && Coupon?.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow)
+            {
+                // clear out discount
+                Discount = 0;
+            }
+
             Subtotal = Items.Sum(i => i.Total);
             TaxAmount = (Subtotal - Discount) * TaxPercent;
             Total = Subtotal - Discount + TaxAmount;
