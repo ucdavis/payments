@@ -31,6 +31,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public IList<InvoiceAttachment> Attachments { get; set; }
 
+        public Coupon Coupon { get; set; }
+
         public decimal Subtotal { get; set; }
 
         public decimal TaxAmount { get; set; }
@@ -47,6 +49,13 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public void UpdateCalculatedValues()
         {
+            // check for expired coupon
+            if (Coupon?.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow)
+            {
+                // clear out discount
+                Discount = 0;
+            }
+
             Subtotal = Items.Sum(i => i.Total);
             TaxAmount = (Subtotal - Discount) * TaxPercent;
             Total = Subtotal - Discount + TaxAmount;
