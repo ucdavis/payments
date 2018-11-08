@@ -37,9 +37,10 @@ nav {
     color:$secondary-font;
     font-size: 1.8rem;
     font-family: $sans-bold;
-  }
-  &:hover .nav-text {
-    color:$primary-font;
+
+    &:hover {
+      color:$primary-font;
+    }
   }
   
   .svgwrapper {

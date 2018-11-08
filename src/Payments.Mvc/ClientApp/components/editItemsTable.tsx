@@ -100,16 +100,23 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td>${ subtotalCalc.toFixed(2) }</td>
                         <td />
                     </tr>
-                    <tr>
+                    <tr className="align-text-top">
                         <td />
                         <td>Discount</td>
                         <td><DiscountInput coupons={coupons} discount={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
                         <td>{ 
-                                (discountCalc !== 0) && 
+                                (discount.hasDiscount) && 
                                 <span>-${ discountCalc.toFixed(2) }</span>
                             }
                         </td>
-                        <td />
+                        <td>
+                            {
+                                (discount.hasDiscount) && 
+                                <button className="btn-link btn-invoice-delete" onClick={this.removeDiscount}>
+                                    <i className="fas fa-times" />
+                                </button>
+                            }
+                        </td>
                     </tr>
                     <tr>
                         <td />

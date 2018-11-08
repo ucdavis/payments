@@ -100,13 +100,13 @@ export default class CouponSelectControl extends React.Component<IProps, IState>
         const discount = this.props.value;
         const { 
             id, name, code,
-            discountPercentage, discountAmount,
+            discountPercent, discountAmount,
             expiresAt,
         } = coupon;
 
         let isExpired = false;
         if (expiresAt) {
-            isExpired = isAfter(expiresAt, new Date());
+            isExpired = isAfter(new Date(), expiresAt);
         }
 
         return (
@@ -119,10 +119,10 @@ export default class CouponSelectControl extends React.Component<IProps, IState>
                     <div className="col-md-4 d-flex flex-column">
                         <dl className="row">
                             <dt className="col-sm-4">Percentage</dt>
-                            <dd className="col-sm-8">{discountPercentage}</dd>
-
+                            <dd className="col-sm-8">{discountPercent * 100}%</dd>
+                    
                             <dt className="col-sm-4">Amount</dt>
-                            <dd className="col-sm-8">{discountAmount}</dd>
+                            <dd className="col-sm-8">${discountAmount}</dd>
 
                             <dt className="col-sm-4">Expires On</dt>
                             <dd className="col-sm-8">{expiresAt}</dd>
