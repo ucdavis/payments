@@ -1,9 +1,12 @@
 import * as React from 'react';
 
+import { isAfter } from 'date-fns';
+
 import { Coupon } from '../models/Coupon';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 
 import CouponSelectControl from './couponSelectControl';
+import CurrencyControl from './currencyControl';
  
 interface IProps {
     coupons: Coupon[];
@@ -45,7 +48,7 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
     }
 
     private renderControl() {
-        const { discount } = this.props;
+        const { coupons, discount } = this.props;
 
         if (!discount.hasDiscount) {
             return (
@@ -54,20 +57,49 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
                 </button>
             );
         }
-        
+
+        // not using a coupon
+        if (!discount.couponId) {
+            return (
+                <div className="input-group">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">
+                            <i className="fas fa-dollar-sign" />
+                        </span>
+                    </div>
+                    <CurrencyControl
+                        value={discount.maunalAmount}
+                        onChange={this.onManualAmountChange}
+                    />
+                </div>
+            );
+        }
+
+        // find coupon
+        const coupon = coupons.find(c => c.id === discount.couponId);
+        if (!coupon) {
+            return null;
+        }
+
+        const expired = !!coupon.expiresAt && isAfter(new Date(), coupon.expiresAt)
+
         return (
-            <div className="input-group">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">
-                        <i className="fas fa-dollar-sign" />
-                    </span>
-                </div>
-                <input className="form-control text-right" value={discount.maunalAmount.toFixed(2)} readOnly={true} />
-                <div className="invalid-feedback">
-                    Set a discount or remove.
-                </div>
+            <div className="text-right">
+                <strong>{coupon.name}</strong><br />
+                {
+                    (expired) &&
+                    <span className="badge badge-info mr-3">Expired</span>
+                }
+                { 
+                    (!!coupon.discountAmount) &&
+                    <small>${coupon.discountAmount} off</small>
+                }
+                { 
+                    (!!coupon.discountPercent) && 
+                    <small>{coupon.discountPercent * 100}% off</small>
+                }
             </div>
-        );
+        )
     }
 
     private openModal = () => {
@@ -80,5 +112,12 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
 
     private onChange = (value: InvoiceDiscount) => {
         this.props.onChange(value);
+    }
+
+    private onManualAmountChange = (value: number) => {
+        this.onChange({
+            hasDiscount: true,
+            maunalAmount: value,
+        })
     }
 }
