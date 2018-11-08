@@ -270,6 +270,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     private onDiscountChange = (value: InvoiceDiscount) => {
+        // add calculation closure
+        value.getCalculatedDiscount = this.calculateDiscount;
         this.props.onDiscountChange(value);
     }
 
@@ -302,15 +304,19 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
             if (!selectedCoupon) {
                 return 0;
             }
+            
+            if (!!selectedCoupon.expiresAt && isAfter(new Date(), selectedCoupon.expiresAt)) {
+                return 0;
+            }
 
-            const { discountAmount, discountPercentage } = selectedCoupon;
+            const { discountAmount, discountPercent } = selectedCoupon;
 
             if (discountAmount) {
                 return discountAmount;
             }
             
             const sub = this.calculateSubTotal();
-            return sub * discountPercentage;
+            return sub * discountPercent;
         }
 
         return discount.maunalAmount;

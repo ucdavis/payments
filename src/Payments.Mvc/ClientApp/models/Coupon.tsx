@@ -4,7 +4,7 @@ export interface Coupon {
     code: string;
 
     discountAmount?: number;
-    discountPercentage?: number;
+    discountPercent?: number;
 
     expiresAt?: Date;
 }

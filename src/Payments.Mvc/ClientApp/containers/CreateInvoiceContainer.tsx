@@ -178,11 +178,13 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             customer = customers[0];
         }
 
+        const calculatedDiscount = !!discount.getCalculatedDiscount && discount.getCalculatedDiscount()
+
         const invoice: PreviewInvoice = {
             attachments,
             couponId: discount.couponId,
             customer,
-            discount: discount.maunalAmount,
+            discount: calculatedDiscount,
             dueDate: dueDate ? new Date(dueDate) : undefined,
             items,
             memo,
@@ -238,13 +240,15 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         const { slug } = this.props.team;
         const { accountId, attachments, discount, dueDate, customers, taxPercent, items, memo } = this.state;
 
+        const calculatedDiscount = !!discount.getCalculatedDiscount && discount.getCalculatedDiscount()
+
         // create submit object
         const invoice: CreateInvoice = {
             accountId,
             attachments,
             couponId: discount.couponId,
             customers,
-            discount: discount.maunalAmount,
+            discount: calculatedDiscount,
             dueDate: new Date(dueDate),
             items,
             memo,

@@ -175,11 +175,13 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const { team } = this.props;
         const { attachments, dueDate, customer, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
+        const calculatedDiscount = !!discount.getCalculatedDiscount && discount.getCalculatedDiscount()
+
         const invoice: PreviewInvoice = {
             attachments,
             couponId: discount.couponId,
             customer,
-            discount: discount.maunalAmount,
+            discount: calculatedDiscount,
             dueDate: dueDate ? new Date(dueDate) : undefined,
             items,
             memo,
@@ -235,13 +237,15 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const { slug } = this.props.team;
         const { accountId, attachments, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
+        const calculatedDiscount = !!discount.getCalculatedDiscount && discount.getCalculatedDiscount()
+
         // create submit object
         const invoice: EditInvoice = {
             accountId,
             attachments,
             couponId: discount.couponId,
             customer,
-            discount: discount.maunalAmount,
+            discount: calculatedDiscount,
             dueDate: new Date(dueDate),
             items,
             memo,
