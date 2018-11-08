@@ -17,6 +17,8 @@
 
         window.accounts = @(Json.Serialize(ViewBag.Accounts));
 
+        window.coupons = @(Json.Serialize(ViewBag.Coupons));
+
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
     </script>
