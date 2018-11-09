@@ -16,7 +16,7 @@
     <div class="card-header-yellow card-bot-border">
         <div class="card-head d-flex justify-content-between">
             <div class="d-flex align-items-center">
-                <h2 class="m0">@ViewBag.Title for $@Model.Total</h2>
+                <h2 class="m0">@ViewBag.Title for @Model.Total.ToString("C")</h2>
                 <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
             </div>
 
