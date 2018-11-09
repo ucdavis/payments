@@ -88,7 +88,4 @@
     <None Include="Compare\SqlSchemaCompare_localhost.scmp" />
     <None Include="Compare\SqlSchemaCompare_test.scmp" />
   </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="Payments.Sql.refactorlog" />
-  </ItemGroup>
 </Project>
