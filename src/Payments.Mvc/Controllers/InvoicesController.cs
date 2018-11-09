@@ -71,12 +71,6 @@ namespace Payments.Mvc.Controllers
                 .OrderByDescending(i => i.Id)
                 .ToList();
 
-            // update totals
-            foreach (var invoice in invoices)
-            {
-                invoice.UpdateCalculatedValues();
-            }
-
             var model = new InvoiceListViewModel()
             {
                 Invoices = invoices,
