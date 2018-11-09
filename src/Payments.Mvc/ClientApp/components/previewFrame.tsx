@@ -2,9 +2,10 @@ import * as React from 'react';
 
 import { Invoice } from '../models/Invoice';
 import { Team } from '../models/Team';
+import { PreviewInvoice } from 'ClientApp/models/PreviewInvoice';
 
 interface IProps {
-    invoice: Partial<Invoice>;
+    invoice: PreviewInvoice;
     team: Team;
 }
 
@@ -26,19 +27,10 @@ export default class PreviewFrame extends React.PureComponent<IProps, {}> {
 
     public render() {
         const { invoice, team } = this.props;
-        const { customer, memo, discount, dueDate, taxPercent, items } = invoice;
 
         const action = '/Payments/PreviewFromJson';
 
-        const value = JSON.stringify({
-            customerEmail: customer ? customer.email : '',
-            discount,
-            dueDate,
-            items,
-            memo,
-            taxPercent,
-            teamName: team.name,
-        });
+        const value = JSON.stringify(invoice);
 
         return (
             <div>

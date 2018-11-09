@@ -169,15 +169,17 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private renderSendModal() {
-        const { team } = this.props;
+        const { coupons, team } = this.props;
         const { attachments, dueDate, customer, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
-        const calculatedDiscount = !!discount.getCalculatedDiscount && discount.getCalculatedDiscount()
+        const calculatedDiscount = !!discount.getCalculatedDiscount ? discount.getCalculatedDiscount() : 0;
+
+        const coupon = coupons.find(c => c.id === discount.couponId);
 
         const invoice: PreviewInvoice = {
             attachments,
-            couponId: discount.couponId,
-            customer,
+            coupon,
+            customerEmail: customer.email,
             discount: calculatedDiscount,
             dueDate: dueDate ? new Date(dueDate) : undefined,
             items,
@@ -234,7 +236,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const { slug } = this.props.team;
         const { accountId, attachments, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
-        const calculatedDiscount = !!discount.getCalculatedDiscount && discount.getCalculatedDiscount()
+        const calculatedDiscount = !!discount.getCalculatedDiscount ? discount.getCalculatedDiscount() : 0;
 
         // create submit object
         const invoice: EditInvoice = {

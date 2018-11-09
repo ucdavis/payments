@@ -1,13 +1,13 @@
 import * as React from 'react';
 
-import { Invoice } from '../models/Invoice';
+import { PreviewInvoice } from '../models/PreviewInvoice';
 import { Team } from '../models/Team';
 
 import Modal from './modal';
 import PreviewFrame from './previewFrame';
 
 interface IProps {
-    invoice: Partial<Invoice>;
+    invoice: PreviewInvoice;
     team: Team;
     isModalOpen: boolean;
 
@@ -76,7 +76,7 @@ export default class SendModal extends React.Component<IProps, IState> {
     }
 
     private renderSendBody() {
-        const email = this.props.invoice.customer.email;
+        const email = this.props.invoice.customerEmail
 
         return (
             <div className="modal-body send-invoice-modal-body">
