@@ -84,13 +84,13 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         /// <summary>
         /// Number of invoice items
         /// </summary>
-        [Range(1, int.MaxValue)]
-        public int Quantity { get; set; }
+        [Range(0, 1_000_000)]
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// Price per item
         /// </summary>
-        [Range(0.01, int.MaxValue)]
+        [Range(0, 1_000_000)]
         public decimal Amount { get; set; }
     }
 

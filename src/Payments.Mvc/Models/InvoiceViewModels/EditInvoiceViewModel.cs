@@ -48,10 +48,10 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         [MaxLength(100)]
         public string Description { get; set; }
 
-        [Range(1, int.MaxValue)]
-        public int Quantity { get; set; }
+        [Range(0, 1_000_000)]
+        public decimal Quantity { get; set; }
 
-        [Range(0.01, int.MaxValue)]
+        [Range(0, 1_000_000)]
         public decimal Amount { get; set; }
     }
 
