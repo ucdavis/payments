@@ -70,6 +70,11 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 quantity: 0,
             });
         }
+        
+        // assign temp ids
+        items.forEach((item, index) => {
+            item.id = index + 1;
+        })
 
         this.state = {
             accountId: invoice.accountId,
