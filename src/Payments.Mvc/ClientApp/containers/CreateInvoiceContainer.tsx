@@ -5,10 +5,13 @@ import "isomorphic-fetch";
 import { uuidv4 } from "../utils/string";
 
 import { Account } from '../models/Account';
+import { Coupon } from '../models/Coupon';
 import { CreateInvoice } from '../models/CreateInvoice';
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
+import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
+import { PreviewInvoice } from '../models/PreviewInvoice';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
@@ -27,6 +30,7 @@ declare var antiForgeryToken: string;
 
 interface IProps {
     accounts: Account[];
+    coupons: Coupon[];
     team: Team;
 }
 
@@ -35,8 +39,8 @@ interface IState {
     accountId: number;
     attachments: InvoiceAttachment[],
     customers: InvoiceCustomer[];
+    discount: InvoiceDiscount;
     dueDate: string;
-    discount: number;
     taxPercent: number;
     memo: string;
     items: InvoiceItem[];
@@ -63,13 +67,15 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                 email: '',
                 name: ''
             }],
-            discount: 0,
+            discount: {
+                hasDiscount: false,
+            },
             dueDate: '',
             ids: undefined,
             items: [{
                 amount: 0,
                 description: '',
-                id: uuidv4(),
+                id: 1,
                 quantity: 0,
             }],
             memo: '',
@@ -83,8 +89,8 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
     }
 
     public render() {
-        const { accounts, team } = this.props;
-        const { accountId, attachments, dueDate, items, discount, taxPercent, customers, memo, loading, validate } = this.state;
+        const { accounts, coupons, team } = this.props;
+        const { accountId, attachments, discount, dueDate, items, taxPercent, customers, memo, loading, validate } = this.state;
         
         return (
             <InvoiceForm className="card-style" validate={validate} formRef={r => this._formRef = r}>
@@ -107,6 +113,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                     <h2>Invoice Items</h2>
                     <EditItemsTable
                         items={items}
+                        coupons={coupons}
                         discount={discount}
                         taxPercent={taxPercent}
                         onItemsChange={(v) => this.updateProperty('items', v)}
@@ -157,8 +164,8 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
     }
 
     private renderSendModal() {
-        const { team } = this.props;
-        const { dueDate, customers, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
+        const { coupons, team } = this.props;
+        const { attachments, dueDate, customers, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
         if (!isSendModalOpen) {
             return null;
@@ -171,9 +178,15 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             customer = customers[0];
         }
 
-        const invoice = {
-            customer,
-            discount,
+        const calculatedDiscount = !!discount.getCalculatedDiscount && discount.getCalculatedDiscount()
+
+        const coupon = coupons.find(c => c.id === discount.couponId);
+
+        const invoice: PreviewInvoice = {
+            attachments,
+            coupon,
+            customerEmail: customer.email,
+            discount: calculatedDiscount,
             dueDate: dueDate ? new Date(dueDate) : undefined,
             items,
             memo,
@@ -227,14 +240,17 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
 
         const { slug } = this.props.team;
-        const { accountId, attachments, dueDate, customers, discount, taxPercent, items, memo } = this.state;
+        const { accountId, attachments, discount, dueDate, customers, taxPercent, items, memo } = this.state;
+
+        const calculatedDiscount = !!discount.getCalculatedDiscount ? discount.getCalculatedDiscount() : 0;
 
         // create submit object
         const invoice: CreateInvoice = {
             accountId,
             attachments,
+            couponId: discount.couponId,
             customers,
-            discount,
+            discount: calculatedDiscount,
             dueDate: new Date(dueDate),
             items,
             memo,

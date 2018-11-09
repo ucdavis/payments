@@ -6,10 +6,13 @@ import "isomorphic-fetch";
 import { uuidv4 } from "../utils/string";
 
 import { Account } from '../models/Account';
+import { Coupon } from '../models/Coupon';
 import { EditInvoice } from '../models/EditInvoice';
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
+import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
+import { PreviewInvoice } from '../models/PreviewInvoice';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
@@ -27,6 +30,7 @@ declare var antiForgeryToken: string;
 
 interface IProps {
     accounts: Account[];
+    coupons: Coupon[];
     id: number;
     invoice: EditInvoice;
     sent: boolean;
@@ -37,7 +41,7 @@ interface IState {
     accountId: number;
     attachments: InvoiceAttachment[],
     customer: InvoiceCustomer;
-    discount: number;
+    discount: InvoiceDiscount;
     dueDate: string;
     taxPercent: number;
     memo: string;
@@ -56,25 +60,31 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         const { invoice } = this.props;
 
-        // assign random ids
-        const items = invoice.items || [];
-        items.forEach(i => i.id = uuidv4())
-
         // require at least one item
+        const items = invoice.items || [];
         if (!items || items.length < 1) {
             items.push({
                 amount: 0,
                 description: '',
-                id: uuidv4(),
+                id: 1,
                 quantity: 0,
             });
         }
+        
+        // assign temp ids
+        items.forEach((item, index) => {
+            item.id = index + 1;
+        })
 
         this.state = {
             accountId: invoice.accountId,
             attachments: invoice.attachments,
             customer: invoice.customer,
-            discount: invoice.discount || 0,
+            discount: {
+                couponId: invoice.couponId,
+                hasDiscount: !!(invoice.couponId || invoice.discount),
+                maunalAmount: invoice.discount,
+            },
             dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
             items,
             memo: invoice.memo,
@@ -88,8 +98,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     public render() {
-        const { id, sent, team, accounts } = this.props;
-        const { accountId, attachments, customer, dueDate, items, discount, taxPercent, memo, loading, validate } = this.state;
+        const { id, sent, team, accounts, coupons } = this.props;
+        const { accountId, attachments, customer, discount, dueDate, items, taxPercent, memo, loading, validate } = this.state;
         
 
         return (
@@ -111,6 +121,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                     <h3>Invoice Items</h3>
                     <EditItemsTable
                         items={items}
+                        coupons={coupons}
                         discount={discount}
                         taxPercent={taxPercent}
                         onItemsChange={(v) => this.updateProperty('items', v)}
@@ -163,12 +174,18 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private renderSendModal() {
-        const { team } = this.props;
-        const { dueDate, customer, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
+        const { coupons, team } = this.props;
+        const { attachments, dueDate, customer, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
-        const invoice = {
-            customer,
-            discount,
+        const calculatedDiscount = !!discount.getCalculatedDiscount ? discount.getCalculatedDiscount() : 0;
+
+        const coupon = coupons.find(c => c.id === discount.couponId);
+
+        const invoice: PreviewInvoice = {
+            attachments,
+            coupon,
+            customerEmail: customer.email,
+            discount: calculatedDiscount,
             dueDate: dueDate ? new Date(dueDate) : undefined,
             items,
             memo,
@@ -224,12 +241,15 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const { slug } = this.props.team;
         const { accountId, attachments, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
+        const calculatedDiscount = !!discount.getCalculatedDiscount ? discount.getCalculatedDiscount() : 0;
+
         // create submit object
         const invoice: EditInvoice = {
             accountId,
             attachments,
+            couponId: discount.couponId,
             customer,
-            discount,
+            discount: calculatedDiscount,
             dueDate: new Date(dueDate),
             items,
             memo,

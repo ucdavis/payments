@@ -1,11 +1,11 @@
+import { Coupon } from './Coupon';
 import { InvoiceAttachment } from './InvoiceAttachment';
 import { InvoiceCustomer } from './InvoiceCustomer';
 import { InvoiceItem } from './InvoiceItem';
 
-export interface EditInvoice {
-    accountId: number;
-    couponId: number;
-    customer: InvoiceCustomer;
+export interface PreviewInvoice {
+    coupon: Coupon;
+    customerEmail: string;
     memo: string;
     discount: number;
     dueDate?: Date;

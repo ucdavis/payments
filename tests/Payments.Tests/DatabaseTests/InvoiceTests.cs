@@ -21,6 +21,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("Coupon", "Payments.Core.Domain.Coupon", new List<string>()));
             expectedFields.Add(new NameAndType("CreatedAt", "System.DateTime", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Created On\")]",
             }));

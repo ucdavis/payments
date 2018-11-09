@@ -4,6 +4,7 @@ import { InvoiceItem } from './InvoiceItem';
 
 export interface Invoice {
     accountId: number;
+    couponId: number;
     customer: InvoiceCustomer;
     memo: string;
     discount: number;

@@ -82,6 +82,7 @@
     <Build Include="dbo\Tables\WebHooks.sql" />
     <Build Include="dbo\Tables\InvoiceAttachments.sql" />
     <Build Include="dbo\Tables\TaxReportJobRecords.sql" />
+    <Build Include="dbo\Tables\Coupons.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Compare\SqlSchemaCompare_localhost.scmp" />

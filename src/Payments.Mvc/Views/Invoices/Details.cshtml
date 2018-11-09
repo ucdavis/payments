@@ -16,7 +16,7 @@
     <div class="card-header-yellow card-bot-border">
         <div class="card-head d-flex justify-content-between">
             <div class="d-flex align-items-center">
-                <h2 class="m0">@ViewBag.Title for $@Model.Total</h2>
+                <h2 class="m0">@ViewBag.Title for @Model.Total.ToString("C")</h2>
                 <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
             </div>
 
@@ -152,19 +152,58 @@
                     <td></td>
                     <td>@Html.DisplayFor(x => x.Subtotal)</td>
                 </tr>
-                <tr>
-                    <td></td>
-                    <td>Discount</td>
-                    <td></td>
-                    <td>@Html.DisplayFor(x => x.Discount)</td>
-                </tr>
-                <tr>
-                    <td />
-                    <td>Tax</td>
-                    <td>@Html.DisplayFor(x => x.TaxPercent)</td>
-                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                </tr>
-            </tbody>
+                @if (Model.Discount > 0 || Model.Coupon != null)
+                {
+
+                    // paid invoices don't expire
+                    var isExpired = (!Model.Paid && Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow);
+
+                    <tr>
+                        <td></td>
+                        <td>
+                            @if (Model.Coupon != null)
+                            {
+                                <span>Coupon</span>
+                            }
+                            else
+                            {
+                                <span>Discount</span>
+                            }
+                        </td>
+                        <td>
+                            @if (Model.Coupon != null)
+                            {
+                                <span>@Model.Coupon.Name</span>
+                                <br/>
+                                if (Model.Coupon.DiscountAmount.HasValue)
+                                {
+                                    <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
+                                }
+                                if (Model.Coupon.DiscountPercent.HasValue)
+                                {
+                                    <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
+                                }
+                            }
+                        </td>
+                        <td>
+                            @if (isExpired)
+                            {
+                                <span>Expired</span>
+                            }
+                            else
+                            {
+                                <span>-$@Model.Discount.ToString("F2")</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                    <tr>
+                        <td />
+                        <td>Tax</td>
+                        <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                        <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                    </tr>
+                </tbody>
             <tfoot>
                 <tr>
                     <td />

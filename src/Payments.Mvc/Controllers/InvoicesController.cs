@@ -37,7 +37,6 @@ namespace Payments.Mvc.Controllers
         {
 
             var query = _dbContext.Invoices
-                .AsQueryable()
                 .Where(i => i.Team.Slug == TeamSlug);
 
             // fetch filter from session
@@ -102,6 +101,8 @@ namespace Payments.Mvc.Controllers
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Attachments)
+                .Include(i => i.Account)
+                .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.History)
                 .Where(i => i.Team.Slug == TeamSlug)
@@ -112,6 +113,9 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            // update totals
+            invoice.UpdateCalculatedValues();
+
             return View(invoice);
         }
 
@@ -120,6 +124,7 @@ namespace Payments.Mvc.Controllers
         {
             var team = await _dbContext.Teams
                 .Include(t => t.Accounts)
+                .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
             ViewBag.Team = new { team.Id, team.Name, team.Slug };
@@ -138,6 +143,18 @@ namespace Payments.Mvc.Controllers
                     a.Project,
                 });
 
+            ViewBag.Coupons = team.Coupons
+                .Where(c => c.ExpiresAt == null || c.ExpiresAt >= DateTime.UtcNow)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name,
+                    c.Code,
+                    c.DiscountAmount,
+                    c.DiscountPercent,
+                    c.ExpiresAt,
+                });
+
             return View();
         }
 
@@ -147,6 +164,7 @@ namespace Payments.Mvc.Controllers
             // look for invoice
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Account)
+                .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.Attachments)
                 .Where(i => i.Team.Slug == TeamSlug)
@@ -160,6 +178,7 @@ namespace Payments.Mvc.Controllers
             // fetch team data
             var team = await _dbContext.Teams
                 .Include(t => t.Accounts)
+                .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
             ViewBag.Team = new { team.Id, team.Name, team.Slug };
@@ -178,10 +197,26 @@ namespace Payments.Mvc.Controllers
                     a.Project,
                 });
 
+            // include all active coupons, and the currently selected coupon
+            ViewBag.Coupons = team.Coupons
+                .Where(c => c.ExpiresAt == null
+                        || c.ExpiresAt >= DateTime.UtcNow
+                        || c.Id == invoice.Coupon?.Id)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name,
+                    c.Code,
+                    c.DiscountAmount,
+                    c.DiscountPercent,
+                    c.ExpiresAt,
+                });
+
             // build model for view
             var model = new EditInvoiceViewModel()
             {
-                AccountId  = invoice.Account.Id,
+                AccountId  = invoice.Account?.Id ?? 0,
+                CouponId   = invoice.Coupon?.Id ?? 0,
                 Discount   = invoice.Discount,
                 DueDate    = invoice.DueDate,
                 TaxPercent = invoice.TaxPercent,
@@ -233,6 +268,14 @@ namespace Payments.Mvc.Controllers
                 ModelState.AddModelError("AccountId", "Account is inactive.");
             }
 
+            // find coupon
+            Coupon coupon = null;
+            if (model.CouponId > 0)
+            {
+                coupon = await _dbContext.Coupons
+                    .FirstOrDefaultAsync(c => c.Team.Slug == TeamSlug && c.Id == model.CouponId);
+            }
+
             // validate model
             if (!ModelState.IsValid)
             {
@@ -252,6 +295,7 @@ namespace Payments.Mvc.Controllers
                 var invoice = new Invoice
                 {
                     Account         = account,
+                    Coupon          = coupon,
                     Team            = team,
                     Discount        = model.Discount,
                     TaxPercent      = model.TaxPercent,
@@ -347,12 +391,22 @@ namespace Payments.Mvc.Controllers
                     modelState = ModelState
                 });
             }
+
+            // find coupon
+            Coupon coupon = null;
+            if (model.CouponId > 0)
+            {
+                coupon = await _dbContext.Coupons
+                    .FirstOrDefaultAsync(c => c.Team.Slug == TeamSlug && c.Id == model.CouponId);
+            }
+
             // TODO: Consider modifying items instead of replacing
             // remove old items
             _dbContext.LineItems.RemoveRange(invoice.Items);
 
             // update invoice
             invoice.Account         = account;
+            invoice.Coupon          = coupon;
             invoice.CustomerAddress = model.Customer.Address;
             invoice.CustomerEmail   = model.Customer.Email;
             invoice.CustomerName    = model.Customer.Name;

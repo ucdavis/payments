@@ -14,12 +14,6 @@
 @if (User.Identity.IsAuthenticated && user != null)
 {
     var teams = user.GetTeams().ToList();
-
-    var teamSelectList = teams
-        .Where(a => a.IsActive)
-        .Select(t => new SelectListItem() { Value = t.Id.ToString(), Text = t.Name, Selected = (t.Slug == teamSlug) })
-        .ToList();
-
     var currentTeam = teams.FirstOrDefault(t => t.Slug == teamSlug);
 
     <form asp-controller="Home" asp-action="SetActiveTeam" method="post" id="TeamSelectForm">
@@ -44,7 +38,7 @@
         </button>
 
         <div class="dropdown-menu">
-            @foreach (var t in user.GetTeams())
+            @foreach (var t in teams)
             {
                 <button class="team-select-control-item dropdown-item" type="button" data-id="@t.Id">@t.Name</button>
             }
@@ -80,6 +74,16 @@
                 <span class="nav-text">Invoices</span>
             </div>
         </a>
+
+        if (string.Equals("invoices", controller, StringComparison.OrdinalIgnoreCase)
+            || string.Equals("coupons", controller, StringComparison.OrdinalIgnoreCase))
+        {
+            <a class="" asp-controller="Coupons" asp-action="Index">
+                <div class="nav-item subnav">
+                    <span class="nav-text">Coupons</span>
+                </div>
+            </a>
+        }
 
         <a class="nav-reports" asp-controller="Reports" asp-action="Index" asp-route-team="@teamSlug">
             <div class="nav-item">

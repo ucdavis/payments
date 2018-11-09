@@ -46,6 +46,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Include(i => i.Attachments)
+                .Include(i => i.Coupon)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
 
             if (invoice == null)
@@ -120,6 +121,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Include(i => i.Attachments)
+                .Include(i => i.Coupon)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
@@ -137,15 +139,15 @@ namespace Payments.Mvc.Controllers
                 Memo             = invoice.Memo,
                 Items            = invoice.Items,
                 Attachments      = invoice.Attachments,
-                Subtotal         = invoice.Subtotal,
-                Total            = invoice.Total,
+                Coupon           = invoice.Coupon,
                 Discount         = invoice.Discount,
-                TaxAmount        = invoice.TaxAmount,
                 TaxPercent       = invoice.TaxPercent,
                 TeamName         = invoice.Team.Name,
                 TeamContactEmail = invoice.Team.ContactEmail,
                 TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
+
+            model.UpdateCalculatedValues();
 
             return View(model);
         }
@@ -156,7 +158,7 @@ namespace Payments.Mvc.Controllers
         {
             var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
 
-            // fill in totals
+            // fill in totals and update
             foreach (var i in model.Items)
             {
                 i.Total = i.Amount * i.Quantity;
@@ -193,6 +195,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Include(i => i.Attachments)
+                .Include(i => i.Coupon)
                 .SingleOrDefaultAsync(a => a.Id == response.Req_Reference_Number);
 
             if (invoice == null)
@@ -201,7 +204,6 @@ namespace Payments.Mvc.Controllers
                 ErrorMessage = "Invoice for payment not found. Please contact technical support.";
                 return PublicNotFound();
             }
-
 
             var responseValid = CheckResponse(response);
             if (!responseValid.IsValid)
@@ -443,10 +445,8 @@ namespace Payments.Mvc.Controllers
                 Memo             = invoice.Memo,
                 Items            = invoice.Items,
                 Attachments      = invoice.Attachments,
-                Subtotal         = invoice.Subtotal,
-                Total            = invoice.Total,
+                Coupon           = invoice.Coupon,
                 Discount         = invoice.Discount,
-                TaxAmount        = invoice.TaxAmount,
                 TaxPercent       = invoice.TaxPercent,
                 DueDate          = invoice.DueDate,
                 Paid             = invoice.Paid,
@@ -455,6 +455,9 @@ namespace Payments.Mvc.Controllers
                 TeamContactEmail = invoice.Team.ContactEmail,
                 TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
+
+            // update totals
+            model.UpdateCalculatedValues();
 
             return model;
         }

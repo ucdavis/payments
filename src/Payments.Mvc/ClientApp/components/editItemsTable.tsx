@@ -1,7 +1,9 @@
 import * as React from 'react';
 
-import { uuidv4 } from '../utils/string';
+import { isAfter } from 'date-fns';
 
+import { Coupon } from '../models/Coupon';
+import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
 
 import CurrencyControl from './currencyControl';
@@ -9,17 +11,18 @@ import DiscountInput from './discountInput';
 import TaxInput from './taxInput';
 
 interface IProps {
+    coupons: Coupon[];
     items: InvoiceItem[];
-    discount: number;
+    discount: InvoiceDiscount;
     taxPercent: number;
     onItemsChange: (value: InvoiceItem[]) => void;
-    onDiscountChange: (value: number) => void;
+    onDiscountChange: (value: InvoiceDiscount) => void;
     onTaxPercentChange: (value: number) => void;
 }
 
 interface IState {
     items: {
-        byId: string[];
+        byId: number[];
         byHash: {
             [key: number]: InvoiceItem;
         };
@@ -63,12 +66,13 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     public render() {
-        const { discount, taxPercent } = this.props;
+        const { coupons, discount, taxPercent } = this.props;
         const { items } = this.state;
 
-        const subtotal = this.calculateSubTotal();
-        const tax = this.calculateTaxAmount();
-        const total = this.calculateTotal();
+        const discountCalc = this.calculateDiscount();
+        const subtotalCalc = this.calculateSubTotal();
+        const taxCalc = this.calculateTaxAmount();
+        const totalCalc = this.calculateTotal();
 
         return (
             <table className="table invoice-table">
@@ -93,19 +97,26 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         </td>
                         <td>Subtotal</td>
                         <td />
-                        <td>${ subtotal.toFixed(2) }</td>
+                        <td>${ subtotalCalc.toFixed(2) }</td>
                         <td />
                     </tr>
-                    <tr>
+                    <tr className="align-text-top">
                         <td />
                         <td>Discount</td>
-                        <td><DiscountInput value={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
+                        <td><DiscountInput coupons={coupons} discount={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
                         <td>{ 
-                                (discount !== 0) && 
-                                <span>-${ discount.toFixed(2) }</span>
+                                (discount.hasDiscount) && 
+                                <span>-${ discountCalc.toFixed(2) }</span>
                             }
                         </td>
-                        <td />
+                        <td>
+                            {
+                                (discount.hasDiscount) && 
+                                <button className="btn-link btn-invoice-delete" onClick={this.removeDiscount}>
+                                    <i className="fas fa-times" />
+                                </button>
+                            }
+                        </td>
                     </tr>
                     <tr>
                         <td />
@@ -113,7 +124,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
                         <td>{
                                 (taxPercent !== 0) &&
-                                <span>${ tax.toFixed(2) }</span>
+                                <span>${ taxCalc.toFixed(2) }</span>
                             }
                         </td>
                         <td />
@@ -124,7 +135,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td />
                         <td>Total</td>
                         <td />
-                        <td>${ total.toFixed(2) }</td>
+                        <td>${ totalCalc.toFixed(2) }</td>
                         <td />
                     </tr>
                 </tfoot>
@@ -132,7 +143,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         );
     }
 
-    private renderItem(id: string, item: InvoiceItem) {
+    private renderItem(id: number, item: InvoiceItem) {
         const { description, quantity, amount } = item;
 
         return (
@@ -196,25 +207,26 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     private createNewItem = () => {
         const items = this.state.items;
 
-        const id = uuidv4();
+        const maxId = Math.max(...items.byId);
+        const newId = maxId + 1;
 
-        const newItems = {
+        const newItems: IState["items"] = {
             byHash: {
                 ...items.byHash,
-                [id]: {
+                [newId]: {
                     amount: 0,
                     description: '',
-                    id,
+                    id: newId,
                     quantity: 0,
                 },
             },
-            byId: [...items.byId, id],
+            byId: [...items.byId, newId],
         };
 
         this.onItemsChange(newItems);
     }
 
-    private removeItem = (id: string) => {
+    private removeItem = (id: number) => {
         const items = this.state.items;
         const newHash = {...items.byHash};
         delete newHash[id];
@@ -232,7 +244,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         }
     }
 
-    private updateItem = (id: string, item: InvoiceItem) => {
+    private updateItem = (id: number, item: InvoiceItem) => {
         const items = this.state.items;
         const newHash = {...items.byHash};
         newHash[id] = item;
@@ -245,21 +257,27 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         this.onItemsChange(newItems);
     }
 
-    private updateItemProperty = (id: string, name: string, value) => {
+    private updateItemProperty = (id: number, name: string, value) => {
         const item = this.state.items.byHash[id];
         item[name] = value;
         this.updateItem(id, item);
     }
 
     private onItemsChange = (newItems: IState["items"]) => {
-        // this.setState({ item: newItems });
-
         const itemArray = newItems.byId.map(i => newItems.byHash[i]);
         this.props.onItemsChange(itemArray);
     }
 
-    private onDiscountChange = (value: number) => {
+    private onDiscountChange = (value: InvoiceDiscount) => {
+        // add calculation closure
+        value.getCalculatedDiscount = this.calculateDiscount;
         this.props.onDiscountChange(value);
+    }
+
+    private removeDiscount = () => {
+        this.props.onDiscountChange({
+            hasDiscount: false,
+        });
     }
 
     private onTaxPercentChange = (value: string) => {
@@ -278,14 +296,46 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         return sum;
     }
 
+    private calculateDiscount = () => {
+        const { coupons, discount } = this.props;
+
+        if (!discount.hasDiscount) {
+            return 0;
+        }
+
+        if (discount.couponId) {
+            // get selected coupon
+            const selectedCoupon = coupons.find(c => c.id === discount.couponId);
+            if (!selectedCoupon) {
+                return 0;
+            }
+            
+            if (!!selectedCoupon.expiresAt && isAfter(new Date(), selectedCoupon.expiresAt)) {
+                return 0;
+            }
+
+            const { discountAmount, discountPercent } = selectedCoupon;
+
+            if (discountAmount) {
+                return discountAmount;
+            }
+            
+            const sub = this.calculateSubTotal();
+            return sub * discountPercent;
+        }
+
+        return discount.maunalAmount;
+    }
+
     private calculateTaxAmount = () => {
-        const { discount, taxPercent } = this.props;
+        const { taxPercent } = this.props;
+        const discount = this.calculateDiscount();
         const sub = this.calculateSubTotal();
         return (sub - discount) * taxPercent;
     }
 
     private calculateTotal = () => {
-        const { discount } = this.props;
+        const discount = this.calculateDiscount();
         const sub = this.calculateSubTotal();
         const tax = this.calculateTaxAmount();
         return sub - discount + tax;

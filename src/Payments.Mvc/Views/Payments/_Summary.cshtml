@@ -27,13 +27,46 @@
                 </tr>
             }
 
-            @if (Model.Discount > 0)
+            @if (Model.Discount > 0 || Model.Coupon != null)
             {
+                var isExpired = (Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow);
+
                 <tr>
                     <td></td>
-                    <td>Discount</td>
-                    <td></td>
-                    <td>-$@Model.Discount.ToString("F2")</td>
+                    <td>
+                        @if (Model.Coupon != null)
+                        {
+                            <span>Coupon</span>
+                        }
+                        else
+                        {
+                            <span>Discount</span>
+                        }
+                    </td>
+                    <td>
+                        @if (Model.Coupon != null)
+                        {
+                            <span>@Model.Coupon.Name</span><br />
+                            if (Model.Coupon.DiscountAmount.HasValue)
+                            {
+                                <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
+                            }
+                            if (Model.Coupon.DiscountPercent.HasValue)
+                            {
+                                <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @if (isExpired)
+                        {
+                            <span>Expired</span>
+                        }
+                        else
+                        {
+                            <span>-$@Model.Discount.ToString("F2")</span>
+                        }
+                    </td>
                 </tr>
             }
 
