@@ -14,7 +14,10 @@ namespace Payments.Tests.DatabaseTests
         {
             #region Arrange
             var expectedFields = new List<NameAndType>();
-            expectedFields.Add(new NameAndType("Accounts", "System.Collections.Generic.IList`1[Payments.Core.Domain.FinancialAccount]", new List<string>()));
+            expectedFields.Add(new NameAndType("Accounts", "System.Collections.Generic.IList`1[Payments.Core.Domain.FinancialAccount]", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("ApiKey", "System.String", new List<string>
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
@@ -35,6 +38,10 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Contact Phone Number\")]",
                 "[System.ComponentModel.DataAnnotations.PhoneAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)40)]",
+            }));
+            expectedFields.Add(new NameAndType("Coupons", "System.Collections.Generic.IList`1[Payments.Core.Domain.Coupon]", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
             expectedFields.Add(new NameAndType("DefaultAccount", "Payments.Core.Domain.FinancialAccount", new List<string>
             {
