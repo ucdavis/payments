@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
+@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
 <div class="pay-description">
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
     {
@@ -85,6 +85,23 @@
                 <td></td>
                 <td>$@Model.Total.ToString("F2")</td>
             </tr>
+
         </tbody>
     </table>
+    @if (!Model.Paid)
+    {
+        if (Model.Coupon != null)
+        {
+            <div class="w-100 d-flex flex-row-reverse">
+                <button class="btn-plain p-0 my-1" data-toggle="modal" data-target="#removeCouponModal">Clear your coupon?</button>
+            </div>
+        }
+        else if (Model.Discount == 0 && Model.Coupon == null)
+        {
+            // you can add coupons to unpaid, undiscounted invoices
+            <div class="w-100 d-flex flex-row-reverse">
+                <button class="btn-plain p-0 my-1" data-toggle="modal" data-target="#addCouponModal" role="button" aria-expanded="false" aria-controls="couponForm">Add Coupon Code?</button>
+            </div>
+        }
+    }
 </div>
