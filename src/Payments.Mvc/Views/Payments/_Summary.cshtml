@@ -1,4 +1,4 @@
-@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
+﻿@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
 <div class="pay-description">
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
     {
@@ -36,22 +36,22 @@
                     <td>
                         @if (Model.Coupon != null)
                         {
-                            <span>Coupon</span>
+                            <span>@Model.Coupon.Name</span>
                         }
                         else
                         {
-                            <span>Discount</span>
+                            <span>Discount Applied</span>
                         }
                     </td>
                     <td>
                         @if (Model.Coupon != null)
                         {
-                            <span>@Model.Coupon.Name</span><br />
+                            <small class="badge badge-secondary text-mono">@Model.Coupon.Code</small><br />
                             if (Model.Coupon.DiscountAmount.HasValue)
                             {
                                 <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
                             }
-                            if (Model.Coupon.DiscountPercent.HasValue)
+                            else if (Model.Coupon.DiscountPercent.HasValue)
                             {
                                 <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
                             }
@@ -69,7 +69,6 @@
                     </td>
                 </tr>
             }
-
             @if (Model.TaxAmount > 0)
             {
                 <tr>
