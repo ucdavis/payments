@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.CouponViewModels.CreateCouponViewModel
+@model Payments.Mvc.Models.CouponViewModels.CreateCouponViewModel
 
 <form method="POST" id="createCouponForm" asp-action="Create" novalidate>
     <div class="modal fade" id="createCouponModal" tabindex="-1" role="dialog" aria-labelledby="createCouponModalLabel" aria-hidden="true">
@@ -17,8 +17,9 @@
                         <div class="invalid-feedback">Name is required</div>
                     </div>
                     <div class="form-group">
-                        <label>Optional Code</label>
-                        <input class="form-control" type="text" asp-for="Code" />
+                        <label>Coupon Code</label>
+                        <input class="form-control" type="text" asp-for="Code" required />
+                        <div class="invalid-feedback">Code is required</div>
                     </div>
                     <div class="form-group">
                         <label>Discount</label>
@@ -103,5 +104,24 @@
 
         $('#DiscountAmount').blur(checkDiscountValidity);
         $('#DiscountPercent').blur(checkDiscountValidity);
+
+        // setup auto code
+        var dirtyCode = false;
+        $('#Name').keyup(function () {
+            if (dirtyCode) {
+                return;
+            }
+            var slug = $(this).val();
+            slug = slug.replace(/[\W_]/g, '-');
+            slug = slug.replace(/--*/g, '-');
+            slug = slug.trim('-');
+            slug = slug.toUpperCase();
+
+            $('#Code').val(slug);
+        });
+
+        $('#Code').change(function () {
+            dirtyCode = true;
+        });
     });
 </script>
