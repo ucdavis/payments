@@ -60,6 +60,8 @@ namespace Payments.Mvc.Controllers
                 return PublicNotFound();
             }
 
+            invoice.UpdateCalculatedValues();
+
             var model = CreateInvoicePaymentViewModel(invoice);
 
             if (invoice.Status == Invoice.StatusCodes.Sent)
@@ -255,6 +257,8 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            invoice.UpdateCalculatedValues();
+
             var model = new PreviewInvoiceViewModel()
             {
                 Id               = invoice.Id.ToString(),
@@ -267,13 +271,16 @@ namespace Payments.Mvc.Controllers
                 Attachments      = invoice.Attachments,
                 Coupon           = invoice.Coupon,
                 Discount         = invoice.Discount,
+                TaxAmount        = invoice.TaxAmount,
                 TaxPercent       = invoice.TaxPercent,
+                Subtotal         = invoice.Subtotal,
+                Total            = invoice.Total,
+                Paid             = invoice.Paid,
+                PaidDate         = invoice.PaidAt,
                 TeamName         = invoice.Team.Name,
                 TeamContactEmail = invoice.Team.ContactEmail,
                 TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
-
-            model.UpdateCalculatedValues();
 
             return View(model);
         }
@@ -283,13 +290,6 @@ namespace Payments.Mvc.Controllers
         public ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
         {
             var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
-
-            // fill in totals and update
-            foreach (var i in model.Items)
-            {
-                i.Total = i.Amount * i.Quantity;
-            }
-            model.UpdateCalculatedValues();
 
             return View("preview", model);
         }
@@ -560,7 +560,6 @@ namespace Payments.Mvc.Controllers
 
         private PaymentInvoiceViewModel CreateInvoicePaymentViewModel(Invoice invoice)
         {
-            // update team contact info
             var model = new PaymentInvoiceViewModel()
             {
                 Id               = invoice.Id.ToString(),
@@ -573,7 +572,10 @@ namespace Payments.Mvc.Controllers
                 Attachments      = invoice.Attachments,
                 Coupon           = invoice.Coupon,
                 Discount         = invoice.Discount,
+                TaxAmount        = invoice.TaxAmount,
                 TaxPercent       = invoice.TaxPercent,
+                Subtotal         = invoice.Subtotal,
+                Total            = invoice.Total,
                 DueDate          = invoice.DueDate,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,
@@ -581,9 +583,6 @@ namespace Payments.Mvc.Controllers
                 TeamContactEmail = invoice.Team.ContactEmail,
                 TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
-
-            // update totals
-            model.UpdateCalculatedValues();
 
             return model;
         }

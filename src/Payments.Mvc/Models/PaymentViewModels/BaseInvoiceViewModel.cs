@@ -47,18 +47,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public DateTime? DueDate { get; set; }
 
-        public void UpdateCalculatedValues()
-        {
-            // check for expired coupon
-            if (Coupon?.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow)
-            {
-                // clear out discount
-                Discount = 0;
-            }
+        public bool Paid { get; set; }
 
-            Subtotal = Items.Sum(i => i.Total);
-            TaxAmount = (Subtotal - Discount) * TaxPercent;
-            Total = Subtotal - Discount + TaxAmount;
-        }
+        public DateTime? PaidDate { get; set; }
     }
 }
