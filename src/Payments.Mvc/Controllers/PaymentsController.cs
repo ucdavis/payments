@@ -60,6 +60,8 @@ namespace Payments.Mvc.Controllers
                 return PublicNotFound();
             }
 
+            invoice.UpdateCalculatedValues();
+
             var model = CreateInvoicePaymentViewModel(invoice);
 
             if (invoice.Status == Invoice.StatusCodes.Sent)
@@ -80,6 +82,132 @@ namespace Payments.Mvc.Controllers
             }
 
             return View(model);
+        }
+
+        public async Task<ActionResult> AddCoupon(string id, string code)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .Include(i => i.Attachments)
+                .Include(i => i.Coupon)
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+
+            if (invoice == null)
+            {
+                return PublicNotFound();
+            }
+
+            // the customer isn't allowed access to draft or cancelled invoices
+            if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
+            {
+                return PublicNotFound();
+            }
+
+            // the customer isn't allowed to modify a paid invoice
+            if (invoice.Paid)
+            {
+                ErrorMessage = "The invoice has already been paid.";
+                return RedirectToAction("Pay", new {id});
+            }
+
+            // the customer isn't allowed to add another coupon
+            if (invoice.Coupon != null)
+            {
+                ErrorMessage = "The invoice already has a coupon. To add a different coupon, please remove the current one.";
+                return RedirectToAction("Pay", new { id });
+            }
+
+            // find the coupon on same team
+            var coupon = await _dbContext.Coupons
+                .Where(c => c.Team.Slug == invoice.Team.Slug)
+                .FirstOrDefaultAsync(c => string.Equals(c.Code, code, StringComparison.OrdinalIgnoreCase));
+
+            if (coupon == null)
+            {
+                ErrorMessage = "Coupon code not found.";
+                return RedirectToAction("Pay", new { id });
+            }
+
+            if (coupon.ExpiresAt.HasValue && coupon.ExpiresAt.Value < DateTime.UtcNow)
+            {
+                ErrorMessage = "Coupon code has expired.";
+                return RedirectToAction("Pay", new { id });
+            }
+
+            // add the coupon
+            invoice.Coupon = coupon;
+            Message = "Coupon added.";
+
+            // record event
+            var action = new History()
+            {
+                Type = HistoryActionTypes.CouponAddedByCustomer.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+            };
+            invoice.History.Add(action);
+
+            // update totals
+            invoice.UpdateCalculatedValues();
+            await _dbContext.SaveChangesAsync();
+
+            // return to pay page
+            return RedirectToAction("Pay", new { id });
+        }
+
+        public async Task<ActionResult> RemoveCoupon(string id)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .Include(i => i.Attachments)
+                .Include(i => i.Coupon)
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+
+            if (invoice == null)
+            {
+                return PublicNotFound();
+            }
+
+            // the customer isn't allowed access to draft or cancelled invoices
+            if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
+            {
+                return PublicNotFound();
+            }
+
+            // the customer isn't allowed to modify a paid invoice
+            if (invoice.Paid)
+            {
+                ErrorMessage = "The invoice has already been paid.";
+                return RedirectToAction("Pay", new { id });
+            }
+
+            // the customer isn't allowed to remove no coupon
+            if (invoice.Coupon == null)
+            {
+                ErrorMessage = "The invoice doesn't have a coupon.";
+                return RedirectToAction("Pay", new { id });
+            }
+
+            // remove the coupon
+            invoice.Coupon = null;
+            invoice.Discount = 0;
+            Message = "Coupon removed.";
+
+            // record event
+            var action = new History()
+            {
+                Type = HistoryActionTypes.CouponRemovedByCustomer.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+            };
+            invoice.History.Add(action);
+
+            // update totals
+            invoice.UpdateCalculatedValues();
+            await _dbContext.SaveChangesAsync();
+
+            // return to pay page
+            return RedirectToAction("Pay", new { id });
         }
 
         [HttpGet]
@@ -129,6 +257,8 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            invoice.UpdateCalculatedValues();
+
             var model = new PreviewInvoiceViewModel()
             {
                 Id               = invoice.Id.ToString(),
@@ -141,13 +271,16 @@ namespace Payments.Mvc.Controllers
                 Attachments      = invoice.Attachments,
                 Coupon           = invoice.Coupon,
                 Discount         = invoice.Discount,
+                TaxAmount        = invoice.TaxAmount,
                 TaxPercent       = invoice.TaxPercent,
+                Subtotal         = invoice.Subtotal,
+                Total            = invoice.Total,
+                Paid             = invoice.Paid,
+                PaidDate         = invoice.PaidAt,
                 TeamName         = invoice.Team.Name,
                 TeamContactEmail = invoice.Team.ContactEmail,
                 TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
-
-            model.UpdateCalculatedValues();
 
             return View(model);
         }
@@ -157,13 +290,6 @@ namespace Payments.Mvc.Controllers
         public ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
         {
             var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
-
-            // fill in totals and update
-            foreach (var i in model.Items)
-            {
-                i.Total = i.Amount * i.Quantity;
-            }
-            model.UpdateCalculatedValues();
 
             return View("preview", model);
         }
@@ -434,7 +560,6 @@ namespace Payments.Mvc.Controllers
 
         private PaymentInvoiceViewModel CreateInvoicePaymentViewModel(Invoice invoice)
         {
-            // update team contact info
             var model = new PaymentInvoiceViewModel()
             {
                 Id               = invoice.Id.ToString(),
@@ -447,7 +572,10 @@ namespace Payments.Mvc.Controllers
                 Attachments      = invoice.Attachments,
                 Coupon           = invoice.Coupon,
                 Discount         = invoice.Discount,
+                TaxAmount        = invoice.TaxAmount,
                 TaxPercent       = invoice.TaxPercent,
+                Subtotal         = invoice.Subtotal,
+                Total            = invoice.Total,
                 DueDate          = invoice.DueDate,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,
@@ -455,9 +583,6 @@ namespace Payments.Mvc.Controllers
                 TeamContactEmail = invoice.Team.ContactEmail,
                 TeamContactPhone = invoice.Team.ContactPhoneNumber,
             };
-
-            // update totals
-            model.UpdateCalculatedValues();
 
             return model;
         }

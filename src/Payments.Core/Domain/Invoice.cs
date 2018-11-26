@@ -105,14 +105,27 @@ namespace Payments.Core.Domain
 
         public void UpdateCalculatedValues()
         {
+            Subtotal = Items.Sum(i => i.Total);
+
             // check for expired coupon on unpaid invoices
             if (!Paid && Coupon?.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow)
             {
                 // clear out discount
                 Discount = 0;
             }
+            // check for valid coupon on unpaid invoices
+            else if (!Paid && Coupon != null)
+            {
+                if (Coupon.DiscountAmount.HasValue)
+                {
+                    Discount = Coupon.DiscountAmount ?? 0;
+                }
+                else if (Coupon.DiscountPercent.HasValue)
+                {
+                    Discount = Coupon.DiscountPercent * Subtotal ?? 0;
+                }
+            }
 
-            Subtotal = Items.Sum(i => i.Total);
             TaxAmount = (Subtotal - Discount) * TaxPercent;
             Total = Subtotal - Discount + TaxAmount;
         }

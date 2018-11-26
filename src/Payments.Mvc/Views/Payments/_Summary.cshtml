@@ -36,22 +36,22 @@
                     <td>
                         @if (Model.Coupon != null)
                         {
-                            <span>Coupon</span>
+                            <span>@Model.Coupon.Name</span>
                         }
                         else
                         {
-                            <span>Discount</span>
+                            <span>Discount Applied</span>
                         }
                     </td>
                     <td>
                         @if (Model.Coupon != null)
                         {
-                            <span>@Model.Coupon.Name</span><br />
+                            <small class="badge badge-secondary text-mono">@Model.Coupon.Code</small><br />
                             if (Model.Coupon.DiscountAmount.HasValue)
                             {
                                 <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
                             }
-                            if (Model.Coupon.DiscountPercent.HasValue)
+                            else if (Model.Coupon.DiscountPercent.HasValue)
                             {
                                 <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
                             }
@@ -69,7 +69,6 @@
                     </td>
                 </tr>
             }
-
             @if (Model.TaxAmount > 0)
             {
                 <tr>
@@ -85,6 +84,23 @@
                 <td></td>
                 <td>$@Model.Total.ToString("F2")</td>
             </tr>
+
         </tbody>
     </table>
+    @if (!Model.Paid)
+    {
+        if (Model.Coupon != null)
+        {
+            <div class="w-100 d-flex flex-row-reverse">
+                <button class="btn-plain p-0 my-1" data-toggle="modal" data-target="#removeCouponModal">Clear your coupon?</button>
+            </div>
+        }
+        else if (Model.Discount == 0 && Model.Coupon == null)
+        {
+            // you can add coupons to unpaid, undiscounted invoices
+            <div class="w-100 d-flex flex-row-reverse">
+                <button class="btn-plain p-0 my-1" data-toggle="modal" data-target="#addCouponModal" role="button" aria-expanded="false" aria-controls="couponForm">Add Coupon Code?</button>
+            </div>
+        }
+    }
 </div>
