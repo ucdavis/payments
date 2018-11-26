@@ -50,5 +50,21 @@ namespace Payments.Mvc.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var coupon = await _dbContext.Coupons
+                .Include(c => c.Invoices)
+                .Where(c => c.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (coupon == null)
+            {
+                return NotFound();
+            }
+
+            return View(coupon);
+        }
     }
 }

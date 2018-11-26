@@ -13,12 +13,13 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Coupon Name</label>
-                        <input class="form-control" type="text" asp-for="Name" required="required" />
+                        <input class="form-control" type="text" asp-for="Name" required />
                         <div class="invalid-feedback">Name is required</div>
                     </div>
                     <div class="form-group">
-                        <label>Optional Code</label>
-                        <input class="form-control" type="text" asp-for="Code" />
+                        <label>Coupon Code</label>
+                        <input class="form-control" type="text" asp-for="Code" required />
+                        <div class="invalid-feedback">Code is required</div>
                     </div>
                     <div class="form-group">
                         <label>Discount</label>
@@ -30,7 +31,7 @@
                                     </span>
                                 </div>
                                 <input class="form-control text-right" type="number" step="0.01" placeholder="0.00" asp-for="DiscountAmount" />
-                                <div class="invalid-feedback">Just one discount required</div>
+                                <div class="invalid-feedback">Just one discount type required</div>
                             </div>
                             <span class=""> - OR - </span>
                             <div class="input-group col-5">
@@ -45,7 +46,8 @@
                     </div>
                     <div class="form-group">
                         <label>Optional Expiration Date</label>
-                        <input class="form-control date" type="text" placeholder="MM/DD/YYYY" asp-for="ExpiresAt" />
+                        <input class="form-control date" type="text" placeholder="MM/DD/YYYY" asp-for="ExpiresAt"
+                               data-provide="datepicker" data-date-format="mm/dd/yyyy" data-date-start-date="+1d" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -103,5 +105,24 @@
 
         $('#DiscountAmount').blur(checkDiscountValidity);
         $('#DiscountPercent').blur(checkDiscountValidity);
+
+        // setup auto code
+        var dirtyCode = false;
+        $('#Name').keyup(function () {
+            if (dirtyCode) {
+                return;
+            }
+            var slug = $(this).val();
+            slug = slug.replace(/[\W_]/g, '-');
+            slug = slug.replace(/--*/g, '-');
+            slug = slug.trim('-');
+            slug = slug.toUpperCase();
+
+            $('#Code').val(slug);
+        });
+
+        $('#Code').change(function () {
+            dirtyCode = true;
+        });
     });
 </script>

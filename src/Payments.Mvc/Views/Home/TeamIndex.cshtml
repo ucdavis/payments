@@ -59,42 +59,42 @@
 }
 
 <div class="row justify-content-between">
-    <a asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug" class="col-sm-12 col-md-6 col-lg-5">
-        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+    <div class="col-sm-12 col-md-6 col-lg-5">
+        <a asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug" class="d-flex align-items-center card-dashboard-button card-style btn-card">
             <img src="/media/invoices.svg" alt="invoices icon">
             <div>
                 <h2 class="secondary-font">View my invoices</h2>
                 <p id="totalCountText" class="tertiary-font">0 total  |  0 Outstanding  |  0 Past due</p>
             </div>
-        </div>
-    </a>
-    <a asp-controller="Invoices" asp-action="Create" asp-route-team="@teamSlug" class="col-sm-12 col-md-6 col-lg-5">
-        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+        </a>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-5">
+        <a asp-controller="Invoices" asp-action="Create" asp-route-team="@teamSlug" class="d-flex align-items-center card-dashboard-button card-style btn-card">
             <img src="/media/newinvoice.svg" alt="new invoice icon">
             <div>
                 <h2 class="secondary-font">Create new invoice</h2>
                 <p id="newCountText" class="tertiary-font">You've created 0 invoices this week</p>
             </div>
-        </div>
-    </a>
-    <a asp-controller="Reports" asp-action="Index" asp-route-team="@teamSlug" class="col-sm-12 col-md-6 col-lg-5">
-        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+        </a>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-5">
+        <a asp-controller="Reports" asp-action="Index" asp-route-team="@teamSlug" class="d-flex align-items-center card-dashboard-button card-style btn-card">
             <img src="/media/statistics.svg" alt="statistics icon">
             <div>
                 <h2 class="secondary-font">Statistics</h2>
                 <p id="cashTotal" class="tertiary-font">$0.00 over the last 6 months</p>
             </div>
-        </div>
-    </a>
-    <a asp-controller="Support" asp-action="Index" class="col-sm-12 col-md-6 col-lg-5">
-        <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
+        </a>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-5">
+        <a asp-controller="Support" asp-action="Index" class="d-flex align-items-center card-dashboard-button card-style btn-card">
             <img src="/media/support.svg" alt="support icon">
             <div>
                 <h2 class="secondary-font">Get Support</h2>
                 <p class="tertiary-font">Questions, comments, concerns?</p>
             </div>
-        </div>
-    </a>
+        </a>
+    </div>
 </div>
 
 @section scripts

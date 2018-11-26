@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -24,6 +25,9 @@ namespace Payments.Core.Domain
         public Team Team { get; set; }
 
         public int TeamId { get; set; }
+
+        [JsonIgnore]
+        public IList<Invoice> Invoices { get; set; }
 
         protected internal static void OnModelCreating(ModelBuilder builder)
         {
