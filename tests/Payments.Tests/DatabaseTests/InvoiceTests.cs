@@ -64,6 +64,10 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DisplayNameAttribute(\"Paid On\")]",
             }));
+            expectedFields.Add(new NameAndType("PaymentEvents", "System.Collections.Generic.IList`1[Payments.Core.Domain.PaymentEvent]", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("PaymentProcessorId", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("PaymentType", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Sent", "System.Boolean", new List<string>()));
@@ -203,7 +207,8 @@ namespace Payments.Tests.DatabaseTests
 
             // Assert		
             result.ShouldBeOfType<Dictionary<string, string>>();
-            result.Count.ShouldBe(13 + (3 * invoice.Items.Count));
+            result.Count.ShouldBe(13 + (3 * invoice.Items.Count)); // 2 Items?
+            result.Count.ShouldBe(13 + (2 * invoice.Items.Count));
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
@@ -222,7 +227,7 @@ namespace Payments.Tests.DatabaseTests
             for (int i = 0; i < value; i++)
             {
                 result[$"item_{i}_name"].ShouldBe(invoice.Items[i].Description);
-                result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString());
+                result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString()); //This is gone/**/
                 result[$"item_{i}_unit_price"].ShouldBe(invoice.Items[i].Amount.ToString("F2"));
             }
         }

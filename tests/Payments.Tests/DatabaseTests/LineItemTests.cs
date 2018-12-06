@@ -16,7 +16,8 @@ namespace Payments.Tests.DatabaseTests
 
             expectedFields.Add(new NameAndType("Amount", "System.Decimal", new List<string>
             {
-                "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",                
             }));
             expectedFields.Add(new NameAndType("Description", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>
@@ -29,6 +30,7 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>
             {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
                 "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
             }));
 
