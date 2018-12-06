@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
@@ -10,6 +10,8 @@
     var scheme = HttpContextAccessor.HttpContext.Request.Scheme;
 
     var timeline = Model.History.OrderByDescending(h => h.ActionDateTime);
+
+    var successfulPayment = Model.PaymentEvents?.FirstOrDefault(p => p.ProcessorId == Model.PaymentProcessorId);
 }
 
 <div class="card-style">
@@ -291,19 +293,66 @@
 {
     <div class="card-style">
         <div class="card-header">
-            <h3>Payment</h3>
+            <h2>Payment</h2>
         </div>
-        <div class="card-content invoice-details">
+        <div class="card-content card-bot-border invoice-payment-details">
             <dl class="row">
-                <dt class="col-2 text-right">Amount</dt>
-                <dd class="col-10">
-                    $@Model.Total
+                <dt class="col-3 text-right">Amount</dt>
+                <dd class="col-9">
+                    @Model.Total.ToString("C")
+                </dd>
+
+                <dt class="col-3 text-right">Paid on</dt>
+                <dd class="col-9">
+                    @Model.PaidAt?.ToString("g")
                 </dd>
             </dl>
-            <dl class="row">
-                <dt class="col-2 text-right">Paid on</dt>
-                <dd class="col-10">
-                    @Model.PaidAt?.ToString("g")
+            @if (successfulPayment != null)
+            {
+                <dl class="row mt-3">
+                    <dt class="col-3 text-right">Billing Name</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingFirstName @successfulPayment.BillingLastName
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingEmail
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingPhone
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet1)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingStreet1
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet2)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingStreet2
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCity)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingCity
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingState)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingState
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCountry)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingCountry
+                    </dd>
+
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.BillingPhone
                 </dd>
             </dl>
         </div>
