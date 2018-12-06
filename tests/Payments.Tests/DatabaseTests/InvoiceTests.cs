@@ -207,7 +207,6 @@ namespace Payments.Tests.DatabaseTests
 
             // Assert		
             result.ShouldBeOfType<Dictionary<string, string>>();
-            result.Count.ShouldBe(13 + (3 * invoice.Items.Count)); // 2 Items?
             result.Count.ShouldBe(13 + (2 * invoice.Items.Count));
 
             result["transaction_type"].ShouldBe("sale");
@@ -227,8 +226,8 @@ namespace Payments.Tests.DatabaseTests
             for (int i = 0; i < value; i++)
             {
                 result[$"item_{i}_name"].ShouldBe(invoice.Items[i].Description);
-                result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString()); //This is gone/**/
-                result[$"item_{i}_unit_price"].ShouldBe(invoice.Items[i].Amount.ToString("F2"));
+                //result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString()); //This is gone
+                result[$"item_{i}_unit_price"].ShouldBe((invoice.Items[i].Amount * invoice.Items[i].Quantity).ToString("F2"));
             }
         }
 
