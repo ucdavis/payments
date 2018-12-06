@@ -112,7 +112,7 @@ export default class LoadingModal extends React.Component<IProps, IState> {
         this._mouseDownElement = e.target;
     }
 
-    private handleBackdropMouseUp = (e) => {
+    private handleBackdropMouseUp = (e: React.MouseEvent<HTMLElement>) => {
         if (e.target === this._mouseDownElement) {
           e.stopPropagation();
           if (!this.props.isOpen) {
@@ -120,8 +120,8 @@ export default class LoadingModal extends React.Component<IProps, IState> {
           }
     
           const container = this._dialog;
-    
-          if (e.target && !container.contains(e.target) && this.props.onBackdropClick) {
+
+          if (e.target instanceof HTMLElement && !container.contains(e.target) && this.props.onBackdropClick) {
             this.props.onBackdropClick();
           }
         }
