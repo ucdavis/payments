@@ -105,6 +105,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.History)
+                .Include(i => i.PaymentEvents)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
