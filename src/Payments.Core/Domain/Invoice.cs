@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -89,6 +89,9 @@ namespace Payments.Core.Domain
 
         [JsonIgnore]
         public IList<History> History { get; set; }
+
+        [JsonIgnore]
+        public IList<PaymentEvent> PaymentEvents { get; set; }
 
         // ----------------------
         // Calculated Values
