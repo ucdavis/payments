@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -180,8 +180,8 @@ namespace Payments.Core.Domain
             for (var i = 0; i < Items.Count; i++)
             {
                 dictionary.Add($"item_{i}_name", Items[i].Description);
-                dictionary.Add($"item_{i}_quantity", Items[i].Quantity.ToString());
-                dictionary.Add($"item_{i}_unit_price", Items[i].Amount.ToString("F2"));
+                //dictionary.Add($"item_{i}_quantity", Items[i].Quantity.ToString());
+                dictionary.Add($"item_{i}_unit_price", Items[i].Total.ToString("F2"));
             }
 
             return dictionary;
