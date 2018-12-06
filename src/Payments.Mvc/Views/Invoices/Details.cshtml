@@ -1,4 +1,4 @@
-@using Microsoft.AspNetCore.Http
+﻿@using Microsoft.AspNetCore.Http
 @using Payments.Core.Models.History
 @model Invoice
 @inject IHttpContextAccessor HttpContextAccessor
@@ -73,7 +73,7 @@
 
 <div class="card-style">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h3>Summary</h3>
+        <h2>Summary</h2>
 
         <div>
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
@@ -103,30 +103,74 @@
             }
         </div>
     </div>
-    <div class="card-content invoice-customer">
-        <h2>Customer Info</h2>
-        <dl class="row">
-            @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
-            {
-                <dt class="col-3">@Html.DisplayNameFor(x => x.CustomerName)</dt>
-                <dd class="col-9">@(Model.CustomerName)</dd>
-            }
+    <div class="card-content card-bot-border invoice-customer">
+        <div class="row mb-0">
+            <div class="col-md-6">
+                <dl class="row mb-0">
+                    <dt class="col-6">@Html.DisplayNameFor(x => x.CustomerName)</dt>
+                    <dd class="col-6">
+                        @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
+                        {
+                            <span>@Model.CustomerName</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None Specified</span>
 
-            @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))
-            {
-                <dt class="col-3">@Html.DisplayNameFor(x => x.CustomerEmail)</dt>
-                <dd class="col-9">@(Model.CustomerEmail)</dd>
-            }
+                        }
+                    </dd>
 
-            @if (!string.IsNullOrWhiteSpace(Model.CustomerAddress))
-            {
-                <dt class="col-3">@Html.DisplayNameFor(x => x.CustomerAddress)</dt>
-                <dd class="col-9">@(Model.CustomerAddress)</dd>
-            }
-        </dl>
+                    <dt class="col-6">@Html.DisplayNameFor(x => x.CustomerEmail)</dt>
+                    <dd class="col-6">
+                        @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))
+                        {
+                            <span>@Model.CustomerEmail</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None Specified</span>
+
+                        }
+                    </dd>
+
+                    <dt class="col-6">@Html.DisplayNameFor(x => x.CustomerAddress)</dt>
+                    <dd class="col-6">
+                        @if (!string.IsNullOrWhiteSpace(Model.CustomerAddress))
+                        {
+                            <span>@Model.CustomerAddress</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None Specified</span>
+
+                        }
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="row mb-0">
+                    <dt class="col-6">Invoice Number</dt>
+                    <dd class="col-6">
+                        <span>@Model.Id</span>
+                    </dd>
+
+                    <dt class="col-6">Due date</dt>
+                    <dd class="col-6">
+                        @if (Model.DueDate.HasValue)
+                        {
+                            <span>@Model.DueDate</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        
     </div>
-    <div class="card-content invoice-items">
-        <h2>Invoice Items</h2>
+    <div class="card-content invoice-items p-0">
         <table class="invoice-details-table">
             <thead>
                 <tr>
@@ -136,7 +180,7 @@
                     <th>Amount</th>
                 </tr>
             </thead> 
-            <tbody>
+            <tbody class="invoice-details-table-items">
             @for (var i = 0; i < Model.Items.Count; i++)
             {
                 <tr>
@@ -147,11 +191,11 @@
                 </tr>
             }
             </tbody>
-            <tbody>
+            <tbody class="invoice-details-table-subtotals">
                 <tr>
                     <td></td>
-                    <td>Subtotal</td>
                     <td></td>
+                    <td>Subtotal</td>
                     <td>@Html.DisplayFor(x => x.Subtotal)</td>
                 </tr>
                 @if (Model.Discount > 0 || Model.Coupon != null)
@@ -162,16 +206,7 @@
 
                     <tr>
                         <td></td>
-                        <td>
-                            @if (Model.Coupon != null)
-                            {
-                                <span>Coupon</span>
-                            }
-                            else
-                            {
-                                <span>Discount</span>
-                            }
-                        </td>
+                        <td></td>
                         <td>
                             @if (Model.Coupon != null)
                             {
@@ -185,6 +220,10 @@
                                 {
                                     <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
                                 }
+                            }
+                            else
+                            {
+                                <span>Discount</span>
                             }
                         </td>
                         <td>
@@ -200,17 +239,17 @@
                     </tr>
                 }
                     <tr>
-                        <td />
-                        <td>Tax</td>
-                        <td>@Html.DisplayFor(x => x.TaxPercent)</td>
+                        <td></td>
+                        <td></td>
+                        <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
                         <td>@Html.DisplayFor(x => x.TaxAmount)</td>
                     </tr>
                 </tbody>
             <tfoot>
                 <tr>
-                    <td />
+                    <td></td>
+                    <td></td>
                     <td>Total</td>
-                    <td />
                     <td>@Html.DisplayFor(x => x.Total)</td>
                 </tr>
             </tfoot>
@@ -231,7 +270,7 @@
 {
     <div class="card-style">
         <div class="card-header">
-            <h3>Attachments</h3>
+            <h2>Attachments</h2>
         </div>
         <div class="card-content invoice-attachments">
             @foreach (var a in Model.Attachments)
@@ -265,7 +304,7 @@
 
 <div class="card-style">
     <div class="card-header">
-        <h3>Details</h3>
+        <h2>Details</h2>
     </div>
     <div class="card-content invoice-details">
         <dl class="row">
@@ -353,8 +392,15 @@
                     <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingPhone
-                </dd>
-            </dl>
+                    </dd>
+                </dl>
+            }
+        </div>
+        @foreach (var payment in Model.PaymentEvents)
+        {
+        }
+        <div>
+
         </div>
     </div>
 }
@@ -461,7 +507,7 @@
                         Warning! You are about to edit an invoice that has already been sent!
                     </div>
                     <p>
-                        Continuing will prevent your customer from paying this invoice unil you send it again!
+                        Continuing will prevent your customer from paying this invoice until you send it again!
                     </p>
                 </div>
                 <div class="modal-footer">
