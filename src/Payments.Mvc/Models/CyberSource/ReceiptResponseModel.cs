@@ -66,6 +66,39 @@ namespace Payments.Mvc.Models.CyberSource
                 return DateTime.UtcNow;
             }
         }
+
+        /// <summary>
+        /// Card Type
+        /// </summary>
+        public string Req_Card_Type { get; set; }
+
+        /// <summary>
+        /// Masked Card Number
+        /// </summary>
+        public string Req_Card_Number { get; set; }
+
+        /// <summary>
+        /// Card Expiration Date
+        /// </summary>
+        public string Req_Card_Expiry_Date { get; set; }
+
+        public DateTime? CardExpiration
+        {
+            get
+            {
+                DateTime date;
+                if (DateTime.TryParseExact(Req_Card_Expiry_Date, "MM-yyyy", new DateTimeFormatInfo(), DateTimeStyles.None, out date))
+                {
+                    return date.ToUniversalTime();
+                }
+                else if (DateTime.TryParseExact(Req_Card_Expiry_Date, "MM-yy", new DateTimeFormatInfo(), DateTimeStyles.None, out date))
+                {
+                    return date.ToUniversalTime();
+                }
+                return null;
+            }
+        }
+
         /// <summary>
         /// Total amount for the order. Must be greater than or equal to zero.
         /// </summary>
@@ -120,6 +153,8 @@ namespace Payments.Mvc.Models.CyberSource
         /// Customer provided billing country
         /// </summary>
         public string Req_Bill_To_Address_Country { get; set; }
+
+        public string Req_Payment_Token_Comments { get; set; }
 
         /// <summary>
         /// The transaction identifier returned from the payment gateway.

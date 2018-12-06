@@ -17,6 +17,9 @@
     [BillingState]		NVARCHAR(2)     NULL, 
     [BillingCountry]	NVARCHAR(2)     NULL, 
     [BillingPostalCode] NVARCHAR(10)    NULL, 
+    [CardType]			NVARCHAR(3)		NULL, 
+    [CardNumber]		NVARCHAR(20)	NULL, 
+    [CardExpiry]		DATETIME2		NULL, 
     CONSTRAINT [PK_PaymentEvents] PRIMARY KEY CLUSTERED ([Id] ASC), 
     CONSTRAINT [FK_PaymentEvents_Invoices] FOREIGN KEY ([InvoiceId]) REFERENCES [Invoices]([Id])
 );

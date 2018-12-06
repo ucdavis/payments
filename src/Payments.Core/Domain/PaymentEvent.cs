@@ -63,6 +63,14 @@ namespace Payments.Core.Domain
         [DisplayName("Billing Postal Code")]
         public string BillingPostalCode { get; set; }
 
+        [MaxLength(3)]
+        public string CardType { get; set; }
+
+        [MaxLength(20)]
+        public string CardNumber { get; set; }
+
+        public DateTime? CardExpiry { get; set; }
+
         /// <summary>
         /// Json of what CyberSource returned including fields above
         /// </summary>
