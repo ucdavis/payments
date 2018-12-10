@@ -90,6 +90,9 @@ namespace Payments.Core.Domain
         [JsonIgnore]
         public IList<History> History { get; set; }
 
+        [JsonIgnore]
+        public IList<PaymentEvent> PaymentEvents { get; set; }
+
         // ----------------------
         // Calculated Values
         // ----------------------
@@ -180,8 +183,8 @@ namespace Payments.Core.Domain
             for (var i = 0; i < Items.Count; i++)
             {
                 dictionary.Add($"item_{i}_name", Items[i].Description);
-                dictionary.Add($"item_{i}_quantity", Items[i].Quantity.ToString());
-                dictionary.Add($"item_{i}_unit_price", Items[i].Amount.ToString("F2"));
+                //dictionary.Add($"item_{i}_quantity", Items[i].Quantity.ToString());
+                dictionary.Add($"item_{i}_unit_price", Items[i].Total.ToString("F2"));
             }
 
             return dictionary;

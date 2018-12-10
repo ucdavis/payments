@@ -68,6 +68,11 @@
   }
 }
 
+.pay-coupon {
+  .pay-coupon-form {
+  }
+}
+
 .pay-attachments {
 
   padding: $card-thick-padding;
@@ -113,9 +118,12 @@
 table.pay-table {
   border-collapse: collapse;
   margin-bottom:0px;
+
+
   th,td {
     padding:12px 0px;
   }
+
   thead {
     th {
       font-size: 1.8rem;
@@ -124,6 +132,7 @@ table.pay-table {
       color: $secondary-font;
       font-weight: inherit;
       border-bottom:1px solid $borders;
+
       &:nth-child(2),
       &:nth-child(3),
       &:nth-child(4) {
@@ -158,6 +167,7 @@ table.pay-table {
     }
   }
 }
+
 table.table {
   td {
     vertical-align: inherit;
@@ -254,98 +264,103 @@ table.invoice-table {
 
 // Invoice details table
 table.invoice-details-table {
-  border-collapse: collapse;
-  margin-bottom: 0px;
-  width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0px;
+    width: 100%;
 
-  td {
-    padding: 12px 0px;
-  }
-
-  thead {
-    th {
-      font-size: 1.8rem;
-      font-family: $sans-reg;
-      border-bottom: 1px solid $borders;
-      color: $secondary-font;
-      font-weight: inherit;
-      padding:0px;
-      padding-top:8px;
-
+    th, td {
+        padding: 1rem;
     }
 
-    th:nth-child(3) {
-      text-align: right;
-    }
-    th:nth-child(4) {
-      text-align: right;
-    }
-  }
-
-  tbody {
-    tr {
-      td {
-        vertical-align: top;
-        font-size: 1.6rem;
-        font-family: $sans-reg;
-        color: $secondary-font;
-        border: none;
-      }
-
-      td:first-child {
-        padding-right: 16px;
-      }
-      td:nth-child(2) {
-        width: 12%;
-        padding-right: 16px;
-      }
-      td:nth-child(3) {
-        width: 12%;
-        text-align: right;
-      }
-      td:nth-child(4) {
-        width: 12%;
-        text-align: right;
-      }
-    }
-  }
-
-  tbody:nth-child(3) {
-    tr:first-child {
-      td:nth-child(2),
-      td:nth-child(3),
-      td:nth-child(4), {
-        border-top: 1px solid $borders;
-      }
-    }
-  }
-
-  tfoot {
-    tr {
-      td {
-        font-size: 1.6rem;
-        font-family: $sans-bold;
-        color: $primary-font;
-        
-        &:nth-child(2),
-        &:nth-child(3),
-        &:nth-child(4), {
-          border-top: 1px solid $borders;
+    thead {
+        th {
+            font-size: 1.5rem;
+            font-family: $sans-reg;
+            text-transform: uppercase;
+            border-bottom: 1px solid $borders;
+            color: $secondary-font;
+            font-weight: 600;
         }
 
-        &:nth-child(3),
-        &:nth-child(4) {
-          text-align: right;
+        th:nth-child(3) {
+            text-align: right;
         }
-      }
+
+        th:nth-child(4) {
+            text-align: right;
+        }
     }
 
-    tr:last-child {
-      td {
+    tbody {
+        tr {
+            td {
+                vertical-align: top;
+                font-size: 1.6rem;
+                font-family: $sans-reg;
+                color: $secondary-font;
+                border: none;
+            }
 
-      }
+            td:first-child {
+                padding-right: 16px;
+                color: $primary-font;
+            }
+
+            td:nth-child(2) {
+                width: 12%;
+                padding-right: 16px;
+            }
+
+            td:nth-child(3) {
+                width: 12%;
+                text-align: right;
+            }
+
+            td:nth-child(4) {
+                width: 12%;
+                text-align: right;
+                color: $primary-font;
+            }
+        }
     }
-  }
+
+    tbody.invoice-details-table-items {
+        tr td {
+            border-bottom: 1px solid $borders;
+        }
+    }
+
+    tbody.invoice-details-table-subtotals {
+        tr {
+            td {
+                &:nth-child(3),
+                &:nth-child(4) {
+                    color: $primary-font;
+                }
+            }
+        }
+    }
+
+    tfoot {
+        tr {
+            td {
+                font-size: 1.6rem;
+                font-family: $sans-bold;
+                color: $primary-font;
+
+                &:nth-child(3),
+                &:nth-child(4) {
+                    border-top: 1px solid $borders;
+                    text-align: right;
+                }
+            }
+        }
+
+        tr:last-child {
+            td {
+            }
+        }
+    }
 }
 
 // datatables
@@ -474,6 +489,13 @@ table#Invoices {
   .modal-body + .modal-body {
     border-top: 1px solid $borders;
   }
+}
+
+.invoice-customer {
+    dt {
+        font-family: $sans-reg;
+        font-weight: normal;
+    }
 }
 
 .invoice-attachments {

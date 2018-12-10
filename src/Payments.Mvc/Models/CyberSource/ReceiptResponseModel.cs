@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+// ReSharper disable InconsistentNaming
 
 namespace Payments.Mvc.Models.CyberSource
 {
@@ -71,9 +72,54 @@ namespace Payments.Mvc.Models.CyberSource
         public string Req_Amount { get; set; }
 
         /// <summary>
-        /// Customer email address.
+        /// Customer provided first name
+        /// </summary>
+        public string Req_Bill_To_Forename { get; set; }
+
+        /// <summary>
+        /// Customer provided last name
+        /// </summary>
+        public string Req_Bill_To_Surname { get; set; }
+
+        /// <summary>
+        /// Customer provided email address
         /// </summary>
         public string Req_Bill_To_Email { get; set; }
+
+        /// <summary>
+        /// Customer provided phone number
+        /// </summary>
+        public string Req_Bill_To_Phone { get; set; }
+
+        /// <summary>
+        /// Customer provided billing street address, line 1
+        /// </summary>
+        public string Req_Bill_To_Address_Line1 { get; set; }
+
+        /// <summary>
+        /// Customer provided billing street address, line 2
+        /// </summary>
+        public string Req_Bill_To_Address_Line2 { get; set; }
+
+        /// <summary>
+        /// Customer provided billing city
+        /// </summary>
+        public string Req_Bill_To_Address_City { get; set; }
+
+        /// <summary>
+        /// Customer provided billing state
+        /// </summary>
+        public string Req_Bill_To_Address_State { get; set; }
+
+        /// <summary>
+        /// Customer provided billing postal code
+        /// </summary>
+        public string Req_Bill_To_Address_Postal_Code { get; set; }
+
+        /// <summary>
+        /// Customer provided billing country
+        /// </summary>
+        public string Req_Bill_To_Address_Country { get; set; }
 
         /// <summary>
         /// The transaction identifier returned from the payment gateway.

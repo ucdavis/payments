@@ -71,3 +71,12 @@ input[type=number]::-webkit-outer-spin-button {
 .progress-bar {
   background-color: $primary-color;
 }
+
+.alert button.close {
+    float: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 1rem;
+    padding: 0.25rem;
+}

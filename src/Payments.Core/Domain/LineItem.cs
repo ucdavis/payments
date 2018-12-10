@@ -14,9 +14,11 @@ namespace Payments.Core.Domain
         public decimal Quantity { get; set; }
 
         [Range(0, 1_000_000)]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Amount { get; set; }
 
         [Range(0, 1_000_000)]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Total { get; set; }
     }
 }

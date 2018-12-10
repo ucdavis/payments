@@ -456,11 +456,21 @@ namespace Payments.Mvc.Controllers
             // create and record event
             var paymentEvent = new PaymentEvent
             {
-                Processor       = "CyberSource",
-                ProcessorId     = response.Transaction_Id,
-                Decision        = response.Decision,
-                OccuredAt       = response.AuthorizationDateTime,
-                ReturnedResults = JsonConvert.SerializeObject(dictionary),
+                Processor         = "CyberSource",
+                ProcessorId       = response.Transaction_Id,
+                Decision          = response.Decision,
+                OccuredAt         = response.AuthorizationDateTime,
+                BillingFirstName  = response.Req_Bill_To_Forename,
+                BillingLastName   = response.Req_Bill_To_Surname,
+                BillingEmail      = response.Req_Bill_To_Email,
+                BillingPhone      = response.Req_Bill_To_Phone,
+                BillingStreet1    = response.Req_Bill_To_Address_Line1,
+                BillingStreet2    = response.Req_Bill_To_Address_Line2,
+                BillingCity       = response.Req_Bill_To_Address_City,
+                BillingState      = response.Req_Bill_To_Address_State,
+                BillingCountry    = response.Req_Bill_To_Address_Country,
+                BillingPostalCode = response.Req_Bill_To_Address_Postal_Code,
+                ReturnedResults   = JsonConvert.SerializeObject(dictionary),
             };
 
             if (decimal.TryParse(response.Auth_Amount, out decimal amount))

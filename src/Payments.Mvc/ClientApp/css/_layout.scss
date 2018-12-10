@@ -117,10 +117,25 @@ body {
   margin-bottom: 2.2rem;
 }
 
+.card-header {
+    h2 {
+        font-size: 2.1rem;
+        margin-bottom: 0;
+    }
+}
+
 .card-content {
-  padding:$card-padding;
-  padding-top:2.6rem;
-  padding-bottom:2.6rem;
+    padding: $card-padding;
+    padding-top: 2.6rem;
+    padding-bottom: 2.6rem;
+
+    h3.sub-header {
+        text-transform: uppercase;
+        font-family: $sans-reg;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.7rem;
+    }
 }
 .card-head {
   padding:$card-padding;
