@@ -25,8 +25,8 @@ before_build:
 - ps: |
     appveyor-retry choco install octopustools
     appveyor-retry dotnet restore .\src\Payments.Mvc\
-    appveyor-retry dotnet restore .\src\Sloth.Jobs.MoneyMovement\
-    appveyor-retry dotnet restore .\src\Sloth.Jobs.TaxReport\
+    appveyor-retry dotnet restore .\src\Payments.Jobs.MoneyMovement\
+    appveyor-retry dotnet restore .\src\Payments.Jobs.TaxReport\
 
 build_script:
 - ps: |
