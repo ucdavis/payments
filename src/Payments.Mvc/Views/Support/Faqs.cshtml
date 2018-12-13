@@ -1,7 +1,42 @@
 ﻿
 @{
-    ViewData["Title"] = "Faqs";
+    ViewData["Title"] = "FAQs";
 }
 
-<h2>Faqs</h2>
+<div class="card-style">
+    <div class="card-header-primary card-bot-border">
+        <div class="card-head d-flex justify-content-between align-items-start">
+            <h2>@ViewBag.Title</h2>
+            <a asp-action="Index">Back</a>
+        </div>
+    </div>
+    <div class="card-content">
 
+        <h3 id="roles">Roles</h3>
+
+        <h4>Team Admin</h4>
+
+        <p>Team Admins can modify team settings, including:</p>
+
+        <ul>
+            <li>Modifying team name and contact information.</li>
+            <li>Adding/Revoking roles for other users.</li>
+            <li>Adding/Editing income accounts.</li>
+            <li>Adding/Editing web hooks.</li>
+        </ul>
+
+        <p>Team Admins can also perform all the other permissions as listed in other roles.</p>
+
+        <h4>Financial Officer</h4>
+        
+        <p>Financial Officers are allowed to add/edit income accounts and close unpaid invoices (write off).</p>
+
+        <h4>Editor</h4>
+        
+        <p>Editors are allowed to create/edit/send invoices.</p>
+
+        <h4>Report User</h4>
+        
+        <p>Report Users are only allowed to view reports about their team's invoices.</p>
+    </div>
+</div>

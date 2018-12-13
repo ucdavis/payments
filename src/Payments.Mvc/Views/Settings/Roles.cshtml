@@ -1,4 +1,5 @@
-﻿@using Payments.Mvc.Models.TeamViewModels
+﻿@using Humanizer
+@using Payments.Mvc.Models.TeamViewModels
 @model TeamDetailsModel
 
 @{
@@ -22,6 +23,9 @@
             <tr>
                 <th>
                     @Html.DisplayNameFor(model => model.Permissions[0].Role)
+                    <a asp-action="Faqs" asp-controller="Support" asp-fragment="roles" target="_blank">
+                        <i class="fas fa-question-circle"></i>
+                    </a>
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Permissions[0].User.CampusKerberos)
@@ -40,19 +44,19 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Role.Name)
+                        @item.Role.Name.Humanize(LetterCasing.Title)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.User.CampusKerberos)
+                        @item.User.CampusKerberos
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.User.UserName)
+                        @item.User.UserName
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.User.Name)
+                        @item.User.Name
                     </td>
-                    <td>
-                        <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-team="@Model.Slug">Delete</a>
+                    <td class="text-center">
+                        <a asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-team="@Model.Slug">Revoke</a>
                     </td>
                 </tr>
             }
