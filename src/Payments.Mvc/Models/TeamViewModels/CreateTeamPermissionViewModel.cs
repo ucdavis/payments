@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Payments.Core.Domain;
@@ -10,7 +11,7 @@ namespace Payments.Mvc.Models.TeamViewModels
         [DisplayName("Team")]
         public string TeamName { get; set; }
 
-        public SelectList Roles { get; set; }
+        public IEnumerable<SelectListItem> Roles { get; set; }
 
         [Display(Name = "Email or Kerberos")]
         [Required]

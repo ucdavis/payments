@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -180,10 +181,14 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            var roles = await _context.TeamRoles.ToListAsync();
+
             var model = new CreateTeamPermissionViewModel
             {
                 TeamName = team.Name,
-                Roles = new SelectList(_context.TeamRoles, "Id", "Name")
+                Roles = roles
+                            .Select(r => new SelectListItem(r.Name.Humanize(LetterCasing.Title), r.Id.ToString()))
+                            .ToList()
             };
 
             return View(model);
