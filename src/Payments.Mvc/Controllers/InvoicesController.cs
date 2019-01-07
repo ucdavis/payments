@@ -554,6 +554,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> MarkPaid(int id)
         {
             // find item

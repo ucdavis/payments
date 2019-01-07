@@ -49,7 +49,7 @@ namespace Payments.Core.Jobs
                     var transaction = await _slothService.GetTransactionsByProcessorId(invoice.PaymentProcessorId);
                     if (transaction == null)
                     {
-                        log.Warning("No reconcilation found for invoice id: {id}", invoice.Id);
+                        log.Warning("No reconciliation found for invoice id: {id}", invoice.Id);
                         continue;
                     };
 
@@ -78,6 +78,7 @@ namespace Payments.Core.Jobs
                         Chart         = _financeSettings.ClearingChart,
                         Account       = _financeSettings.ClearingAccount,
                         ObjectCode    = ObjectCodes.Income,
+                        Description   = "Funds Distribution"
                     };
 
                     var feeCredit = new CreateTransfer()
@@ -87,6 +88,7 @@ namespace Payments.Core.Jobs
                         Chart         = _financeSettings.FeeChart,
                         Account       = _financeSettings.FeeAccount,
                         ObjectCode    = ObjectCodes.Income,
+                        Description   = "Processing Fee"
                     };
 
                     var incomeCredit = new CreateTransfer()
@@ -97,6 +99,7 @@ namespace Payments.Core.Jobs
                         Account       = team.DefaultAccount.Account,
                         SubAccount    = team.DefaultAccount.SubAccount,
                         ObjectCode    = ObjectCodes.Income,
+                        Description   = "Funds Distribution"
                     };
 
                     var response = await _slothService.CreateTransaction(new CreateTransaction()
@@ -110,6 +113,8 @@ namespace Payments.Core.Jobs
                             feeCredit,
                             incomeCredit,
                         },
+                        Source = "Payments Cybersource",
+                        SourceType = "CyberSource",
                     });
 
                     log.Information("Transaction created with ID: {id}", response.Id);
