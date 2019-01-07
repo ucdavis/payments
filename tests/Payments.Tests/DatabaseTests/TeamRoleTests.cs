@@ -36,10 +36,12 @@ namespace Payments.Tests.DatabaseTests
         {
             var scType = typeof(TeamRole.Codes);
             var props = scType.GetFields();
-            props.Length.ShouldBe(2);
+            props.Length.ShouldBe(4);
 
             TeamRole.Codes.Editor.ShouldBe("Editor");
             TeamRole.Codes.Admin.ShouldBe("Admin");
+            TeamRole.Codes.ReportUser.ShouldBe("ReportUser");
+            TeamRole.Codes.FinanceOfficer.ShouldBe("FinanceOfficer");
         }
     }    
 }
