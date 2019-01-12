@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
 @using Payments.Core.Models.History
 @using Payments.Mvc.Identity
@@ -188,6 +188,7 @@
                     <th>Description</th>
                     <th>Qty</th>
                     <th>Price</th>
+                    <th>Tax Exempt</th>
                     <th>Amount</th>
                 </tr>
             </thead> 
@@ -198,6 +199,7 @@
                     <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
                     <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
                     <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
+                    <td>@Html.DisplayFor(x => x.Items[i].TaxExempt)</td>
                     <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
                 </tr>
             }
@@ -207,6 +209,7 @@
                     <td></td>
                     <td></td>
                     <td>Subtotal</td>
+                    <td></td>
                     <td>@Html.DisplayFor(x => x.Subtotal)</td>
                 </tr>
                 @if (Model.Discount > 0 || Model.Coupon != null)
@@ -234,12 +237,13 @@
                             }
                             else
                             {
-                                <span>Discount</span>
-                            }
-                        </td>
-                        <td>
-                            @if (isExpired)
-                            {
+                            <span>Discount</span>
+                        }
+                    </td>
+                    <td></td>
+                    <td>
+                        @if (isExpired)
+                        {
                                 <span>Expired</span>
                             }
                             else
@@ -250,17 +254,19 @@
                     </tr>
                 }
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
-                        <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                    </tr>
+                    <td></td>
+                    <td></td>
+                    <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
+                    <td></td>
+                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                </tr>
                 </tbody>
             <tfoot>
                 <tr>
                     <td></td>
                     <td></td>
                     <td>Total</td>
+                    <td></td>
                     <td>@Html.DisplayFor(x => x.Total)</td>
                 </tr>
             </tfoot>

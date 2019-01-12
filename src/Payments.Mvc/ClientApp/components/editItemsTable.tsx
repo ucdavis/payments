@@ -81,6 +81,14 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <th>Description</th>
                         <th>Qty</th>
                         <th className="text-center">Price</th>
+                        <th>
+                            { !!taxPercent &&
+                                <div>
+                                    <span className="mr-2">Tax Exempt</span>
+                                    <span><i className="fas fa-info-circle" /></span>
+                                </div>
+                            }
+                        </th>
                         <th>Amount</th>
                         <th/>
                     </tr>
@@ -97,6 +105,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         </td>
                         <td>Subtotal</td>
                         <td />
+                        <td />
                         <td>${ subtotalCalc.toFixed(2) }</td>
                         <td />
                     </tr>
@@ -104,6 +113,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td />
                         <td>Discount</td>
                         <td><DiscountInput coupons={coupons} discount={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
+                        <td />
                         <td>{ 
                                 (discount.hasDiscount) && 
                                 <span>-${ discountCalc.toFixed(2) }</span>
@@ -122,8 +132,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td />
                         <td>Tax</td>
                         <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
+                        <td />
                         <td>{
-                                (taxPercent !== 0) &&
+                                !!taxPercent &&
                                 <span>${ taxCalc.toFixed(2) }</span>
                             }
                         </td>
@@ -135,6 +146,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <td />
                         <td>Total</td>
                         <td />
+                        <td />
                         <td>${ totalCalc.toFixed(2) }</td>
                         <td />
                     </tr>
@@ -144,7 +156,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     private renderItem(id: number, item: InvoiceItem) {
-        const { description, quantity, amount } = item;
+        const { taxPercent } = this.props;
+        const { description, quantity, amount, taxExempt } = item;
 
         return (
             <tr key={id}>
@@ -193,6 +206,15 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     </div>
                 </td>
                 <td>
+                    { taxPercent > 0 && 
+                        <input
+                            type="checkbox"
+                            checked={taxExempt}
+                            onChange={(e) => { this.updateItemProperty(id, 'taxExempt', e.target.checked) }}
+                        />
+                    }
+                </td>
+                <td>
                     ${ (quantity * amount).toFixed(2) }
                 </td>
                 <td>
@@ -218,6 +240,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     description: '',
                     id: newId,
                     quantity: 0,
+                    taxExempt: false,
                 },
             },
             byId: [...items.byId, newId],

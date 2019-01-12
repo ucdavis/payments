@@ -77,6 +77,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                 description: '',
                 id: 1,
                 quantity: 0,
+                taxExempt: false,
             }],
             memo: '',
             taxPercent: 0,

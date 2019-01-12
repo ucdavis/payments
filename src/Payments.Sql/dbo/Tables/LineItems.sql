@@ -5,6 +5,7 @@
     [InvoiceId]   INT             NULL,
     [Quantity]    DECIMAL (18, 2) NOT NULL,
     [Total]       DECIMAL (18, 2) NOT NULL,
+    [TaxExempt]   BIT             NOT NULL DEFAULT 0, 
     CONSTRAINT [PK_LineItems] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_LineItems_Invoices_InvoiceId] FOREIGN KEY ([InvoiceId]) REFERENCES [dbo].[Invoices] ([Id])
 );

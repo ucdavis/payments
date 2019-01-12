@@ -233,6 +233,7 @@ namespace Payments.Mvc.Controllers
                     Amount      = i.Amount,
                     Description = i.Description,
                     Quantity    = i.Quantity,
+                    TaxExempt   = i.TaxExempt,
                 }).ToList(),
                 Attachments = invoice.Attachments.Select(a => new EditInvoiceAttachmentViewModel()
                 {
@@ -315,6 +316,7 @@ namespace Payments.Mvc.Controllers
                     Amount      = i.Amount,
                     Description = i.Description,
                     Quantity    = i.Quantity,
+                    TaxExempt   = i.TaxExempt,
                     Total       = i.Quantity * i.Amount,
                 });
                 invoice.Items = items.ToList();
@@ -422,6 +424,7 @@ namespace Payments.Mvc.Controllers
                 Amount      = i.Amount,
                 Description = i.Description,
                 Quantity    = i.Quantity,
+                TaxExempt   = i.TaxExempt,
                 Total       = i.Quantity * i.Amount,
             });
             invoice.Items = items.ToList();
