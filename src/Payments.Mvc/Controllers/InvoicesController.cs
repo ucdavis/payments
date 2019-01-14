@@ -182,7 +182,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
