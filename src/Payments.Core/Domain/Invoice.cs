@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -129,7 +129,11 @@ namespace Payments.Core.Domain
                 }
             }
 
-            TaxAmount = (Subtotal - Discount) * TaxPercent;
+            // remove tax exempt items, apply proportional part of discount, then calculate tax
+            var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Total);
+            var taxableDiscount = Discount * (taxableAmount / Subtotal);
+            TaxAmount = (taxableAmount - taxableDiscount) * TaxPercent;
+
             Total = Subtotal - Discount + TaxAmount;
         }
 
