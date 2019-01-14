@@ -1,4 +1,4 @@
-@using Microsoft.AspNetCore.Http
+﻿@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
 @using Payments.Core.Models.History
 @using Payments.Mvc.Identity
@@ -218,25 +218,25 @@
                     // paid invoices don't expire
                     var isExpired = (!Model.Paid && Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow);
 
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            @if (Model.Coupon != null)
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        @if (Model.Coupon != null)
+                        {
+                            <span>@Model.Coupon.Name</span>
+                            <br />
+                            if (Model.Coupon.DiscountAmount.HasValue)
                             {
-                                <span>@Model.Coupon.Name</span>
-                                <br/>
-                                if (Model.Coupon.DiscountAmount.HasValue)
-                                {
-                                    <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
-                                }
-                                if (Model.Coupon.DiscountPercent.HasValue)
-                                {
-                                    <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
-                                }
+                                <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
                             }
-                            else
+                            if (Model.Coupon.DiscountPercent.HasValue)
                             {
+                                <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
+                            }
+                        }
+                        else
+                        {
                             <span>Discount</span>
                         }
                     </td>
@@ -244,16 +244,16 @@
                     <td>
                         @if (isExpired)
                         {
-                                <span>Expired</span>
-                            }
-                            else
-                            {
-                                <span>-$@Model.Discount.ToString("F2")</span>
-                            }
-                        </td>
-                    </tr>
+                            <span>Expired</span>
+                        }
+                        else
+                        {
+                            <span>-$@Model.Discount.ToString("F2")</span>
+                        }
+                    </td>
+                </tr>
                 }
-                    <tr>
+                <tr>
                     <td></td>
                     <td></td>
                     <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
