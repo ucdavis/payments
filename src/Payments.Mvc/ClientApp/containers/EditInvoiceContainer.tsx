@@ -3,7 +3,7 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import "isomorphic-fetch";
 
-import { uuidv4 } from "../utils/string";
+import { calculateDiscount } from '../helpers/calculations';
 
 import { Account } from '../models/Account';
 import { Coupon } from '../models/Coupon';
@@ -242,7 +242,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         const { slug } = this.props.team;
         const { accountId, attachments, customer, discount, dueDate, taxPercent, items, memo } = this.state;
 
-        const calculatedDiscount = !!discount.getCalculatedDiscount ? discount.getCalculatedDiscount() : 0;
+        const calculatedDiscount = calculateDiscount(items, discount);
 
         // create submit object
         const invoice: EditInvoice = {

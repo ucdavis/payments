@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-import { isAfter } from 'date-fns';
-
 import { Coupon } from '../models/Coupon';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
+
+import { calculateDiscount, calculateSubTotal, calculateTaxAmount, calculateTotal } from "../helpers/calculations";
 
 import CurrencyControl from './currencyControl';
 import DiscountInput from './discountInput';
@@ -69,10 +69,12 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         const { coupons, discount, taxPercent } = this.props;
         const { items } = this.state;
 
-        const discountCalc = this.calculateDiscount();
-        const subtotalCalc = this.calculateSubTotal();
-        const taxCalc = this.calculateTaxAmount();
-        const totalCalc = this.calculateTotal();
+        const itemsArray = items.byId.map((id) => items.byHash[id]);
+
+        const discountCalc = calculateDiscount(itemsArray, discount);
+        const subtotalCalc = calculateSubTotal(itemsArray);
+        const taxCalc = calculateTaxAmount(itemsArray, discount, taxPercent);
+        const totalCalc = calculateTotal(itemsArray, discount, taxPercent);
 
         return (
             <table className="table invoice-table">
@@ -292,8 +294,6 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     private onDiscountChange = (value: InvoiceDiscount) => {
-        // add calculation closure
-        value.getCalculatedDiscount = this.calculateDiscount;
         this.props.onDiscountChange(value);
     }
 
@@ -307,60 +307,5 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         const tax = Number(value);
         // pass up the actual rate
         this.props.onTaxPercentChange(tax / 100);
-    }
-
-    private calculateSubTotal = () => {
-        const items = this.state.items;
-        const sum = items.byId.reduce((prev, id) => {
-            const item = items.byHash[id];
-            return prev + (item.quantity * item.amount);
-        }, 0);
-
-        return sum;
-    }
-
-    private calculateDiscount = () => {
-        const { coupons, discount } = this.props;
-
-        if (!discount.hasDiscount) {
-            return 0;
-        }
-
-        if (discount.couponId) {
-            // get selected coupon
-            const selectedCoupon = coupons.find(c => c.id === discount.couponId);
-            if (!selectedCoupon) {
-                return 0;
-            }
-            
-            if (!!selectedCoupon.expiresAt && isAfter(new Date(), selectedCoupon.expiresAt)) {
-                return 0;
-            }
-
-            const { discountAmount, discountPercent } = selectedCoupon;
-
-            if (discountAmount) {
-                return discountAmount;
-            }
-            
-            const sub = this.calculateSubTotal();
-            return sub * discountPercent;
-        }
-
-        return discount.maunalAmount;
-    }
-
-    private calculateTaxAmount = () => {
-        const { taxPercent } = this.props;
-        const discount = this.calculateDiscount();
-        const sub = this.calculateSubTotal();
-        return (sub - discount) * taxPercent;
-    }
-
-    private calculateTotal = () => {
-        const discount = this.calculateDiscount();
-        const sub = this.calculateSubTotal();
-        const tax = this.calculateTaxAmount();
-        return sub - discount + tax;
     }
 }

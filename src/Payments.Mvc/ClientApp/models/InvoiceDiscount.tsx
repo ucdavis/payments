@@ -7,6 +7,4 @@ export interface InvoiceDiscount {
     coupon?: Coupon;
 
     maunalAmount?: number;
-
-    getCalculatedDiscount?: () => number;
 }
