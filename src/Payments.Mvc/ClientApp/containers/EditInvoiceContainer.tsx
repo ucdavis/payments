@@ -176,28 +176,19 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     }
 
     private renderSendModal() {
-        const { coupons, team } = this.props;
+        const { team } = this.props;
         const { attachments, dueDate, customer, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
-
-        const calculatedDiscount = !!discount.getCalculatedDiscount ? discount.getCalculatedDiscount() : 0;
-
-        const coupon = coupons.find(c => c.id === discount.couponId);
-
-        const invoice: PreviewInvoice = {
-            attachments,
-            coupon,
-            customerEmail: customer.email,
-            discount: calculatedDiscount,
-            dueDate: dueDate ? new Date(dueDate) : undefined,
-            items,
-            memo,
-            taxPercent,
-        };
 
         return (
             <SendModal
                 isModalOpen={isSendModalOpen}
-                invoice={invoice}
+                customer={customer}
+                memo={memo}
+                dueDate={dueDate}
+                taxPercent={taxPercent}
+                discount={discount}
+                items={items}
+                attachments={attachments}
                 team={team}
                 onCancel={() => { this.setState({ isSendModalOpen: false}) }}
                 onSend={this.onSend}
@@ -222,7 +213,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
     private updateProperty = (name: any, value: any) => {
         this.setState({
             [name]: value
-        });
+        } as IState);
     }
 
     private onCancel = () => {

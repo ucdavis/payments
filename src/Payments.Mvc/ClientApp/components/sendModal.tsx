@@ -1,5 +1,11 @@
 import * as React from 'react';
 
+import { calculateDiscount, calculateSubTotal, calculateTaxAmount, calculateTotal } from "../helpers/calculations";
+
+import { InvoiceItem } from '../models/InvoiceItem';
+import { InvoiceDiscount } from '../models/InvoiceDiscount';
+import { InvoiceCustomer } from '../models/InvoiceCustomer';
+import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { PreviewInvoice } from '../models/PreviewInvoice';
 import { Team } from '../models/Team';
 
@@ -7,7 +13,16 @@ import Modal from './modal';
 import PreviewFrame from './previewFrame';
 
 interface IProps {
-    invoice: PreviewInvoice;
+    customer: InvoiceCustomer;
+    memo: string;
+    dueDate: string;
+
+    items: InvoiceItem[];
+    discount: InvoiceDiscount;
+    taxPercent: number;
+
+    attachments: InvoiceAttachment[];
+
     team: Team;
     isModalOpen: boolean;
 
@@ -63,20 +78,49 @@ export default class SendModal extends React.Component<IProps, IState> {
     }
 
     private renderPreviewFrame() {
-        const { invoice, team } = this.props;
+        const { customer, items, discount, taxPercent, attachments, dueDate, memo, team } = this.props;
+
+        const fullItems = items.map(i => ({...i,  }));
+
+        // calculate various values:
+        const discountCalc = calculateDiscount(items, discount);
+        const subtotalCalc = calculateSubTotal(items);
+        const taxCalc = calculateTaxAmount(items, discount, taxPercent);
+        const totalCalc = calculateTotal(items, discount, taxPercent);
+
+        const model: PreviewInvoice = {
+            id: 'PREVIEW',
+            dueDate: dueDate ? new Date(dueDate) : undefined,
+            memo,
+
+            customerName: customer.name,
+            customerAddress: customer.address,
+            customerEmail: customer.email,
+
+            items,
+            coupon: discount.coupon,
+            discount: discountCalc,
+            taxPercent,
+            attachments,
+
+            subTotal: subtotalCalc,
+            taxAmount: taxCalc,
+            total: totalCalc,
+
+            teamContactEmail: team.contactEmail,
+            teamContactPhone: team.contactPhoneNumber,
+            teamName: team.name,
+        }
 
         return (
             <div className="modal-body p-0">
-                <PreviewFrame
-                    invoice={invoice}
-                    team={team}
-                />
+                <PreviewFrame invoice={model} />
             </div>
         );
     }
 
     private renderSendBody() {
-        const email = this.props.invoice.customerEmail
+        const email = this.props.customer.email;
 
         return (
             <div className="modal-body send-invoice-modal-body">
