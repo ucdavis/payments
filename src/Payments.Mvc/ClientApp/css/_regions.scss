@@ -181,19 +181,39 @@ table.table {
 table.invoice-table {
   border-collapse: collapse;
   margin-bottom:0px;
+
   td {
     padding:12px 0px;
   }
+
   thead {
     th {
-      font-size: 1.8rem;
-      font-family: $sans-reg;
+      
       border: none;
-      color: $secondary-font;
-      font-weight: inherit;
       padding:0px;
       padding-top:8px;
+
+      &, & div, & span {
+        font-size: 1.8rem;
+        font-family: $sans-reg;
+        color: $secondary-font;
+        font-weight: inherit;
+      }
+
+      &:nth-child(2) {
+        text-align: right;
+        padding-right:16px;
+      }
+
+      &:nth-child(3) {
+        text-align: center;
+      }
+
       &:nth-child(4) {
+        text-align: center;
+      }
+
+      &:nth-child(5) {
         text-align: right;
       }
     }
@@ -208,23 +228,29 @@ table.invoice-table {
 
         td:first-child {
           // width:45%;
-          padding-right:16px;
+          padding-right: 1.6rem;
         }
         td:nth-child(2) {
-          width:12%;
-          padding-right:16px;
+          width: 12%;
+          padding-right: 1.6rem;
         }
         td:nth-child(3) {
-          width:12%;
+          width: 12%;
           input {
             text-align: right;
           }
         }
         td:nth-child(4) {
-          width:12%;
+          width: 12%;
+          text-align: right;
+          padding-top: 1.2rem + 0.375rem;
+          padding-bottom: 1.2rem + 0.375rem;
         }
         td:nth-child(5) {
-          width:40px;
+          width: 4rem;
+          text-align: right;
+          padding-top: 1.2rem + 0.375rem;
+          padding-bottom: 1.2rem + 0.375rem;
         }
       }
     }
@@ -234,27 +260,29 @@ table.invoice-table {
       color: $secondary-font;
       border: none;
       &:nth-child(5),
-      &:nth-child(4) {
+      &:nth-child(6) {
         text-align: right;
       }
     }
   }
+
   tfoot {
     border:none;
     tr {
       td {
-        border-top:none;
+        border-top: none;
         font-size: 1.6rem;
         font-family: $sans-bold;
         color:$primary-font;
 
-        &:nth-child(4) {
+        &:nth-child(5) {
           text-align: right;
         }
 
         &:nth-child(2),
         &:nth-child(3),
-        &:nth-child(4), {
+        &:nth-child(4),
+        &:nth-child(5) {
           border-top: 1px solid $borders;
         }
       }
@@ -287,6 +315,10 @@ table.invoice-details-table {
         }
 
         th:nth-child(4) {
+          text-align: right;
+      }
+
+        th:nth-child(5) {
             text-align: right;
         }
     }
@@ -318,6 +350,12 @@ table.invoice-details-table {
 
             td:nth-child(4) {
                 width: 12%;
+                padding-left: 2rem;
+                text-align: center;
+            }
+
+            td:nth-child(5) {
+                width: 12%;
                 text-align: right;
                 color: $primary-font;
             }
@@ -334,7 +372,7 @@ table.invoice-details-table {
         tr {
             td {
                 &:nth-child(3),
-                &:nth-child(4) {
+                &:nth-child(5) {
                     color: $primary-font;
                 }
             }
@@ -349,7 +387,8 @@ table.invoice-details-table {
                 color: $primary-font;
 
                 &:nth-child(3),
-                &:nth-child(4) {
+                &:nth-child(4),
+                &:nth-child(5) {
                     border-top: 1px solid $borders;
                     text-align: right;
                 }
