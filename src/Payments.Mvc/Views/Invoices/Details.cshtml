@@ -19,6 +19,8 @@
 
     var user = await _applicationUserManager.GetUserAsync(User);
     var userPermissions = user.TeamPermissions.Where(p => p.Team.Slug == teamSlug).Select(p => p.Role.Name);
+
+    var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
 }
 
 <div class="card-style">
@@ -186,9 +188,14 @@
             <thead>
                 <tr>
                     <th>Description</th>
+                    <th>
+                        @if (anyTaxExempt)
+                        {
+                            <text>Tax Exempt</text>
+                        }
+                    </th>
                     <th>Qty</th>
                     <th>Price</th>
-                    <th>Tax Exempt</th>
                     <th>Amount</th>
                 </tr>
             </thead> 
@@ -197,9 +204,14 @@
             {
                 <tr>
                     <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                    <td>
+                        @if (Model.Items[i].TaxExempt)
+                        {
+                            <i class="far fa-check-square"></i>
+                        }
+                    </td>
                     <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
                     <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
-                    <td>@Html.DisplayFor(x => x.Items[i].TaxExempt)</td>
                     <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
                 </tr>
             }
@@ -208,8 +220,8 @@
                 <tr>
                     <td></td>
                     <td></td>
-                    <td>Subtotal</td>
                     <td></td>
+                    <td>Subtotal</td>
                     <td>@Html.DisplayFor(x => x.Subtotal)</td>
                 </tr>
                 @if (Model.Discount > 0 || Model.Coupon != null)
@@ -219,6 +231,7 @@
                     var isExpired = (!Model.Paid && Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow);
 
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td>
@@ -240,7 +253,6 @@
                             <span>Discount</span>
                         }
                     </td>
-                    <td></td>
                     <td>
                         @if (isExpired)
                         {
@@ -256,8 +268,8 @@
                 <tr>
                     <td></td>
                     <td></td>
-                    <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
                     <td></td>
+                    <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
                     <td>@Html.DisplayFor(x => x.TaxAmount)</td>
                 </tr>
                 </tbody>
@@ -265,8 +277,8 @@
                 <tr>
                     <td></td>
                     <td></td>
-                    <td>Total</td>
                     <td></td>
+                    <td>Total</td>
                     <td>@Html.DisplayFor(x => x.Total)</td>
                 </tr>
             </tfoot>
