@@ -69,6 +69,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 id: 1,
                 quantity: 0,
                 taxExempt: false,
+                total: 0,
             });
         }
         

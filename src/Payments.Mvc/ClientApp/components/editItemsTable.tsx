@@ -168,8 +168,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         <input
                             type="text"
                             className="form-control"
-                        placeholder=""
-                        value={description}
+                            placeholder=""
+                            value={description}
                             onChange={(e) => { this.updateItemProperty(id, 'description', e.target.value) }}
                             required={true}
                         />
@@ -247,6 +247,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     id: newId,
                     quantity: 0,
                     taxExempt: false,
+                    total: 0,
                 },
             },
             byId: [...items.byId, newId],
@@ -287,7 +288,11 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     }
 
     private updateItemProperty = (id: number, name: string, value) => {
-        const item = this.state.items.byHash[id];
+        const item = {
+            ...this.state.items.byHash[id]
+        };
+        item.total = item.amount * item.quantity;
+
         item[name] = value;
         this.updateItem(id, item);
     }

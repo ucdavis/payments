@@ -4,4 +4,6 @@ export interface InvoiceItem {
     quantity: number;
     amount: number;
     taxExempt: boolean;
+
+    total: number;
 }

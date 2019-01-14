@@ -55,6 +55,9 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public decimal Amount { get; set; }
 
         public bool TaxExempt { get; set; }
+
+        [Range(0, 1_000_000)]
+        public decimal Total { get; set; }
     }
 
     public class EditInvoiceAttachmentViewModel
