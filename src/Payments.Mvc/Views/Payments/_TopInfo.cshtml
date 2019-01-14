@@ -1,6 +1,11 @@
 ﻿@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
+
+@{
+    var id = !string.IsNullOrWhiteSpace(Model.Id) ? Model.Id : "0000";
+}
+
 <div class="pay-top">
     <h2>Invoice from @Model.TeamName</h2>
     <p class="secondary-font">Billed to @Model.CustomerEmail</p>
-    <p class="tertiary-font">Invoice #@Model.Id</p>
+    <p class="tertiary-font">Invoice #@id</p>
 </div>
