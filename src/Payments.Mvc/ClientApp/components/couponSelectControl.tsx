@@ -158,14 +158,18 @@ export default class CouponSelectControl extends React.Component<IProps, IState>
 
     private modalPickCoupon = (coupon: Coupon) => {
         this.props.onChange({
+            coupon,
             couponId: coupon.id,
             hasDiscount: true,
+            maunalAmount: null,
         });
         this.closeModal();
     }
 
     private modalSetAmount = () => {
         this.props.onChange({
+            coupon: null,
+            couponId: null,
             hasDiscount: true,
             maunalAmount: this.state.manualAmount,
         });
