@@ -9,6 +9,7 @@ import { calculateDiscount, calculateSubTotal, calculateTaxAmount, calculateTota
 import CurrencyControl from './currencyControl';
 import DiscountInput from './discountInput';
 import TaxInput from './taxInput';
+import Checkbox from './checkbox';
 
 interface IProps {
     coupons: Coupon[];
@@ -176,10 +177,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                         { taxPercent > 0 && 
                             <div className="input-group-append">
                                 <div className="input-group-text">
-                                    <input
-                                        type="checkbox"
+                                    <Checkbox
                                         checked={taxExempt}
-                                        onChange={(e) => { this.updateItemProperty(id, 'taxExempt', e.target.checked) }}
+                                        onChange={(value) => { this.updateItemProperty(id, 'taxExempt', value) }}
                                     />
                                 </div>
                             </div>

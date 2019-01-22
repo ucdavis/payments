@@ -1,3 +1,5 @@
+
+
 .container-fluid {
   padding: 0;
 }
@@ -79,4 +81,23 @@ input[type=number]::-webkit-outer-spin-button {
     bottom: 0;
     right: 1rem;
     padding: 0.25rem;
+}
+
+.pretty {
+
+  input:checked ~ .state.p-primary label::after,
+  &.p-toggle .state.p-primary label::after,
+  &.p-default:not(.p-fill) input:checked ~ .state.p-primary-o label::after {
+    background-color: $primary-color !important;
+  }
+
+  input:checked ~ .state.p-primary-o label::before,
+  &.p-toggle .state.p-primary-o label::before {
+    border-color: $primary-color !important;
+  }
+
+  &.no-label {
+    margin-right: -2px;
+    margin-left: 2px;
+  }
 }
