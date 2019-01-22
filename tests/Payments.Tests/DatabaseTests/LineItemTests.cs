@@ -33,8 +33,9 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
                 "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
             }));
-
-
+            expectedFields.Add(new NameAndType("TaxExempt", "System.Boolean", new List<string>
+            {
+            }));
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(LineItem));
