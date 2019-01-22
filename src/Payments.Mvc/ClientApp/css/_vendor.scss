@@ -97,7 +97,24 @@ input[type=number]::-webkit-outer-spin-button {
   }
 
   &.no-label {
-    margin-right: -2px;
+    margin-right: -4px;
     margin-left: 2px;
+  }
+
+  &.p-jelly {
+    input:checked + .state {
+      .icon,
+      .svg,
+      img,
+      label:before,
+      label:after {
+        animation: jelly 0.7s cubic-bezier(0.250, 0.460, 0.450, 0.940);
+        opacity: 1;
+      }
+  
+      label:before {
+        border-color: transparent;
+      }
+    }
   }
 }
