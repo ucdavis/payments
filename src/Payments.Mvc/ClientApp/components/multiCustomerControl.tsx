@@ -173,7 +173,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
     private updateProperty = (name: any, value: any) => {
         this.setState({
             [name]: value
-        });
+        } as IState);
     }
 
     private updateCustomerList = (value: string) => {
