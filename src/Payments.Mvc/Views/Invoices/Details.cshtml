@@ -1,19 +1,28 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Routing
 @using Payments.Core.Models.History
 @using Payments.Core.Resources
 @using Payments.Mvc.Models.CyberSource
+@using Payments.Mvc.Identity
 @model Invoice
-@inject IHttpContextAccessor HttpContextAccessor
+@inject IHttpContextAccessor _httpContextAccessor
+@inject ApplicationUserManager _applicationUserManager
 
 @{
     ViewBag.Title = $"Invoice #{Model.Id}";
     Layout = "_Layout";
 
-    var scheme = HttpContextAccessor.HttpContext.Request.Scheme;
+    var teamSlug = _httpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
+    var scheme = _httpContextAccessor.HttpContext.Request.Scheme;
 
     var timeline = Model.History.OrderByDescending(h => h.ActionDateTime);
 
     var successfulPayment = Model.PaymentEvents?.FirstOrDefault(p => p.ProcessorId == Model.PaymentProcessorId);
+
+    var user = await _applicationUserManager.GetUserAsync(User);
+    var userPermissions = user.TeamPermissions.Where(p => p.Team.Slug == teamSlug).Select(p => p.Role.Name);
+
+    var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
 }
 
 <div class="card-style">
@@ -49,7 +58,11 @@
 
         @if (Model.Status == Invoice.StatusCodes.Sent)
         {
-            <button class="btn btn-primary" data-toggle="modal" data-target="#markPaidModal">
+            var modalTarget = userPermissions.Contains(TeamRole.Codes.FinanceOfficer) 
+                ? "#markPaidModal" 
+                : "#markPaidNoPermissionModal";
+
+            <button class="btn btn-primary" data-toggle="modal" data-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Mark as paid
             </button>
@@ -177,6 +190,12 @@
             <thead>
                 <tr>
                     <th>Description</th>
+                    <th>
+                        @if (anyTaxExempt)
+                        {
+                            <text>Tax Exempt</text>
+                        }
+                    </th>
                     <th>Qty</th>
                     <th>Price</th>
                     <th>Amount</th>
@@ -187,6 +206,12 @@
             {
                 <tr>
                     <td>@Html.DisplayFor(x => x.Items[i].Description)</td>
+                    <td>
+                        @if (Model.Items[i].TaxExempt)
+                        {
+                            <i class="far fa-check-square"></i>
+                        }
+                    </td>
                     <td>@Html.DisplayFor(x => x.Items[i].Quantity)</td>
                     <td>@Html.DisplayFor(x => x.Items[i].Amount)</td>
                     <td>@Html.DisplayFor(x => x.Items[i].Total)</td>
@@ -195,6 +220,7 @@
             </tbody>
             <tbody class="invoice-details-table-subtotals">
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td>Subtotal</td>
@@ -206,49 +232,52 @@
                     // paid invoices don't expire
                     var isExpired = (!Model.Paid && Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow);
 
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            @if (Model.Coupon != null)
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        @if (Model.Coupon != null)
+                        {
+                            <span>@Model.Coupon.Name</span>
+                            <br />
+                            if (Model.Coupon.DiscountAmount.HasValue)
                             {
-                                <span>@Model.Coupon.Name</span>
-                                <br/>
-                                if (Model.Coupon.DiscountAmount.HasValue)
-                                {
-                                    <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
-                                }
-                                if (Model.Coupon.DiscountPercent.HasValue)
-                                {
-                                    <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
-                                }
+                                <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
                             }
-                            else
+                            if (Model.Coupon.DiscountPercent.HasValue)
                             {
-                                <span>Discount</span>
+                                <small>@Model.Coupon.DiscountPercent.Value.ToString("P") off</small>
                             }
-                        </td>
-                        <td>
-                            @if (isExpired)
-                            {
-                                <span>Expired</span>
-                            }
-                            else
-                            {
-                                <span>-$@Model.Discount.ToString("F2")</span>
-                            }
-                        </td>
-                    </tr>
+                        }
+                        else
+                        {
+                            <span>Discount</span>
+                        }
+                    </td>
+                    <td>
+                        @if (isExpired)
+                        {
+                            <span>Expired</span>
+                        }
+                        else
+                        {
+                            <span>-$@Model.Discount.ToString("F2")</span>
+                        }
+                    </td>
+                </tr>
                 }
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
-                        <td>@Html.DisplayFor(x => x.TaxAmount)</td>
-                    </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Tax (@Html.DisplayFor(x => x.TaxPercent))</td>
+                    <td>@Html.DisplayFor(x => x.TaxAmount)</td>
+                </tr>
                 </tbody>
             <tfoot>
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td>Total</td>
@@ -584,6 +613,27 @@
         </div>
     </div>
 </form>
+
+<div class="modal fade" id="markPaidNoPermissionModal" tabindex="-1" role="dialog" aria-labelledby="markPaidNoPermissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="markPaidModalLabel">Mark Invoice Paid?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    You do not have permission to close this invoice. Contact your team's Financial Officer.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <form method="POST" id="deleteDraftForm" asp-action="Delete" asp-route-id="@Model.Id">
     <div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-labelledby="deleteDraftModalLabel" aria-hidden="true">

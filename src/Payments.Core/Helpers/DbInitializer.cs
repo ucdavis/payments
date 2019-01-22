@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Mvc.Models.Roles;
@@ -37,14 +38,10 @@ namespace Payments.Core.Helpers
             }
 
             // create team roles
-            if (!_context.TeamRoles.Any())
-            {
-                var adminRole = new TeamRole { Name = TeamRole.Codes.Admin };
-                _context.TeamRoles.Add(adminRole);
-
-                var editorRole = new TeamRole { Name = TeamRole.Codes.Editor };
-                _context.TeamRoles.Add(editorRole);
-            }
+            var adminRole = await FindOrCreateRole(TeamRole.Codes.Admin);
+            var financeRole = await FindOrCreateRole(TeamRole.Codes.FinanceOfficer);
+            var editorRole = await FindOrCreateRole(TeamRole.Codes.Editor);
+            var reportRole = await FindOrCreateRole(TeamRole.Codes.ReportUser);
 
             // create system users
             if (!_context.Users.Any())
@@ -58,7 +55,7 @@ namespace Payments.Core.Helpers
                     LastName       = "Sylvestre",
                     Name           = "Jason Sylvestre",
                 };
-                await MakeUser(jason);
+                await FindOrCreateUser(jason);
 
                 var john = new User
                 {
@@ -69,7 +66,7 @@ namespace Payments.Core.Helpers
                     Name           = "John Knoll",
                     CampusKerberos = "jpknoll",
                 };
-                await MakeUser(john);
+                await FindOrCreateUser(john);
 
                 var scott = new User
                 {
@@ -80,7 +77,7 @@ namespace Payments.Core.Helpers
                     Name           = "Scott Kirkland",
                     CampusKerberos = "postit",
                 };
-                await MakeUser(scott);
+                await FindOrCreateUser(scott);
 
                 var cal = new User
                 {
@@ -91,14 +88,36 @@ namespace Payments.Core.Helpers
                     Name           = "Calvin Y Doval",
                     CampusKerberos = "cydoval",
                 };
-                await MakeUser(cal);
+                await FindOrCreateUser(cal);
             }
 
             await _context.SaveChangesAsync();
         }
 
-        private async Task MakeUser(User userToCreate)
+        private async Task<TeamRole> FindOrCreateRole(string name)
         {
+            var role = await _context.TeamRoles.FirstOrDefaultAsync(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase));
+
+            if (role != null)
+            {
+                return role;
+            }
+
+            role = new TeamRole { Name = name };
+            _context.TeamRoles.Add(role);
+            await _context.SaveChangesAsync();
+
+            return role;
+        }
+
+        private async Task FindOrCreateUser(User userToCreate)
+        {
+            var user = await _userManager.FindByNameAsync(userToCreate.Name);
+            if (user != null)
+            {
+                return;
+            }
+
             var userPrincipal = new ClaimsPrincipal();
             userPrincipal.AddIdentity(new ClaimsIdentity(new[]
             {

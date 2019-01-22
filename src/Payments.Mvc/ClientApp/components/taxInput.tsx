@@ -55,6 +55,11 @@ export default class TaxInput extends React.Component<IProps, IState> {
                 <div className="input-group-append">
                     <span className="input-group-text">%</span>
                 </div>
+                <div className="input-group-append">
+                    <span className="input-group-text">
+                        <a href=""><i className="fas fa-search" /></a>
+                    </span>
+                </div>
                 <div className="invalid-feedback">
                     Set a tax or remove.
                 </div>

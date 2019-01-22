@@ -12,6 +12,9 @@
         public const string ServiceKey = "ServiceKey";
 
         public const string TeamEditor = "TeamEditor";
+
         public const string TeamAdmin = "TeamAdmin";
+
+        public const string FinancialOfficer = "FinancialOfficer";
     }
 }

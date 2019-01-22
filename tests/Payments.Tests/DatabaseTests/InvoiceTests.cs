@@ -163,6 +163,33 @@ namespace Payments.Tests.DatabaseTests
             // Assert		
             invoice.TaxAmount.ShouldBe(expectedValue);
         }
+
+        [Theory]
+        [InlineData(0, 0, 0)]
+        [InlineData(1, 0, 0)]
+        [InlineData(2, 0, 0)]
+        [InlineData(0, 0.15, 0.372)]
+        [InlineData(0, 0.10, 0.248)]
+        [InlineData(1, 0.15, 0.272)]
+        [InlineData(1.5, 0.15, 0.222)]
+        [InlineData(1.5, 0.10, 0.148)]
+        public void TestUpdateCalculatedValuesWithTaxExemptUpdatesTaxAmount(decimal discount, decimal taxPercent, decimal expectedValue)
+        {
+            // Arrange
+            var invoice = new Invoice();
+            invoice.Items.Add(new LineItem() { Total = 1.23m });
+            invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
+            invoice.Items.Add(new LineItem() { Total = 1.25m });
+            invoice.Discount = discount;
+            invoice.TaxPercent = taxPercent;
+
+            // Act
+            invoice.UpdateCalculatedValues();
+
+            // Assert		
+            invoice.TaxAmount.ShouldBe(expectedValue);
+        }
+
         [Theory]
         [InlineData(0, 0, 3.72)]
         [InlineData(1, 0, 2.72)]
@@ -179,6 +206,32 @@ namespace Payments.Tests.DatabaseTests
             var invoice = new Invoice();
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m });
+            invoice.Items.Add(new LineItem() { Total = 1.25m });
+            invoice.Discount = discount;
+            invoice.TaxPercent = taxPercent;
+
+            // Act
+            invoice.UpdateCalculatedValues();
+
+            // Assert		
+            invoice.Total.ShouldBe(expectedValue);
+        }
+
+        [Theory]
+        [InlineData(0, 0, 3.72)]
+        [InlineData(1, 0, 2.72)]
+        [InlineData(2, 0, 1.72)]
+        [InlineData(0, 0.15, 4.092)]
+        [InlineData(0, 0.10, 3.968)]
+        [InlineData(1, 0.15, 2.992)]
+        [InlineData(1.5, 0.15, 2.442)]
+        [InlineData(1.5, 0.10, 2.368)]
+        public void TestUpdateCalculatedValuesWithTaxExemptUpdatesTotal(decimal discount, decimal taxPercent, decimal expectedValue)
+        {
+            // Arrange
+            var invoice = new Invoice();
+            invoice.Items.Add(new LineItem() { Total = 1.23m });
+            invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
             invoice.Discount = discount;
             invoice.TaxPercent = taxPercent;

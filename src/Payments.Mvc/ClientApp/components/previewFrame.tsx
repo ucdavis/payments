@@ -1,12 +1,9 @@
 import * as React from 'react';
 
-import { Invoice } from '../models/Invoice';
-import { Team } from '../models/Team';
-import { PreviewInvoice } from 'ClientApp/models/PreviewInvoice';
+import { PreviewInvoice } from '../models/PreviewInvoice';
 
 interface IProps {
     invoice: PreviewInvoice;
-    team: Team;
 }
 
 export default class PreviewFrame extends React.PureComponent<IProps, {}> {
@@ -26,7 +23,7 @@ export default class PreviewFrame extends React.PureComponent<IProps, {}> {
     }
 
     public render() {
-        const { invoice, team } = this.props;
+        const { invoice } = this.props;
 
         const action = '/Payments/PreviewFromJson';
 

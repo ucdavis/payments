@@ -15,12 +15,20 @@ namespace Payments.Core.Domain
 
         public class Codes
         {
-            //public const string Viewer = "Viewer"; Don't use yet
+            /// <summary>
+            /// Reports only user
+            /// </summary>
+            public const string ReportUser = "ReportUser";
 
             /// <summary>
             /// Can do everything except manage users/roles
             /// </summary>
             public const string Editor = "Editor";
+
+            /// <summary>
+            /// Financial Officer, can process payments or write off invoices
+            /// </summary>
+            public const string FinanceOfficer = "FinanceOfficer";
 
             /// <summary>
             /// God like powers limited to the Team

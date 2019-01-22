@@ -25,15 +25,25 @@ before_build:
 - ps: |
     appveyor-retry choco install octopustools
     appveyor-retry dotnet restore .\src\Payments.Mvc\
+    appveyor-retry dotnet restore .\src\Payments.Jobs.MoneyMovement\
+    appveyor-retry dotnet restore .\src\Payments.Jobs.TaxReport\
 
 build_script:
 - ps: |
     dotnet build .\src\Payments.Mvc\ --configuration $Env:configuration
+    dotnet build .\src\Payments.Jobs.MoneyMovement\ --configuration $Env:configuration
+    dotnet build .\src\Payments.Jobs.TaxReport\ --configuration $Env:configuration
 
 after_build:
 - ps: |
     dotnet publish .\src\Payments.Mvc\ --output ..\..\publish\Payments.Mvc --configuration $Env:configuration
     octo pack --id Payments.Mvc --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Mvc\ --outFolder .\artifacts\
+
+    dotnet publish .\src\Payments.Jobs.MoneyMovement\ --output ..\..\publish\Payments.Jobs.MoneyMovement --configuration $Env:configuration
+    octo pack --id Payments.Jobs.MoneyMovement --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Jobs.MoneyMovement\ --outFolder .\artifacts\
+
+    dotnet publish .\src\Payments.Jobs.TaxReport\ --output ..\..\publish\Payments.Jobs.TaxReport --configuration $Env:configuration
+    octo pack --id Payments.Jobs.TaxReport --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Jobs.TaxReport\ --outFolder .\artifacts\
 
 test_script:
 - ps: dotnet test .\tests\Payments.Tests\Payments.Tests.csproj
