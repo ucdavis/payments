@@ -185,7 +185,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
             .map(e => e.trim());
 
         const validCustomers = [...customers];
-        const invalidEmails = [];
+        const invalidEmails: string[] = [];
 
         emails.forEach(e => {
 
@@ -254,7 +254,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
         const newCustomers = [...customers];
         newCustomers[index] = customer;
 
-        onChange(newCustomers)
+        onChange(newCustomers);
 
         this.setState({
             showEditModal: false,

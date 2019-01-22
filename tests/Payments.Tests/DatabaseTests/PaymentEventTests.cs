@@ -55,6 +55,13 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)60)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Street 2\")]",
             }));
+            expectedFields.Add(new NameAndType("CardExpiry", "System.Nullable`1[System.DateTime]", new List<string>()));
+            expectedFields.Add(new NameAndType("CardNumber", "System.String", new List<string>{
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)20)]",
+            }));
+            expectedFields.Add(new NameAndType("CardType", "System.String", new List<string>{
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)3)]",
+            }));
             expectedFields.Add(new NameAndType("Decision", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>{
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
@@ -67,7 +74,6 @@ namespace Payments.Tests.DatabaseTests
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
 
-            
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(PaymentEvent));

@@ -470,6 +470,9 @@ namespace Payments.Mvc.Controllers
                 BillingState      = response.Req_Bill_To_Address_State,
                 BillingCountry    = response.Req_Bill_To_Address_Country,
                 BillingPostalCode = response.Req_Bill_To_Address_Postal_Code,
+                CardType          = response.Req_Card_Type,
+                CardNumber        = response.Req_Card_Number,
+                CardExpiry        = response.CardExpiration,
                 ReturnedResults   = JsonConvert.SerializeObject(dictionary),
             };
 

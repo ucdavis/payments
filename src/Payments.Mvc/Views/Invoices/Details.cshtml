@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
 @using Payments.Core.Models.History
+@using Payments.Core.Resources
+@using Payments.Mvc.Models.CyberSource
 @using Payments.Mvc.Identity
 @model Invoice
 @inject IHttpContextAccessor _httpContextAccessor
@@ -377,7 +379,24 @@
             </dl>
             @if (successfulPayment != null)
             {
+                var cardClass = CyberSourceCardTypes.GetIconClass(successfulPayment.CardType);
+                var cardNumber = $"XXXX {successfulPayment.CardNumber.TakeLast(4)}";
+
                 <dl class="row mt-3">
+                    
+                    @if (!string.IsNullOrWhiteSpace(successfulPayment.CardNumber))
+                    {
+                        <dt class="col-3 text-right">Card Details</dt>
+                        <dd class="col-9">
+                            <span class="text-monospace">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
+                            <i class="@cardClass"></i>
+                            @if (successfulPayment.CardExpiry.HasValue)
+                            {
+                                <span class="badge badge-primary">@successfulPayment.CardExpiry.Value.ToString("MM/yyyy")</span>
+                            }
+                        </dd>
+                    }
+
                     <dt class="col-3 text-right">Billing Name</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingFirstName @successfulPayment.BillingLastName
