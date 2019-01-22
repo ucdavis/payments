@@ -28,13 +28,15 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
             }));
+
+            expectedFields.Add(new NameAndType("TaxExempt", "System.Boolean", new List<string>
+            {
+            }));
             expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
                 "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
             }));
-
-
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(LineItem));

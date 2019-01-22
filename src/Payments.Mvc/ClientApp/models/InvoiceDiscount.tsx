@@ -1,8 +1,10 @@
+import { Coupon } from "./Coupon";
+
 export interface InvoiceDiscount {
     hasDiscount: boolean;
 
     couponId?: number;
-    maunalAmount?: number;
+    coupon?: Coupon;
 
-    getCalculatedDiscount?: () => number;
+    maunalAmount?: number;
 }

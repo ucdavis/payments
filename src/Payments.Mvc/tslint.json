@@ -10,7 +10,8 @@
       "check-format",
       "allow-leading-underscore"
     ],
-    "jsx-no-lambda": false
+    "jsx-no-lambda": false,
+    "interface-name": false,
   },
   "rulesDirectory": []
 }

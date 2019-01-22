@@ -116,6 +116,8 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
 
     private onManualAmountChange = (value: number) => {
         this.onChange({
+            coupon: null,
+            couponId: null,
             hasDiscount: true,
             maunalAmount: value,
         })

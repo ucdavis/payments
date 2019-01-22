@@ -182,7 +182,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -233,6 +233,8 @@ namespace Payments.Mvc.Controllers
                     Amount      = i.Amount,
                     Description = i.Description,
                     Quantity    = i.Quantity,
+                    TaxExempt   = i.TaxExempt,
+                    Total       = i.Amount * i.Quantity,
                 }).ToList(),
                 Attachments = invoice.Attachments.Select(a => new EditInvoiceAttachmentViewModel()
                 {
@@ -315,6 +317,7 @@ namespace Payments.Mvc.Controllers
                     Amount      = i.Amount,
                     Description = i.Description,
                     Quantity    = i.Quantity,
+                    TaxExempt   = i.TaxExempt,
                     Total       = i.Quantity * i.Amount,
                 });
                 invoice.Items = items.ToList();
@@ -422,6 +425,7 @@ namespace Payments.Mvc.Controllers
                 Amount      = i.Amount,
                 Description = i.Description,
                 Quantity    = i.Quantity,
+                TaxExempt   = i.TaxExempt,
                 Total       = i.Quantity * i.Amount,
             });
             invoice.Items = items.ToList();
