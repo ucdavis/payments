@@ -9,6 +9,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AspNetCore.Security.CAS" Version="2.0.4" />
     <PackageReference Include="Humanizer.Core" Version="2.5.16" />
@@ -24,6 +28,7 @@
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.1.2" />
     <PackageReference Include="Serilog.Sinks.Stackify" Version="2.0.2" />
     <PackageReference Include="StackifyLib.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="StackifyMiddleware" Version="3.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="3.0.0" />
   </ItemGroup>

@@ -205,6 +205,9 @@ namespace Payments.Mvc
             app.UseMiddleware<CorrelationIdMiddleware>();
             app.UseMiddleware<LoggingIdentityMiddleware>();
 
+            // setup tracing
+            app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
