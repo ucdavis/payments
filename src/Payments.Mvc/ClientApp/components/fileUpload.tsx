@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import axios, { AxiosResponse, CancelTokenSource } from 'axios';
-import Dropzone, { FileWithPreview } from 'react-dropzone';
+import Dropzone, { DropzoneRenderArgs } from 'react-dropzone';
 import { compose, fromRenderProps } from 'recompose';
 
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
@@ -44,19 +44,27 @@ class FileUpload extends React.Component<IProps, IState> {
 
         return (
             <div className={className}>
-                <Dropzone className='dropzone' onDrop={this.startUpload}>
-                    <div className='d-flex justify-content-center align-items-center'>
-                        <i className='fas fa-upload fa-2x mr-4' />
-                        <div className='d-flex flex-column align-items-center'>
-                            <span>Drop files to attach, or click to Browse.</span>
-                            <span>(Individual file upload size limit 5 MB)</span>
-                        </div>
-                    </div>
+                <Dropzone onDrop={this.startUpload}>
+                    {this.renderDropzone}
                 </Dropzone>
 
                 { attachmentsUploading.map(this.renderUploadingAttachment) }
             </div>
         )
+    }
+
+    private renderDropzone = (args: DropzoneRenderArgs) => {
+        return (
+            <div {...args.getRootProps()} className='dropzone'>
+                <div className='d-flex justify-content-center align-items-center'>
+                    <i className='fas fa-upload fa-2x mr-4' />
+                    <div className='d-flex flex-column align-items-center'>
+                        <span>Drop files to attach, or click to Browse.</span>
+                        <span>(Individual file upload size limit 5 MB)</span>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     private renderUploadingAttachment = (attachment: UploadingInvoiceAttachment) => {
@@ -124,7 +132,7 @@ class FileUpload extends React.Component<IProps, IState> {
         return `${ (size / 1024 / 1024).toFixed(1) } MB`;
     }
 
-    private startUpload = (accepted: FileWithPreview[], rejected, event) => {
+    private startUpload = (accepted: File[], rejected, event) => {
         const { slug } = this.props.team;
 
         // start uploads
