@@ -56,10 +56,14 @@ class FileUpload extends React.Component<IProps, IState> {
     private renderDropzone = (args: DropzoneRenderArgs) => {
         return (
             <div {...args.getRootProps()} className='dropzone'>
+                <input {...args.getInputProps()} />
                 <div className='d-flex justify-content-center align-items-center'>
                     <i className='fas fa-upload fa-2x mr-4' />
                     <div className='d-flex flex-column align-items-center'>
-                        <span>Drop files to attach, or click to Browse.</span>
+                        { args.isDragActive 
+                            ? <span>Drop files here...</span>
+                            : <span>Drop files to attach, or click to Browse.</span>
+                        }
                         <span>(Individual file upload size limit 5 MB)</span>
                     </div>
                 </div>
