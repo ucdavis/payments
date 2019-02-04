@@ -274,12 +274,16 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         return false;
     }
 
-    private sendInvoice = async () => {
+    private sendInvoice = async (ccEmails: string) => {
         // send invoice
         const { id } = this.props;
         const { slug } = this.props.team;
 
         const url = `/${slug}/invoices/send/${id}`;
+
+        const body = JSON.stringify({
+            ccEmails,
+        });
 
         const response = await fetch(url, {
             credentials: "same-origin",
@@ -287,6 +291,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                 "Content-Type": "application/json",
                 "RequestVerificationToken": antiForgeryToken
             }),
+            body,
             method: "POST",
         });
         
@@ -322,7 +327,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         })
     }
 
-    private onSend = async () => {
+    private onSend = async (ccEmails: string) => {
         const { slug } = this.props.team;
         this.setState({ loading: true });
 
@@ -333,7 +338,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             return;
         }
 
-        const sendResult = await this.sendInvoice();
+        const sendResult = await this.sendInvoice(ccEmails);
         if (!sendResult) {
             this.setState({ loading: false });
             return;

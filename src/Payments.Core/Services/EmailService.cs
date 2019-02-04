@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -11,7 +11,7 @@ namespace Payments.Core.Services
 {
     public interface IEmailService
     {
-        Task SendInvoice(Invoice invoice);
+        Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails);
 
         Task SendTaxReport(Recipient recipient, Attachment report);
     }
@@ -25,7 +25,7 @@ namespace Payments.Core.Services
             _emailSettings = emailSettings.Value;
         }
 
-        public async Task SendInvoice(Invoice invoice)
+        public async Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails)
         {
             var client = GetClient();
 
@@ -51,6 +51,30 @@ namespace Payments.Core.Services
             {
                 new Recipient() { Address = new Address(invoice.CustomerEmail, invoice.CustomerName), SubstitutionData = data },
             };
+
+            // add cc
+            if (!string.IsNullOrWhiteSpace(ccEmails))
+            {
+                var splitEmails = ccEmails.Split(';');
+                var ccRecipients = splitEmails.Select(e => new Recipient()
+                    { Address = new Address(e), Type = RecipientType.CC });
+                foreach (var ccRecipient in ccRecipients)
+                {
+                    transmission.Recipients.Add(ccRecipient);
+                }
+            }
+
+            // add bcc
+            if (!string.IsNullOrWhiteSpace(bccEmails))
+            {
+                var splitEmails = bccEmails.Split(';');
+                var bccRecipients = splitEmails.Select(e => new Recipient()
+                    { Address = new Address(e), Type = RecipientType.BCC });
+                foreach (var bccRecipient in bccRecipients)
+                {
+                    transmission.Recipients.Add(bccRecipient);
+                }
+            }
 
             // ship it
             var result = await client.Transmissions.Send(transmission);

@@ -35,7 +35,6 @@ namespace Payments.Mvc.Controllers
 
         public IActionResult Index()
         {
-
             var query = _dbContext.Invoices
                 .Where(i => i.Team.Slug == TeamSlug);
 
@@ -467,7 +466,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Send(int id)
+        public async Task<IActionResult> Send(int id, [FromBody]SendInvoiceViewModel model)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -495,7 +494,7 @@ namespace Payments.Mvc.Controllers
 
             SetInvoiceKey(invoice);
 
-            await _emailService.SendInvoice(invoice);
+            await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
 
             invoice.Status = Invoice.StatusCodes.Sent;
             invoice.Sent = true;

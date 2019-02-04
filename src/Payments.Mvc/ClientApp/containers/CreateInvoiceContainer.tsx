@@ -276,7 +276,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         return false;
     }
 
-    private sendInvoices = async () => {
+    private sendInvoices = async (ccEmails: string) => {
         const { slug } = this.props.team;
         const { ids } = this.state;
         if (ids === undefined) {
@@ -292,12 +292,21 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             // send invoice
             const url = `/${slug}/invoices/send/${id}`;
 
+            // only send cc on the first email
+            let body;
+            if (i === 0) {
+                body = JSON.stringify({
+                    ccEmails,
+                });
+            }
+
             const response = await fetch(url, {
                 credentials: "same-origin",
                 headers: new Headers({
                     "Content-Type": "application/json",
                     "RequestVerificationToken": antiForgeryToken
                 }),
+                body,
                 method: "POST",
             });
             
@@ -334,7 +343,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         })
     }
 
-    private onSend = async (ccEmails) => {
+    private onSend = async (ccEmails: string) => {
         const { slug } = this.props.team;
         this.setState({ loading: true });
 
@@ -346,7 +355,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         }
 
         // send emails
-        const sendResult = await this.sendInvoices();
+        const sendResult = await this.sendInvoices(ccEmails);
         // a failure here means that the invoices are saved, just not all sent
         // send user back to invoices page with error message
         if (!sendResult) {
