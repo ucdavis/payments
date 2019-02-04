@@ -121,10 +121,10 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
             <div className="input-group mb-2" key={text}>
                 <input type="text" className="form-control" value={text} readOnly={true} />
                 <div className="input-group-append">
-                    <button className="btn btn-primary" onClick={() => this.editCustomer(customer)}>
+                    <button className="btn" onClick={() => this.editCustomer(customer)}>
                         <i className="far fa-fw fa-edit"/>
                     </button>
-                    <button className="btn btn-primary" onClick={() => this.removeCustomer(customer.email)}>
+                    <button className="btn" onClick={() => this.removeCustomer(customer.email)}>
                         <i className="fas fa-fw fa-times" />
                     </button>
                 </div>
