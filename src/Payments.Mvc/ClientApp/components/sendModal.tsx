@@ -34,7 +34,7 @@ interface IState {
     ccEmails: string;
 }
 
-export default class SendModal extends React.Component<IProps, IState> {
+export default class SendModal extends React.PureComponent<IProps, IState> {
 
     constructor(props) {
         super(props);
