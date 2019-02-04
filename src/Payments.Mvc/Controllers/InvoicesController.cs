@@ -479,20 +479,15 @@ namespace Payments.Mvc.Controllers
                 return NotFound(new
                 {
                     success = false,
-                    errorMessage = "Invoice Not Found"
+                    errorMessage = "Invoice Not Found",
                 });
             }
 
-            if (invoice.Sent)
+            // don't reset the key if it's already live
+            if (!invoice.Sent)
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    errorMessage = "Invoice already sent."
-                });
+                SetInvoiceKey(invoice);
             }
-
-            SetInvoiceKey(invoice);
 
             await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
 
