@@ -51,7 +51,32 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null)
             {
-                return PublicNotFound();
+                // check expired link id
+                var link = await _dbContext.InvoiceLinks
+                    .Include(l => l.Invoice)
+                    .ThenInclude(i => i.Team)
+                    .FirstOrDefaultAsync(l => l.LinkId == id);
+
+                // still not found
+                if (link == null)
+                {
+                    return PublicNotFound();
+                }
+
+                // if the invoice has a new link id,
+                // just forward them to the corrected invoice
+                if (!string.IsNullOrWhiteSpace(link.Invoice.LinkId))
+                {
+                    Message = "Your link was expired/old. We've forwarded you to the new link. Please review the invoice for any changes before proceeding.";
+                    return RedirectToAction("Pay", new {id = link.Invoice.LinkId});
+                }
+
+                // otherwise, the invoice is probably back in draft
+                var expiredModel = new ExpiredInvoiceViewModel()
+                {
+                    Team = new PaymentInvoiceTeamViewModel(link.Invoice.Team)
+                };
+                return View("Expired", expiredModel);
             }
 
             // the customer isn't allowed access to draft or cancelled invoices
