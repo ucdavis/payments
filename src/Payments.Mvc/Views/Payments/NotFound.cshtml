@@ -1,10 +1,17 @@
-﻿@{
+@{
     ViewBag.Title = $"Invoice Not Found";
     Layout = "_PaymentsLayout";
 }
 
-<div class="container">
-    <div class="d-flex justify-content-center">
-        <h3>Invoice Not Found</h3>
+<div class="card-style pay-card-style">
+    <div class="card-gradient-header-bleed">
+        <div class="card-gradient-header">
+        </div>
+    </div>
+    <div>
+        <div class="pay-action">
+            <h1>Invoice Not Found</h1>
+        </div>
+        <partial name="_Footer" model="@Model.Team" />
     </div>
 </div>
