@@ -683,15 +683,24 @@ namespace Payments.Mvc.Controllers
 
         private void SetInvoiceKey(Invoice invoice)
         {
-                // setup random 10 character key link id
-                var linkId = InvoiceKeyHelper.GetUniqueKey();
+            // setup random 10 character key link id
+            var linkId = InvoiceKeyHelper.GetUniqueKey();
 
             // append invoice id and draft
             linkId = $"{linkId}-{invoice.Id:D3}-{invoice.DraftCount:D3}";
 
-                // set and exit
-                invoice.LinkId = linkId;
-            }
+            // create db row for tracking links
+            var link = new InvoiceLink()
+            {
+                Invoice = invoice,
+                LinkId = linkId,
+                Expired = false,
+            };
+            _dbContext.InvoiceLinks.Add(link);
+
+            // set key for fast recovery
+            invoice.LinkId = linkId;
+        }
 
         private InvoiceFilterViewModel GetInvoiceFilter()
         {

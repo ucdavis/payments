@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Domain;
 
@@ -15,6 +15,8 @@ namespace Payments.Core.Data
         public virtual DbSet<History> History { get; set; }
 
         public virtual DbSet<Invoice> Invoices { get; set; }
+
+        public virtual DbSet<InvoiceLink> InvoiceLinks { get; set; }
 
         public virtual DbSet<LineItem> LineItems { get; set; }
 
