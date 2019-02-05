@@ -36,7 +36,7 @@ interface IState {
 
 export default class SendModal extends React.PureComponent<IProps, IState> {
 
-    constructor(props) {
+    constructor(props: IProps) {
         super(props);
 
         this.state = {
@@ -80,8 +80,6 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
     private renderPreviewFrame() {
         const { customer, items, discount, taxPercent, attachments, dueDate, memo, team } = this.props;
 
-        const fullItems = items.map(i => ({...i,  }));
-
         // calculate various values:
         const discountCalc = calculateDiscount(items, discount);
         const subtotalCalc = calculateSubTotal(items);
@@ -89,7 +87,7 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
         const totalCalc = calculateTotal(items, discount, taxPercent);
 
         const model: PreviewInvoice = {
-            id: 'PREVIEW',
+            id: 'PREVIEW-DRAFT',
             dueDate: dueDate ? new Date(dueDate) : undefined,
             memo,
 
@@ -107,9 +105,11 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
             taxAmount: taxCalc,
             total: totalCalc,
 
-            teamContactEmail: team.contactEmail,
-            teamContactPhone: team.contactPhoneNumber,
-            teamName: team.name,
+            team: {
+                name: team.name,
+                contactEmail: team.contactEmail,
+                contactPhoneNumber: team.contactPhoneNumber,
+            },
         }
 
         return (
