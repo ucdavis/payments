@@ -109,6 +109,7 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
+        [HttpPost]
         public async Task<ActionResult> AddCoupon(string id, string code)
         {
             var invoice = await _dbContext.Invoices
@@ -180,6 +181,7 @@ namespace Payments.Mvc.Controllers
             return RedirectToAction("Pay", new { id });
         }
 
+        [HttpPost]
         public async Task<ActionResult> RemoveCoupon(string id)
         {
             var invoice = await _dbContext.Invoices
