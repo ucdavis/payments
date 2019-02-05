@@ -277,9 +277,7 @@ namespace Payments.Mvc.Controllers
                 Total            = invoice.Total,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,
-                TeamName         = invoice.Team.Name,
-                TeamContactEmail = invoice.Team.ContactEmail,
-                TeamContactPhone = invoice.Team.ContactPhoneNumber,
+                Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
             };
 
             return View(model);
@@ -592,9 +590,7 @@ namespace Payments.Mvc.Controllers
                 DueDate          = invoice.DueDate,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,
-                TeamName         = invoice.Team.Name,
-                TeamContactEmail = invoice.Team.ContactEmail,
-                TeamContactPhone = invoice.Team.ContactPhoneNumber,
+                Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
             };
 
             return model;

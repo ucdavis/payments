@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Payments.Core.Domain;
 
 namespace Payments.Mvc.Models.PaymentViewModels
@@ -39,11 +38,7 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public decimal Total { get; set; }
 
-        public string TeamName { get; set; }
-
-        public string TeamContactEmail { get; set; }
-
-        public string TeamContactPhone { get; set; }
+        public PaymentInvoiceTeamViewModel Team { get; set; }
 
         public DateTime? DueDate { get; set; }
 

@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.PaymentViewModels.PreviewInvoiceViewModel
+@model Payments.Mvc.Models.PaymentViewModels.PreviewInvoiceViewModel
 
 @{
     ViewBag.Title = $"Preview Invoice #{Model.Id}";
@@ -33,6 +33,6 @@
         <partial name="_Summary" />
         <partial name="_Attachments" />
         <partial name="_Download" model="string.Empty" />
-        <partial name="_Footer" />
+        <partial name="_Footer" model="@Model.Team" />
     </div>
 </div>
