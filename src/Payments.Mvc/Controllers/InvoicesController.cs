@@ -296,6 +296,7 @@ namespace Payments.Mvc.Controllers
                 // create new object, track it
                 var invoice = new Invoice
                 {
+                    DraftCount      = 1,
                     Account         = account,
                     Coupon          = coupon,
                     Team            = team,
@@ -417,6 +418,9 @@ namespace Payments.Mvc.Controllers
             invoice.Discount        = model.Discount;
             invoice.TaxPercent      = model.TaxPercent;
             invoice.DueDate         = model.DueDate;
+
+            // increase draft count
+            invoice.DraftCount++;
 
             // add line items
             var items = model.Items.Select(i => new LineItem()
@@ -679,21 +683,15 @@ namespace Payments.Mvc.Controllers
 
         private void SetInvoiceKey(Invoice invoice)
         {
-            for (var attempt = 0; attempt < 10; attempt++)
-            {
                 // setup random 10 character key link id
                 var linkId = InvoiceKeyHelper.GetUniqueKey();
 
-                // look for duplicate
-                if (_dbContext.Invoices.Any(i => i.LinkId == linkId)) continue;
+            // append invoice id and draft
+            linkId = $"{linkId}-{invoice.Id:D3}-{invoice.DraftCount:D3}";
 
                 // set and exit
                 invoice.LinkId = linkId;
-                return;
             }
-
-            throw new Exception("Failure to create new invoice link id in max attempts.");
-        }
 
         private InvoiceFilterViewModel GetInvoiceFilter()
         {

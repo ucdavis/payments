@@ -1,7 +1,7 @@
-﻿@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
+@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
 
 @{
-    var id = !string.IsNullOrWhiteSpace(Model.Id) ? Model.Id : "0000";
+    var id = !string.IsNullOrWhiteSpace(Model.Id) ? Model.Id : "0000-DRAFT";
 }
 
 <div class="pay-top">

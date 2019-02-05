@@ -261,7 +261,7 @@ namespace Payments.Mvc.Controllers
 
             var model = new PreviewInvoiceViewModel()
             {
-                Id               = invoice.Id.ToString(),
+                Id               = $"{invoice.Id:D3}-{invoice.DraftCount:D3}",
                 CustomerName     = invoice.CustomerName,
                 CustomerEmail    = invoice.CustomerEmail,
                 CustomerAddress  = invoice.CustomerAddress,
@@ -575,7 +575,7 @@ namespace Payments.Mvc.Controllers
         {
             var model = new PaymentInvoiceViewModel()
             {
-                Id               = invoice.Id.ToString(),
+                Id               = $"{invoice.Id:D3}-{invoice.DraftCount:D3}",
                 LinkId           = invoice.LinkId,
                 CustomerName     = invoice.CustomerName,
                 CustomerEmail    = invoice.CustomerEmail,

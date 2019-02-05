@@ -17,6 +17,7 @@ namespace Payments.Core.Domain
             Items = new List<LineItem>();
             History = new List<History>();
 
+            DraftCount = 0;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -24,6 +25,8 @@ namespace Payments.Core.Domain
         public int Id { get; set; }
 
         public string LinkId { get; set; }
+
+        public int DraftCount { get; set; }
 
         [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
