@@ -29,13 +29,17 @@ namespace Payments.Mvc.Controllers
 
         [HttpGet]
         [Authorize(Policy = PolicyCodes.TeamEditor)]
-        public IActionResult TaxReport()
+        public IActionResult TaxReport(int fiscalYear)
         {
-            var lastFiscalYear = DateTime.UtcNow.FiscalYear() - 1;
+            // support preloading url
+            if (fiscalYear <= 2000)
+            {
+                fiscalYear = DateTime.UtcNow.FiscalYear() - 1;
+            }
 
             var model = new TaxReportViewModel()
             {
-                FiscalYear = lastFiscalYear,
+                FiscalYear = fiscalYear,
             };
 
             return View(model);
