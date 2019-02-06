@@ -1,4 +1,4 @@
-﻿using payments.Tests.Helpers;
+using payments.Tests.Helpers;
 using Payments.Core.Domain;
 using Shouldly;
 using System.Collections.Generic;
@@ -45,6 +45,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Discount", "System.Decimal", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
+            expectedFields.Add(new NameAndType("DraftCount", "System.Int32", new List<string>()));
             expectedFields.Add(new NameAndType("DueDate", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("History", "System.Collections.Generic.IList`1[Payments.Core.Domain.History]", new List<string>
             {

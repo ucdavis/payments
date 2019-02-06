@@ -1,74 +1,105 @@
-﻿@model Payments.Mvc.Models.ReportViewModels.TaxReportViewModel
+@model Payments.Mvc.Models.ReportViewModels.TaxReportViewModel
 
 @{
     ViewData["Title"] = "Tax Report";
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
+<form method="post">
+    <div class="card-style">
+        <div class="card-header-primary card-bot-border">
+            <div class="card-head d-flex justify-content-between align-items-start">
+                <h2>@ViewBag.Title</h2>
+                <button class="btn" type="submit">Run Report <i class="fas fa-chart-line ml-3"></i></button>
+            </div>
         </div>
-    </div>
-    <div class="card-content bot-border">
-        <form method="post">
+        <div class="card-content bot-border">
             <div class="row">
                 <div class="form-group col-lg-6">
                     <label asp-for="FiscalYear"></label>
                     <input asp-for="FiscalYear" class="form-control" />
                 </div>
-                <div class="form-group col-12">
-                </div>
             </div>
-            <div class="d-flex justify-content-end align-items-end">
-                <div class="d-flex justify-content-end align-items-center form-group">
-                    <button class="btn btn-primary" type="submit">Run Report <i class="fas fa-chart-line ml-3"></i></button>
-                </div>
-            </div>
-        </form>
-    </div>
-    @if (Model.Invoices != null)
-    {
+        </div>
         <div class="card-content">
-            @if (Model.Invoices.Any())
+            @if (Model.Invoices != null)
             {
-                var taxTotal = Model.Invoices.Sum(i => i.TaxAmount);
+                if (Model.Invoices.Any())
+                {
+                    var taxTotal = Model.Invoices.Sum(i => i.TaxAmount);
 
-                <table class="table">
+                <table id="taxReportTable" class="table">
                     <thead>
                         <tr>
+                            <th>Team</th>
                             <th>Invoice ID</th>
-                            <th>Total</th>
-                            <th>Tax %</th>
-                            <th>Tax $</th>
+                            <th>Paid On</th>
+                            <th>Invoice Total</th>
+                            <th>Taxable Amount</th>
+                            <th>Tax Rate</th>
+                            <th>Tax Amount</th>
                         </tr>
                     </thead>
-                    @foreach (var invoice in Model.Invoices)
-                    {
                     <tbody>
-                        <tr>
-                            <td>@invoice.Id</td>
-                            <td>@invoice.Total.ToString("C")</td>
-                            <td>@invoice.TaxPercent.ToString("P")</td>
-                            <td>@invoice.TaxAmount.ToString("C")</td>
-                        </tr>
-                    </tbody>
+                        @foreach (var invoice in Model.Invoices)
+                        {
+                            var rowClass = invoice.TaxPercent <= 0 ? "text-muted" : "";
+
+                            <tr class="@rowClass">
+                                <td>@invoice.Team.Name</td>
+                                <td data-sort="@invoice.Id">
+                                    <a asp-action="Details" asp-controller="Invoices" asp-route-id="@invoice.Id" asp-route-team="@invoice.Team.Slug" target="_blank">
+                                        @invoice.GetFormattedId()
+                                    </a>
+                                </td>
+                                <td data-sort="@invoice.PaidAt?.Ticks">@invoice.PaidAt?.ToString("d")</td>
+                                <td class="text-right">@invoice.Total.ToString("C")</td>
+                                <td class="text-right">@invoice.GetTaxableAmount().ToString("C")</td>
+                                <td class="text-right">@invoice.TaxPercent.ToString("P")</td>
+                                <td class="text-right">@invoice.TaxAmount.ToString("C")</td>
+                            </tr>
                     }
+                    </tbody>
 
                     <tfoot>
-                    <tr>
-                        <td colspan="2"></td>
-                        <td>Total</td>
-                        <td>@taxTotal.ToString("C")</td>
-                    </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Total Liability</td>
+                            <td class="text-right">@taxTotal.ToString("C")</td>
+                        </tr>
                     </tfoot>
                 </table>
+                }
+                else
+                {
+                    <span>No invoices found for fiscal year</span>
+                }
             }
             else
             {
-                <span>No invoices found for fiscal year</span>
+                <p>Click "Run Report" above.</p>
             }
         </div>
-    }
-</div>
+    </div>
+</form>
 
+@section scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            // setup table
+            var table = $("#taxReportTable").DataTable({
+                "order": [[1, 'asc']],
+                "paging": false,
+                "info": false,
+                "buttons": ['excel'],
+            });
+
+            table.buttons().container()
+                .appendTo("#taxReportTable_wrapper .col-md-6:eq(0)");
+        });
+    </script>
+}

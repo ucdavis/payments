@@ -17,6 +17,7 @@ namespace Payments.Core.Domain
             Items = new List<LineItem>();
             History = new List<History>();
 
+            DraftCount = 0;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -24,6 +25,13 @@ namespace Payments.Core.Domain
         public int Id { get; set; }
 
         public string LinkId { get; set; }
+
+        public int DraftCount { get; set; }
+
+        public string GetFormattedId()
+        {
+            return $"{Id:D3}-{DraftCount:D3}";
+        }
 
         [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
@@ -106,33 +114,57 @@ namespace Payments.Core.Domain
         [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Total { get; private set; }
 
+        public decimal GetDiscountAmount()
+        {
+            // return saved value if the invoice is already paid
+            if (Paid)
+            {
+                return Discount;
+            }
+
+            // check for valid coupon on unpaid invoices
+            if (Coupon == null)
+            {
+                return Discount;
+            }
+
+            // check for expired coupon on unpaid invoices
+            if (Coupon.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow)
+            {
+                return 0;
+            }
+
+            if (Coupon.DiscountAmount.HasValue)
+            {
+                return Coupon.DiscountAmount ?? 0;
+            }
+
+            var subTotal = Items.Sum(i => i.Total);
+            if (Coupon.DiscountPercent.HasValue)
+            {
+                return Coupon.DiscountPercent * subTotal ?? 0;
+            }
+
+            return 0;
+        }
+
+        public decimal GetTaxableAmount()
+        {
+            var discount = GetDiscountAmount();
+
+            // remove tax exempt items, apply proportional part of discount, then calculate tax
+            var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Total);
+            var taxableDiscount = discount * (taxableAmount / Subtotal);
+            return (taxableAmount - taxableDiscount) * TaxPercent;
+        }
+
         public void UpdateCalculatedValues()
         {
             Subtotal = Items.Sum(i => i.Total);
 
-            // check for expired coupon on unpaid invoices
-            if (!Paid && Coupon?.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow)
-            {
-                // clear out discount
-                Discount = 0;
-            }
-            // check for valid coupon on unpaid invoices
-            else if (!Paid && Coupon != null)
-            {
-                if (Coupon.DiscountAmount.HasValue)
-                {
-                    Discount = Coupon.DiscountAmount ?? 0;
-                }
-                else if (Coupon.DiscountPercent.HasValue)
-                {
-                    Discount = Coupon.DiscountPercent * Subtotal ?? 0;
-                }
-            }
+            Discount = GetDiscountAmount();
 
-            // remove tax exempt items, apply proportional part of discount, then calculate tax
-            var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Total);
-            var taxableDiscount = Discount * (taxableAmount / Subtotal);
-            TaxAmount = (taxableAmount - taxableDiscount) * TaxPercent;
+            TaxAmount = GetTaxableAmount();
 
             Total = Subtotal - Discount + TaxAmount;
         }
@@ -170,7 +202,7 @@ namespace Payments.Core.Domain
             var dictionary = new Dictionary<string, string>
             {
                 {"transaction_type"       , "sale"},
-                {"reference_number"       , Id.ToString()},
+                {"reference_number"       , Id.ToString()},             // use the actual id so we can find it easily
                 {"amount"                 , Total.ToString("F2")},
                 {"currency"               , "USD"},
                 {"transaction_uuid"       , Guid.NewGuid().ToString()},

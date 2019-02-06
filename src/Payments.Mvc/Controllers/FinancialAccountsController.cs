@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -336,20 +336,22 @@ namespace Payments.Mvc.Controllers
         /// GET: FinancialAccounts/Details/5
         /// </summary>
         /// <param name="id">FinancialAccount Id</param>
-        /// <param name="teamId">Team Id</param>
         /// <returns></returns>
         public async Task<IActionResult> AccountDetails(int? id)
         {
+            // check for team access
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
             }
+
             if (id == null)
             {
                 return NotFound();
             }
 
+            // fetch db details
             var financialAccount = await _context.FinancialAccounts
                 .Include(f => f.Team)
                 .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == team.Id);
@@ -361,9 +363,22 @@ namespace Payments.Mvc.Controllers
             var model = new FinancialAccountDetailsModel();
             model.FinancialAccount = financialAccount;
 
+            // fetch kfs details
+            if (string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+            {
+                model.KfsAccount =
+                    await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+            }
+            else
+            {
+                model.KfsAccount =
+                    await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+            }
 
+            // check if account is valid
             model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
 
+            // check if project is valid
             if (!string.IsNullOrWhiteSpace(financialAccount.Project))
             {
                 model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
@@ -376,7 +391,6 @@ namespace Payments.Mvc.Controllers
         /// GET: FinancialAccounts/Delete/5
         /// </summary>
         /// <param name="id">FinancialAccount Id</param>
-        /// <param name="teamId">Team Id</param>
         /// <returns></returns>
         public async Task<IActionResult> DeleteAccount(int? id)
         {

@@ -83,9 +83,11 @@
     <Build Include="dbo\Tables\InvoiceAttachments.sql" />
     <Build Include="dbo\Tables\TaxReportJobRecords.sql" />
     <Build Include="dbo\Tables\Coupons.sql" />
+    <Build Include="dbo\Tables\InvoiceLinks.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Compare\SqlSchemaCompare_localhost.scmp" />
     <None Include="Compare\SqlSchemaCompare_test.scmp" />
+    <None Include="Compare\SqlSchemaCompare_production.scmp" />
   </ItemGroup>
 </Project>

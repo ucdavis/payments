@@ -22,6 +22,14 @@ export default class PreviewFrame extends React.PureComponent<IProps, {}> {
         this._previewForm = undefined;
     }
 
+    public shouldComponentUpdate(nextProps: IProps) {
+        // perform cheap compare via serialization
+        var model = JSON.stringify(this.props.invoice);
+        var newModel = JSON.stringify(nextProps.invoice);
+
+        return model.localeCompare(newModel) !== 0;
+    }
+
     public render() {
         const { invoice } = this.props;
 

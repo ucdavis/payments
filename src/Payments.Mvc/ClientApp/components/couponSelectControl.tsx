@@ -86,7 +86,7 @@ export default class CouponSelectControl extends React.Component<IProps, IState>
                             onChange={this.onAmountChange}
                         />
                         <div className="input-group-append">
-                            <button className="btn btn-outline-secondary" type="button" onClick={this.modalSetAmount}>
+                            <button className="btn" type="button" onClick={this.modalSetAmount}>
                                 Set Discount Amount <i className="fas fa-fw fa-check ml-3" /> 
                             </button>
                         </div>

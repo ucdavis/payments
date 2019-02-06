@@ -1,5 +1,7 @@
+@model Payments.Mvc.Models.PaymentViewModels.ExpiredInvoiceViewModel
+
 @{
-    ViewBag.Title = $"Invoice Not Found";
+    ViewBag.Title = $"Expired Invoice Link";
     Layout = "_PaymentsLayout";
 }
 
@@ -10,7 +12,8 @@
     </div>
     <div>
         <div class="pay-action">
-            <h1>Invoice Not Found</h1>
+            <h1>Expired Invoice</h1>
+            <p>The invoice you're trying to reach has expired.</p>
         </div>
         <partial name="_Footer" model="@Model.Team" />
     </div>

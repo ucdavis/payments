@@ -52,7 +52,7 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
 
         if (!discount.hasDiscount) {
             return (
-                <button className="btn btn-link" onClick={this.openModal}>
+                <button className="btn-plain primary-color" onClick={this.openModal}>
                     <i className="fas fa-plus mr-2" /> Add coupon
                 </button>
             );

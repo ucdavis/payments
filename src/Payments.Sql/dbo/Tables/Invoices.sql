@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[Invoices] (
+CREATE TABLE [dbo].[Invoices] (
     [Id]                    INT             IDENTITY (1, 1) NOT NULL,
     [AccountId]             INT             NULL,
 	[CouponId]				INT				NULL,
@@ -8,6 +8,7 @@
     [CustomerName]          NVARCHAR (MAX)  NULL,
     [Discount]              DECIMAL (18, 2) NOT NULL,
     [DueDate]               DATETIME2 (7)   NULL,
+    [DraftCount]			INT				NOT NULL DEFAULT 0, 
     [LinkId]                NVARCHAR (MAX)  NULL,
     [Memo]                  NVARCHAR (MAX)  NULL,
     [Sent]                  BIT             NOT NULL,

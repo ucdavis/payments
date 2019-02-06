@@ -55,7 +55,7 @@ export default class AccountSelectControl extends React.Component<IProps, IState
                     { ordered.map(a => <option key={a.id} value={a.id}>{a.name}</option>) }
                 </select>
                 <div className="input-group-append">
-                    <button className="btn btn-outline-secondary" type="button" onClick={this.openModal}>
+                    <button className="btn" type="button" onClick={this.openModal}>
                         <i className="fas fa-fw fa-info-circle" />
                     </button>
                 </div>

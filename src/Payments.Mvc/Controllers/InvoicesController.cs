@@ -35,7 +35,6 @@ namespace Payments.Mvc.Controllers
 
         public IActionResult Index()
         {
-
             var query = _dbContext.Invoices
                 .Where(i => i.Team.Slug == TeamSlug);
 
@@ -297,6 +296,7 @@ namespace Payments.Mvc.Controllers
                 // create new object, track it
                 var invoice = new Invoice
                 {
+                    DraftCount      = 1,
                     Account         = account,
                     Coupon          = coupon,
                     Team            = team,
@@ -419,6 +419,9 @@ namespace Payments.Mvc.Controllers
             invoice.TaxPercent      = model.TaxPercent;
             invoice.DueDate         = model.DueDate;
 
+            // increase draft count
+            invoice.DraftCount++;
+
             // add line items
             var items = model.Items.Select(i => new LineItem()
             {
@@ -467,7 +470,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Send(int id)
+        public async Task<IActionResult> Send(int id, [FromBody]SendInvoiceViewModel model)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -480,22 +483,17 @@ namespace Payments.Mvc.Controllers
                 return NotFound(new
                 {
                     success = false,
-                    errorMessage = "Invoice Not Found"
+                    errorMessage = "Invoice Not Found",
                 });
             }
 
-            if (invoice.Sent)
+            // don't reset the key if it's already live
+            if (!invoice.Sent)
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    errorMessage = "Invoice already sent."
-                });
+                SetInvoiceKey(invoice);
             }
 
-            SetInvoiceKey(invoice);
-
-            await _emailService.SendInvoice(invoice);
+            await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
 
             invoice.Status = Invoice.StatusCodes.Sent;
             invoice.Sent = true;
@@ -685,20 +683,23 @@ namespace Payments.Mvc.Controllers
 
         private void SetInvoiceKey(Invoice invoice)
         {
-            for (var attempt = 0; attempt < 10; attempt++)
+            // setup random 10 character key link id
+            var linkId = InvoiceKeyHelper.GetUniqueKey();
+
+            // append invoice id and draft
+            linkId = $"{linkId}-{invoice.GetFormattedId()}";
+
+            // create db row for tracking links
+            var link = new InvoiceLink()
             {
-                // setup random 10 character key link id
-                var linkId = InvoiceKeyHelper.GetUniqueKey();
+                Invoice = invoice,
+                LinkId = linkId,
+                Expired = false,
+            };
+            _dbContext.InvoiceLinks.Add(link);
 
-                // look for duplicate
-                if (_dbContext.Invoices.Any(i => i.LinkId == linkId)) continue;
-
-                // set and exit
-                invoice.LinkId = linkId;
-                return;
-            }
-
-            throw new Exception("Failure to create new invoice link id in max attempts.");
+            // set key for fast recovery
+            invoice.LinkId = linkId;
         }
 
         private InvoiceFilterViewModel GetInvoiceFilter()

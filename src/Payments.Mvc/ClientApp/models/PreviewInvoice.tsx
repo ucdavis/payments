@@ -23,7 +23,11 @@ export interface PreviewInvoice {
     taxAmount: number;
     total: number;
 
-    teamName: string;
-    teamContactEmail: string;
-    teamContactPhone: string;
+    team: PreivewInvoiceTeam;
+}
+
+interface PreivewInvoiceTeam {
+    name: string;
+    contactEmail: string;
+    contactPhoneNumber: string;
 }

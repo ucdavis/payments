@@ -51,7 +51,32 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null)
             {
-                return PublicNotFound();
+                // check expired link id
+                var link = await _dbContext.InvoiceLinks
+                    .Include(l => l.Invoice)
+                    .ThenInclude(i => i.Team)
+                    .FirstOrDefaultAsync(l => l.LinkId == id);
+
+                // still not found
+                if (link == null)
+                {
+                    return PublicNotFound();
+                }
+
+                // if the invoice has a new link id,
+                // just forward them to the corrected invoice
+                if (!string.IsNullOrWhiteSpace(link.Invoice.LinkId))
+                {
+                    Message = "Your link was expired/old. We've forwarded you to the new link. Please review the invoice for any changes before proceeding.";
+                    return RedirectToAction("Pay", new {id = link.Invoice.LinkId});
+                }
+
+                // otherwise, the invoice is probably back in draft
+                var expiredModel = new ExpiredInvoiceViewModel()
+                {
+                    Team = new PaymentInvoiceTeamViewModel(link.Invoice.Team)
+                };
+                return View("Expired", expiredModel);
             }
 
             // the customer isn't allowed access to draft or cancelled invoices
@@ -84,6 +109,7 @@ namespace Payments.Mvc.Controllers
             return View(model);
         }
 
+        [HttpPost]
         public async Task<ActionResult> AddCoupon(string id, string code)
         {
             var invoice = await _dbContext.Invoices
@@ -155,6 +181,7 @@ namespace Payments.Mvc.Controllers
             return RedirectToAction("Pay", new { id });
         }
 
+        [HttpPost]
         public async Task<ActionResult> RemoveCoupon(string id)
         {
             var invoice = await _dbContext.Invoices
@@ -261,7 +288,7 @@ namespace Payments.Mvc.Controllers
 
             var model = new PreviewInvoiceViewModel()
             {
-                Id               = invoice.Id.ToString(),
+                Id               = invoice.GetFormattedId(),
                 CustomerName     = invoice.CustomerName,
                 CustomerEmail    = invoice.CustomerEmail,
                 CustomerAddress  = invoice.CustomerAddress,
@@ -277,9 +304,7 @@ namespace Payments.Mvc.Controllers
                 Total            = invoice.Total,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,
-                TeamName         = invoice.Team.Name,
-                TeamContactEmail = invoice.Team.ContactEmail,
-                TeamContactPhone = invoice.Team.ContactPhoneNumber,
+                Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
             };
 
             return View(model);
@@ -575,7 +600,7 @@ namespace Payments.Mvc.Controllers
         {
             var model = new PaymentInvoiceViewModel()
             {
-                Id               = invoice.Id.ToString(),
+                Id               = invoice.GetFormattedId(),
                 LinkId           = invoice.LinkId,
                 CustomerName     = invoice.CustomerName,
                 CustomerEmail    = invoice.CustomerEmail,
@@ -592,9 +617,7 @@ namespace Payments.Mvc.Controllers
                 DueDate          = invoice.DueDate,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,
-                TeamName         = invoice.Team.Name,
-                TeamContactEmail = invoice.Team.ContactEmail,
-                TeamContactPhone = invoice.Team.ContactPhoneNumber,
+                Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
             };
 
             return model;

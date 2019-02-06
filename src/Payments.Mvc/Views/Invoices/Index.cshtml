@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -10,7 +10,7 @@
     <div class="card-header-primary card-bot-border">
         <div class="card-head d-flex justify-content-between align-items-start">
             <h2>@ViewBag.Title</h2>
-            <a asp-action="Create" class="btn btn-primary"><i class="far fa-plus-square mr-3"></i> Create New Invoice</a>
+            <a asp-action="Create" class="btn"><i class="far fa-plus-square mr-3"></i> Create New Invoice</a>
         </div>
     </div>
 
@@ -45,7 +45,7 @@
                         <td class="invoices-id-col">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
-                                    @invoice.Id
+                                    @invoice.GetFormattedId()
                                 </div>
                             </a>
                         </td>
