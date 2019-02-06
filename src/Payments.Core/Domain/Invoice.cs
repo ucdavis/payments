@@ -125,7 +125,7 @@ namespace Payments.Core.Domain
             // check for valid coupon on unpaid invoices
             if (Coupon == null)
             {
-                return 0;
+                return Discount;
             }
 
             // check for expired coupon on unpaid invoices
