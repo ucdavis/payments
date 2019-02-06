@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using jsreport.AspNetCore;
@@ -43,12 +43,13 @@ namespace Payments.Mvc.Controllers
 
         [HttpPost]
         [Authorize(Policy = PolicyCodes.TeamEditor)]
-        public IActionResult TaxReport(TaxReportViewModel model)
+        public async Task<IActionResult> TaxReport(TaxReportViewModel model)
         {
             // get all invoices for team
             var query = _dbContext.Invoices
                 .AsQueryable()
                 .Include(i => i.Items)
+                .Include(i => i.Team)
                 .Where(i => i.Team.Slug == TeamSlug);
 
             // for this fiscal year
@@ -59,9 +60,9 @@ namespace Payments.Mvc.Controllers
                    i.PaidAt >= fiscalStart
                 && i.PaidAt <= fiscalEnd);
 
-            var invoices = query
+            var invoices = await query
                 .OrderByDescending(i => i.Id)
-                .ToList();
+                .ToListAsync();
 
             model.Invoices = invoices;
 
