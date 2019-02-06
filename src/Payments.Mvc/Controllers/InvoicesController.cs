@@ -687,7 +687,7 @@ namespace Payments.Mvc.Controllers
             var linkId = InvoiceKeyHelper.GetUniqueKey();
 
             // append invoice id and draft
-            linkId = $"{linkId}-{invoice.Id:D3}-{invoice.DraftCount:D3}";
+            linkId = $"{linkId}-{invoice.GetFormattedId()}";
 
             // create db row for tracking links
             var link = new InvoiceLink()

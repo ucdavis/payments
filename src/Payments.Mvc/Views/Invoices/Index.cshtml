@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -45,7 +45,7 @@
                         <td class="invoices-id-col">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
-                                    @invoice.Id
+                                    @invoice.GetFormattedId()
                                 </div>
                             </a>
                         </td>

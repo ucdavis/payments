@@ -33,7 +33,7 @@ namespace Payments.Core.Services
             var data = new Dictionary<string, object>()
             {
                 { "baseUrl", _emailSettings.BaseUrl },
-                { "id", invoice.Id },
+                { "id", invoice.GetFormattedId() },
                 { "linkid", invoice.LinkId },
                 { "customer", new { email = invoice.CustomerEmail, name = invoice.CustomerName } },
                 { "discount", invoice.Discount.ToString("F2") },

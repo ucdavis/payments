@@ -9,7 +9,7 @@
 @inject ApplicationUserManager _applicationUserManager
 
 @{
-    ViewBag.Title = $"Invoice #{Model.Id}";
+    ViewBag.Title = $"Invoice #{Model.GetFormattedId()}";
     Layout = "_Layout";
 
     var teamSlug = _httpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
@@ -177,7 +177,7 @@
                 <dl class="row mb-0">
                     <dt class="col-6">Invoice Number</dt>
                     <dd class="col-6">
-                        <span>@Model.Id</span>
+                        <span>@Model.GetFormattedId()</span>
                     </dd>
 
                     <dt class="col-6">Due date</dt>

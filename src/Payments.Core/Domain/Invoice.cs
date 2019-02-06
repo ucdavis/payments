@@ -28,6 +28,11 @@ namespace Payments.Core.Domain
 
         public int DraftCount { get; set; }
 
+        public string GetFormattedId()
+        {
+            return $"{Id:D3}-{DraftCount:D3}";
+        }
+
         [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
 
