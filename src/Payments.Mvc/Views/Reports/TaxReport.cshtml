@@ -5,6 +5,7 @@
 }
 
 <form action="@Url.Action("TaxReport")" method="post">
+    @Html.AntiForgeryToken()
     <div class="card-style">
         <div class="card-header-primary card-bot-border">
             <div class="card-head d-flex justify-content-between align-items-start">
@@ -16,7 +17,7 @@
             <div class="row">
                 <div class="form-group col-lg-6">
                     <label asp-for="FiscalYear"></label>
-                    <input asp-for="FiscalYear" class="form-control" />
+                    <input asp-for="FiscalYear" class="form-control"/>
                 </div>
             </div>
         </div>
@@ -27,8 +28,8 @@
                 {
                     var taxTotal = Model.Invoices.Sum(i => i.TaxAmount);
 
-                <table id="taxReportTable" class="table">
-                    <thead>
+                    <table id="taxReportTable" class="table">
+                        <thead>
                         <tr>
                             <th>Team</th>
                             <th>Invoice ID</th>
@@ -38,8 +39,8 @@
                             <th>Tax Rate</th>
                             <th>Tax Amount</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         @foreach (var invoice in Model.Invoices)
                         {
                             var rowClass = invoice.TaxPercent <= 0 ? "text-muted" : "";
@@ -57,10 +58,10 @@
                                 <td class="text-right">@invoice.TaxPercent.ToString("P")</td>
                                 <td class="text-right">@invoice.TaxAmount.ToString("C")</td>
                             </tr>
-                    }
-                    </tbody>
+                        }
+                        </tbody>
 
-                    <tfoot>
+                        <tfoot>
                         <tr>
                             <td></td>
                             <td></td>
@@ -70,8 +71,8 @@
                             <td>Total Liability</td>
                             <td class="text-right">@taxTotal.ToString("C")</td>
                         </tr>
-                    </tfoot>
-                </table>
+                        </tfoot>
+                    </table>
                 }
                 else
                 {
