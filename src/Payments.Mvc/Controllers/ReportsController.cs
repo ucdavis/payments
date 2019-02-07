@@ -29,13 +29,17 @@ namespace Payments.Mvc.Controllers
 
         [HttpGet]
         [Authorize(Policy = PolicyCodes.TeamEditor)]
-        public IActionResult TaxReport()
+        public IActionResult TaxReport(int fiscalYear)
         {
-            var lastFiscalYear = DateTime.UtcNow.FiscalYear() - 1;
+            // support preloading url
+            if (fiscalYear <= 2000)
+            {
+                fiscalYear = DateTime.UtcNow.FiscalYear() - 1;
+            }
 
             var model = new TaxReportViewModel()
             {
-                FiscalYear = lastFiscalYear,
+                FiscalYear = fiscalYear,
             };
 
             return View(model);
@@ -59,6 +63,11 @@ namespace Payments.Mvc.Controllers
             query = query.Where(i =>
                    i.PaidAt >= fiscalStart
                 && i.PaidAt <= fiscalEnd);
+
+            if (model.HideTaxFreeInvoices)
+            {
+                query = query.Where(i => i.TaxAmount > 0);
+            }
 
             var invoices = await query
                 .OrderByDescending(i => i.Id)
