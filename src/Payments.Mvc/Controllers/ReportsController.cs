@@ -64,6 +64,11 @@ namespace Payments.Mvc.Controllers
                    i.PaidAt >= fiscalStart
                 && i.PaidAt <= fiscalEnd);
 
+            if (model.HideTaxFreeInvoices)
+            {
+                query = query.Where(i => i.TaxAmount > 0);
+            }
+
             var invoices = await query
                 .OrderByDescending(i => i.Id)
                 .ToListAsync();
