@@ -7,11 +7,16 @@ namespace Payments.Mvc.Models.ReportViewModels
 {
     public class TaxReportViewModel
     {
-        [Display(Name = "Fiscal Year")]
-        public int FiscalYear { get; set; }
+        public TaxReportViewModel()
+        {
+            Timespan = "month";
+        }
 
-        [Display(Name = "Hide Tax Free Invoices?")]
-        public bool HideTaxFreeInvoices { get; set; }
+        [Display(Name = "StartDate")]
+        public DateTime StartDate { get; set; }
+
+        [Display(Name = "Timespan")]
+        public string Timespan { get; set; }
 
         public IList<Invoice> Invoices { get; set; }
     }
