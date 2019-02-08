@@ -4,170 +4,6 @@
   padding:$card-padding;
 }
 
-
-// Payments layout and card
-
-.pay-memo {
-  box-shadow: $box-shadow;
-  padding: 16px;
-
-  p {
-    margin-bottom: 0;
-    font-style:italic;
-  }
-  margin-bottom: 40px;
-}
-
-.pay-alert {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 761px;
-}
-
-.pay-card-style {
-  margin: 0 auto;
-  max-width: 761px;
-}
-
-.pay-top {
-  text-align: center;
-  padding: $card-thick-padding;
-
-  p {
-    font-size: 2rem;
-    margin-bottom: 0;
-  }
-}
-
-.pay-action {
-  background-color: transparentize($gold,.96);
-  padding: $card-thick-padding;
-  text-align: center;
-  border-top:1px solid $borders;
-  border-bottom:1px solid $borders;
-  
-  p {
-    font-size: 2rem;
-    margin: 18px 0;
-  }
-}
-
-.pay-description {
-  padding: $card-thick-padding;
-}
-
-.pay-download {
-  background-color: $bg-color;
-  padding: $card-thick-padding;
-  text-align: center;
-  border-top:1px solid $borders;
-  border-bottom:1px solid $borders;
-
-  h3 {
-    margin:12px 0px 24px 0;
-  }
-}
-
-.pay-coupon {
-  .pay-coupon-form {
-  }
-}
-
-.pay-attachments {
-
-  padding: $card-thick-padding;
-  width: 100%;
-
-  .pay-attachment {
-    display: flex;
-    align-items: center;
-    padding: 16px 0;
-    margin: 16px 0;
-    border: 1px solid $borders;
-    
-    &:hover {
-      box-shadow: $box-shadow;
-    }
-
-    p {
-      margin: 0;
-    }
-  }
-}
-
-.pay-footer {
-  padding: 16px;
-  text-align: center;
-}
-
-// Preview warning card
-
-.preview-warning-card-style {
-  padding: 16px 48px 8px;
-  margin: 0 auto;
-  margin-bottom: 48px;
-  max-width: 761px;
-  border-left: solid $unitrans-red 6px;
-
-  .preview-warning-icon {
-    color: $unitrans-red;
-  }
-}
-
-// Payments table
-table.pay-table {
-  border-collapse: collapse;
-  margin-bottom:0px;
-
-
-  th,td {
-    padding:12px 0px;
-  }
-
-  thead {
-    th {
-      font-size: 1.8rem;
-      font-family: $sans-reg;
-      border: none;
-      color: $secondary-font;
-      font-weight: inherit;
-      border-bottom:1px solid $borders;
-
-      &:nth-child(2),
-      &:nth-child(3),
-      &:nth-child(4) {
-        text-align: right;
-      }
-    }
-  }
-
-  tbody {
-    tr {
-      &:last-child {
-        border-top: 1px solid $borders;
-        td {
-          color: $primary-font;
-          font-family: $sans-reg;
-        }
-      }
-    }
-
-    td, td span {
-      font-size: 1.6rem;
-      font-family: $sans-reg;
-      color: $tertiary-font;
-      border: none;
-      vertical-align: top;
-
-      &:nth-child(2),
-      &:nth-child(3),
-      &:nth-child(4) {
-        text-align: right;
-      }
-    }
-  }
-}
-
 table.table {
   td {
     vertical-align: inherit;
@@ -194,7 +30,6 @@ table.invoice-table {
       padding-top:8px;
 
       &, & div, & span {
-        font-size: 1.8rem;
         font-family: $sans-reg;
         color: $secondary-font;
         font-weight: inherit;
@@ -255,7 +90,7 @@ table.invoice-table {
       }
     }
     td {
-      font-size: 1.6rem;
+      // font-size: 1.6rem;
       font-family: $sans-reg;
       color: $secondary-font;
       border: none;
@@ -271,7 +106,6 @@ table.invoice-table {
     tr {
       td {
         border-top: none;
-        font-size: 1.6rem;
         font-family: $sans-bold;
         color:$primary-font;
 
@@ -302,7 +136,6 @@ table.invoice-details-table {
 
     thead {
         th {
-            font-size: 1.5rem;
             font-family: $sans-reg;
             text-transform: uppercase;
             border-bottom: 1px solid $borders;
@@ -331,7 +164,6 @@ table.invoice-details-table {
         tr {
             td {
                 vertical-align: top;
-                font-size: 1.6rem;
                 font-family: $sans-reg;
                 color: $secondary-font;
                 border: none;
@@ -387,7 +219,6 @@ table.invoice-details-table {
     tfoot {
         tr {
             td {
-                font-size: 1.6rem;
                 font-family: $sans-bold;
                 color: $primary-font;
 
@@ -407,59 +238,7 @@ table.invoice-details-table {
     }
 }
 
-// datatables
-.dataTables_wrapper {
-  font-size:1.6rem;
-}
 
-table.dataTable {
-  border: 1px solid $borders;
-  border-collapse: collapse !important;
-  th, td {
-
-  }
-  thead {
-    th {
-      font-size: 1.4rem;
-      font-family: $sans-bold;
-      color: $primary-font;
-      font-weight: inherit;
-      text-transform: uppercase;
-      border:none;
-      padding-top:8px;
-      padding-bottom:8px;
-      border-bottom:1px solid $borders;
-      border-right:1px solid $borders;
-      &:last-child {
-        border-right:none;
-      }
-
-    }
-
-    .sorting:before,
-    .sorting:after,
-    .sorting_asc:before,
-    .sorting_asc:after,
-    .sorting_desc:before,
-    .sorting_desc:after {
-      padding-top: 8px;
-      padding-bottom: 8px;
-    }
-  }
-  tbody {
-    // border-left:1px solid $borders;
-    // border-right:1px solid $borders;
-  }
-  td {
-    font-size:1.6rem;
-    border:none;
-    border-bottom:1px solid $borders;
-    border-right:1px solid $borders;
-    &:last-child {
-      border-right:none;
-    }
-  }
-}
 
 // invoice table
 table#Invoices {
@@ -530,6 +309,10 @@ table#Invoices {
 }
 
 .send-invoice-modal {
+  .modal-content {
+    transition: height 1s ease;
+  }
+
   .modal-body + .modal-body {
     border-top: 1px solid $borders;
   }
@@ -554,7 +337,7 @@ table#Invoices {
   padding: 0;
 
   .history-item {
-    padding: 1.25rem 0.75rem;
+    padding: 0.75rem 0.5rem;
   }
 
   .history-item + .history-item {
@@ -562,7 +345,7 @@ table#Invoices {
   }
   
   .history-icon {
-    font-size: 2.5rem;
+    font-size: 1.6rem;
   }
 }
 

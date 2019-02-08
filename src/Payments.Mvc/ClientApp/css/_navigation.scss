@@ -6,7 +6,7 @@ ul.main-nav {
   li {
     padding:2px 0px;
     a {
-      font-size:1.8rem;
+      font-size:1.1rem;
       color:$primary-font;
       img {
         margin-right:12px;
@@ -21,7 +21,7 @@ ul.main-nav {
 
 }
 nav {
-  margin-top: 3rem;
+  margin-top: 2rem;
 
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@ nav {
 
   .nav-text {
     color:$secondary-font;
-    font-size: 1.8rem;
+    font-size: 1.1rem;
     font-family: $sans-bold;
 
     &:hover {
@@ -55,7 +55,7 @@ nav {
     margin-left: 40px  + 18px;
   
     .nav-text {
-      font-size: 1.6rem;
+      font-size: 1rem;
     }
   }
 }

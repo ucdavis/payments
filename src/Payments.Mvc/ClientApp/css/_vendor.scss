@@ -4,18 +4,60 @@
   padding: 0;
 }
 
-table.dataTable thead .sorting:after,
-table.dataTable thead .sorting:before,
-table.dataTable thead .sorting_asc:after,
-table.dataTable thead .sorting_asc:before,
-table.dataTable thead .sorting_asc_disabled:after,
-table.dataTable thead .sorting_asc_disabled:before,
-table.dataTable thead .sorting_desc:after,
-table.dataTable thead .sorting_desc:before,
-table.dataTable thead .sorting_desc_disabled:after,
-table.dataTable thead .sorting_desc_disabled:before {
-  bottom: 1px;
+table.dataTable {
+  border: 1px solid $borders;
+  border-collapse: collapse !important;
+  th, td {
+
+  }
+  thead {
+    th {
+      font-family: $sans-bold;
+      color: $primary-font;
+      font-weight: inherit;
+      text-transform: uppercase;
+      border:none;
+      padding-top:8px;
+      padding-bottom:8px;
+      border-bottom:1px solid $borders;
+      border-right:1px solid $borders;
+      &:last-child {
+        border-right:none;
+      }
+
+      
+    }
+    
+    .sorting:after,
+    .sorting:before,
+    .sorting_asc:after,
+    .sorting_asc:before,
+    .sorting_asc_disabled:after,
+    .sorting_asc_disabled:before,
+    .sorting_desc:after,
+    .sorting_desc:before,
+    .sorting_desc_disabled:after,
+    .sorting_desc_disabled:before {
+      bottom: 1px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+  }
+  tbody {
+    // border-left:1px solid $borders;
+    // border-right:1px solid $borders;
+  }
+  td {
+    border:none;
+    border-bottom:1px solid $borders;
+    border-right:1px solid $borders;
+    &:last-child {
+      border-right:none;
+    }
+  }
 }
+
+
 
 .page-item.active .page-link {
   background-color: $primary-color;
@@ -28,7 +70,7 @@ table.dataTable thead .sorting_desc_disabled:before {
 .input-group-sm > .input-group-prepend > select.input-group-text:not([size]):not([multiple]),
 .input-group-sm > select.form-control:not([size]):not([multiple]),
 select.form-control-sm:not([size]):not([multiple]) {
-  height: calc(1.8125rem + 10px);
+  // height: calc(1.8125rem + 10px);
 }
 @-moz-document url-prefix() {
   .input-group-sm > .input-group-append > select.btn:not([size]):not([multiple]),
@@ -37,7 +79,7 @@ select.form-control-sm:not([size]):not([multiple]) {
   .input-group-sm > .input-group-prepend > select.input-group-text:not([size]):not([multiple]),
   .input-group-sm > select.form-control:not([size]):not([multiple]),
   select.form-control-sm:not([size]):not([multiple]) {
-    height: calc(2.5rem + 10px);
+    // height: calc(2.5rem + 10px);
   }
 }
 // hide input type number arrows

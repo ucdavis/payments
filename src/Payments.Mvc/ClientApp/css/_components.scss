@@ -43,7 +43,7 @@ img.img-fluid {
 
 .action-btn {
   display: block;
-  font-size: 2rem;
+  font-size: 0.9rem;
   color: #fff;
   background-color: $gold;
   font-family: $sans-bold;
@@ -60,8 +60,9 @@ img.img-fluid {
 p a.action-btn {
   text-decoration: none !important;
 }
+
 .btn-plain {
-  font-size:1.66rem;
+  font-size: 1rem;
   font-family: $sans-bold;
   color:$secondary-font;
   background-color:rgba(255,255,255,.0001);
@@ -77,6 +78,12 @@ p a.action-btn {
     color: #fff !important;
   }
 }
+
+.btn-lg {
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
 .btn-gold {
   @include main-btn;
   background-color: $gold;
@@ -88,10 +95,7 @@ p a.action-btn {
     background-color: lighten($gold, 5);
   }
 }
-.btn-md {
-  padding:0px 40px;
-  font-size:1.8rem;
-}
+
 .btn-invoice-delete {
   border:none;
   color:$unitrans-red;
@@ -105,7 +109,7 @@ p a.action-btn {
 }
 .btn-border {
   border: 2px solid $borders;
-  font-size: 1.6rem;
+  font-size: 1rem;
   padding: 8px 16px;
   font-family: $sans-bold;
   background-color: rgba(255,255,255,.66);
@@ -117,7 +121,7 @@ p a.action-btn {
 }
 .btn-discreet {
   color: $tertiary-font;
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-family: $sans-bold;
   border: none;
   cursor: pointer;
@@ -131,7 +135,11 @@ p a.action-btn {
 }
 
 .btn-card {
-  padding: 9px 16px;
+  padding: 0.5rem 1rem;
+
+  h2 {
+    font-size: 1.5rem;
+  }
 
   img {
     margin-left: 1rem;
@@ -147,7 +155,7 @@ p a.action-btn {
   }
 
   &.btn-plain {
-    padding: 1rem;
+    padding: 0.8rem;
     border-radius: 3px;
   }
 }
@@ -172,7 +180,7 @@ ol.breadcrumb {
   margin-top: 16px;
 
   li {
-    font-size: 1.4rem;
+    font-size: 0.8rem;
   }
 
   a {
@@ -197,24 +205,6 @@ ol.breadcrumb {
   > li+li:before {
     color: $tertiary-font;
     content: "/";
-  }
-}
-
-.marketing-highlight {
-  .mh-title {
-    background-color: $primary-color;
-
-    h2 {
-      color: #fff;
-      font-size: 2.6rem;
-      margin: 0;
-      padding: 16px 24px;
-    }
-  }
-
-  .mh-content {
-    background-color: $bg-color;
-    padding: 20px 24px;
   }
 }
 
@@ -354,11 +344,11 @@ ol.breadcrumb {
 
 
 .twopointoh {
-  font-size:2rem;
+  font-size: 2rem;
 }
 .onepointeight {
-  font-size:1.8rem;
+  font-size: 1.8rem;
 }
 .card-bot-border {
-  border-bottom:1px solid $borders;
+  border-bottom: 1px solid $borders;
 }

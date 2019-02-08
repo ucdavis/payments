@@ -67,8 +67,8 @@ $shingle-brown: #4f2c1d;
 
 // Layouts
 
-$card-padding: 0.75rem 1.25rem;
-$card-thick-padding: 3rem;
+$card-padding: 0.5rem 0.75rem;
+$card-thick-padding: 2rem;
 
 @mixin breakpoint($point) {
     @if $point==sm {
@@ -103,17 +103,18 @@ $card-thick-padding: 3rem;
   /* ...and now for the proper property */
   transition:.25s;
 }
+
 @mixin main-btn {
   white-space: nowrap;
-  display: inline-block;
-  height: 40px;
-  line-height: 40px;
-  padding: 0 20px;
+//   display: inline-block;
+//   height: 40px;
+//   line-height: 40px;
+//   padding: 0 20px;
   box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 1px 3px rgba(0,0,0,.08);
   background: $primary-color;
   border-radius: 2px;
-  font-size: 1.6rem;
-  letter-spacing: 0.025em;
+//   font-size: 1rem;
+//   letter-spacing: 0.025em;
   color: #fff !important;
   text-decoration: none;
   transition: all 0.15s ease;
@@ -138,7 +139,7 @@ $card-thick-padding: 3rem;
   line-height: 40px;
   padding: 0 20px;
   background: #fff;
-  font-size: 1.6rem;
+  font-size: 1rem;
   letter-spacing: 0.025em;
   color: $primary-color;
   text-decoration: none;
