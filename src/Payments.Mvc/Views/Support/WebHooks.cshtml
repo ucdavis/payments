@@ -1,4 +1,4 @@
-﻿@using Newtonsoft.Json
+@using Newtonsoft.Json
 @using Payments.Core.Models.Notifications
 @using Payments.Mvc.Resources
 
@@ -10,17 +10,15 @@
     <link href="css/prism.css" rel="stylesheet" />
 }
 
-<div class="card-style">
-    <div class="card-header-yellow card-bot-border">
-        <div class="card-head">
-            <div class="row mb-2">
-                <div class="col-8">
-                    <h2>@ViewBag.Title</h2>
-                </div>
+<div class="card">
+    <div class="card-header card-header-yellow">
+        <div class="row mb-2">
+            <div class="col-8">
+                <h2>@ViewBag.Title</h2>
             </div>
         </div>
     </div>
-    <div class="card-content">
+    <div class="card-body">
         <p>
             Webhooks allow you to subscribe to certain events on payments.ucdavis.edu.
             When one of those events is triggered, we'll send a HTTP POST payload to the webhook's configured URL.

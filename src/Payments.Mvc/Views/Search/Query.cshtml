@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
 @model Payments.Mvc.Models.SearchViewModels.SearchResultsViewModel
 @inject IHttpContextAccessor HttpContextAccessor
@@ -8,19 +8,17 @@
     var teamSlug = HttpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
-        </div>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
     </div>
 </div>
 
 @if (Model.Invoices.Any())
 {
-    <div class="card-style search-results">
+    <div class="card search-results">
         <div class="card-header-primary card-bot-border">
-            <div class="card-head">
+            <div class="card-header">
                 <div class="search-header d-flex justify-content-start align-items-center">
                     <div class="svgwrapper mr-3">
                         @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
@@ -30,7 +28,7 @@
                 </div>
             </div>
         </div>
-        <div class="card-content">
+        <div class="card-body">
             <table id="Invoices" class="table table-hover">
                 <thead>
                 <tr>

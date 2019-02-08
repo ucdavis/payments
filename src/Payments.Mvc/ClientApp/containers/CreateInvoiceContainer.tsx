@@ -95,14 +95,12 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         const { accountId, attachments, discount, dueDate, items, taxPercent, customers, memo, loading, validate } = this.state;
         
         return (
-            <InvoiceForm className="card-style" validate={validate} formRef={r => this._formRef = r}>
+            <InvoiceForm className="card" validate={validate} formRef={r => this._formRef = r}>
                 <LoadingModal loading={loading} />
-                <div className="card-header-yellow card-bot-border">
-                    <div className="card-head">
-                        <h2>Create Invoice for { team.name }</h2>
-                    </div>
+                <div className="card-header card-header-yellow">
+                    <h1>Create Invoice for { team.name }</h1>
                 </div>
-                <div className="card-content invoice-customer">
+                <div className="card-body invoice-customer">
                     <MultiCustomerControl
                         customers={customers}
                         onChange={(c) => this.updateProperty('customers', c)}
@@ -111,7 +109,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         Customer required.
                     </div>
                 </div>
-                <div className="card-content invoice-items">
+                <div className="card-body invoice-items">
                     <h2>Invoice Items</h2>
                     <EditItemsTable
                         items={items}
@@ -123,13 +121,13 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         onTaxPercentChange={(v) => this.updateProperty('taxPercent', v)}
                     />
                 </div>
-                <div className="card-content invoice-memo">
+                <div className="card-body invoice-memo">
                     <h2>Memo</h2>
                     <div className="form-group">
                         <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
                     </div>
                 </div>
-                <div className="card-content invoice-billing">
+                <div className="card-body invoice-billing">
                     <h2>Billing</h2>
                     <div className="form-group">
                         <label>Due Date?</label>
@@ -140,7 +138,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                         <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
                 </div>
-                <div className="card-content invoice-attachments">
+                <div className="card-body invoice-attachments">
                     <h2>Attachments</h2>
                     <AttachmentsControl
                         attachments={attachments}

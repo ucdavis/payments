@@ -1,17 +1,15 @@
-﻿@model TeamPermission
+@model TeamPermission
 @{
     ViewData["Title"] = "Delete User Permission";
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
-            <a asp-action="Roles">Back</a>
-        </div>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+        <a asp-action="Roles">Back</a>
     </div>
 
-    <div class="card-content">
+    <div class="card-body">
         <h3>Are you sure you want to delete this user's permission?</h3>
         <div>
             <dl class="dl-horizontal">

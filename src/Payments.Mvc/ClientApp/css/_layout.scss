@@ -106,7 +106,7 @@ body {
   text-align: center;
 }
 
-.card-style {
+.card {
   background-color: #ffffff;
   box-shadow: $box-shadow;
   border-radius: 4px;
@@ -120,10 +120,10 @@ body {
 
   .card-gradient-header-bleed {
     background: #1e3a5b;
-    background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-    background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-    background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr= '$gradient-one',endColorstr='$gradient-two',GradientType=1);
+    background: -moz-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+    background: -webkit-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+    background: linear-gradient(to right, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one', endColorstr='$gradient-two', GradientType=1);
   }
 
   .card-header-primary {
@@ -135,9 +135,7 @@ body {
   }
 
   .card-header {
-    padding: $card-padding;
-    padding-top: 1.2rem;
-    margin-bottom: 0.5rem;
+    background-color: #ffffff;
 
     h2 {
       font-size: 1.6rem;
@@ -145,22 +143,26 @@ body {
     }
   }
 
-  .card-content {
-    padding: $card-padding;
-    padding-top: 1.6rem;
-    padding-bottom: 1.6rem;
+  .card-body {
+    // padding: $card-padding;
+    // padding-top: 1.6rem;
+    // padding-bottom: 1.6rem;
 
-    h2 {
-      font-size: 1.4rem;
-      margin-bottom: 0;
-    }
+    // h2 {
+    //   font-size: 1.4rem;
+    //   margin-bottom: 0;
+    // }
 
-    h3.sub-header {
-      text-transform: uppercase;
-      font-family: $sans-reg;
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 1.1rem;
+    // h3.sub-header {
+    //   text-transform: uppercase;
+    //   font-family: $sans-reg;
+    //   font-size: 1.3rem;
+    //   font-weight: 600;
+    //   margin-bottom: 1.1rem;
+    // }
+
+    & > table {
+
     }
   }
 

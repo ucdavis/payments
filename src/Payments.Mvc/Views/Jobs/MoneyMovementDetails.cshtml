@@ -1,4 +1,4 @@
-﻿@model MoneyMovementJobRecord
+@model MoneyMovementJobRecord
 @{
     ViewData["Title"] = "Money Movement Details";
 }
@@ -32,14 +32,12 @@
     </style>
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
-        </div>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
     </div>
 
-    <div class="card-content">
+    <div class="card-body">
         <dl class="dl-horizontal">
             <dt>
                 @Html.DisplayNameFor(model => model.Name)
@@ -61,7 +59,7 @@
             </dd>
         </dl>
     </div>
-    <div class="card-content console">
+    <div class="card-body console">
         @foreach (var log in Model.Logs.OrderBy(l => l.Id))
         {
             var time = log.TimeStamp.UtcDateTime - Model.RanOn;

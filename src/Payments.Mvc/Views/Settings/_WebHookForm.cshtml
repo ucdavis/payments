@@ -1,11 +1,11 @@
-﻿@using Payments.Mvc.Resources
+@using Payments.Mvc.Resources
 @model Payments.Mvc.Models.WebHookModels.WebHookViewModel
 
 
-<div class="card-content card-bot-border">
+<div class="card-body card-bot-border">
     <p>We’ll send a <code>POST</code> request to the URL below with details of any subscribed events.</p>
 </div>
-<div class="card-content card-bot-border">
+<div class="card-body card-bot-border">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-row">
         <div class="form-group col-md-6">
@@ -15,7 +15,7 @@
         </div>
     </div>
 </div>
-<div class="card-content card-bot-border">
+<div class="card-body card-bot-border">
     <h3 class="mb-3">Which events would you like to trigger this webhook?</h3>
 
     <div class="form-row">
@@ -32,7 +32,8 @@
         </div>
     </div>
 </div>
-<div class="card-content">
+
+<div class="card-body">
     <div class="form-group">
         <div class="checkbox">
             <label class="d-flex align-items-baseline">

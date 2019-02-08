@@ -6,19 +6,17 @@
     ViewData["Title"] = "Team Details";
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
 
-            @if (Model.UserCanEdit)
-            {
-                <a asp-action="Edit" class="btn"><i class="far fa-edit mr-3"></i>Edit Team</a>
-            }
-        </div>
+        @if (Model.UserCanEdit)
+        {
+            <a asp-action="Edit" class="btn"><i class="far fa-edit mr-3"></i>Edit Team</a>
+        }
     </div>
 
-    <div class="card-content">
+    <div class="card-body">
         <div class="row">
             <dl class="dl-horizontal col-lg">
                 <dt>
@@ -70,38 +68,32 @@
 <div class="row justify-content-between">
 
     <div class="col-sm-12 col-md-5">
-        <a class="" asp-controller="FinancialAccounts" asp-action="Index">
-            <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
-                <img src="/media/statistics.svg" alt="statistics icon">
-                <div>
-                    <h2 class="secondary-font">Accounts</h2>
-                    <span class="tertiary-font">Edit Financial Accounts for Team</span>
-                </div>
+        <a asp-controller="FinancialAccounts" asp-action="Index" class="card card-dashboard-button">
+            <img src="/media/statistics.svg" alt="statistics icon">
+            <div>
+                <h2 class="secondary-font">Accounts</h2>
+                <span class="tertiary-font">Edit Financial Accounts for Team</span>
             </div>
         </a>
     </div>
 
 
     <div class="col-sm-12 col-md-5">
-        <a class="" asp-action="Roles">
-            <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
-                <img src="/media/support.svg" alt="support icon">
-                <div>
-                    <h2 class="secondary-font">Users</h2>
-                    <span class="tertiary-font">Edit Users and Roles for Team</span>
-                </div>
+        <a asp-action="Roles" class="card card-dashboard-button">
+            <img src="/media/support.svg" alt="support icon">
+            <div>
+                <h2 class="secondary-font">Users</h2>
+                <span class="tertiary-font">Edit Users and Roles for Team</span>
             </div>
         </a>
     </div>
 
     <div class="col-sm-12 col-md-5">
-        <a class="" asp-action="WebHooks">
-            <div class="d-flex align-items-center card-dashboard-button card-style btn-card">
-                <img src="/media/webhook.svg" alt="webhook icon">
-                <div>
-                    <h2 class="primary-font">Web Hooks</h2>
-                    <span class="tertiary-font">Edit Web Hooks for Team</span>
-                </div>
+        <a asp-action="WebHooks" class="card card-dashboard-button">
+            <img src="/media/webhook.svg" alt="webhook icon">
+            <div>
+                <h2 class="primary-font">Web Hooks</h2>
+                <span class="tertiary-font">Edit Web Hooks for Team</span>
             </div>
         </a>
     </div>

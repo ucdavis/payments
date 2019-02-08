@@ -1,22 +1,20 @@
-﻿@model Payments.Mvc.Models.TeamViewModels.TeamDetailsModel
+@model Payments.Mvc.Models.TeamViewModels.TeamDetailsModel
 
 @{
     ViewData["Title"] = "Accounts";
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
 
-            @if (Model.UserCanEdit)
-            {
-                <a asp-action="CreateAccount" asp-controller="FinancialAccounts" class="btn"><i class="far fa-plus-square mr-3"></i>Create New Account</a>
-            }
-        </div>
+        @if (Model.UserCanEdit)
+        {
+            <a asp-action="CreateAccount" asp-controller="FinancialAccounts" class="btn"><i class="far fa-plus-square mr-3"></i>Create New Account</a>
+        }
     </div>
 
-    <div class="card-content">
+    <div class="card-body">
         <table class="table">
             <thead>
                 <tr>

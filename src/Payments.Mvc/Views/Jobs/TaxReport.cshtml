@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.JobViewModels.TaxReportViewModel
+@model Payments.Mvc.Models.JobViewModels.TaxReportViewModel
 @{
     ViewData["Title"] = "Tax Report Jobs";
 }
@@ -8,20 +8,18 @@
     <link rel="stylesheet" href="~/css/calendar.css" />
 }
 
-<div class="card-style">
-    <div class="card-header-yellow card-bot-border">
-        <div class="card-head">
-            <div class="row mb-2">
-                <div class="col-8">
-                    <h2>@ViewBag.Title</h2>
-                </div>
-                <div class="col-4 d-flex justify-content-end align-items-end">
-                    <button class="btn" data-toggle="modal" data-target="#run-job-modal">Run Job</button>
-                </div>
+<div class="card">
+    <div class="card-header card-header-yellow">
+        <div class="row mb-2">
+            <div class="col-8">
+                <h1>@ViewBag.Title</h1>
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-end">
+                <button class="btn" data-toggle="modal" data-target="#run-job-modal">Run Job</button>
             </div>
         </div>
     </div>
-    <div class="card-content">
+    <div class="card-body">
         <div class="d-flex justify-content-between mb-4">
             <div>
                 <a class="btn" asp-action="TaxReport" asp-route-year="@(Model.Year - 1)">

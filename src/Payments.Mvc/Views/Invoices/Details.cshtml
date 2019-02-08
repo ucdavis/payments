@@ -25,24 +25,22 @@
     var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
 }
 
-<div class="card-style">
-    <div class="card-header-yellow card-bot-border">
-        <div class="card-head d-flex justify-content-between">
-            <div class="d-flex align-items-center">
-                <h2 class="m0">@ViewBag.Title for @Model.Total.ToString("C")</h2>
-                <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
-            </div>
-
-            @if (Model.Status == Invoice.StatusCodes.Draft)
-            {
-                <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">
-                    <i class="far fa-trash-alt text-danger"></i>
-                    Delete draft
-                </button>
-            }
+<div class="card">
+    <div class="card-header card-header-yellow d-flex justify-content-between">
+        <div class="d-flex align-items-center">
+            <h2 class="m0">@ViewBag.Title for @Model.Total.ToString("C")</h2>
+            <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
         </div>
+
+        @if (Model.Status == Invoice.StatusCodes.Draft)
+        {
+            <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">
+                <i class="far fa-trash-alt text-danger"></i>
+                Delete draft
+            </button>
+        }
     </div>
-    <div class="card-content card-bot-border">
+    <div class="card-body card-bot-border">
         @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
         {
             <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
@@ -79,7 +77,7 @@
             </button>
         }
     </div>
-    <div class="card-content history-timeline">
+    <div class="card-body history-timeline">
         @foreach (var action in timeline)
         {
             var actionType = HistoryActionTypes.GetHistoryActionType(action.Type);
@@ -97,7 +95,7 @@
     </div>
 </div>
 
-<div class="card-style">
+<div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h2>Summary</h2>
 
@@ -129,7 +127,7 @@
             }
         </div>
     </div>
-    <div class="card-content card-bot-border invoice-customer">
+    <div class="card-body card-bot-border invoice-customer">
         <div class="row mb-0">
             <div class="col-md-6">
                 <dl class="row mb-0">
@@ -196,7 +194,7 @@
         </div>
         
     </div>
-    <div class="card-content invoice-items p-0">
+    <div class="card-body invoice-items p-0">
         <table class="invoice-details-table">
             <thead>
                 <tr>
@@ -299,7 +297,7 @@
     </div>
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
     {
-        <div class="card-content invoice-memo">
+        <div class="card-body invoice-memo">
             <h2>Memo</h2>
             <div class="form-group">
                 @Html.DisplayFor(x => x.Memo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
@@ -310,11 +308,11 @@
 
 @if (Model.Attachments.Any())
 {
-    <div class="card-style">
+    <div class="card">
         <div class="card-header">
             <h2>Attachments</h2>
         </div>
-        <div class="card-content invoice-attachments">
+        <div class="card-body invoice-attachments">
             @foreach (var a in Model.Attachments)
             {
                 var iconClass = a.GetFileIcon();
@@ -344,11 +342,11 @@
     </div>
 }
 
-<div class="card-style">
+<div class="card">
     <div class="card-header">
         <h2>Details</h2>
     </div>
-    <div class="card-content invoice-details">
+    <div class="card-body invoice-details">
         <dl class="row">
             <dt class="col-2 text-right">Created</dt>
             <dd class="col-10">
@@ -372,11 +370,11 @@
 
 @if (Model.Paid)
 {
-    <div class="card-style">
+    <div class="card">
         <div class="card-header">
             <h2>Payment</h2>
         </div>
-        <div class="card-content card-bot-border invoice-payment-details">
+        <div class="card-body card-bot-border invoice-payment-details">
             <dl class="row">
                 <dt class="col-3 text-right">Amount</dt>
                 <dd class="col-9">

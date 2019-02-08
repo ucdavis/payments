@@ -134,21 +134,6 @@ p a.action-btn {
   width: 100%;
 }
 
-.btn-card {
-  padding: 0.5rem 1rem;
-
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  img {
-    margin-left: 1rem;
-    margin-right: 2rem;
-
-    width: 40px;
-  }
-}
-
 .btn-hover {
   &:hover {
     box-shadow: $box-shadow;

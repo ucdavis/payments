@@ -105,21 +105,19 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
         
 
         return (
-            <InvoiceForm className="card-style" validate={validate} formRef={r => this._formRef = r}>
+            <InvoiceForm className="card" validate={validate} formRef={r => this._formRef = r}>
                 <LoadingModal loading={loading} />
-                <div className="card-header-yellow card-bot-border">
-                    <div className="card-head">
-                        <h2>Edit Invoice #{ id } for { team.name } </h2>
-                    </div>
+                <div className="card-header card-header-yellow">
+                    <h1>Edit Invoice #{ id } for { team.name } </h1>
                 </div>
-                <div className="card-content invoice-customer">
+                <div className="card-body invoice-customer">
                     <h3>Customer Info</h3>
                     <CustomerControl
                         customer={customer}
                         onChange={(c) => { this.updateProperty("customer", c) }}
                     />
                 </div>
-                <div className="card-content invoice-items">
+                <div className="card-body invoice-items">
                     <h3>Invoice Items</h3>
                     <EditItemsTable
                         items={items}
@@ -131,13 +129,13 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         onTaxPercentChange={(v) => this.updateProperty('taxPercent', v)}
                     />
                 </div>
-                <div className="card-content invoice-memo">
+                <div className="card-body invoice-memo">
                     <h3>Memo</h3>
                     <div className="form-group">
                         <MemoInput value={memo} onChange={(v) => this.updateProperty('memo', v)} />
                     </div>
                 </div>
-                <div className="card-content invoice-billing">
+                <div className="card-body invoice-billing">
                     <h2>Billing</h2>
                     <div className="form-group">
                         <label>Due Date?</label>
@@ -148,7 +146,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
                         <AccountSelectControl accounts={accounts} value={accountId} onChange={(a) => this.updateProperty('accountId', a)} />
                     </div>
                 </div>
-                <div className="card-content invoice-attachments">
+                <div className="card-body invoice-attachments">
                     <h2>Attachments</h2>
                     <AttachmentsControl
                         attachments={attachments}

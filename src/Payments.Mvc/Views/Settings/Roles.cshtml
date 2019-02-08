@@ -1,4 +1,4 @@
-﻿@using Humanizer
+@using Humanizer
 @using Payments.Mvc.Models.TeamViewModels
 @model TeamDetailsModel
 
@@ -6,18 +6,16 @@
     ViewData["Title"] = "Team Roles";
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
-            @if (Model.UserCanEdit)
-            {
-                <a asp-action="CreatePermission" class="btn"><i class="far fa-plus-square mr-3"></i> Add User</a>
-            }
-        </div>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+        @if (Model.UserCanEdit)
+        {
+            <a asp-action="CreatePermission" class="btn"><i class="far fa-plus-square mr-3"></i> Add User</a>
+        }
     </div>
 
-    <div class="card-content">
+    <div class="card-body">
         <table class="table">
             <thead>
             <tr>

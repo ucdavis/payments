@@ -6,13 +6,11 @@
 
 <form method="post">
     @Html.AntiForgeryToken()
-    <div class="card-style">
-        <div class="card-header-primary card-bot-border">
-            <div class="card-head ">
-                <h2>@ViewBag.Title</h2>
-            </div>
+    <div class="card">
+        <div class="card-header card-header-primary">
+            <h1>@ViewBag.Title</h1>
         </div>
-        <div class="card-content bot-border">
+        <div class="card-body bot-border">
             <div class="row">
                 <div class="col-10">
                     <div class="row">
@@ -50,7 +48,7 @@
                 </div>
             </div>
             
-        <div class="card-content">
+        <div class="card-body">
             @if (Model?.Invoices != null)
             {
                 if (Model.Invoices.Any())
