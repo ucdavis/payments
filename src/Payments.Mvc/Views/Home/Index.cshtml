@@ -1,4 +1,4 @@
-﻿@model IList<Team>
+@model IList<Team>
 @{
     ViewData["Title"] = "Index";
 }
@@ -9,7 +9,7 @@
     @foreach (var team in Model)
     {
         <div class="col-sm-12 col-md-5">
-            <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@team.Slug" class="d-flex align-items-center justify-content-between card-dashboard-button card-style btn-card">
+            <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@team.Slug" class="card card-dashboard-button justify-content-between">
                 <i class="fas fa-users"></i>
                 <span>@team.Name</span>
                 <i class="fas fa-external-link-alt"></i>

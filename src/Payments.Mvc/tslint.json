@@ -11,7 +11,7 @@
       "allow-leading-underscore"
     ],
     "jsx-no-lambda": false,
-    "interface-name": false,
+    "interface-name": false
   },
   "rulesDirectory": []
 }

@@ -1,11 +1,3 @@
-*,
-*:after,
-*:before {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
 html {
   position: relative;
   min-height: 100%;
@@ -21,22 +13,26 @@ body {
 .container {
   padding: 0;
   width: 98%;
-  max-width:1440px;
+  max-width: 1440px;
+
   @include breakpoint (sm) {
     width: 96%;
-    max-width:1440px;
+    max-width: 1440px;
   }
+
   @include breakpoint (md) {
     width: 92%;
-    max-width:1440px;
+    max-width: 1440px;
   }
+
   @include breakpoint(lg) {
     width: 90%;
-    max-width:1440px;
+    max-width: 1440px;
   }
+
   @include breakpoint(xl) {
     width: 80%;
-    max-width:1440px;
+    max-width: 1440px;
   }
 }
 
@@ -62,7 +58,7 @@ body {
 
   button {
     border: none;
-    background-color: rgba(255,255,255,.001);
+    background-color: rgba(255, 255, 255, .001);
   }
 }
 
@@ -106,63 +102,76 @@ body {
 }
 
 .team-select-control-item {
-  font-size: 1.4rem;
+  font-size: 0.9rem;
   text-align: center;
 }
 
-.card-style {
+.card {
   background-color: #ffffff;
   box-shadow: $box-shadow;
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 2.2rem;
-}
+  margin-bottom: 1.6rem;
 
-.card-header {
+  .card-gradient-header {
+    background: url("/media/gradient-header.svg") center top/cover no-repeat;
+    height: 6px;
+  }
+
+  .card-gradient-header-bleed {
+    background: #1e3a5b;
+    background: -moz-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+    background: -webkit-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+    background: linear-gradient(to right, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one', endColorstr='$gradient-two', GradientType=1);
+  }
+
+  .card-header-primary {
+    border-top: 4px solid $primary-color;
+  }
+
+  .card-header-yellow {
+    border-top: 4px solid $golden-lupine;
+  }
+
+  .card-header {
+    background-color: #ffffff;
+
     h2 {
-        font-size: 2.1rem;
-        margin-bottom: 0;
+      font-size: 1.6rem;
+      margin-bottom: 0;
     }
-}
+  }
 
-.card-content {
+  .card-body {
+    // padding: $card-padding;
+    // padding-top: 1.6rem;
+    // padding-bottom: 1.6rem;
+
+    // h2 {
+    //   font-size: 1.4rem;
+    //   margin-bottom: 0;
+    // }
+
+    // h3.sub-header {
+    //   text-transform: uppercase;
+    //   font-family: $sans-reg;
+    //   font-size: 1.3rem;
+    //   font-weight: 600;
+    //   margin-bottom: 1.1rem;
+    // }
+
+    & > table {
+
+    }
+  }
+
+  .card-foot {
     padding: $card-padding;
-    padding-top: 2.6rem;
-    padding-bottom: 2.6rem;
+    border-top: 1px solid $borders;
+  }
+}
 
-    h3.sub-header {
-        text-transform: uppercase;
-        font-family: $sans-reg;
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1.7rem;
-    }
-}
-.card-head {
-  padding:$card-padding;
-  padding-top:1.8rem;
-}
-.card-gradient-header {
-  background: url("/media/gradient-header.svg") center top/cover no-repeat;
-  height: 6px;
-}
-.card-gradient-header-bleed {
-  background: #1e3a5b;
-  background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr= '$gradient-one',endColorstr='$gradient-two',GradientType=1);
-}
-.card-header-primary {
-  border-top:4px solid $primary-color;
-}
-.card-header-yellow {
-  border-top:4px solid $golden-lupine;
-}
-.card-foot {
-  padding:$card-padding;
-  border-top:1px solid $borders;
-}
 footer {
   position: absolute;
   bottom: 0;
@@ -172,10 +181,10 @@ footer {
 
 .footer_bleed {
   background: #1e3a5b;
-  background: -moz-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  background: -webkit-linear-gradient(left,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  background: linear-gradient(to right,#1e3a5b 0%,#1e3a5b 44%,#dbbc5b 57%,#dbbc5b 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr= '$gradient-one',endColorstr='$gradient-two',GradientType=1);
+  background: -moz-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+  background: -webkit-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+  background: linear-gradient(to right, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one', endColorstr='$gradient-two', GradientType=1);
 }
 
 .footer_divider {

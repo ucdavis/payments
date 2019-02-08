@@ -6,15 +6,13 @@
     ViewBag.Title = "Invoices";
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
-            <a asp-action="Create" class="btn"><i class="far fa-plus-square mr-3"></i> Create New Invoice</a>
-        </div>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+        <a asp-action="Create" class="btn"><i class="far fa-plus-square mr-3"></i> Create New Invoice</a>
     </div>
 
-    <div class="card-content card-bot-border">
+    <div class="card-body card-bot-border">
         <div class="d-flex justify-content-between">
             <h3 class="">Filters</h3>
             <button class="btn-plain" type="button" data-toggle="collapse" data-target="#invoiceFilter"><i class="fas fa-filter"></i></button>
@@ -25,7 +23,7 @@
         </div>
     </div>
 
-    <div class="card-content">
+    <div class="card-body">
         <table id="Invoices" class="table table-hover">
             <thead>
                 <tr>

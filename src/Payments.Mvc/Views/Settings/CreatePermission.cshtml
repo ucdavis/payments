@@ -1,22 +1,19 @@
-﻿@using Payments.Mvc.Models.TeamViewModels
+@using Payments.Mvc.Models.TeamViewModels
 @model CreateTeamPermissionViewModel
 @{
     ViewData["Title"] = "Add User";
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <div>
-                <h2>@ViewBag.Title</h2>
-                <span class="text-muted">
-                    <a asp-action="Roles">Back</a>
-                </span>
-            </div>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+            <h1>@ViewBag.Title</h1>
+            <span class="text-muted">
+                <a asp-action="Roles">Back</a>
+            </span>
         </div>
     </div>
 
-    <div class="card-content">
+    <div class="card-body">
         <div class="row">
             <div class="col-md-4">
                 <form asp-action="CreatePermission">

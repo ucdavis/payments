@@ -5,11 +5,11 @@ using AspNetCore.Security.CAS;
 using jsreport.AspNetCore;
 using jsreport.Binary;
 using jsreport.Local;
-using jsreport.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +23,7 @@ using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 using Payments.Mvc.Authorization;
 using Payments.Mvc.Handlers;
+using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Logging;
 using Payments.Mvc.Models.Configuration;
@@ -247,6 +248,7 @@ namespace Payments.Mvc
 
             app.UseMvc(routes =>
             {
+                // customer routes
                 routes.MapRoute(
                     name: "pay-responses",
                     template: "pay/{action}",
@@ -263,24 +265,39 @@ namespace Payments.Mvc
                     template: "file/{id}/{fileId}",
                     defaults: new { controller = "payments", action = "file" });
 
+                // non team root routes
                 routes.MapRoute(
                     name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|jobs|support|system|teams|reportservices)" });
+                    constraints: new { controller = "(account|support|teams|jobs|system)" });
 
+                // team level routes
                 routes.MapRoute(
                     name: "team-index",
                     template: "{team}",
                     defaults: new { controller = "home", action = "teamindex" },
-                    constraints: new { team = new RegexInlineRouteConstraint(Team.SlugRegex) });
+                    constraints: new
+                    {
+                        team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                            new RegexInlineRouteConstraint(Team.SlugRegex),
+                            new NotConstraint("(reports)"),
+                        })
+                    });
 
                 routes.MapRoute(
                     name: "team-routes",
                     template: "{team}/{controller=Home}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { team = new RegexInlineRouteConstraint(Team.SlugRegex) });
+                    constraints: new
+                    {
+                        team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                            new RegexInlineRouteConstraint(Team.SlugRegex),
+                            new NotConstraint("(reports)"),
+                        })
+                    });
 
+                // le default fallback for controllers that are excluded by the team = NotConstraint above
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");

@@ -1,15 +1,12 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using jsreport.AspNetCore;
-using jsreport.Types;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
-using Payments.Core.Extensions;
+using Payments.Core.Domain;
+using Payments.Core.Reports;
 using Payments.Mvc.Models.ReportViewModels;
-using Payments.Mvc.Models.Roles;
 
 namespace Payments.Mvc.Controllers
 {
@@ -27,46 +24,67 @@ namespace Payments.Mvc.Controllers
             return View();
         }
 
+        #region team reports
+        /* system wide reports should use attribute routes */
+
         [HttpGet]
-        [Authorize(Policy = PolicyCodes.TeamEditor)]
-        public IActionResult TaxReport(int fiscalYear)
+        public IActionResult TeamTaxReport()
         {
-            // support preloading url
-            if (fiscalYear <= 2000)
-            {
-                fiscalYear = DateTime.UtcNow.FiscalYear() - 1;
-            }
-
-            var model = new TaxReportViewModel()
-            {
-                FiscalYear = fiscalYear,
-            };
-
-            return View(model);
+            return View("TaxReport");
         }
 
         [HttpPost]
-        [Authorize(Policy = PolicyCodes.TeamEditor)]
-        public async Task<IActionResult> TaxReport(TaxReportViewModel model)
+        public async Task<IActionResult> TeamTaxReport(TaxReportViewModel model)
         {
-            // get all invoices for team
-            var query = _dbContext.Invoices
-                .AsQueryable()
-                .Include(i => i.Items)
-                .Include(i => i.Team)
-                .Where(i => i.Team.Slug == TeamSlug);
-
-            // for this fiscal year
-            var fiscalStart = new DateTime(model.FiscalYear - 1, 7, 1);
-            var fiscalEnd = new DateTime(model.FiscalYear, 7, 1);
-
-            query = query.Where(i =>
-                   i.PaidAt >= fiscalStart
-                && i.PaidAt <= fiscalEnd);
-
-            if (model.HideTaxFreeInvoices)
+            // get base query for various timespan
+            IQueryable<Invoice> query;
+            if (string.Equals(model.Timespan, "month", StringComparison.OrdinalIgnoreCase))
             {
-                query = query.Where(i => i.TaxAmount > 0);
+                query = new TaxReport(_dbContext)
+                    .RunForMonth(model.StartDate);
+            }
+            else
+            {
+                query = new TaxReport(_dbContext)
+                    .RunForFiscalYear(model.StartDate.Year);
+            }
+
+            // narrow to just this team
+            query = query.Where(i => i.Team.Slug == TeamSlug);
+
+            var invoices = await query
+                .OrderByDescending(i => i.Id)
+                .ToListAsync();
+
+            model.Invoices = invoices;
+
+            return View("TaxReport", model);
+        }
+        #endregion
+
+        #region system reports
+        /* system wide reports should use attribute routes */
+
+        [HttpGet("reports/tax-report")]
+        public IActionResult TaxReportByMonth()
+        {
+            return View("TaxReport");
+        }
+
+        [HttpPost("reports/tax-report")]
+        public async Task<IActionResult> TaxReportByMonth(TaxReportViewModel model)
+        {
+            // get base query for various timespan
+            IQueryable<Invoice> query;
+            if (string.Equals(model.Timespan, "month", StringComparison.OrdinalIgnoreCase))
+            {
+                query = new TaxReport(_dbContext)
+                    .RunForMonth(model.StartDate);
+            }
+            else
+            {
+                query = new TaxReport(_dbContext)
+                    .RunForFiscalYear(model.StartDate.Year);
             }
 
             var invoices = await query
@@ -75,7 +93,8 @@ namespace Payments.Mvc.Controllers
 
             model.Invoices = invoices;
 
-            return View(model);
+            return View("TaxReport", model);
         }
+        #endregion
     }
 }

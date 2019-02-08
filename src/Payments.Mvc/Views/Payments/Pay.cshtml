@@ -7,7 +7,7 @@
     var downloadLink = Url.Action("Invoice", "Pdf", new { id = Model.LinkId });
 }
 
-<div class="card-style pay-card-style">
+<div class="card pay-card">
     <div class="card-gradient-header-bleed">
         <div class="card-gradient-header">
         </div>
@@ -17,11 +17,11 @@
         <div class="pay-action">
             @if (!Model.Paid)
             {
-                <h1>@(string.Format("{0:C}", Model.Total))</h1>
+                <span class="pay-action-total">@(string.Format("{0:C}", Model.Total))</span>
 
                 if (Model.DueDate.HasValue)
                 {
-                    <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
+                    <span class="pay-action-date" class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</span>
                 }
 
                 <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
@@ -30,7 +30,7 @@
                         <input type="hidden" name="@pair.Key" value="@pair.Value" />
                     }
                     <input type="hidden" name="signature" value="@ViewBag.Signature" />
-                    <button type="submit" class="btn-gold btn-md" aria-hidden="true">
+                    <button type="submit" class="btn-gold btn-lg pay-now-button" aria-hidden="true">
                         <i class="fas fa-credit-card mr-3" aria-hidden="true"></i>
                         Pay Now
                     </button>

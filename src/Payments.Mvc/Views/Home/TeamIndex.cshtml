@@ -6,9 +6,9 @@
     var teamSlug = HttpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
 }
 
-<div class="card-style">
+<div class="card">
     <div class="card-header-primary">
-        <div class="card-head">
+        <div class="card-header">
             <h2>Your Payments Dashboard</h2>
         </div>
     </div>
@@ -60,38 +60,38 @@
 
 <div class="row justify-content-between">
     <div class="col-sm-12 col-md-6 col-lg-5">
-        <a asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug" class="d-flex align-items-center card-dashboard-button card-style btn-card">
+        <a asp-controller="Invoices" asp-action="Index" asp-route-team="@teamSlug" class="card card-dashboard-button">
             <img src="/media/invoices.svg" alt="invoices icon">
             <div>
                 <h2 class="secondary-font">View my invoices</h2>
-                <p id="totalCountText" class="tertiary-font">0 total  |  0 Outstanding  |  0 Past due</p>
+                <span id="totalCountText" class="tertiary-font">0 total  |  0 Outstanding  |  0 Past due</span>
             </div>
         </a>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-5">
-        <a asp-controller="Invoices" asp-action="Create" asp-route-team="@teamSlug" class="d-flex align-items-center card-dashboard-button card-style btn-card">
+        <a asp-controller="Invoices" asp-action="Create" asp-route-team="@teamSlug" class="card card-dashboard-button">
             <img src="/media/newinvoice.svg" alt="new invoice icon">
             <div>
                 <h2 class="secondary-font">Create new invoice</h2>
-                <p id="newCountText" class="tertiary-font">You've created 0 invoices this week</p>
+                <span id="newCountText" class="tertiary-font">You've created 0 invoices this week</span>
             </div>
         </a>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-5">
-        <a asp-controller="Reports" asp-action="Index" asp-route-team="@teamSlug" class="d-flex align-items-center card-dashboard-button card-style btn-card">
+        <a asp-controller="Reports" asp-action="Index" asp-route-team="@teamSlug" class="card card-dashboard-button">
             <img src="/media/statistics.svg" alt="statistics icon">
             <div>
                 <h2 class="secondary-font">Statistics</h2>
-                <p id="cashTotal" class="tertiary-font">$0.00 over the last 6 months</p>
+                <span id="cashTotal" class="tertiary-font">$0.00 over the last 6 months</span>
             </div>
         </a>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-5">
-        <a asp-controller="Support" asp-action="Index" class="d-flex align-items-center card-dashboard-button card-style btn-card">
+        <a asp-controller="Support" asp-action="Index" class="card card-dashboard-button">
             <img src="/media/support.svg" alt="support icon">
             <div>
                 <h2 class="secondary-font">Get Support</h2>
-                <p class="tertiary-font">Questions, comments, concerns?</p>
+                <span class="tertiary-font">Questions, comments, concerns?</span>
             </div>
         </a>
     </div>

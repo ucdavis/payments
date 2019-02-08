@@ -1,170 +1,19 @@
 // card-dashboard-button
 
 .card-dashboard-button {
-  padding:$card-padding;
-}
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem 1rem;
 
-
-// Payments layout and card
-
-.pay-memo {
-  box-shadow: $box-shadow;
-  padding: 16px;
-
-  p {
-    margin-bottom: 0;
-    font-style:italic;
-  }
-  margin-bottom: 40px;
-}
-
-.pay-alert {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 761px;
-}
-
-.pay-card-style {
-  margin: 0 auto;
-  max-width: 761px;
-}
-
-.pay-top {
-  text-align: center;
-  padding: $card-thick-padding;
-
-  p {
-    font-size: 2rem;
-    margin-bottom: 0;
-  }
-}
-
-.pay-action {
-  background-color: transparentize($gold,.96);
-  padding: $card-thick-padding;
-  text-align: center;
-  border-top:1px solid $borders;
-  border-bottom:1px solid $borders;
-  
-  p {
-    font-size: 2rem;
-    margin: 18px 0;
-  }
-}
-
-.pay-description {
-  padding: $card-thick-padding;
-}
-
-.pay-download {
-  background-color: $bg-color;
-  padding: $card-thick-padding;
-  text-align: center;
-  border-top:1px solid $borders;
-  border-bottom:1px solid $borders;
-
-  h3 {
-    margin:12px 0px 24px 0;
-  }
-}
-
-.pay-coupon {
-  .pay-coupon-form {
-  }
-}
-
-.pay-attachments {
-
-  padding: $card-thick-padding;
-  width: 100%;
-
-  .pay-attachment {
-    display: flex;
-    align-items: center;
-    padding: 16px 0;
-    margin: 16px 0;
-    border: 1px solid $borders;
-    
-    &:hover {
-      box-shadow: $box-shadow;
-    }
-
-    p {
-      margin: 0;
-    }
-  }
-}
-
-.pay-footer {
-  padding: 16px;
-  text-align: center;
-}
-
-// Preview warning card
-
-.preview-warning-card-style {
-  padding: 16px 48px 8px;
-  margin: 0 auto;
-  margin-bottom: 48px;
-  max-width: 761px;
-  border-left: solid $unitrans-red 6px;
-
-  .preview-warning-icon {
-    color: $unitrans-red;
-  }
-}
-
-// Payments table
-table.pay-table {
-  border-collapse: collapse;
-  margin-bottom:0px;
-
-
-  th,td {
-    padding:12px 0px;
+  h2 {
+    font-size: 1.5rem;
   }
 
-  thead {
-    th {
-      font-size: 1.8rem;
-      font-family: $sans-reg;
-      border: none;
-      color: $secondary-font;
-      font-weight: inherit;
-      border-bottom:1px solid $borders;
+  img {
+    margin-left: 1rem;
+    margin-right: 2rem;
 
-      &:nth-child(2),
-      &:nth-child(3),
-      &:nth-child(4) {
-        text-align: right;
-      }
-    }
-  }
-
-  tbody {
-    tr {
-      &:last-child {
-        border-top: 1px solid $borders;
-        td {
-          color: $primary-font;
-          font-family: $sans-reg;
-        }
-      }
-    }
-
-    td, td span {
-      font-size: 1.6rem;
-      font-family: $sans-reg;
-      color: $tertiary-font;
-      border: none;
-      vertical-align: top;
-
-      &:nth-child(2),
-      &:nth-child(3),
-      &:nth-child(4) {
-        text-align: right;
-      }
-    }
+    width: 40px;
   }
 }
 
@@ -172,29 +21,31 @@ table.table {
   td {
     vertical-align: inherit;
   }
-  tbody + tbody {
-    border:none;
+
+  tbody+tbody {
+    border: none;
   }
 }
 
 // Invoice edit table
 table.invoice-table {
   border-collapse: collapse;
-  margin-bottom:0px;
+  margin-bottom: 0px;
 
   td {
-    padding:12px 0px;
+    padding: 12px 0px;
   }
 
   thead {
     th {
-      
-      border: none;
-      padding:0px;
-      padding-top:8px;
 
-      &, & div, & span {
-        font-size: 1.8rem;
+      border: none;
+      padding: 0px;
+      padding-top: 8px;
+
+      &,
+      & div,
+      & span {
         font-family: $sans-reg;
         color: $secondary-font;
         font-weight: inherit;
@@ -202,7 +53,7 @@ table.invoice-table {
 
       &:nth-child(2) {
         text-align: right;
-        padding-right:16px;
+        padding-right: 16px;
       }
 
       &:nth-child(3) {
@@ -230,22 +81,27 @@ table.invoice-table {
           // width:45%;
           padding-right: 1.6rem;
         }
+
         td:nth-child(2) {
           width: 12%;
           padding-right: 1.6rem;
         }
+
         td:nth-child(3) {
           width: 12%;
+
           input {
             text-align: right;
           }
         }
+
         td:nth-child(4) {
           width: 12%;
           text-align: right;
           padding-top: 1.2rem + 0.375rem;
           padding-bottom: 1.2rem + 0.375rem;
         }
+
         td:nth-child(5) {
           width: 4rem;
           text-align: right;
@@ -254,11 +110,13 @@ table.invoice-table {
         }
       }
     }
+
     td {
-      font-size: 1.6rem;
+      // font-size: 1.6rem;
       font-family: $sans-reg;
       color: $secondary-font;
       border: none;
+
       &:nth-child(5),
       &:nth-child(6) {
         text-align: right;
@@ -267,13 +125,13 @@ table.invoice-table {
   }
 
   tfoot {
-    border:none;
+    border: none;
+
     tr {
       td {
         border-top: none;
-        font-size: 1.6rem;
         font-family: $sans-bold;
-        color:$primary-font;
+        color: $primary-font;
 
         &:nth-child(5) {
           text-align: right;
@@ -292,181 +150,127 @@ table.invoice-table {
 
 // Invoice details table
 table.invoice-details-table {
-    border-collapse: collapse;
-    margin-bottom: 0px;
-    width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0px;
+  width: 100%;
 
-    th, td {
-        padding: 1rem;
-    }
-
-    thead {
-        th {
-            font-size: 1.5rem;
-            font-family: $sans-reg;
-            text-transform: uppercase;
-            border-bottom: 1px solid $borders;
-            color: $secondary-font;
-            font-weight: 600;
-        }
-
-        th:nth-child(2) {
-          text-align: right;
-      }
-
-        th:nth-child(3) {
-            text-align: right;
-        }
-
-        th:nth-child(4) {
-          text-align: right;
-      }
-
-        th:nth-child(5) {
-            text-align: right;
-        }
-    }
-
-    tbody {
-        tr {
-            td {
-                vertical-align: top;
-                font-size: 1.6rem;
-                font-family: $sans-reg;
-                color: $secondary-font;
-                border: none;
-            }
-
-            td:first-child {
-                padding-right: 16px;
-                color: $primary-font;
-            }
-
-            td:nth-child(2) {
-                width: 12%;
-                padding-right: 16px;
-                text-align: right;
-            }
-
-            td:nth-child(3) {
-                width: 12%;
-                text-align: right;
-            }
-
-            td:nth-child(4) {
-                width: 12%;
-                padding-left: 2rem;
-                text-align: right;
-            }
-
-            td:nth-child(5) {
-                width: 12%;
-                text-align: right;
-                color: $primary-font;
-            }
-        }
-    }
-
-    tbody.invoice-details-table-items {
-        tr td {
-            border-bottom: 1px solid $borders;
-        }
-    }
-
-    tbody.invoice-details-table-subtotals {
-        tr {
-            td {
-                &:nth-child(3),
-                &:nth-child(5) {
-                    color: $primary-font;
-                }
-            }
-        }
-    }
-
-    tfoot {
-        tr {
-            td {
-                font-size: 1.6rem;
-                font-family: $sans-bold;
-                color: $primary-font;
-
-                &:nth-child(3),
-                &:nth-child(4),
-                &:nth-child(5) {
-                    border-top: 1px solid $borders;
-                    text-align: right;
-                }
-            }
-        }
-
-        tr:last-child {
-            td {
-            }
-        }
-    }
-}
-
-// datatables
-.dataTables_wrapper {
-  font-size:1.6rem;
-}
-
-table.dataTable {
-  border: 1px solid $borders;
-  border-collapse: collapse !important;
-  th, td {
-
+  th,
+  td {
+    padding: 1rem;
   }
+
   thead {
     th {
-      font-size: 1.4rem;
-      font-family: $sans-bold;
-      color: $primary-font;
-      font-weight: inherit;
+      font-family: $sans-reg;
       text-transform: uppercase;
-      border:none;
-      padding-top:8px;
-      padding-bottom:8px;
-      border-bottom:1px solid $borders;
-      border-right:1px solid $borders;
-      &:last-child {
-        border-right:none;
+      border-bottom: 1px solid $borders;
+      color: $secondary-font;
+      font-weight: 600;
+    }
+
+    th:nth-child(2) {
+      text-align: right;
+    }
+
+    th:nth-child(3) {
+      text-align: right;
+    }
+
+    th:nth-child(4) {
+      text-align: right;
+    }
+
+    th:nth-child(5) {
+      text-align: right;
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        vertical-align: top;
+        font-family: $sans-reg;
+        color: $secondary-font;
+        border: none;
       }
 
+      td:first-child {
+        padding-right: 16px;
+        color: $primary-font;
+      }
+
+      td:nth-child(2) {
+        width: 12%;
+        padding-right: 16px;
+        text-align: right;
+      }
+
+      td:nth-child(3) {
+        width: 12%;
+        text-align: right;
+      }
+
+      td:nth-child(4) {
+        width: 12%;
+        padding-left: 2rem;
+        text-align: right;
+      }
+
+      td:nth-child(5) {
+        width: 12%;
+        text-align: right;
+        color: $primary-font;
+      }
+    }
+  }
+
+  tbody.invoice-details-table-items {
+    tr td {
+      border-bottom: 1px solid $borders;
+    }
+  }
+
+  tbody.invoice-details-table-subtotals {
+    tr {
+      td {
+
+        &:nth-child(3),
+        &:nth-child(5) {
+          color: $primary-font;
+        }
+      }
+    }
+  }
+
+  tfoot {
+    tr {
+      td {
+        font-family: $sans-bold;
+        color: $primary-font;
+
+        &:nth-child(3),
+        &:nth-child(4),
+        &:nth-child(5) {
+          border-top: 1px solid $borders;
+          text-align: right;
+        }
+      }
     }
 
-    .sorting:before,
-    .sorting:after,
-    .sorting_asc:before,
-    .sorting_asc:after,
-    .sorting_desc:before,
-    .sorting_desc:after {
-      padding-top: 8px;
-      padding-bottom: 8px;
-    }
-  }
-  tbody {
-    // border-left:1px solid $borders;
-    // border-right:1px solid $borders;
-  }
-  td {
-    font-size:1.6rem;
-    border:none;
-    border-bottom:1px solid $borders;
-    border-right:1px solid $borders;
-    &:last-child {
-      border-right:none;
+    tr:last-child {
+      td {}
     }
   }
 }
+
+
 
 // invoice table
 table#Invoices {
   tbody {
     tr {
       td.invoices-edit-btn {
-        width:30px;
+        width: 30px;
       }
 
       &:hover td {
@@ -501,9 +305,9 @@ table#Invoices {
 
 .account-details-modal {
 
-  .modal-header{
+  .modal-header {
     background-color: $bg-color;
-    
+
     .modal-title {
       font-size: 2rem;
       font-weight: 600;
@@ -513,39 +317,39 @@ table#Invoices {
   .modal-body {
     background-color: $bg-color;
 
-    .account-name {
-    }
+    .account-name {}
 
-    .account-description {
-    }
+    .account-description {}
 
     &:hover {
       background-color: darken($bg-color, 5%);
     }
   }
 
-  .modal-body + .modal-body {
+  .modal-body+.modal-body {
     border-top: 1px solid $borders;
   }
 }
 
 .send-invoice-modal {
-  .modal-body + .modal-body {
+  .modal-content {
+    transition: height 1s ease;
+  }
+
+  .modal-body+.modal-body {
     border-top: 1px solid $borders;
   }
 }
 
 .invoice-customer {
-    dt {
-        font-family: $sans-reg;
-        font-weight: normal;
-    }
+  dt {
+    font-family: $sans-reg;
+    font-weight: normal;
+  }
 }
 
 .invoice-attachments {
-  .invoice-attachment {
-    
-  }
+  .invoice-attachment {}
 }
 
 // invoice details page
@@ -554,15 +358,15 @@ table#Invoices {
   padding: 0;
 
   .history-item {
-    padding: 1.25rem 0.75rem;
+    padding: 0.75rem 0.5rem;
   }
 
-  .history-item + .history-item {
+  .history-item+.history-item {
     border-top: 1px solid $borders;
   }
-  
+
   .history-icon {
-    font-size: 2.5rem;
+    font-size: 1.6rem;
   }
 }
 
@@ -587,6 +391,7 @@ table#Invoices {
     padding: 0;
 
     table {
+
       th:first-child,
       td:first-child {
         padding-left: 1.5rem;
@@ -597,5 +402,19 @@ table#Invoices {
         padding-right: 1.5rem;
       }
     }
+  }
+}
+
+.login-card {
+  .card-header {
+    padding-top: 3rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+
+    border-bottom: none;
+  }
+
+  .card-body {
+
   }
 }

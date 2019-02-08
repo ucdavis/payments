@@ -1,45 +1,55 @@
 @model Payments.Mvc.Models.ReportViewModels.TaxReportViewModel
 
 @{
-    ViewData["Title"] = "Tax Report";
+    ViewData["Title"] = "Tax Liability Report";
 }
 
-<form action="@Url.Action("TaxReport")" method="post">
+<form method="post">
     @Html.AntiForgeryToken()
-    <div class="card-style">
-        <div class="card-header-primary card-bot-border">
-            <div class="card-head ">
-                <h2>@ViewBag.Title</h2>
-            </div>
+    <div class="card">
+        <div class="card-header card-header-primary">
+            <h1>@ViewBag.Title</h1>
         </div>
-        <div class="card-content bot-border">
+        <div class="card-body bot-border">
             <div class="row">
                 <div class="col-10">
                     <div class="row">
                         <div class="form-group col-6">
-                            <label asp-for="FiscalYear"></label>
-                            <input asp-for="FiscalYear" class="form-control"/>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-6">
-                            <div class="pretty p-default p-curve p-thick p-pulse" )>
-                                <input type="checkbox" asp-for="HideTaxFreeInvoices"/>
-                                <div class="state p-primary-o">
-                                    <label asp-for="HideTaxFreeInvoices"></label>
+                            <label asp-for="StartDate"></label>
+                            <div class="input-group">
+                                <select id="startDateMonth" class="custom-select">
+                                    <option value="1">JAN</option>
+                                    <option value="2">FEB</option>
+                                    <option value="3">MAR</option>
+                                    <option value="4">APR</option>
+                                    <option value="5">MAY</option>
+                                    <option value="6">JUN</option>
+                                    <option value="7">JUL</option>
+                                    <option value="8">AUG</option>
+                                    <option value="9">SEP</option>
+                                    <option value="10">OCT</option>
+                                    <option value="11">NOV</option>
+                                    <option value="12">DEC</option>
+                                </select>
+                                <input id="startDateYear" class="form-control" type="number" min="2000" step="1" />
+                                    <button class="btn month-picker" type="button">
+                                        <i class="far fa-fw fa-calendar"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <input asp-for="StartDate" type="hidden" />
+                    <input asp-for="Timespan" type="hidden" />
                 </div>
                 <div class="col-2 d-flex justify-content-end align-items-end">
                     <button class="btn" type="submit">Run Report <i class="fas fa-chart-line ml-3"></i></button>
                 </div>
             </div>
             
-        </div>
-        <div class="card-content">
-            @if (Model.Invoices != null)
+        <div class="card-body">
+            @if (Model?.Invoices != null)
             {
                 if (Model.Invoices.Any())
                 {
@@ -50,6 +60,7 @@
                         <tr>
                             <th>Team</th>
                             <th>Invoice ID</th>
+                            <th>Income Account</th>
                             <th>Paid On</th>
                             <th>Invoice Total</th>
                             <th>Has Tax Exempt Items?</th>
@@ -72,6 +83,7 @@
                                         @invoice.GetFormattedId()
                                     </a>
                                 </td>
+                                <td>@invoice.Account.GetAccountString()</td>
                                 <td data-sort="@invoice.PaidAt?.Ticks">@invoice.PaidAt?.ToString("d")</td>
                                 <td class="text-right">@invoice.Total.ToString("C")</td>
                                 <td class="text-center" data-sort="@hasTaxExempt">
@@ -89,7 +101,7 @@
 
                         <tfoot>
                             <tr class="font-weight-bold">
-                                <td class="text-right" colspan="7">Total Liability</td>
+                                <td class="text-right" colspan="8">Total Liability</td>
                                 <td class="text-right">@taxTotal.ToString("C")</td>
                             </tr>
                         </tfoot>
@@ -122,6 +134,46 @@
 
             table.buttons().container()
                 .appendTo("#taxReportTable_wrapper .col-md-6:eq(0)");
+
+            var df = window.dateFns;
+
+            // setup datepicker
+            $('.month-picker').datepicker({
+                startView: 1,
+                minViewMode: 1,
+                maxViewMode: 2,
+            });
+
+            // setup inputs
+            var defaultDate = new Date($('#StartDate').val());
+            $('#startDateMonth').val(df.getMonth(defaultDate) + 1);
+            $('#startDateYear').val(df.getYear(defaultDate));
+            $('.month-picker').datepicker('setDate', defaultDate);
+
+            $('.month-picker').on('changeDate', function (event) {
+                // update hidden
+                $('#StartDate').val(event.date.toISOString());
+
+                // update dropdown/year
+                $('#startDateMonth').val(df.getMonth(event.date) + 1);
+                $('#startDateYear').val(df.getYear(event.date));
+            });
+
+            $('#startDateMonth').change(function() {
+                var month = $(this).val() - 1;
+                var date = df.setMonth($('#StartDate').val(), month);
+
+                // update datepicker, bubbles to changeDate
+                $('.month-picker').datepicker('setDate', date);
+            });
+
+            $('#startDateYear').change(function() {
+                var year = $(this).val();
+                var date = df.setYear($('#StartDate').val(), year);
+
+                // update datepicker, bubbles to changeDate
+                $('.month-picker').datepicker('setDate', date);
+            });
         });
     </script>
 }
