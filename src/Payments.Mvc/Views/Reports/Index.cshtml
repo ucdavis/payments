@@ -1,49 +1,78 @@
-﻿
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Routing
+@using Payments.Mvc.Models.Roles
+@inject IHttpContextAccessor HttpContextAccessor
+
 @{
     ViewData["Title"] = "Reports";
+    var teamSlug = HttpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
 }
 
-<div class="card-style">
-    <div class="card-header-primary card-bot-border">
-        <div class="card-head d-flex justify-content-between align-items-start">
-            <h2>@ViewBag.Title</h2>
+@if (!string.IsNullOrWhiteSpace(teamSlug))
+{
+    <div class="card-style">
+        <div class="card-header-primary card-bot-border">
+            <div class="card-head d-flex justify-content-between align-items-start">
+                <h2>Team Reports</h2>
+            </div>
+        </div>
+        <div class="card-content">
+            <p>See below for reports about your team.</p>
+
+            <p>Have an idea for a report? Make a recommendation to John Knoll jpknoll@ucdavis.edu</p>
         </div>
     </div>
-    <div class="card-content">
-        <p>Have an idea for a report? Make a recommendation to John Knoll jpknoll@ucdavis.edu</p>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-lg-4">
-        <a asp-action="TaxReport">
-            <div class="card job">
-                <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="zoom in of the eye on the dollar">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        Tax Report
-                    </h5>
-                    <p class="card-text">
-                        Get your tax report for last fiscal year
-                    </p>
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <a asp-action="TeamTaxReport" asp-team="@teamSlug">
+                <div class="card job">
+                    <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="zoom in of the eye on the dollar">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Team's Tax Liability Report
+                        </h5>
+                        <p class="card-text">
+                            Get your tax report for last fiscal year
+                        </p>
+                    </div>
                 </div>
+            </a>
+        </div>
+    </div>
+}
+
+@if (User.IsInRole(ApplicationRoleCodes.Admin))
+{
+    <div class="card-style">
+        <div class="card-header-primary card-bot-border">
+            <div class="card-head d-flex justify-content-between align-items-start">
+                <h2>System Reports</h2>
             </div>
-        </a>
+        </div>
+        <div class="card-content">
+            <p>See below for system wide reports.</p>
+
+            <p>Have an idea for a report? Make a recommendation to John Knoll jpknoll@ucdavis.edu</p>
+        </div>
     </div>
 
-    <div class="col-lg-4">
-        <a asp-action="TaxReport">
-            <div class="card job">
-                <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="zoom in of the eye on the dollar">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        Tax Report
-                    </h5>
-                    <p class="card-text">
-                        Get your tax report for last fiscal year
-                    </p>
+    <div class="row">
+        <div class="col-lg-4">
+            <a asp-action="TaxReportByMonth">
+                <div class="card job">
+                    <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="zoom in of the eye on the dollar">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            System Wide Tax Report
+                        </h5>
+                        <p class="card-text">
+                            Get your tax report for last fiscal year
+                        </p>
+                    </div>
                 </div>
-            </div>
-        </a>
+            </a>
+        </div>
     </div>
-</div>
+}
+
