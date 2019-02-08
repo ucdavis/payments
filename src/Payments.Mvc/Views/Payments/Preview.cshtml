@@ -6,10 +6,10 @@
 }
 
 <div class="card-style preview-warning-card-style">
-    <p>
+    <span>
         <i class="fas fa-exclamation-triangle preview-warning-icon mr-2"></i>
         This is a preview page only. You cannot pay this invoice here.
-    </p>
+    </span>
 </div>
 
 <div class="card-style pay-card-style">
@@ -20,12 +20,12 @@
     <div>
         <partial name="_TopInfo" />
         <div class="pay-action">
-            <h1>@(string.Format("{0:C}", Model.Total))</h1>
+            <span class="pay-action-total">@(string.Format("{0:C}", Model.Total))</span>
             @if (Model.DueDate.HasValue)
             {
-                <p class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</p>
+                <span class="pay-action-date">Due @(Model.DueDate.Value.ToString("D"))</span>
             }
-            <button type="submit" class="btn-gold btn-md" aria-hidden="true">
+            <button type="submit" class="btn-gold btn-lg pay-now-button" aria-hidden="true">
                 <i class="fas fa-credit-card mr-3" aria-hidden="true"></i>
                 Pay Now
             </button>

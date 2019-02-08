@@ -1,4 +1,4 @@
-﻿@using Payments.Mvc.Models.PaymentViewModels
+@using Payments.Mvc.Models.PaymentViewModels
 @model BaseInvoiceViewModel
 
 @{
@@ -9,7 +9,7 @@
 @if (Model.Attachments.Any())
 {
     <div class="pay-attachments">
-        <h class="onepointeight secondary-font">Attachments</h>
+        <h3 class="secondary-font">Attachments</h3>
         @foreach (var attachment in Model.Attachments)
         {
             // set url
