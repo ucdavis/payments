@@ -1,10 +1,10 @@
 @model Payments.Mvc.Models.ReportViewModels.TaxReportViewModel
 
 @{
-    ViewData["Title"] = "Tax Report";
+    ViewData["Title"] = "Tax Liability Report";
 }
 
-<form action="@Url.Action("TaxReport")" method="post">
+<form method="post">
     @Html.AntiForgeryToken()
     <div class="card-style">
         <div class="card-header-primary card-bot-border">
