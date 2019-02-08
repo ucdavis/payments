@@ -50,6 +50,7 @@
                         <tr>
                             <th>Team</th>
                             <th>Invoice ID</th>
+                            <th>Income Account</th>
                             <th>Paid On</th>
                             <th>Invoice Total</th>
                             <th>Has Tax Exempt Items?</th>
@@ -72,6 +73,7 @@
                                         @invoice.GetFormattedId()
                                     </a>
                                 </td>
+                                <td>@invoice.Account.GetAccountString()</td>
                                 <td data-sort="@invoice.PaidAt?.Ticks">@invoice.PaidAt?.ToString("d")</td>
                                 <td class="text-right">@invoice.Total.ToString("C")</td>
                                 <td class="text-center" data-sort="@hasTaxExempt">
@@ -89,7 +91,7 @@
 
                         <tfoot>
                             <tr class="font-weight-bold">
-                                <td class="text-right" colspan="7">Total Liability</td>
+                                <td class="text-right" colspan="8">Total Liability</td>
                                 <td class="text-right">@taxTotal.ToString("C")</td>
                             </tr>
                         </tfoot>
