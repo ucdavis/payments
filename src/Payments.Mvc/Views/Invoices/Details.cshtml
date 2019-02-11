@@ -389,7 +389,7 @@
             @if (successfulPayment != null)
             {
                 var cardClass = CyberSourceCardTypes.GetIconClass(successfulPayment.CardType);
-                var cardNumber = $"XXXX {successfulPayment.CardNumber.TakeLast(4)}";
+                var cardNumber = $"XXXX {successfulPayment.CardNumber?.TakeLast(4)}";
 
                 <dl class="row mt-3">
                     
