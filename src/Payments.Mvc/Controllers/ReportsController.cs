@@ -30,7 +30,12 @@ namespace Payments.Mvc.Controllers
         [HttpGet]
         public IActionResult TeamTaxReport()
         {
-            return View("TaxReport");
+            var model = new TaxReportViewModel()
+            {
+                StartDate = DateTime.Today,
+            };
+
+            return View("TaxReport", model);
         }
 
         [HttpPost]
@@ -68,7 +73,12 @@ namespace Payments.Mvc.Controllers
         [HttpGet("reports/tax-report")]
         public IActionResult TaxReportByMonth()
         {
-            return View("TaxReport");
+            var model = new TaxReportViewModel()
+            {
+                StartDate = DateTime.Today,
+            };
+
+            return View("TaxReport", model);
         }
 
         [HttpPost("reports/tax-report")]
