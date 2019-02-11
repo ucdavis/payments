@@ -105,8 +105,7 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>
             {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-                "[System.ComponentModel.DisplayNameAttribute(\"Tax Rate\")]",
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",                
             }));
             #endregion Arrange
 
