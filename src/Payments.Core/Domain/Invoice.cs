@@ -116,7 +116,6 @@ namespace Payments.Core.Domain
         public decimal TaxAmount { get; private set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
-        [DisplayName("Tax Rate")]
         public decimal Total { get; private set; }
 
         public decimal GetDiscountAmount()
