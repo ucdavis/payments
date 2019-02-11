@@ -108,6 +108,10 @@ namespace Payments.Core.Domain
         public decimal Subtotal { get; private set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [DisplayName("Taxable Amount")]
+        public decimal TaxableAmount { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Tax")]
         public decimal TaxAmount { get; private set; }
 
@@ -148,14 +152,20 @@ namespace Payments.Core.Domain
             return 0;
         }
 
-        public decimal GetTaxableAmount()
+        public decimal GetTaxableTotal()
         {
             var discount = GetDiscountAmount();
 
             // remove tax exempt items, apply proportional part of discount, then calculate tax
             var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Total);
             var taxableDiscount = discount * (taxableAmount / Subtotal);
-            return (taxableAmount - taxableDiscount) * TaxPercent;
+            return (taxableAmount - taxableDiscount);
+        }
+
+        public decimal GetTaxAmount()
+        {
+            var taxableTotal = GetTaxableTotal();
+            return taxableTotal * TaxPercent;
         }
 
         public void UpdateCalculatedValues()
@@ -164,7 +174,9 @@ namespace Payments.Core.Domain
 
             Discount = GetDiscountAmount();
 
-            TaxAmount = GetTaxableAmount();
+            TaxableAmount = GetTaxableTotal();
+
+            TaxAmount = GetTaxAmount();
 
             Total = Subtotal - Discount + TaxAmount;
         }

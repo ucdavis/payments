@@ -221,7 +221,7 @@ namespace Payments.Mvc
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error/500");
             }
 
             app.UseStatusCodePagesWithReExecute("/Error/{0}");

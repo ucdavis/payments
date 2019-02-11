@@ -1,0 +1,60 @@
+@model IEnumerable<Invoice>
+
+@{
+    var taxTotal = Model?.Sum(i => i.TaxAmount) ?? 0;
+}
+
+<table id="taxReportTable" class="table">
+    <thead>
+        <tr>
+            <th>Team</th>
+            <th>Invoice ID</th>
+            <th>Income Account</th>
+            <th>Paid On</th>
+            <th>Invoice Total</th>
+            <th>Has Tax Exempt Items?</th>
+            <th>Taxable Amount</th>
+            <th>Tax Rate</th>
+            <th>Tax Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model != null)
+    {
+        foreach (var invoice in Model)
+        {
+            var rowClass = invoice.TaxPercent <= 0 ? "text-muted" : "";
+
+            var hasTaxExempt = invoice.Items.Any(i => i.TaxExempt);
+
+            <tr class="@rowClass">
+                <td>@invoice.Team.Name</td>
+                <td data-sort="@invoice.Id">
+                    <a asp-action="Details" asp-controller="Invoices" asp-route-id="@invoice.Id" asp-route-team="@invoice.Team.Slug" target="_blank">
+                        @invoice.GetFormattedId()
+                    </a>
+                </td>
+                <td>@invoice.Account.GetAccountString()</td>
+                <td data-sort="@invoice.PaidAt?.Ticks">@invoice.PaidAt?.ToString("d")</td>
+                <td class="text-right">@invoice.Total.ToString("C")</td>
+                <td class="text-center" data-sort="@hasTaxExempt">
+                    @if (hasTaxExempt)
+                    {
+                        <i class="far fa-check-square"></i>
+                    }
+                </td>
+                <td class="text-right">@invoice.TaxableAmount.ToString("C")</td>
+                <td class="text-right">@invoice.TaxPercent.ToString("P")</td>
+                <td class="text-right">@invoice.TaxAmount.ToString("C")</td>
+            </tr>
+        }
+    }
+    </tbody>
+
+    <tfoot>
+        <tr class="font-weight-bold">
+            <td class="text-right" colspan="8">Total Liability</td>
+            <td class="text-right">@taxTotal.ToString("C")</td>
+        </tr>
+    </tfoot>
+</table>
