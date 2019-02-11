@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Payments.Core.Domain;
 using Payments.Mvc.Identity;
+using Payments.Mvc.Models.AccountViewModels;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
@@ -170,9 +171,56 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public IActionResult Profile()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+
+            var model = new EditProfileViewModel()
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Name = user.Name,
+                Email = user.Email,
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var model = new EditProfileViewModel()
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Name = user.Name,
+                Email = user.Email,
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Name = model.Name;
+            user.Email = model.Email;
+
+            await _userManager.UpdateAsync(user);
+
+            Message = "Profile Updated";
+            return RedirectToAction(nameof(Index));
         }
 
 

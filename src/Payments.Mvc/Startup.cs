@@ -270,7 +270,7 @@ namespace Payments.Mvc
                     name: "non-team-routes",
                     template: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
-                    constraints: new { controller = "(account|support|teams|jobs|system)" });
+                    constraints: new { controller = "(account|teams|jobs|system)" });
 
                 // team level routes
                 routes.MapRoute(
@@ -281,7 +281,7 @@ namespace Payments.Mvc
                     {
                         team = new CompositeRouteConstraint(new IRouteConstraint[]{
                             new RegexInlineRouteConstraint(Team.SlugRegex),
-                            new NotConstraint("(reports)"),
+                            new NotConstraint("(reports|support)"),
                         })
                     });
 
@@ -293,7 +293,7 @@ namespace Payments.Mvc
                     {
                         team = new CompositeRouteConstraint(new IRouteConstraint[]{
                             new RegexInlineRouteConstraint(Team.SlugRegex),
-                            new NotConstraint("(reports)"),
+                            new NotConstraint("(reports|support)"),
                         })
                     });
 
