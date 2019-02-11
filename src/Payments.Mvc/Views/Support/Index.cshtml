@@ -1,8 +1,26 @@
-﻿
+
 @{
     ViewData["Title"] = "Support";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+    </div>
 
-<p>Support goes here!</p>
+    <div class="card-body">
+        <ul>
+            <li>
+                <a asp-action="Faqs">FAQs</a>
+            </li>
+            
+            <li>
+                <a asp-action="WebHooks">Webhooks</a>
+            </li>
+            
+            <li>
+                <a href="https://secure.caes.ucdavis.edu/help/Ticket/Submit?appName=payments" target="_blank">Contact Us <i class="fas fa-external-link-alt ml-1"></i></a>
+            </li>
+        </ul>
+    </div>
+</div>
