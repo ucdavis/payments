@@ -79,6 +79,11 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Subtotal", "System.Decimal", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
             }));
+            expectedFields.Add(new NameAndType("TaxableAmount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Taxable Amount\")]",
+            }));
             expectedFields.Add(new NameAndType("TaxAmount", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
@@ -101,6 +106,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Tax Rate\")]",
             }));
             #endregion Arrange
 
