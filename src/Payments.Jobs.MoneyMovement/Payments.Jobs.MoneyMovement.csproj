@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,6 +15,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
     <ProjectReference Include="..\Payments.Jobs.Core\Payments.Jobs.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="settings.job">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
