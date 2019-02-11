@@ -1,4 +1,5 @@
-﻿CREATE VIEW TaxLiability AS 
+﻿
+CREATE VIEW [dbo].[TaxLiability] AS 
 
 SELECT
 	i.TeamId,
@@ -22,4 +23,4 @@ FROM Invoices i
 			MAX(convert(int, l.TaxExempt)) AS HasTaxExempt
 		FROM LineItems l GROUP BY l.InvoiceId
 	) l on l.InvoiceId = i.Id
-WHERE i.TaxAmount > 0
+WHERE i.Paid = 1 AND i.TaxAmount > 0
