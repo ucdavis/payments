@@ -39,10 +39,10 @@ after_build:
     dotnet publish .\src\Payments.Mvc\ --output ..\..\publish\Payments.Mvc --configuration $Env:configuration
     octo pack --id Payments.Mvc --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Mvc\ --outFolder .\artifacts\
 
-    dotnet publish .\src\Payments.Jobs.MoneyMovement\ --output ..\..\publish\Payments.Jobs.MoneyMovement --configuration $Env:configuration
+    dotnet publish .\src\Payments.Jobs.MoneyMovement\ --output ..\..\publish\Payments.Jobs.MoneyMovement --configuration $Env:configuration --runtime win-x64
     octo pack --id Payments.Jobs.MoneyMovement --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Jobs.MoneyMovement\ --outFolder .\artifacts\
 
-    dotnet publish .\src\Payments.Jobs.TaxReport\ --output ..\..\publish\Payments.Jobs.TaxReport --configuration $Env:configuration
+    dotnet publish .\src\Payments.Jobs.TaxReport\ --output ..\..\publish\Payments.Jobs.TaxReport --configuration $Env:configuration --runtime win-x64
     octo pack --id Payments.Jobs.TaxReport --version $Env:APPVEYOR_BUILD_VERSION --releaseNotes $Env:APPVEYOR_REPO_COMMIT_MESSAGE --basepath .\publish\Payments.Jobs.TaxReport\ --outFolder .\artifacts\
 
 test_script:
