@@ -8,7 +8,8 @@
     "target": "es5",
     "jsx": "react",
     "sourceMap": true,
-    "skipDefaultLibCheck": true
+    "skipDefaultLibCheck": true,
+    "noEmit": true
   },
   "exclude": ["bin", "node_modules", "wwwroot"]
 }
