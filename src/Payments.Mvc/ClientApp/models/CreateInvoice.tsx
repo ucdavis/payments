@@ -7,7 +7,7 @@ export interface CreateInvoice {
     couponId: number;
     customers: InvoiceCustomer[];
     memo: string;
-    discount: number;
+    manualDiscount: number;
     dueDate?: Date;
     taxPercent: number;
     items: InvoiceItem[];

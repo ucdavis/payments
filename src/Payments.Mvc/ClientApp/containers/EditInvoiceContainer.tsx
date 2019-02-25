@@ -84,8 +84,8 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             customer: invoice.customer,
             discount: {
                 couponId: invoice.couponId,
-                hasDiscount: !!(invoice.couponId || invoice.discount),
-                maunalAmount: invoice.discount,
+                hasDiscount: !!(invoice.couponId || invoice.manualDiscount),
+                maunalAmount: invoice.manualDiscount,
             },
             dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
             items,
@@ -240,9 +240,9 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
             attachments,
             couponId: discount.couponId,
             customer,
-            discount: calculatedDiscount,
             dueDate: new Date(dueDate),
             items,
+            manualDiscount: calculatedDiscount,
             memo,
             taxPercent,
         };

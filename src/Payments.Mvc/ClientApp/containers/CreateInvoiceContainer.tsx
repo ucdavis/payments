@@ -241,9 +241,9 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             attachments,
             couponId: discount.couponId,
             customers,
-            discount: calculatedDiscount,
             dueDate: new Date(dueDate),
             items,
+            manualDiscount: calculatedDiscount,
             memo,
             taxPercent,
         };
