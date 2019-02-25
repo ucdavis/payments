@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -89,17 +89,17 @@ namespace Payments.Mvc.Controllers
                 // create new object, track it
                 var invoice = new Invoice
                 {
-                    Account         = account,
-                    Team            = team,
-                    Discount        = model.Discount,
-                    TaxPercent      = model.TaxPercent,
-                    DueDate         = model.DueDate,
-                    CustomerAddress = customer.Address,
-                    CustomerEmail   = customer.Email,
-                    CustomerName    = customer.Name,
-                    Memo            = model.Memo,
-                    Status          = Invoice.StatusCodes.Draft,
-                    Sent            = false,
+                    Account               = account,
+                    Team                  = team,
+                    ManualDiscount        = model.ManualDiscount,
+                    TaxPercent            = model.TaxPercent,
+                    DueDate               = model.DueDate,
+                    CustomerAddress       = customer.Address,
+                    CustomerEmail         = customer.Email,
+                    CustomerName          = customer.Name,
+                    Memo                  = model.Memo,
+                    Status                = Invoice.StatusCodes.Draft,
+                    Sent                  = false,
                 };
 
                 // add line items

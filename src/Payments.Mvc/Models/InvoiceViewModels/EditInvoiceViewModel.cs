@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -15,10 +15,10 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         /// <summary>
         /// Coupon to be applied to order
         /// </summary>
-        public int CouponId { get; set; }
+        public int? CouponId { get; set; }
 
         [Range(0, int.MaxValue)]
-        public decimal Discount { get; set; }
+        public decimal ManualDiscount { get; set; }
 
         [Range(0, int.MaxValue)]
         public decimal TaxPercent { get; set; }

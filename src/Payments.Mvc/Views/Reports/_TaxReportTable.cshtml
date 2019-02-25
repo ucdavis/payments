@@ -1,7 +1,7 @@
 @model IEnumerable<Invoice>
 
 @{
-    var taxTotal = Model?.Sum(i => i.TaxAmount) ?? 0;
+    var taxTotal = Model?.Sum(i => i.CalculatedTaxAmount) ?? 0;
 }
 
 <table id="taxReportTable" class="table">
@@ -36,16 +36,16 @@
                 </td>
                 <td>@invoice.Account.GetAccountString()</td>
                 <td data-sort="@invoice.PaidAt?.Ticks">@invoice.PaidAt?.ToString("d")</td>
-                <td class="text-right">@invoice.Total.ToString("C")</td>
+                <td class="text-right">@invoice.CalculatedTotal.ToString("C")</td>
                 <td class="text-center" data-sort="@hasTaxExempt">
                     @if (hasTaxExempt)
                     {
                         <i class="far fa-check-square"></i>
                     }
                 </td>
-                <td class="text-right">@invoice.TaxableAmount.ToString("C")</td>
+                <td class="text-right">@invoice.CalculatedTaxableAmount.ToString("C")</td>
                 <td class="text-right">@invoice.TaxPercent.ToString("P")</td>
-                <td class="text-right">@invoice.TaxAmount.ToString("C")</td>
+                <td class="text-right">@invoice.CalculatedTaxAmount.ToString("C")</td>
             </tr>
         }
     }

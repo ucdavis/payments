@@ -6,10 +6,11 @@ import { InvoiceItem } from '../models/InvoiceItem';
 
 import { calculateDiscount, calculateSubTotal, calculateTaxAmount, calculateTotal } from "../helpers/calculations";
 
+import Checkbox from './checkbox';
 import CurrencyControl from './currencyControl';
 import DiscountInput from './discountInput';
+import NumberControl from './numberControl';
 import TaxInput from './taxInput';
-import Checkbox from './checkbox';
 
 interface IProps {
     coupons: Coupon[];
@@ -134,7 +135,12 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     <tr>
                         <td />
                         <td />
-                        <td>Tax</td>
+                        <td>
+                            <span>Tax</span>
+                            <span className="ml-2">
+                                <a href="https://www.taxjar.com/sales-tax-calculator/" target="_blank" rel="noopener noreferrer"><i className="fas fa-search" /></a>
+                            </span>
+                        </td>
                         <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
                         <td>{
                                 !!taxPercent &&
@@ -190,14 +196,12 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     </div>
                 </td>
                 <td>
-                    <input
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        className="form-control"
+                    <NumberControl
+                        min={0.01}
+                        step={0.01}
                         placeholder="0"
                         value={quantity}
-                        onChange={(e) => { this.updateItemProperty(id, 'quantity', e.target.value) }}
+                        onChange={(value) => { this.updateItemProperty(id, 'quantity', value) }}
                         required={true}
                     />
                     <div className="invalid-feedback text-center">
@@ -312,9 +316,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         });
     }
 
-    private onTaxPercentChange = (value: string) => {
-        const tax = Number(value);
+    private onTaxPercentChange = (value: number) => {
         // pass up the actual rate
-        this.props.onTaxPercentChange(tax / 100);
+        this.props.onTaxPercentChange(value / 100);
     }
 }

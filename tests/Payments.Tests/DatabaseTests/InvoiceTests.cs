@@ -21,6 +21,27 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("CalculatedDiscount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",                
+            }));
+            expectedFields.Add(new NameAndType("CalculatedSubtotal", "System.Decimal", new List<string>{
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+            }));
+            expectedFields.Add(new NameAndType("CalculatedTaxableAmount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Taxable Amount\")]",
+            }));
+            expectedFields.Add(new NameAndType("CalculatedTaxAmount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Tax\")]",                
+            }));
+            expectedFields.Add(new NameAndType("CalculatedTotal", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+            }));
             expectedFields.Add(new NameAndType("Coupon", "Payments.Core.Domain.Coupon", new List<string>()));
             expectedFields.Add(new NameAndType("CreatedAt", "System.DateTime", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Created On\")]",
@@ -42,9 +63,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DisplayNameAttribute(\"Deleted On\")]",
             }));
-            expectedFields.Add(new NameAndType("Discount", "System.Decimal", new List<string>{
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-            }));
+
             expectedFields.Add(new NameAndType("DraftCount", "System.Int32", new List<string>()));
             expectedFields.Add(new NameAndType("DueDate", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("History", "System.Collections.Generic.IList`1[Payments.Core.Domain.History]", new List<string>
@@ -57,6 +76,10 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Items", "System.Collections.Generic.IList`1[Payments.Core.Domain.LineItem]", new List<string>()));
             expectedFields.Add(new NameAndType("LinkId", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("ManualDiscount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+            }));
             expectedFields.Add(new NameAndType("Memo", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DataTypeAttribute((System.ComponentModel.DataAnnotations.DataType)9)]",
             }));
@@ -76,19 +99,6 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DisplayNameAttribute(\"Sent At\")]",
             }));
             expectedFields.Add(new NameAndType("Status", "System.String", new List<string>()));
-            expectedFields.Add(new NameAndType("Subtotal", "System.Decimal", new List<string>{
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-            }));
-            expectedFields.Add(new NameAndType("TaxableAmount", "System.Decimal", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-                "[System.ComponentModel.DisplayNameAttribute(\"Taxable Amount\")]",
-            }));
-            expectedFields.Add(new NameAndType("TaxAmount", "System.Decimal", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-                "[System.ComponentModel.DisplayNameAttribute(\"Tax\")]",
-            }));
             expectedFields.Add(new NameAndType("TaxPercent", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:P}\")]",
@@ -103,10 +113,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",                
-            }));
+
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(Invoice));
@@ -140,7 +147,7 @@ namespace Payments.Tests.DatabaseTests
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.Subtotal.ShouldBe(3.72m);
+            invoice.CalculatedSubtotal.ShouldBe(3.72m);
         }
 
         [Theory]
@@ -160,14 +167,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.TaxAmount.ShouldBe(expectedValue);
+            invoice.CalculatedTaxAmount.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -186,14 +193,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.TaxAmount.ShouldBe(expectedValue);
+            invoice.CalculatedTaxAmount.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -213,14 +220,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.Total.ShouldBe(expectedValue);
+            invoice.CalculatedTotal.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -239,14 +246,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.Total.ShouldBe(expectedValue);
+            invoice.CalculatedTotal.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -270,7 +277,7 @@ namespace Payments.Tests.DatabaseTests
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
-            result["amount"].ShouldBe(invoice.Total.ToString("F2"));
+            result["amount"].ShouldBe(invoice.CalculatedTotal.ToString("F2"));
             result["currency"].ShouldBe("USD");
             result["transaction_uuid"].ShouldNotBeNull();
             result["signed_date_time"].ShouldNotBeNull();

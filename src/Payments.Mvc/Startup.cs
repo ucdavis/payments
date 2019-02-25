@@ -111,7 +111,14 @@ namespace Payments.Mvc
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             // add application services
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions((options) =>
+                    {
+                        options.SerializerSettings.Error += (sender, args) =>
+                        {
+                            Log.Logger.Warning(args.ErrorContext.Error, "JSON Serialization Error: {message}", args.ErrorContext.Error.Message);
+                        };
+                    });
             services.AddDistributedMemoryCache();
             services.AddSession();
 

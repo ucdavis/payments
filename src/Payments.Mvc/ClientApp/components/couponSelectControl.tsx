@@ -5,9 +5,8 @@ import { isAfter } from 'date-fns';
 import { Coupon } from '../models/Coupon';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 
-import Modal from './modal';
 import CurrencyControl from './currencyControl';
-import DiscountInput from './discountInput';
+import Modal from './modal';
 
 interface IProps {
     coupons: Coupon[];

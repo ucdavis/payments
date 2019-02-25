@@ -215,13 +215,13 @@ namespace Payments.Mvc.Controllers
             // build model for view
             var model = new EditInvoiceViewModel()
             {
-                AccountId  = invoice.Account?.Id ?? 0,
-                CouponId   = invoice.Coupon?.Id ?? 0,
-                Discount   = invoice.Discount,
-                DueDate    = invoice.DueDate,
-                TaxPercent = invoice.TaxPercent,
-                Memo       = invoice.Memo,
-                Customer   = new EditInvoiceCustomerViewModel()
+                AccountId        = invoice.Account?.Id ?? 0,
+                CouponId         = invoice.Coupon?.Id ?? 0,
+                ManualDiscount   = invoice.ManualDiscount,
+                DueDate          = invoice.DueDate,
+                TaxPercent       = invoice.TaxPercent,
+                Memo             = invoice.Memo,
+                Customer         = new EditInvoiceCustomerViewModel()
                 {
                     Name    = invoice.CustomerName,
                     Address = invoice.CustomerAddress,
@@ -296,19 +296,19 @@ namespace Payments.Mvc.Controllers
                 // create new object, track it
                 var invoice = new Invoice
                 {
-                    DraftCount      = 1,
-                    Account         = account,
-                    Coupon          = coupon,
-                    Team            = team,
-                    Discount        = model.Discount,
-                    TaxPercent      = model.TaxPercent,
-                    DueDate         = model.DueDate,
-                    CustomerAddress = customer.Address,
-                    CustomerEmail   = customer.Email,
-                    CustomerName    = customer.Name,
-                    Memo            = model.Memo,
-                    Status          = Invoice.StatusCodes.Draft,
-                    Sent            = false,
+                    DraftCount            = 1,
+                    Account               = account,
+                    Coupon                = coupon,
+                    Team                  = team,
+                    ManualDiscount        = model.ManualDiscount,
+                    TaxPercent            = model.TaxPercent,
+                    DueDate               = model.DueDate,
+                    CustomerAddress       = customer.Address,
+                    CustomerEmail         = customer.Email,
+                    CustomerName          = customer.Name,
+                    Memo                  = model.Memo,
+                    Status                = Invoice.StatusCodes.Draft,
+                    Sent                  = false,
                 };
 
                 // add line items
@@ -415,7 +415,7 @@ namespace Payments.Mvc.Controllers
             invoice.CustomerEmail   = model.Customer.Email;
             invoice.CustomerName    = model.Customer.Name;
             invoice.Memo            = model.Memo;
-            invoice.Discount        = model.Discount;
+            invoice.ManualDiscount  = model.ManualDiscount;
             invoice.TaxPercent      = model.TaxPercent;
             invoice.DueDate         = model.DueDate;
 
