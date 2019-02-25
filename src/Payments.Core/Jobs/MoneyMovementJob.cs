@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,13 +67,13 @@ namespace Payments.Core.Jobs
                     invoice.Status = Invoice.StatusCodes.Processing;
 
                     // calculate fees
-                    var feeAmount = invoice.Total * FeeSchedule.StandardRate;
-                    var incomeAmount = invoice.Total - feeAmount;
+                    var feeAmount = invoice.CalculatedTotal * FeeSchedule.StandardRate;
+                    var incomeAmount = invoice.CalculatedTotal - feeAmount;
 
                     // create transfers
                     var debitHolding = new CreateTransfer()
                     {
-                        Amount        = invoice.Total,
+                        Amount        = invoice.CalculatedTotal,
                         Direction     = Transfer.CreditDebit.Debit,
                         Chart         = _financeSettings.ClearingChart,
                         Account       = _financeSettings.ClearingAccount,
@@ -113,7 +113,7 @@ namespace Payments.Core.Jobs
                             feeCredit,
                             incomeCredit,
                         },
-                        Source = "Payments Cybersource",
+                        Source = "Payments",
                         SourceType = "CyberSource",
                     });
 

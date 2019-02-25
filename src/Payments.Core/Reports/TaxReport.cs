@@ -50,7 +50,7 @@ namespace Payments.Core.Reports
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Where(i => i.Paid)
-                .Where(i => i.TaxAmount > 0);
+                .Where(i => i.CalculatedTaxAmount > 0);
         }
     }
 }

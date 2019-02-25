@@ -216,9 +216,9 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("Pay", new { id });
             }
 
-            // remove the coupon
+            // remove the coupon and any old discount
             invoice.Coupon = null;
-            invoice.Discount = 0;
+            invoice.ManualDiscount = 0;
             Message = "Coupon removed.";
 
             // record event
@@ -297,11 +297,11 @@ namespace Payments.Mvc.Controllers
                 Items            = invoice.Items,
                 Attachments      = invoice.Attachments,
                 Coupon           = invoice.Coupon,
-                Discount         = invoice.Discount,
-                TaxAmount        = invoice.TaxAmount,
+                Discount         = invoice.CalculatedDiscount,
+                TaxAmount        = invoice.CalculatedTaxAmount,
                 TaxPercent       = invoice.TaxPercent,
-                Subtotal         = invoice.Subtotal,
-                Total            = invoice.Total,
+                Subtotal         = invoice.CalculatedSubtotal,
+                Total            = invoice.CalculatedTotal,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,
                 Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
@@ -609,11 +609,11 @@ namespace Payments.Mvc.Controllers
                 Items            = invoice.Items,
                 Attachments      = invoice.Attachments,
                 Coupon           = invoice.Coupon,
-                Discount         = invoice.Discount,
-                TaxAmount        = invoice.TaxAmount,
+                Discount         = invoice.CalculatedDiscount,
+                TaxAmount        = invoice.CalculatedTaxAmount,
                 TaxPercent       = invoice.TaxPercent,
-                Subtotal         = invoice.Subtotal,
-                Total            = invoice.Total,
+                Subtotal         = invoice.CalculatedSubtotal,
+                Total            = invoice.CalculatedTotal,
                 DueDate          = invoice.DueDate,
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt,

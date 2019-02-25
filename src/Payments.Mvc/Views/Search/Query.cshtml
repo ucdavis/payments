@@ -66,10 +66,10 @@
                                 </div>
                             </a>
                         </td>
-                        <td class="text-right" data-sort="@invoice.Total">
+                        <td class="text-right" data-sort="@invoice.CalculatedTotal">
                             <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
                                 <div>
-                                    $@invoice.Total.ToString("F2")
+                                    $@invoice.CalculatedTotal.ToString("F2")
                                 </div>
                             </a>
                         </td>

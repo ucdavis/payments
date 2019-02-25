@@ -81,7 +81,7 @@ namespace Payments.Mvc.Controllers
                 .AsQueryable()
                 .Where(i => i.Team.Slug == TeamSlug)
                 .Where(i => i.CreatedAt > lastSixMonths)
-                .SumAsync(i => i.Total);
+                .SumAsync(i => i.CalculatedTotal);
 
             return new JsonResult(new
             {

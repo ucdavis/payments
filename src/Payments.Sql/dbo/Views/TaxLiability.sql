@@ -1,4 +1,4 @@
-﻿
+
 CREATE VIEW [dbo].[TaxLiability] AS 
 
 SELECT
@@ -9,11 +9,11 @@ SELECT
 	i.AccountId,
 	CONCAT(a.Chart, '-', a.Account) AS IncomeAccount,
 	i.PaidAt,
-	i.Total,
+	i.CalculatedTotal,
 	CONVERT(bit, l.HasTaxExempt) AS HasTaxExemptItems,
-	i.TaxableAmount,
+	i.CalculatedTaxableAmount,
 	i.TaxPercent,
-	i.TaxAmount
+	i.CalculatedTaxAmount
 FROM Invoices i
 	left join FinancialAccounts a ON i.AccountId = a.Id
 	left join Teams t ON i.TeamId = t.Id
@@ -23,4 +23,4 @@ FROM Invoices i
 			MAX(convert(int, l.TaxExempt)) AS HasTaxExempt
 		FROM LineItems l GROUP BY l.InvoiceId
 	) l on l.InvoiceId = i.Id
-WHERE i.Paid = 1 AND i.TaxAmount > 0
+WHERE i.Paid = 1 AND i.CalculatedTaxAmount > 0

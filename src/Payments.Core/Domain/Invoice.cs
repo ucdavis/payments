@@ -46,9 +46,6 @@ namespace Payments.Core.Domain
         [DataType(DataType.MultilineText)]
         public string Memo { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:C}")]
-        public decimal Discount { get; set; }
-
         [DisplayFormat(DataFormatString = "{0:P}")]
         [DisplayName("Tax Percentage")]
         public decimal TaxPercent { get; set; }
@@ -58,6 +55,9 @@ namespace Payments.Core.Domain
         public string Status { get; set; }
 
         public Coupon Coupon { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
+        public decimal ManualDiscount { get; set; }
 
         public FinancialAccount Account { get; set; }
 
@@ -105,31 +105,34 @@ namespace Payments.Core.Domain
         // Calculated Values
         // ----------------------
         [DisplayFormat(DataFormatString = "{0:C}")]
-        public decimal Subtotal { get; private set; }
+        public decimal CalculatedSubtotal { get; private set; }
+
+        [DisplayFormat(DataFormatString = "{0:C}")]
+        public decimal CalculatedDiscount { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Taxable Amount")]
-        public decimal TaxableAmount { get; set; }
+        public decimal CalculatedTaxableAmount { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Tax")]
-        public decimal TaxAmount { get; private set; }
+        public decimal CalculatedTaxAmount { get; private set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
-        public decimal Total { get; private set; }
+        public decimal CalculatedTotal { get; private set; }
 
         public decimal GetDiscountAmount()
         {
             // return saved value if the invoice is already paid
             if (Paid)
             {
-                return Discount;
+                return ManualDiscount;
             }
 
             // check for valid coupon on unpaid invoices
             if (Coupon == null)
             {
-                return Discount;
+                return ManualDiscount;
             }
 
             // check for expired coupon on unpaid invoices
@@ -154,11 +157,12 @@ namespace Payments.Core.Domain
 
         public decimal GetTaxableTotal()
         {
+            var subtotal = Items.Sum(i => i.Total);
             var discount = GetDiscountAmount();
 
             // remove tax exempt items, apply proportional part of discount, then calculate tax
             var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Total);
-            var taxableDiscount = discount * (taxableAmount / Subtotal);
+            var taxableDiscount = discount * (taxableAmount / subtotal);
             return (taxableAmount - taxableDiscount);
         }
 
@@ -170,15 +174,15 @@ namespace Payments.Core.Domain
 
         public void UpdateCalculatedValues()
         {
-            Subtotal = Items.Sum(i => i.Total);
+            CalculatedSubtotal = Items.Sum(i => i.Total);
 
-            Discount = GetDiscountAmount();
+            CalculatedDiscount = GetDiscountAmount();
 
-            TaxableAmount = GetTaxableTotal();
+            CalculatedTaxableAmount = GetTaxableTotal();
 
-            TaxAmount = GetTaxAmount();
+            CalculatedTaxAmount = GetTaxAmount();
 
-            Total = Subtotal - Discount + TaxAmount;
+            CalculatedTotal = CalculatedSubtotal - CalculatedDiscount + CalculatedTaxAmount;
         }
 
         protected internal static void OnModelCreating(ModelBuilder builder)
@@ -193,19 +197,19 @@ namespace Payments.Core.Domain
                 .HasColumnType("decimal(18,5)");
 
             builder.Entity<Invoice>()
-                .Property(i => i.Subtotal)
+                .Property(i => i.CalculatedSubtotal)
                 .HasColumnType("decimal(18,2)");
 
             builder.Entity<Invoice>()
-                .Property(i => i.Discount)
+                .Property(i => i.CalculatedDiscount)
                 .HasColumnType("decimal(18,2)");
 
             builder.Entity<Invoice>()
-                .Property(i => i.TaxAmount)
+                .Property(i => i.CalculatedTaxAmount)
                 .HasColumnType("decimal(18,2)");
 
             builder.Entity<Invoice>()
-                .Property(i => i.Total)
+                .Property(i => i.CalculatedTotal)
                 .HasColumnType("decimal(18,2)");
         }
 
@@ -215,7 +219,7 @@ namespace Payments.Core.Domain
             {
                 {"transaction_type"       , "sale"},
                 {"reference_number"       , Id.ToString()},             // use the actual id so we can find it easily
-                {"amount"                 , Total.ToString("F2")},
+                {"amount"                 , CalculatedTotal.ToString("F2")},
                 {"currency"               , "USD"},
                 {"transaction_uuid"       , Guid.NewGuid().ToString()},
                 {"signed_date_time"       , DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")},

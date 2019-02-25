@@ -1,4 +1,4 @@
-﻿@model IList<Invoice>
+@model IList<Invoice>
 
 @{
     var export = (bool) (ViewBag.Export ?? false);
@@ -66,10 +66,10 @@
                     <td>Retail Goods</td>
                     <td>UC Davis Campus</td>
                     <td>@invoice.Account.GetAccountString()</td>
-                    <td>@invoice.Subtotal.ToString("C")</td>
+                    <td>@invoice.CalculatedSubtotal.ToString("C")</td>
                     <td>@invoice.TaxPercent.ToString("P")</td>
-                    <td>@invoice.TaxAmount.ToString("C")</td>
-                    <td>@invoice.Total.ToString("C")</td>
+                    <td>@invoice.CalculatedTaxAmount.ToString("C")</td>
+                    <td>@invoice.CalculatedTotal.ToString("C")</td>
                 </tr>
             }
         </tbody>

@@ -1,4 +1,4 @@
-﻿@model Invoice
+@model Invoice
 
 @{
     Layout = null;
@@ -51,7 +51,7 @@
 
     <div class="pay-amount mb-4">
         <h2 class="text-center">
-            @(string.Format("{0:C}", Model.Total)) <span class="secondary-font">due @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("D") : "")</span>
+            @(string.Format("{0:C}", Model.CalculatedTotal)) <span class="secondary-font">due @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("D") : "")</span>
         </h2>
     </div>
 
@@ -83,30 +83,30 @@
                 </tr>
             }
 
-            @if (Model.Discount > 0)
+            @if (Model.CalculatedDiscount > 0)
             {
                 <tr>
                     <td></td>
                     <td class="text-right">Discount</td>
                     <td></td>
-                    <td class="text-right">-$@Model.Discount.ToString("F2")</td>
+                    <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
                 </tr>
             }
 
-            @if (Model.TaxAmount > 0)
+            @if (Model.CalculatedTaxAmount > 0)
             {
                 <tr>
                     <td></td>
                     <td class="text-right">Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
                     <td></td>
-                    <td class="text-right">$@Model.TaxAmount.ToString("F2")</td>
+                    <td class="text-right">$@Model.CalculatedTaxAmount.ToString("F2")</td>
                 </tr>
             }
             <tr>
                 <td></td>
                 <td class="text-right">Total:</td>
                 <td></td>
-                <td class="text-right">$@Model.Total.ToString("F2")</td>
+                <td class="text-right">$@Model.CalculatedTotal.ToString("F2")</td>
             </tr>
         </tbody>
     </table>

@@ -36,10 +36,10 @@ namespace Payments.Core.Services
                 { "id", invoice.GetFormattedId() },
                 { "linkid", invoice.LinkId },
                 { "customer", new { email = invoice.CustomerEmail, name = invoice.CustomerName } },
-                { "discount", invoice.Discount.ToString("F2") },
-                { "taxAmount", invoice.TaxAmount.ToString("F2") },
+                { "discount", invoice.CalculatedDiscount.ToString("F2") },
+                { "taxAmount", invoice.CalculatedTaxAmount.ToString("F2") },
                 { "taxPercent", (invoice.TaxPercent * 100).ToString("F") },
-                { "total", invoice.Total.ToString("F2") },
+                { "total", invoice.CalculatedTotal.ToString("F2") },
                 { "items", invoice.Items.Select(i => new { description = i.Description, quantity = i.Quantity, total = i.Total.ToString("F2") }) },
                 { "memo", invoice.Memo },
             };

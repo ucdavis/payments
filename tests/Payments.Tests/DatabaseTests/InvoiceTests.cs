@@ -140,7 +140,7 @@ namespace Payments.Tests.DatabaseTests
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.Subtotal.ShouldBe(3.72m);
+            invoice.CalculatedSubtotal.ShouldBe(3.72m);
         }
 
         [Theory]
@@ -160,14 +160,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.TaxAmount.ShouldBe(expectedValue);
+            invoice.CalculatedTaxAmount.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -186,14 +186,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.TaxAmount.ShouldBe(expectedValue);
+            invoice.CalculatedTaxAmount.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -213,14 +213,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.Total.ShouldBe(expectedValue);
+            invoice.CalculatedTotal.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -239,14 +239,14 @@ namespace Payments.Tests.DatabaseTests
             invoice.Items.Add(new LineItem() { Total = 1.23m });
             invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
             invoice.Items.Add(new LineItem() { Total = 1.25m });
-            invoice.Discount = discount;
+            invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
             // Act
             invoice.UpdateCalculatedValues();
 
             // Assert		
-            invoice.Total.ShouldBe(expectedValue);
+            invoice.CalculatedTotal.ShouldBe(expectedValue);
         }
 
         [Theory]
@@ -270,7 +270,7 @@ namespace Payments.Tests.DatabaseTests
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
-            result["amount"].ShouldBe(invoice.Total.ToString("F2"));
+            result["amount"].ShouldBe(invoice.CalculatedTotal.ToString("F2"));
             result["currency"].ShouldBe("USD");
             result["transaction_uuid"].ShouldNotBeNull();
             result["signed_date_time"].ShouldNotBeNull();
