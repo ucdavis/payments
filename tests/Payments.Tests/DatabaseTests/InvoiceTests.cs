@@ -78,6 +78,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
             }));
             expectedFields.Add(new NameAndType("Items", "System.Collections.Generic.IList`1[Payments.Core.Domain.LineItem]", new List<string>()));
+            expectedFields.Add(new NameAndType("KfsTrackingNumber", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("LinkId", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("ManualDiscount", "System.Decimal", new List<string>
             {
