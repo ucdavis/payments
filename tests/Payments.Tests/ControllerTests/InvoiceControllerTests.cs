@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -28,7 +28,7 @@ namespace payments.Tests.ControllerTests
     {
         public Mock<ApplicationDbContext> MockDbContext { get; set; }
         public Mock<HttpContext> MockHttpContext { get; set; }
-        public Mock<IEmailService> MockEmailService { get; set; }
+        public Mock<IInvoiceService> MockInvoiceService { get; set; }
         public Mock<FakeApplicationUserManager> MockUserManager { get; set; }
         //public Mock<ClaimsPrincipal> MockClaimsPrincipal { get; set; }
 
@@ -45,7 +45,7 @@ namespace payments.Tests.ControllerTests
 
 
             MockDbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
-            MockEmailService = new Mock<IEmailService>();
+            MockInvoiceService = new Mock<IInvoiceService>();
             MockUserManager = new Mock<FakeApplicationUserManager>();
 
             //MockClaimsPrincipal = new Mock<ClaimsPrincipal>();
@@ -75,7 +75,7 @@ namespace payments.Tests.ControllerTests
 
             var routeData = new RouteData();
             routeData.Values.Add( "team", "testSlug" );
-            Controller = new InvoicesController(MockUserManager.Object, MockDbContext.Object, MockEmailService.Object)
+            Controller = new InvoicesController(MockUserManager.Object, MockDbContext.Object, MockInvoiceService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
