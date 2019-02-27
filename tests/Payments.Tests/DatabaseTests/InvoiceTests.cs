@@ -21,6 +21,27 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("CalculatedDiscount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",                
+            }));
+            expectedFields.Add(new NameAndType("CalculatedSubtotal", "System.Decimal", new List<string>{
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+            }));
+            expectedFields.Add(new NameAndType("CalculatedTaxableAmount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Taxable Amount\")]",
+            }));
+            expectedFields.Add(new NameAndType("CalculatedTaxAmount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Tax\")]",                
+            }));
+            expectedFields.Add(new NameAndType("CalculatedTotal", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+            }));
             expectedFields.Add(new NameAndType("Coupon", "Payments.Core.Domain.Coupon", new List<string>()));
             expectedFields.Add(new NameAndType("CreatedAt", "System.DateTime", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Created On\")]",
@@ -42,9 +63,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DisplayNameAttribute(\"Deleted On\")]",
             }));
-            expectedFields.Add(new NameAndType("Discount", "System.Decimal", new List<string>{
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-            }));
+
             expectedFields.Add(new NameAndType("DraftCount", "System.Int32", new List<string>()));
             expectedFields.Add(new NameAndType("DueDate", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("History", "System.Collections.Generic.IList`1[Payments.Core.Domain.History]", new List<string>
@@ -57,6 +76,10 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Items", "System.Collections.Generic.IList`1[Payments.Core.Domain.LineItem]", new List<string>()));
             expectedFields.Add(new NameAndType("LinkId", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("ManualDiscount", "System.Decimal", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+            }));
             expectedFields.Add(new NameAndType("Memo", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DataTypeAttribute((System.ComponentModel.DataAnnotations.DataType)9)]",
             }));
@@ -76,19 +99,6 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DisplayNameAttribute(\"Sent At\")]",
             }));
             expectedFields.Add(new NameAndType("Status", "System.String", new List<string>()));
-            expectedFields.Add(new NameAndType("Subtotal", "System.Decimal", new List<string>{
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-            }));
-            expectedFields.Add(new NameAndType("TaxableAmount", "System.Decimal", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-                "[System.ComponentModel.DisplayNameAttribute(\"Taxable Amount\")]",
-            }));
-            expectedFields.Add(new NameAndType("TaxAmount", "System.Decimal", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-                "[System.ComponentModel.DisplayNameAttribute(\"Tax\")]",
-            }));
             expectedFields.Add(new NameAndType("TaxPercent", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:P}\")]",
@@ -103,10 +113,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("Total", "System.Decimal", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",                
-            }));
+
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(Invoice));
