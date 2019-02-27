@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
+using Payments.Core.Models.Invoice;
 using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Mvc.Helpers;
@@ -24,13 +25,13 @@ namespace Payments.Mvc.Controllers
     {
         private readonly ApplicationUserManager _userManager;
         private readonly ApplicationDbContext _dbContext;
-        private readonly IEmailService _emailService;
+        private readonly IInvoiceService _invoiceService;
 
-        public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IEmailService emailService)
+        public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IInvoiceService invoiceService)
         {
             _userManager = userManager;
             _dbContext = dbContext;
-            _emailService = emailService;
+            _invoiceService = invoiceService;
         }
 
         public IActionResult Index()
@@ -213,7 +214,7 @@ namespace Payments.Mvc.Controllers
                 });
 
             // build model for view
-            var model = new EditInvoiceViewModel()
+            var model = new EditInvoiceModel()
             {
                 AccountId        = invoice.Account?.Id ?? 0,
                 CouponId         = invoice.Coupon?.Id ?? 0,
@@ -221,13 +222,13 @@ namespace Payments.Mvc.Controllers
                 DueDate          = invoice.DueDate,
                 TaxPercent       = invoice.TaxPercent,
                 Memo             = invoice.Memo,
-                Customer         = new EditInvoiceCustomerViewModel()
+                Customer         = new EditInvoiceCustomerModel()
                 {
                     Name    = invoice.CustomerName,
                     Address = invoice.CustomerAddress,
                     Email   = invoice.CustomerEmail,
                 },
-                Items = invoice.Items.Select(i => new EditInvoiceItemViewModel()
+                Items = invoice.Items.Select(i => new EditInvoiceItemModel()
                 {
                     Amount      = i.Amount,
                     Description = i.Description,
@@ -235,7 +236,7 @@ namespace Payments.Mvc.Controllers
                     TaxExempt   = i.TaxExempt,
                     Total       = i.Amount * i.Quantity,
                 }).ToList(),
-                Attachments = invoice.Attachments.Select(a => new EditInvoiceAttachmentViewModel()
+                Attachments = invoice.Attachments.Select(a => new EditInvoiceAttachmentModel()
                 {
                     Identifier   = a.Identifier,
                     FileName     = a.FileName,
@@ -252,31 +253,10 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateInvoiceViewModel model)
+        public async Task<IActionResult> Create([FromBody] CreateInvoiceModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
-
-            // find account
-            var account = await _dbContext.FinancialAccounts
-                .FirstOrDefaultAsync(a => a.Team.Slug == TeamSlug && a.Id == model.AccountId);
-
-            if (account == null)
-            {
-                ModelState.AddModelError("AccountId", "Account Id not found for this team.");
-            }
-            else if (!account.IsActive)
-            {
-                ModelState.AddModelError("AccountId", "Account is inactive.");
-            }
-
-            // find coupon
-            Coupon coupon = null;
-            if (model.CouponId > 0)
-            {
-                coupon = await _dbContext.Coupons
-                    .FirstOrDefaultAsync(c => c.Team.Slug == TeamSlug && c.Id == model.CouponId);
-            }
 
             // validate model
             if (!ModelState.IsValid)
@@ -289,50 +269,25 @@ namespace Payments.Mvc.Controllers
                 });
             }
 
-            // manage multiple customer scenario
-            var invoices = new List<Invoice>();
-            foreach (var customer in model.Customers)
+            IReadOnlyList<Invoice> invoices;
+            try
             {
-                // create new object, track it
-                var invoice = new Invoice
+                invoices = await _invoiceService.CreateInvoices(model, team);
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(ex.ParamName, ex.Message);
+                return new JsonResult(new
                 {
-                    DraftCount            = 1,
-                    Account               = account,
-                    Coupon                = coupon,
-                    Team                  = team,
-                    ManualDiscount        = model.ManualDiscount,
-                    TaxPercent            = model.TaxPercent,
-                    DueDate               = model.DueDate,
-                    CustomerAddress       = customer.Address,
-                    CustomerEmail         = customer.Email,
-                    CustomerName          = customer.Name,
-                    Memo                  = model.Memo,
-                    Status                = Invoice.StatusCodes.Draft,
-                    Sent                  = false,
-                };
-
-                // add line items
-                var items = model.Items.Select(i => new LineItem()
-                {
-                    Amount      = i.Amount,
-                    Description = i.Description,
-                    Quantity    = i.Quantity,
-                    TaxExempt   = i.TaxExempt,
-                    Total       = i.Quantity * i.Amount,
+                    success = false,
+                    errorMessage = "Errors found in request",
+                    modelState = ModelState
                 });
-                invoice.Items = items.ToList();
+            }
 
-                // add attachments
-                var attachments = model.Attachments.Select(a => new InvoiceAttachment()
-                {
-                    Identifier  = a.Identifier,
-                    FileName    = a.FileName,
-                    ContentType = a.ContentType,
-                    Size        = a.Size,
-                });
-                invoice.Attachments = attachments.ToList();
-
-                // record action
+            // record action on invoices
+            foreach (var invoice in invoices)
+            {
                 var action = new History()
                 {
                     Type = HistoryActionTypes.InvoiceCreated.TypeCode,
@@ -340,15 +295,9 @@ namespace Payments.Mvc.Controllers
                     Actor = user.Name,
                 };
                 invoice.History.Add(action);
-
-                // start tracking for db
-                invoice.UpdateCalculatedValues();
-                _dbContext.Invoices.Add(invoice);
-
-                invoices.Add(invoice);
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return new JsonResult(new
             {
@@ -358,8 +307,10 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [FromBody]EditInvoiceViewModel model)
+        public async Task<IActionResult> Edit(int id, [FromBody]EditInvoiceModel model)
         {
+            var user = await _userManager.GetUserAsync(User);
+
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
@@ -372,19 +323,6 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            // find account
-            var account = await _dbContext.FinancialAccounts
-                .FirstOrDefaultAsync(a => a.Team.Slug == TeamSlug && a.Id == model.AccountId);
-
-            if (account == null)
-            {
-                ModelState.AddModelError("AccountId", "Account Id not found for this team.");
-            }
-            else if (!account.IsActive)
-            {
-                ModelState.AddModelError("AccountId", "Account is inactive.");
-            }
-
             // validate model
             if (!ModelState.IsValid)
             {
@@ -396,61 +334,22 @@ namespace Payments.Mvc.Controllers
                 });
             }
 
-            // find coupon
-            Coupon coupon = null;
-            if (model.CouponId > 0)
+            try
             {
-                coupon = await _dbContext.Coupons
-                    .FirstOrDefaultAsync(c => c.Team.Slug == TeamSlug && c.Id == model.CouponId);
+                await _invoiceService.UpdateInvoice(invoice, model);
             }
-
-            // TODO: Consider modifying items instead of replacing
-            // remove old items
-            _dbContext.LineItems.RemoveRange(invoice.Items);
-
-            // update invoice
-            invoice.Account         = account;
-            invoice.Coupon          = coupon;
-            invoice.CustomerAddress = model.Customer.Address;
-            invoice.CustomerEmail   = model.Customer.Email;
-            invoice.CustomerName    = model.Customer.Name;
-            invoice.Memo            = model.Memo;
-            invoice.ManualDiscount  = model.ManualDiscount;
-            invoice.TaxPercent      = model.TaxPercent;
-            invoice.DueDate         = model.DueDate;
-
-            // increase draft count
-            invoice.DraftCount++;
-
-            // add line items
-            var items = model.Items.Select(i => new LineItem()
+            catch (ArgumentException ex)
             {
-                Amount      = i.Amount,
-                Description = i.Description,
-                Quantity    = i.Quantity,
-                TaxExempt   = i.TaxExempt,
-                Total       = i.Quantity * i.Amount,
-            });
-            invoice.Items = items.ToList();
-
-            // add attachments
-            var attachments = model.Attachments.Select(a => new InvoiceAttachment()
-            {
-                Identifier  = a.Identifier,
-                FileName    = a.FileName,
-                ContentType = a.ContentType,
-                Size        = a.Size,
-            });
-            invoice.Attachments = attachments.ToList();
-
-            // editing a sent invoice will modify the link id
-            if (invoice.Sent)
-            {
-                SetInvoiceKey(invoice);
+                ModelState.AddModelError(ex.ParamName, ex.Message);
+                return new JsonResult(new
+                {
+                    success = false,
+                    errorMessage = "Errors found in request",
+                    modelState = ModelState
+                });
             }
 
             // record action
-            var user = await _userManager.GetUserAsync(User);
             var action = new History()
             {
                 Type = HistoryActionTypes.InvoiceEdited.TypeCode,
@@ -460,7 +359,6 @@ namespace Payments.Mvc.Controllers
             invoice.History.Add(action);
 
             // save to db
-            invoice.UpdateCalculatedValues();
             _dbContext.SaveChanges();
 
             return new JsonResult(new
@@ -470,7 +368,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Send(int id, [FromBody]SendInvoiceViewModel model)
+        public async Task<IActionResult> Send(int id, [FromBody]SendInvoiceModel model)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -487,17 +385,7 @@ namespace Payments.Mvc.Controllers
                 });
             }
 
-            // don't reset the key if it's already live
-            if (!invoice.Sent)
-            {
-                SetInvoiceKey(invoice);
-            }
-
-            await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
-
-            invoice.Status = Invoice.StatusCodes.Sent;
-            invoice.Sent = true;
-            invoice.SentAt = DateTime.UtcNow;
+            await _invoiceService.SendInvoice(invoice, model);
 
             // record action
             var user = await _userManager.GetUserAsync(User);
@@ -513,7 +401,7 @@ namespace Payments.Mvc.Controllers
 
             return new JsonResult(new
             {
-                success = true
+                success = true,
             });
         }
 
@@ -679,27 +567,6 @@ namespace Payments.Mvc.Controllers
             await _dbContext.SaveChangesAsync();
 
             return RedirectToAction("Index", "Invoices");
-        }
-
-        private void SetInvoiceKey(Invoice invoice)
-        {
-            // setup random 10 character key link id
-            var linkId = InvoiceKeyHelper.GetUniqueKey();
-
-            // append invoice id and draft
-            linkId = $"{linkId}-{invoice.GetFormattedId()}";
-
-            // create db row for tracking links
-            var link = new InvoiceLink()
-            {
-                Invoice = invoice,
-                LinkId = linkId,
-                Expired = false,
-            };
-            _dbContext.InvoiceLinks.Add(link);
-
-            // set key for fast recovery
-            invoice.LinkId = linkId;
         }
 
         private InvoiceFilterViewModel GetInvoiceFilter()
