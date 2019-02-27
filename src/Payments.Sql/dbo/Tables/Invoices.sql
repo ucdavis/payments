@@ -27,6 +27,7 @@ CREATE TABLE [dbo].[Invoices] (
     [PaidAt]					DATETIME2		NULL, 
     [PaymentType]				NVARCHAR(50)	NULL, 
     [PaymentProcessorId]		NVARCHAR(150)	NULL, 
+    [KfsTrackingNumber]			NVARCHAR(20)	NULL, 
     CONSTRAINT [PK_Invoices] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_Invoices_Coupons_CouponId] FOREIGN KEY ([CouponId]) REFERENCES [dbo].[Coupons] ([Id]),
     CONSTRAINT [FK_Invoices_FinancialAccounts_AccountId] FOREIGN KEY ([AccountId]) REFERENCES [dbo].[FinancialAccounts] ([Id]),

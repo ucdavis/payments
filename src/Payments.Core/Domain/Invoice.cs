@@ -87,6 +87,8 @@ namespace Payments.Core.Domain
 
         public string PaymentProcessorId { get; set; }
 
+        public string KfsTrackingNumber { get; set; }
+
         [DisplayName("Created On")]
         public DateTime CreatedAt { get; set; }
 

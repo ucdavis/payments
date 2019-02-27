@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -32,6 +32,12 @@ namespace Payments.Core.Models.Sloth
         /// Tracking Number created by the payment processor
         /// </summary>
         public string ProcessorTrackingNumber { get; set; }
+
+        /// <summary>
+        /// Optionally set the kfs tracking number to be used
+        /// </summary>
+        [MaxLength(10)]
+        public string KfsTrackingNumber { get; set; }
 
         /// <summary>
         /// Date the transaction occurred.

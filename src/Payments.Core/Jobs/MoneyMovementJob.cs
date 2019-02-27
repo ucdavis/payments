@@ -67,6 +67,7 @@ namespace Payments.Core.Jobs
                         }
 
                         // transaction found, bank reconcile was successful
+                        invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
                         invoice.Status = Invoice.StatusCodes.Processing;
 
                         // calculate fees
@@ -110,9 +111,10 @@ namespace Payments.Core.Jobs
 
                         var response = await _slothService.CreateTransaction(new CreateTransaction()
                         {
-                            AutoApprove            = false,
+                            AutoApprove            = true,
                             MerchantTrackingNumber = transaction.MerchantTrackingNumber,
                             MerchantTrackingUrl    = merchantUrl,
+                            KfsTrackingNumber      = transaction.KfsTrackingNumber,
                             TransactionDate        = DateTime.UtcNow,
                             Transfers              = new List<CreateTransfer>()
                             {
