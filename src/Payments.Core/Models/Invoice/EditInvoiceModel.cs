@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Payments.Mvc.Models.InvoiceViewModels
+namespace Payments.Core.Models.Invoice
 {
-    public class EditInvoiceViewModel
+    public class EditInvoiceModel
     {
         public int AccountId { get; set; }
 
-        public EditInvoiceCustomerViewModel Customer { get; set; }
+        public EditInvoiceCustomerModel Customer { get; set; }
 
         public string Memo { get; set; }
 
@@ -23,14 +23,14 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         [Range(0, int.MaxValue)]
         public decimal TaxPercent { get; set; }
 
-        public IList<EditInvoiceItemViewModel> Items { get; set; }
+        public IList<EditInvoiceItemModel> Items { get; set; }
 
-        public IList<EditInvoiceAttachmentViewModel> Attachments { get; set; }
+        public IList<EditInvoiceAttachmentModel> Attachments { get; set; }
 
         public DateTime? DueDate { get; set; }
     }
 
-    public class EditInvoiceCustomerViewModel
+    public class EditInvoiceCustomerModel
     {
         [MaxLength(100)]
         public string Name { get; set; }
@@ -43,7 +43,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public string Email { get; set; }
     }
 
-    public class EditInvoiceItemViewModel
+    public class EditInvoiceItemModel
     {
         [MaxLength(100)]
         public string Description { get; set; }
@@ -60,7 +60,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public decimal Total { get; set; }
     }
 
-    public class EditInvoiceAttachmentViewModel
+    public class EditInvoiceAttachmentModel
     {
         /// <summary>
         /// Identifier returned from upload api

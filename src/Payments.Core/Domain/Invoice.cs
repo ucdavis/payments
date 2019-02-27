@@ -87,6 +87,8 @@ namespace Payments.Core.Domain
 
         public string PaymentProcessorId { get; set; }
 
+        public string KfsTrackingNumber { get; set; }
+
         [DisplayName("Created On")]
         public DateTime CreatedAt { get; set; }
 
@@ -105,9 +107,11 @@ namespace Payments.Core.Domain
         // Calculated Values
         // ----------------------
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [DisplayName("Subtotal")]
         public decimal CalculatedSubtotal { get; private set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [DisplayName("Discount")]
         public decimal CalculatedDiscount { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
@@ -119,6 +123,7 @@ namespace Payments.Core.Domain
         public decimal CalculatedTaxAmount { get; private set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [DisplayName("Total")]
         public decimal CalculatedTotal { get; private set; }
 
         public decimal GetDiscountAmount()

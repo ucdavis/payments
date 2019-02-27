@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
 
 namespace Payments.Core.Resources
 {
     public class FeeSchedule
     {
-        public const decimal StandardRate = (decimal) 0.04;
+        public const decimal StandardRate = (decimal) 0.05;
     }
 }

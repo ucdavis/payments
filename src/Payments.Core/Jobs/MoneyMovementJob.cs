@@ -55,8 +55,6 @@ namespace Payments.Core.Jobs
                             continue;
                         }
 
-                        ;
-
                         log.Information("Invoice {id} reconciliation found with transaction: {transactionId}",
                             invoice.Id, transaction.Id);
 
@@ -69,6 +67,7 @@ namespace Payments.Core.Jobs
                         }
 
                         // transaction found, bank reconcile was successful
+                        invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
                         invoice.Status = Invoice.StatusCodes.Processing;
 
                         // calculate fees
@@ -107,10 +106,15 @@ namespace Payments.Core.Jobs
                             Description = "Funds Distribution"
                         };
 
+                        // setup transaction
+                        var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
+
                         var response = await _slothService.CreateTransaction(new CreateTransaction()
                         {
-                            AutoApprove            = false,
+                            AutoApprove            = true,
                             MerchantTrackingNumber = transaction.MerchantTrackingNumber,
+                            MerchantTrackingUrl    = merchantUrl,
+                            KfsTrackingNumber      = transaction.KfsTrackingNumber,
                             TransactionDate        = DateTime.UtcNow,
                             Transfers              = new List<CreateTransfer>()
                             {

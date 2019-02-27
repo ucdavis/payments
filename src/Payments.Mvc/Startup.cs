@@ -187,6 +187,7 @@ namespace Payments.Mvc
             services.AddSingleton<ISlothService, SlothService>();
             services.AddSingleton<IStorageService, StorageService>();
 
+            services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<INotificationService, NotificationService>();
 
             // register job services

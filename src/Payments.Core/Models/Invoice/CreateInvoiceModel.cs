@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Payments.Mvc.Models.InvoiceViewModels
+namespace Payments.Core.Models.Invoice
 {
-    public class CreateInvoiceViewModel
+    public class CreateInvoiceModel
     {
         public int AccountId { get; set; }
 
         /// <summary>
         /// One or many customers to assign an invoice to. Multiple customers will create multiple invoices
         /// </summary>
-        public IList<CreateInvoiceCustomerViewModel> Customers { get; set; }
+        public IList<CreateInvoiceCustomerModel> Customers { get; set; }
 
         /// <summary>
         /// Coupon to be applied to order
@@ -38,12 +38,12 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         /// <summary>
         /// Line items
         /// </summary>
-        public IList<CreateInvoiceItemViewModel> Items { get; set; }
+        public IList<CreateInvoiceItemModel> Items { get; set; }
 
         /// <summary>
         /// Attachments for invoice. Pre upload and specify returned identifiers 
         /// </summary>
-        public IList<CreateInvoiceAttachmentViewModel> Attachments { get; set; }
+        public IList<CreateInvoiceAttachmentModel> Attachments { get; set; }
 
         /// <summary>
         /// Optional due date for invoice
@@ -51,7 +51,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public DateTime? DueDate { get; set; }
     }
 
-    public class CreateInvoiceCustomerViewModel
+    public class CreateInvoiceCustomerModel
     {
         /// <summary>
         /// Customer name
@@ -73,7 +73,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public string Email { get; set; }
     }
 
-    public class CreateInvoiceItemViewModel
+    public class CreateInvoiceItemModel
     {
         /// <summary>
         /// Name of invoice item
@@ -96,7 +96,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public bool TaxExempt { get; set; }
     }
 
-    public class CreateInvoiceAttachmentViewModel
+    public class CreateInvoiceAttachmentModel
     {
         /// <summary>
         /// Identifier returned from upload api
