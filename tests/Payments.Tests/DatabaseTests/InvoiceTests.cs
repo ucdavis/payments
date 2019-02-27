@@ -24,9 +24,11 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("CalculatedDiscount", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",                
+                "[System.ComponentModel.DisplayNameAttribute(\"Discount\")]",
             }));
             expectedFields.Add(new NameAndType("CalculatedSubtotal", "System.Decimal", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Subtotal\")]",
             }));
             expectedFields.Add(new NameAndType("CalculatedTaxableAmount", "System.Decimal", new List<string>
             {
@@ -41,6 +43,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("CalculatedTotal", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Total\")]",
             }));
             expectedFields.Add(new NameAndType("Coupon", "Payments.Core.Domain.Coupon", new List<string>()));
             expectedFields.Add(new NameAndType("CreatedAt", "System.DateTime", new List<string>{
