@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -121,6 +121,7 @@ namespace Payments.Mvc.Controllers
                     // call methods
                     log.Information("Starting Job");
                     await moneyMovementJob.FindBankReconcileTransactions(log);
+                    await moneyMovementJob.FindIncomeTransactions(log);
                 }
                 finally
                 {
