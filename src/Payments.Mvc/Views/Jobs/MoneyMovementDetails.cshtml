@@ -1,3 +1,4 @@
+@using Payments.Core.Extensions
 @model MoneyMovementJobRecord
 @{
     ViewData["Title"] = "Money Movement Details";
@@ -49,7 +50,7 @@
                 @Html.DisplayNameFor(model => model.RanOn)
             </dt>
             <dd>
-                @Html.DisplayFor(model => model.RanOn)
+                @Model.RanOn.ToPacificTime()
             </dd>
             <dt>
                 @Html.DisplayNameFor(model => model.Status)

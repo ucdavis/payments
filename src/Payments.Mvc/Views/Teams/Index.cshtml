@@ -43,10 +43,11 @@
                         <td class="text-center">
                             @if (isAdmin)
                             {
-                                <span>
-                                    <a asp-controller="Settings" asp-action="Edit" asp-route-team="@item.Slug">Edit</a> |
-                                    <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
-                                </span>
+                            <span>
+                                <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@item.Slug">Select</a> |
+                                <a asp-controller="Settings" asp-action="Edit" asp-route-team="@item.Slug">Edit</a> |
+                                <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
+                            </span>
                             }
                             else
                             {

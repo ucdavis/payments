@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,8 +50,10 @@ namespace Payments.Jobs.MoneyMovement
                 // create job service
                 var moneyMovementJob = provider.GetService<MoneyMovementJob>();
 
-                // call method
+                // call each step
                 moneyMovementJob.FindBankReconcileTransactions(_log).GetAwaiter().GetResult();
+
+                moneyMovementJob.FindIncomeTransactions(_log).GetAwaiter().GetResult();
             }
             finally
             {

@@ -141,5 +141,60 @@ namespace Payments.Core.Jobs
                 }
             }
         }
+
+        public async Task FindIncomeTransactions(ILogger log)
+        {
+            using (var ts = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    // get all invoices are in processing
+                    var invoices = _dbContext.Invoices
+                        .Where(i => i.Status == Invoice.StatusCodes.Processing)
+                        .Include(i => i.Team)
+                        .ToList();
+
+                    log.Information("{count} invoices found expecting completion", invoices.Count);
+
+                    foreach (var invoice in invoices)
+                    {
+                        if (string.IsNullOrWhiteSpace(invoice.KfsTrackingNumber))
+                        {
+                            log.Warning("Invoice {id} has no kfs tarcking number.", invoice.Id);
+                            continue;
+                        }
+
+                        var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber);
+
+                        // look for transfers into the fees account that have completed
+                        var distribution = transactions?.FirstOrDefault(t =>
+                            string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
+                            && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount)));
+
+                        if (distribution == null)
+                        {
+                            log.Warning("No reconciliation found for invoice id: {id}", invoice.Id);
+                            continue;
+                        }
+
+                        log.Information("Invoice {id} distribution found with transaction: {transactionId}",
+                            invoice.Id, distribution.Id);
+
+                        // transaction found, bank reconcile was successful
+                        invoice.Status = Invoice.StatusCodes.Completed;
+                    }
+
+                    log.Information("Finishing Job");
+                    await _dbContext.SaveChangesAsync();
+                    ts.Commit();
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex, ex.Message);
+                    ts.Rollback();
+                    throw;
+                }
+            }
+        }
     }
 }
