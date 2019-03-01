@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Extensions;
 using Payments.Core.Jobs;
 using Payments.Mvc.Logging;
 using Payments.Mvc.Models.JobViewModels;
@@ -72,11 +73,11 @@ namespace Payments.Mvc.Controllers
             var events = records.Select(r => new
             {
                 id     = r.Id,
-                title  = $"{r.Name} - {r.RanOn:MMM dd, h:mm tt}",
+                title  = $"{r.Name} - {r.RanOn.ToPacificTime():MMM dd, h:mm tt}",
                 @class = "event-success",
                 url    = Url.Action(nameof(MoneyMovementDetails), new { id = r.Id }),
-                start  = (r.RanOn.Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch,
-                end    = (r.RanOn.Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch + 1,
+                start  = (r.RanOn.ToPacificTime().Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch,
+                end    = (r.RanOn.ToPacificTime().Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch + 1,
             });
 
 
