@@ -53,8 +53,9 @@ artifacts:
   name: nugetweb
 
 deploy:
-- provider: NuGet
-  server: https://scruffy.caes.ucdavis.edu/nuget/packages
+- provider: Octopus
+  push_packages: true
+  server: https://scruffy.caes.ucdavis.edu
   api_key:
     secure: 0bPmdZ5IVKjvNHKPjW4pNSmM223U0YV/oQKJ/NdN/CE=
   on:
