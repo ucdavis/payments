@@ -9,6 +9,7 @@ using Payments.Core.Domain;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Services;
+using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
 {
@@ -192,6 +193,7 @@ namespace Payments.Mvc.Controllers
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Include(i => i.Team)
                 .Where(i => i.Team.Id == team.Id)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
