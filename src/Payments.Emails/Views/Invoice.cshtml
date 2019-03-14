@@ -19,11 +19,11 @@
 
 <mj-table>
     <tr>
-        <td>
+        <td style="vertical-align: top;">
             <p style="font-weight: bold">Amount Due:</p>
             <p>@invoice.CalculatedTotal.ToString("C")</p>
         </td>
-        <td align="right">
+        <td style="vertical-align: top; text-align: right;">
             <p style="font-weight: bold">Billed To:</p>
             @if (!string.IsNullOrWhiteSpace(invoice.CustomerName))
             {
