@@ -14,6 +14,7 @@ using Payments.Core.Models.History;
 using Payments.Core.Models.Notifications;
 using Payments.Core.Resources;
 using Payments.Core.Services;
+using Payments.Emails;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.CyberSource;
 using Payments.Mvc.Models.PaymentViewModels;
@@ -28,14 +29,18 @@ namespace Payments.Mvc.Controllers
         private readonly IDataSigningService _dataSigningService;
         private readonly INotificationService _notificationService;
         private readonly IStorageService _storageService;
+        private readonly IEmailService _emailService;
+
         private readonly CyberSourceSettings _cyberSourceSettings;
 
-        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IStorageService storageService, IOptions<CyberSourceSettings> cyberSourceSettings)
+        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IStorageService storageService, IOptions<CyberSourceSettings> cyberSourceSettings, IEmailService emailService)
         {
             _dbContext = dbContext;
             _dataSigningService = dataSigningService;
             _notificationService = notificationService;
             _storageService = storageService;
+            _emailService = emailService;
+
             _cyberSourceSettings = cyberSourceSettings.Value;
         }
 
@@ -429,7 +434,11 @@ namespace Payments.Mvc.Controllers
             var payment = await ProcessPaymentEvent(response, dictionary);
 
             // try to find matching invoice
-            var invoice = _dbContext.Invoices.SingleOrDefault(a => a.Id == response.Req_Reference_Number);
+            var invoice = _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .SingleOrDefault(a => a.Id == response.Req_Reference_Number);
+
             if (invoice == null)
             {
                 Log.Error("Invoice not found {0}", response.Req_Reference_Number);
@@ -454,6 +463,16 @@ namespace Payments.Mvc.Controllers
                     ActionDateTime = DateTime.UtcNow,
                 };
                 invoice.History.Add(action);
+
+                // send email
+                try
+                {
+                    await _emailService.SendReceipt(invoice, payment);
+                }
+                catch (Exception err)
+                {
+                    Log.Error(err, "Error while trying to send receipt.");
+                }
 
                 // process notifications
                 await _notificationService.SendPaidNotification(new PaidNotification()
