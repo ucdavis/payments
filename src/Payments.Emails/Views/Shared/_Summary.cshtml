@@ -1,0 +1,53 @@
+@using RazorLight
+@inherits TemplatePage<Payments.Core.Domain.Invoice>
+
+<mj-section background-color="#f3f3f3">
+    <mj-column>
+        <mj-text>
+            <h2>Summary</h2>
+        </mj-text>
+        <mj-table>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td style="padding: 10px 0;">@item.Description x @item.Quantity</td>
+                    <td style="padding: 10px 0; text-align: right">@item.Total.ToString("C")</td>
+                </tr>
+            }
+                
+            <tr style="border-top: 1px solid black">
+                <td></td>
+                <td></td>
+            </tr>
+
+            @if (Model.CalculatedDiscount > 0)
+            {
+                <tr>
+                    <td style="padding: 10px 0;">Discount</td>
+                    <td style="padding: 10px 0; text-align: right">-@Model.CalculatedDiscount.ToString("C")</td>
+                </tr>
+            }
+                
+            @if (Model.CalculatedTaxAmount > 0)
+            {
+                <tr>
+                    <td style="padding: 10px 0;">Tax (@Model.TaxPercent.ToString("P"))</td>
+                    <td style="padding: 10px 0; text-align: right">@Model.CalculatedTaxAmount.ToString("C")</td>
+                </tr>
+            }
+
+            <tr style="font-weight: bold">
+                <td style="padding: 10px 0;">Amount due</td>
+                <td style="padding: 10px 0; text-align: right">@Model.CalculatedTotal.ToString("C")</td>
+            </tr>
+        </mj-table>
+        
+        @if (!string.IsNullOrWhiteSpace(Model.Memo))
+        {
+            <mj-text>
+                <h3>Memo</h3>
+                <p>@Model.Memo</p>
+            </mj-text>
+        }
+    </mj-column>
+</mj-section>

@@ -1,0 +1,56 @@
+@using Payments.Core.Domain
+@using RazorLight
+@inherits TemplatePage<Payments.Emails.Models.ReceiptViewModel>
+
+@{
+    Layout = "Views.Shared._Layout";
+    var team = (Team)ViewBag.Team;
+
+    var invoice = Model.Invoice;
+    var payment = Model.Payment;
+
+    var pdfHref = $"{ViewBag.BaseUrl}/pdf/{invoice.LinkId}";
+}
+
+<mj-section padding-top="0" background-color="#f3f3f3">
+    <mj-column padding="0">
+        <mj-image padding="0" src="https://ucdpayment.blob.core.windows.net/email-assets/gradient.png" />
+        <mj-text align="center">
+            <h1>Receipt from @team.Name</h1>
+            <h3>Invoice # @invoice.GetFormattedId()</h3>
+        </mj-text>
+    </mj-column>
+</mj-section>
+
+<mj-section background-color="#f3f3f3">
+    <mj-column>
+        <mj-text align="left">
+            <p style="font-weight: bold">Total</p>
+            <p>@invoice.CalculatedTotal.ToString("C")</p>
+        </mj-text>
+    </mj-column>
+    <mj-column>
+        <mj-text align="right">
+            <p style="font-weight: bold">Billed To</p>
+            <p>@invoice.CustomerEmail</p>
+        </mj-text>
+    </mj-column>
+</mj-section>
+
+@{ await IncludeAsync("Views.Shared._Summary", invoice); }
+
+<mj-section background-color="#f3f3f3">
+    <mj-column>
+        <mj-text>
+            <p>@payment.CardType @payment.CardNumber</p>
+            <p>@payment.BillingFirstName @payment.BillingLastName</p>
+            <p>@payment.OccuredAt.ToString("U")</p>
+        </mj-text>
+    </mj-column>
+</mj-section>
+
+<mj-section background-color="#f3f3f3">
+    <mj-column>
+        <mj-button href="@pdfHref" background-color="#004987">Download as PDF</mj-button>
+    </mj-column>
+</mj-section>

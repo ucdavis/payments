@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
+    <ProjectReference Include="..\Payments.Emails\Payments.Emails.csproj" />
   </ItemGroup>
 
   <ItemGroup>

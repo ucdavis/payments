@@ -6,10 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Helpers;
-using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
+using Payments.Core.Services;
+using Payments.Emails;
 
-namespace Payments.Core.Services
+namespace Payments.Mvc.Services
 {
     public class InvoiceService : IInvoiceService
     {
@@ -184,6 +185,15 @@ namespace Payments.Core.Services
             }
 
             await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
+
+            invoice.Status = Invoice.StatusCodes.Sent;
+            invoice.Sent = true;
+            invoice.SentAt = DateTime.UtcNow;
+        }
+
+        public async Task SendReceipt(Invoice invoice, PaymentEvent payment, SendInvoiceModel model)
+        {
+            await _emailService.SendReceipt(invoice, payment);
 
             invoice.Status = Invoice.StatusCodes.Sent;
             invoice.Sent = true;

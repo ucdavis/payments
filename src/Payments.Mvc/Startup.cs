@@ -16,11 +16,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Mjml.AspNetCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Jobs;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
+using Payments.Emails;
 using Payments.Mvc.Authorization;
 using Payments.Mvc.Handlers;
 using Payments.Mvc.Helpers;
@@ -179,9 +181,12 @@ namespace Payments.Mvc
                 c.OperationFilter<FileOperationFilter>();
             });
 
+            // email services
+            services.AddMjmlServices();
+            services.AddSingleton<IEmailService, SparkpostEmailService>();
+
             // infrastructure services
             services.AddSingleton<IDataSigningService, DataSigningService>();
-            services.AddSingleton<IEmailService, SparkpostEmailService>();
             services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
             services.AddSingleton<IFinancialService, FinancialService>();
             services.AddSingleton<ISlothService, SlothService>();
