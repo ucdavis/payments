@@ -12,8 +12,14 @@
     </mj-head>
     <mj-body background-color="#fff">
 
-        @RenderBody()
-        
+        <mj-section padding-top="0" background-color="#f3f3f3">
+            <mj-column padding="0">
+                <mj-image padding="0 0 20px 0" height="50px" src="https://ucdpayment.blob.core.windows.net/email-assets/gradient.png" />
+
+                @RenderBody()
+            </mj-column>
+        </mj-section>
+
         <mj-section>
             <mj-column>
                 <mj-text align="center">
