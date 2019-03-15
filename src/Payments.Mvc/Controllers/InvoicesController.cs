@@ -16,6 +16,7 @@ using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.InvoiceViewModels;
 using Payments.Mvc.Models.Roles;
+using Payments.Mvc.Services;
 
 
 namespace Payments.Mvc.Controllers
@@ -374,6 +375,7 @@ namespace Payments.Mvc.Controllers
             // find item
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
+                .Include(i => i.Team)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 

@@ -1,0 +1,32 @@
+@using Payments.Core.Domain
+@using RazorLight
+@inherits TemplatePage<dynamic>
+
+@{
+    var team = (Team) ViewBag.Team;
+}
+
+<mjml lang="en-us">
+    <mj-head>
+
+    </mj-head>
+    <mj-body background-color="#fff">
+
+        <mj-section padding-top="0" background-color="#f3f3f3">
+            <mj-column padding="0">
+                <mj-image padding="0 0 20px 0" height="50px" src="https://ucdpayment.blob.core.windows.net/email-assets/gradient.png" />
+
+                @RenderBody()
+            </mj-column>
+        </mj-section>
+
+        <mj-section>
+            <mj-column>
+                <mj-text align="center">
+                    <p>If you have any questions, contact us at <a href="mailto:@team.ContactEmail">@team.ContactEmail</a> or call at <a href="tel:@team.ContactPhoneNumber">@team.ContactPhoneNumber</a></p>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+    </mj-body>
+</mjml>

@@ -17,6 +17,7 @@ using Payments.Core.Domain;
 using Payments.Core.Models.History;
 using Payments.Core.Services;
 using Payments.Mvc.Controllers;
+using Payments.Mvc.Services;
 using Shouldly;
 using TestHelpers.Helpers;
 using Xunit;

@@ -1,0 +1,49 @@
+@using Payments.Core.Domain
+@using RazorLight
+@inherits TemplatePage<Payments.Emails.Models.ReceiptViewModel>
+
+@{
+    Layout = "Views.Shared._Layout";
+    var team = (Team)ViewBag.Team;
+
+    var invoice = Model.Invoice;
+    var payment = Model.Payment;
+
+    var pdfHref = $"{ViewBag.BaseUrl}/pdf/{invoice.LinkId}";
+}
+
+<mj-text align="center">
+    <h1>Receipt from @team.Name</h1>
+    <h3>Invoice # @invoice.GetFormattedId()</h3>
+</mj-text>
+
+<mj-table>
+    <tr>
+        <td style="vertical-align: top;">
+            <p style="font-weight: bold">Total:</p>
+            <p>@invoice.CalculatedTotal.ToString("C")</p>
+        </td>
+        <td style="vertical-align: top; text-align: right">
+            <p style="font-weight: bold">Billed To:</p>
+            @if (!string.IsNullOrWhiteSpace(invoice.CustomerName))
+            {
+                <p>@invoice.CustomerName</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(invoice.CustomerAddress))
+            {
+                <p>@invoice.CustomerAddress</p>
+            }
+            <p>@invoice.CustomerEmail</p>
+        </td>
+    </tr>
+</mj-table>
+
+@{ await IncludeAsync("Views.Shared._Summary", invoice); }
+
+<mj-text>
+    <p>@payment.CardType @payment.CardNumber</p>
+    <p>@payment.BillingFirstName @payment.BillingLastName</p>
+    <p>@payment.OccuredAt.ToString("U")</p>
+</mj-text>
+
+<mj-button href="@pdfHref" background-color="#004987">Download as PDF</mj-button>
