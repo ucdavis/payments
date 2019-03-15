@@ -1,12 +1,14 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Notifications;
+using Serilog;
 
 namespace Payments.Core.Services
 {
@@ -60,11 +62,15 @@ namespace Payments.Core.Services
         {
             using (var client = new HttpClient())
             {
-                var body = JsonConvert.SerializeObject(payload);
+                var data = JsonConvert.SerializeObject(payload);
 
-                var response = await client.PostAsync(webHook.Url, new StringContent(body));
+                var body = new StringContent(data, Encoding.UTF8, "application/json");
 
-                // TODO: log response
+                var response = await client.PostAsync(webHook.Url, body);
+
+                Log.ForContext("webhook", webHook, true)
+                   .ForContext("response", response, true)
+                   .Information("Sent webhook");
             }
         }
     }
