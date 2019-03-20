@@ -1,9 +1,13 @@
 @using Newtonsoft.Json
-@using Payments.Core.Models.Notifications
+@using Payments.Core.Models.Webhooks
 @using Payments.Mvc.Resources
 
 @{
     ViewData["Title"] = "WebHooks";
+
+    var paidPayload = new PaidPayload();
+
+    var reconcilePayload = new ReconcilePayload();
 }
 
 @section AdditionalStyles {
@@ -34,18 +38,30 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>
-                    <code>
-                        @PaidNotification.Name
-                    </code>
-                </td>
-                <td>
-                    <p>
-                        @WebHookDescriptions.PaidNotifications
-                    </p>
-                </td>
-            </tr>
+                <tr>
+                    <td>
+                        <code>
+                            @paidPayload.Action
+                        </code>
+                    </td>
+                    <td>
+                        <p>
+                            @WebHookDescriptions.PaidNotification
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>
+                            @reconcilePayload.Action
+                        </code>
+                    </td>
+                    <td>
+                        <p>
+                            @WebHookDescriptions.ReconcileNotification
+                        </p>
+                    </td>
+                </tr>
             </tbody>
         </table>
 
@@ -55,15 +71,31 @@
             <div class="card">
                 <div class="card-header" id="headingOne">
                     <h5 class="mb-0">
-                        <button class="btn-plain" type="button" data-toggle="collapse" data-target="#notification_@PaidNotification.Name">
-                            @PaidNotification.Name
+                        <button class="btn-plain" type="button" data-toggle="collapse" data-target="#notification_@paidPayload.Action">
+                            @paidPayload.Action
                         </button>
                     </h5>
                 </div>
 
-                <div id="notification_@PaidNotification.Name" class="collapse show" data-parent="#notification_payloads">
+                <div id="notification_@paidPayload.Action" class="collapse show" data-parent="#notification_payloads">
                     <div class="card-body">
-                        <pre><code class="language-json">@JsonConvert.SerializeObject(new PaidNotification(), Formatting.Indented)</code></pre>
+                        <pre><code class="language-json">@JsonConvert.SerializeObject(paidPayload, Formatting.Indented)</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn-plain" type="button" data-toggle="collapse" data-target="#notification_@reconcilePayload.Action">
+                            @reconcilePayload.Action
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="notification_@reconcilePayload.Action" class="collapse show" data-parent="#notification_payloads">
+                    <div class="card-body">
+                        <pre><code class="language-json">@JsonConvert.SerializeObject(reconcilePayload, Formatting.Indented)</code></pre>
                     </div>
                 </div>
             </div>

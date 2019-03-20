@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
@@ -24,5 +24,8 @@ namespace Payments.Core.Domain
 
         [DisplayName("Trigger on Paid")]
         public bool TriggerOnPaid { get; set; }
+
+        [DisplayName("Trigger on Reconcile")]
+        public bool TriggerOnReconcile { get; set; }
     }
 }
