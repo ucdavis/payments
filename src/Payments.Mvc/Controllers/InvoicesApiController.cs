@@ -8,7 +8,6 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
-using Payments.Core.Services;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
@@ -171,10 +170,18 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return new JsonResult(new
+            // build response, send possible new link
+            dynamic response = new
             {
                 success = true,
-            });
+                id = invoice.Id,
+            };
+            if (invoice.Sent)
+            {
+                response.link = Url.Action("Pay", "Payments", new { id = invoice.LinkId });
+            }
+
+            return new JsonResult(response);
         }
 
         /// <summary>
@@ -221,6 +228,8 @@ namespace Payments.Mvc.Controllers
             return new JsonResult(new
             {
                 success = true,
+                id = invoice.Id,
+                link = Url.Action("Pay", "Payments", new { id = invoice.LinkId }),
             });
         }
     }
