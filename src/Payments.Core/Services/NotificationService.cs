@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Notifications;
+using Payments.Core.Models.Webhooks;
 using Serilog;
 
 namespace Payments.Core.Services
@@ -15,6 +16,8 @@ namespace Payments.Core.Services
     public interface INotificationService
     {
         Task SendPaidNotification(PaidNotification notification);
+
+        Task SendReconcileNotification(ReconcileNotification notification);
 
         Task TestWebHook(WebHook webHook);
     }
@@ -41,24 +44,53 @@ namespace Payments.Core.Services
                 return;
             }
 
+            // send webhook notifications
             var hooks = invoice.Team.WebHooks.Where(h => h.IsActive && h.TriggerOnPaid);
+            var payload = new PaidPayload()
+            {
+                InvoiceId = invoice.Id,
+                PaidOn = invoice.PaidAt.Value,
+            };
             foreach (var webHook in hooks)
             {
-                await SendWebHookPayload(webHook, notification);
+                await SendWebHookPayload(webHook, payload);
+            }
+        }
+
+        public async Task SendReconcileNotification(ReconcileNotification notification)
+        {
+            // find invoice
+            var invoice = await _dbContext.Invoices
+                .FirstOrDefaultAsync(i => i.Id == notification.InvoiceId);
+
+            if (invoice == null)
+            {
+                return;
+            }
+
+            // send webhook notifications
+            var hooks = invoice.Team.WebHooks.Where(h => h.IsActive && h.TriggerOnReconcile);
+            var payload = new ReconcilePayload()
+            {
+                InvoiceId = invoice.Id,
+            };
+            foreach (var webHook in hooks)
+            {
+                await SendWebHookPayload(webHook, payload);
             }
         }
 
         public async Task TestWebHook(WebHook webHook)
         {
-            var notification = new
+            var payload = new TestPayload()
             {
-                name = "test"
+                HookId = webHook.Id,
+                HookActive = webHook.IsActive,
             };
-
-            await SendWebHookPayload(webHook, notification);
+            await SendWebHookPayload(webHook, payload);
         }
 
-        private async Task SendWebHookPayload(WebHook webHook, object payload)
+        private async Task SendWebHookPayload(WebHook webHook, WebhookPayload payload)
         {
             using (var client = new HttpClient())
             {
