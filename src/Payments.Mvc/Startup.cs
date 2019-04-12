@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using AspNetCore.Security.CAS;
 using Joonasw.AspNetCore.SecurityHeaders;
 using jsreport.AspNetCore;
@@ -291,7 +292,15 @@ namespace Payments.Mvc
                     .FromSelf()
                     .From("https://use.fontawesome.com")
                     .From("data:");
+
+                c.OnSendingHeader = context =>
+                {
+                    context.ShouldNotSend = context.HttpContext.Request.Path.StartsWithSegments("/api");
+                    return Task.CompletedTask;
+                };
             });
+
+            // authentication middlwares
             app.UseAuthentication();
             app.UseMiddleware<ApiKeyMiddleware>();
             app.UseMiddleware<ServiceKeyMiddleware>();
