@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using AspNetCore.Security.CAS;
+using Joonasw.AspNetCore.SecurityHeaders;
 using jsreport.AspNetCore;
 using jsreport.Binary;
 using jsreport.Local;
@@ -123,6 +124,7 @@ namespace Payments.Mvc
                     });
             services.AddDistributedMemoryCache();
             services.AddSession();
+            services.AddCsp(nonceByteAmount: 32);
 
             // add pdf reporting server
             services.AddJsReport(new LocalReporting()
@@ -240,7 +242,54 @@ namespace Payments.Mvc
 
             app.UseStaticFiles();
 
-            // various authentication middlewares
+            // various authentication/security middlewares
+            app.UseCsp(c =>
+            {
+                c.ByDefaultAllow.FromSelf();
+
+                c.AllowScripts
+                    .FromSelf()
+                    .From("https://cdnjs.cloudflare.com")
+                    .From("https://cdn.datatables.net")
+                    .From("https://code.jquery.com")
+                    .From("https://maxcdn.bootstrapcdn.com")
+                    .From("https://www.googletagmanager.com");
+
+                // allow unsafe methods in development
+                if (Environment.IsDevelopment())
+                {
+                    c.AllowScripts
+                        .AllowUnsafeInline()
+                        .AllowUnsafeEval();
+                } else
+                {
+                    c.AllowScripts
+                        .AddNonce();
+                }
+
+                c.AllowStyles
+                    .FromSelf()
+                    .From("https://maxcdn.bootstrapcdn.com")
+                    .From("https://use.fontawesome.com")
+                    .From("https://cdn.datatables.net")
+                    .From("https://cdnjs.cloudflare.com");
+
+                // allow style loader in development
+                if (Environment.IsDevelopment())
+                {
+                    c.AllowStyles
+                        .From("blob:");
+                }
+
+                c.AllowImages
+                    .FromSelf()
+                    .From("https://secure.gravatar.com");
+
+                c.AllowFonts
+                    .FromSelf()
+                    .From("https://use.fontawesome.com")
+                    .From("data:");
+            });
             app.UseAuthentication();
             app.UseMiddleware<ApiKeyMiddleware>();
             app.UseMiddleware<ServiceKeyMiddleware>();

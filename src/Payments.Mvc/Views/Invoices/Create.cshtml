@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Create Invoice";
 }
 
@@ -12,7 +12,7 @@
 }
 
 @section scripts {
-    <script>
+    <script asp-add-nonce="true">
         window.team = @(Json.Serialize(ViewBag.Team));
 
         window.accounts = @(Json.Serialize(ViewBag.Accounts));

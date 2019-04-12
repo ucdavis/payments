@@ -99,7 +99,7 @@
 
 @section scripts
 {
-    <script>
+    <script asp-add-nonce="true">
         var statsUrl = '@Url.Action("TeamIndexStats", new {team = teamSlug})';
         $(function() {
             $.getJSON(statsUrl)

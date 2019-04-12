@@ -48,7 +48,7 @@
 {
     <script src="https://cdn.jsdelivr.net/npm/underscore@1.9.1/underscore-min.js"></script>
     <script src="~/js/calendar.js"></script>
-    <script>
+    <script asp-add-nonce="true">
         $('#jobsCalendar').calendar({
             tmpl_path: "/calendar/",
             events_source: '@Url.Action("MoneyMovementRecords")',

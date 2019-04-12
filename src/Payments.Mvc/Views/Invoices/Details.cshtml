@@ -669,12 +669,10 @@
 
 @section scripts {
 
-    <script>
+    <script asp-add-nonce="true">
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
-    </script>
 
-    <script type="text/javascript">
         var invoiceSent = @Json.Serialize(Model.Sent);
         var sendUrl = '@Url.Action("Send", "Invoices", new { id = Model.Id })';
         var forwardUrl = '@Url.Action("Send", "Invoices", new { id = Model.Id })';
