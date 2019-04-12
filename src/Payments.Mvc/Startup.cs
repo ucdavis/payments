@@ -242,9 +242,11 @@ namespace Payments.Mvc
 
             app.UseStaticFiles();
 
-            // various authentication/security middlewares
+            // various security middlewares
             app.UseCsp(c =>
             {
+                c.ReportViolationsTo("/csp-report");
+
                 c.ByDefaultAllow.FromSelf();
 
                 c.AllowScripts

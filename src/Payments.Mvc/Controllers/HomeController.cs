@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
+using Payments.Mvc.Models;
 using Payments.Mvc.Models.Roles;
+using Serilog;
 
 namespace Payments.Mvc.Controllers
 {
@@ -114,6 +116,17 @@ namespace Payments.Mvc.Controllers
         [Authorize]
         public IActionResult Secure() {
             return Content("Logged in");
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        [Route("csp-report")]
+        public IActionResult CspReport(CspReport model)
+        {
+            Log.ForContext("report", model, true).Warning("csp-report");
+
+            return new EmptyResult();
         }
 
         [HttpPost]
