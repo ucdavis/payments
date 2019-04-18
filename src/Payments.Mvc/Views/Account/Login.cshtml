@@ -6,7 +6,7 @@
     Layout = "_LoginLayout";
 }
 
-<style>
+<style asp-add-nonce="true">
     #loginContainer {
         min-height: 80vh;
     }
@@ -45,7 +45,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-}
