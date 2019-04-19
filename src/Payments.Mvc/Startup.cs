@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using AspNetCore.Security.CAS;
+using Joonasw.AspNetCore.SecurityHeaders;
 using jsreport.AspNetCore;
 using jsreport.Binary;
 using jsreport.Local;
@@ -123,6 +125,7 @@ namespace Payments.Mvc
                     });
             services.AddDistributedMemoryCache();
             services.AddSession();
+            services.AddCsp(nonceByteAmount: 32);
 
             // add pdf reporting server
             services.AddJsReport(new LocalReporting()
@@ -240,7 +243,98 @@ namespace Payments.Mvc
 
             app.UseStaticFiles();
 
-            // various authentication middlewares
+            // various security middlewares
+            app.UseCsp(c =>
+            {
+                c.ReportViolationsTo("/csp-report");
+
+                c.ByDefaultAllow.FromSelf();
+
+                c.AllowScripts
+                    .FromSelf()
+                    .From("https://cdnjs.cloudflare.com")
+                    .From("https://cdn.jsdelivr.net")
+                    .From("https://cdn.datatables.net")
+                    .From("https://code.jquery.com")
+                    .From("https://maxcdn.bootstrapcdn.com")
+                    .From("https://www.googletagmanager.com")
+                    .From("https://ajax.aspnetcdn.com");
+
+                // allow unsafe methods in development
+                // otherwise, support nonce (both aren't supported at the same time
+                if (Environment.IsDevelopment())
+                {
+                    c.AllowScripts
+                        .AllowUnsafeInline()
+                        .AllowUnsafeEval();
+                }
+                else
+                {
+                    c.AllowScripts
+                        .AddNonce();
+                }
+
+                c.AllowStyles
+                    .AddNonce()
+                    .FromSelf()
+                    .From("https://maxcdn.bootstrapcdn.com")
+                    .From("https://use.fontawesome.com")
+                    .From("https://cdn.datatables.net")
+                    .From("https://cdnjs.cloudflare.com");
+
+                // allow style loader in development
+                if (Environment.IsDevelopment())
+                {
+                    c.AllowStyles
+                        .From("blob:");
+                }
+
+                c.AllowImages
+                    .FromSelf()
+                    .From("data:")
+                    .From("https://secure.gravatar.com");
+
+                c.AllowFonts
+                    .FromSelf()
+                    .From("data:")
+                    .From("https://use.fontawesome.com");
+
+                c.OnSendingHeader = context =>
+                {
+                    context.ShouldNotSend = context.HttpContext.Request.Path.StartsWithSegments("/api");
+                    return Task.CompletedTask;
+                };
+            });
+            // we allow same origin iframes for preview windows
+            app.UseXFrameOptions(new XFrameOptionsOptions(XFrameOptionsOptions.XFrameOptionsValues.SameOrigin));
+            app.UseXXssProtection(new XXssProtectionOptions(enableProtection: true, enableAttackBlock: true));
+            app.UseXContentTypeOptions(new XContentTypeOptionsOptions(allowSniffing: false));
+            app.UseReferrerPolicy(new ReferrerPolicyOptions(ReferrerPolicyOptions.ReferrerPolicyValue.StrictOrigin));
+            app.UseFeaturePolicy(b =>
+            {
+                b.AllowAccelerometer.FromNowhere();
+                b.AllowAmbientLightSensor.FromNowhere();
+                b.AllowAutoplay.FromNowhere();
+                b.AllowCamera.FromNowhere();
+                b.AllowEncryptedMedia.FromNowhere();
+                b.AllowFullscreen.FromNowhere();
+                b.AllowGeolocation.FromNowhere();
+                b.AllowGyroscope.FromNowhere();
+                b.AllowMagnetometer.FromNowhere();
+                b.AllowMicrophone.FromNowhere();
+                b.AllowMidi.FromNowhere();
+                b.AllowNotifications.FromNowhere();
+                b.AllowPayment.FromNowhere();
+                b.AllowPictureInPicture.FromNowhere();
+                b.AllowPush.FromNowhere();
+                b.AllowSpeaker.FromNowhere();
+                b.AllowSyncXhr.FromNowhere();
+                b.AllowUsb.FromNowhere();
+                b.AllowVibrate.FromNowhere();
+                b.AllowVr.FromNowhere();
+            });
+
+            // authentication middlwares
             app.UseAuthentication();
             app.UseMiddleware<ApiKeyMiddleware>();
             app.UseMiddleware<ServiceKeyMiddleware>();

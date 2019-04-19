@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -16,7 +16,7 @@
     </environment>
     @RenderSection("AdditionalStyles", required: false)
 
-    <style>
+    <style asp-add-nonce="true">
         #particles-js {
             position: fixed;
             top: 0;
@@ -73,7 +73,7 @@
 
     @RenderSection("scripts", required: false)
 
-    <script>
+    <script asp-add-nonce="true">
         var par = {
             "particles": {
                 "number": {

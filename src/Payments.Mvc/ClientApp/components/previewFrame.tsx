@@ -6,7 +6,7 @@ interface IProps {
     invoice: PreviewInvoice;
 }
 
-export default class PreviewFrame extends React.PureComponent<IProps, {}> {
+export default class PreviewFrame extends React.Component<IProps, {}> {
 
     private _previewForm: HTMLFormElement;
 
@@ -24,8 +24,8 @@ export default class PreviewFrame extends React.PureComponent<IProps, {}> {
 
     public shouldComponentUpdate(nextProps: IProps) {
         // perform cheap compare via serialization
-        var model = JSON.stringify(this.props.invoice);
-        var newModel = JSON.stringify(nextProps.invoice);
+        const model = JSON.stringify(this.props.invoice);
+        const newModel = JSON.stringify(nextProps.invoice);
 
         return model.localeCompare(newModel) !== 0;
     }

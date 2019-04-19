@@ -1,4 +1,4 @@
-﻿@model Payments.Mvc.Models.CouponViewModels.CreateCouponViewModel
+@model Payments.Mvc.Models.CouponViewModels.CreateCouponViewModel
 
 <form method="POST" id="createCouponForm" asp-action="Create" novalidate>
     <div class="modal fade" id="createCouponModal" tabindex="-1" role="dialog" aria-labelledby="createCouponModalLabel" aria-hidden="true">
@@ -59,7 +59,7 @@
     </div>
 </form>
 
-<script>
+<script asp-add-nonce="true">
     function checkDiscountValidity() {
         var $DiscountAmount = $('#DiscountAmount');
         var discountAmount = $DiscountAmount.val();

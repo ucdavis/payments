@@ -44,7 +44,7 @@
             }
         </div>
     </form>
-    <script>
+    <script asp-add-nonce="true">
         window.addEventListener('load', function () {
             $('.team-select-control-item').click(function() {
                 var id = $(this).attr('data-id');
