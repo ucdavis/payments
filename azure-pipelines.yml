@@ -42,10 +42,11 @@ steps:
   displayName: 'Assemble Payments.Jobs.MoneyMovement'
   inputs:
     command: 'publish'
+    projects: './src/payments.jobs.moneymovement/payments.jobs.moneymovement.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/WebJob/App_Data/jobs/triggered/payments.jobs.moneymovement'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact'
+  displayName: 'Publish Artifacts'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'build'
