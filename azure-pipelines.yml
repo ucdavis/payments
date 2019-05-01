@@ -39,14 +39,10 @@ steps:
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Pack Payments.Jobs.Movement'
+  displayName: 'Assemble Payments.Jobs.MoneyMovement'
   inputs:
-    command: 'pack'
-    packagesToPack: './src/payments.jobs.moneymovement/payments.jobs.moneymovement.csproj'
-    versioningScheme: 'byPrereleaseNumber'
-    majorVersion: '1'
-    minorVersion: '0'
-    patchVersion: '0'
+    command: 'publish'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/WebJob/App_Data/jobs/triggered/payments.jobs.moneymovement'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
