@@ -256,7 +256,7 @@ namespace Payments.Mvc
                     .From("https://cdn.jsdelivr.net")
                     .From("https://cdn.datatables.net")
                     .From("https://code.jquery.com")
-                    .From("https://maxcdn.bootstrapcdn.com")
+                    .From("https://stackpath.bootstrapcdn.com")
                     .From("https://www.googletagmanager.com")
                     .From("https://ajax.aspnetcdn.com");
 
@@ -277,7 +277,7 @@ namespace Payments.Mvc
                 c.AllowStyles
                     .AddNonce()
                     .FromSelf()
-                    .From("https://maxcdn.bootstrapcdn.com")
+                    .From("https://stackpath.bootstrapcdn.com")
                     .From("https://use.fontawesome.com")
                     .From("https://cdn.datatables.net")
                     .From("https://cdnjs.cloudflare.com");
