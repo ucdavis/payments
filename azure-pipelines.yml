@@ -42,6 +42,8 @@ steps:
   displayName: 'Assemble Payments.Jobs.MoneyMovement'
   inputs:
     command: 'publish'
+    publishWebProjects: false
+    zipAfterPublish: false
     projects: './src/payments.jobs.moneymovement/payments.jobs.moneymovement.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/WebJob/App_Data/jobs/triggered/payments.jobs.moneymovement'
 
