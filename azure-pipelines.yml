@@ -25,10 +25,10 @@ steps:
     restoreSolution: '**/*.sln'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build'
+  displayName: 'Build Payments.Mvc'
   inputs:
     command: 'build'
-    projects: '**/.csproj'
+    projects: './src/Payments.Mvc/'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
@@ -44,3 +44,10 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'build'
     publishLocation: 'Container'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Test'
+  inputs:
+    command: 'test'
+    feedsToUse: 'select'
+    versioningScheme: 'off'
