@@ -28,7 +28,7 @@ steps:
   displayName: 'Build Payments.Mvc'
   inputs:
     command: 'build'
-    projects: './src/Payments.Mvc/'
+    projects: './src/payments.mvc/payments.mvc.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
