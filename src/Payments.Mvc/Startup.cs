@@ -272,6 +272,10 @@ namespace Payments.Mvc
                 {
                     c.AllowScripts
                         .AddNonce();
+
+                    // cloudflare rocket-loader
+                    c.AllowScripts
+                        .From("https://ajax.cloudflare.com");
                 }
 
                 c.AllowStyles
