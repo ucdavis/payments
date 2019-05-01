@@ -32,11 +32,18 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Assemble'
+  displayName: 'Assemble Payments.Mvc'
   inputs:
     command: 'publish'
     publishWebProjects: true
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Pack Payments.Jobs.Movement'
+  inputs:
+    command: 'pack'
+    packagesToPack: './src/payments.jobs.moneymovement/payments.jobs.moneymovement.csproj'
+    versioningScheme: 'byBuildNumber'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
