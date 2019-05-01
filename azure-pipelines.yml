@@ -3,8 +3,6 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-name: $(date:yyyyMMdd)$(rev:.r)
-
 trigger:
 - master
 
@@ -45,7 +43,10 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: './src/payments.jobs.moneymovement/payments.jobs.moneymovement.csproj'
-    versioningScheme: 'byBuildNumber'
+    versioningScheme: 'byPrereleaseNumber'
+    majorVersion: '1'
+    minorVersion: '0'
+    patchVersion: '0'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
