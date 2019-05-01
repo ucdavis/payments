@@ -49,5 +49,4 @@ steps:
   displayName: 'Test'
   inputs:
     command: 'test'
-    feedsToUse: 'select'
-    versioningScheme: 'off'
+    projects: './test/payments.test/payments.Tests.csproj'
