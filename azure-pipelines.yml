@@ -45,7 +45,7 @@ steps:
     publishWebProjects: false
     zipAfterPublish: false
     projects: './src/payments.jobs.moneymovement/payments.jobs.moneymovement.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/WebJob/App_Data/jobs/triggered/payments.jobs.moneymovement'
+    arguments: '--configuration $(buildConfiguration) --runtime win-x64 --output $(Build.ArtifactStagingDirectory)/WebJob/App_Data/jobs/triggered'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
