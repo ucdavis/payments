@@ -67,7 +67,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script type="text/javascript">
+    <script type="text/javascript" asp-add-nonce="true">
         $(function () {
             $("#Chart").prop('disabled', false);
             $("#Account").prop('disabled', false);
