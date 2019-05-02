@@ -37,7 +37,9 @@ steps:
     command: 'publish'
     publishWebProjects: true
     zipAfterPublish: false
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+    modifyOutputPath: false
+    projects: './src/payments.mvc/payments.mvc.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/'
 
 - task: DotNetCoreCLI@2
   displayName: 'Assemble Payments.Jobs.MoneyMovement'
