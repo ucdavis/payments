@@ -16,7 +16,7 @@
     </div>
 
     <div class="card-body">
-        <table class="table">
+        <table id="rolesTable" class="table">
             <thead>
             <tr>
                 <th>
@@ -68,9 +68,9 @@
 
 
 @section scripts {
-    <script type="text/javascript">
+    <script type="text/javascript" asp-add-nonce="true">
         $(function() {
-            $(".table").DataTable({
+            $("#rolesTable").DataTable({
                 columnDefs: [
                     {
                         targets: [-1], orderable: false

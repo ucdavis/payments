@@ -9,7 +9,7 @@
         <a asp-action="CreateWebHook" class="btn"><i class="fas fa-code mr-3"></i> Add Web Hook</a>
     </div>
 
-    <div class="card-body">
+    <div id="webHooksTable" class="card-body">
         <table class="table">
             <thead>
                 <tr>
@@ -62,9 +62,9 @@
 
 
 @section scripts {
-    <script type="text/javascript">
+    <script type="text/javascript" asp-add-nonce="true">
         $(function() {
-            $(".table").DataTable({
+            $("#webHooksTablele").DataTable({
                 columnDefs: [
                     {
                         targets: [-1, -2], orderable: false
