@@ -1,7 +1,6 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
 @using Payments.Core.Models.History
-@using Payments.Core.Resources
 @using Payments.Mvc.Models.CyberSource
 @using Payments.Mvc.Identity
 @model Invoice
@@ -23,6 +22,18 @@
     var userPermissions = user.TeamPermissions.Where(p => p.Team.Slug == teamSlug).Select(p => p.Role.Name);
 
     var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
+}
+
+@section AdditionalStyles
+{
+    <style asp-add-nonce="true">
+        #emailPreview {
+            border: 0 none;
+            height: 50vh;
+            position: relative;
+            width: 100%
+        }
+    </style>
 }
 
 <div class="card">
@@ -477,7 +488,7 @@
                     </button>
                 </div>
 
-                <div id="sendInvoiceFormBody" class="modal-body">
+                <div id="sendInvoiceFormBody" class="modal-body border-bottom">
                     <div id="sendInvoiceSendWarning" class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Warning! You are about to send an invoice!
@@ -512,7 +523,7 @@
 
                 <div id="sendInvoicePreview" class="modal-body p-0">
                     <div class="d-flex" style="min-height: 60vh">
-                        <iframe name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})" style="border: 0px none; min-height: 100%; position: relative; width: 100%"></iframe>
+                        <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})"></iframe>
                     </div>
                 </div>
 
