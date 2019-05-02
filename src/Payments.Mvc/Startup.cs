@@ -257,8 +257,15 @@ namespace Payments.Mvc
                     .From("https://cdn.datatables.net")
                     .From("https://code.jquery.com")
                     .From("https://stackpath.bootstrapcdn.com")
-                    .From("https://www.googletagmanager.com")
                     .From("https://ajax.aspnetcdn.com");
+
+                // allow google analytics
+                c.AllowScripts
+                    .From("https://www.googletagmanager.com")
+                    .From("https://www.google-analytics.com");
+;
+                c.AllowImages
+                    .From("https://www.google-analytics.com");
 
                 // allow unsafe methods in development
                 // otherwise, support nonce (both aren't supported at the same time
@@ -267,6 +274,10 @@ namespace Payments.Mvc
                     c.AllowScripts
                         .AllowUnsafeInline()
                         .AllowUnsafeEval();
+
+                    // allow stackify prefix
+                    c.AllowScripts
+                        .From("http://127.0.0.1:2012/scripts/stckjs.min.js");
                 }
                 else
                 {
