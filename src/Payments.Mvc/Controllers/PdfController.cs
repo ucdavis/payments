@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using jsreport.AspNetCore;
@@ -45,6 +45,7 @@ namespace Payments.Mvc.Controllers
                     r.Template.Chrome = new Chrome()
                     {
                         DisplayHeaderFooter = true,
+                        HeaderTemplate = "<div></div>", // use empty header
                         FooterTemplate = footer,
                         MarginTop = "1in",
                         MarginBottom = "4in",
