@@ -48,7 +48,7 @@ namespace Payments.Mvc.Controllers
                         HeaderTemplate = "<div></div>", // use empty header
                         FooterTemplate = footer,
                         MarginTop = "1in",
-                        MarginBottom = "4in",
+                        MarginBottom = "2.5in",
                         MarginLeft = "25px",
                         MarginRight = "25px"
                     };
