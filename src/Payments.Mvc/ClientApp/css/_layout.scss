@@ -10,6 +10,10 @@ body {
   background-color: $bg-color;
 }
 
+#logoContainer svg {
+  height: 32px;
+}
+
 .container {
   padding: 0;
   width: 98%;
