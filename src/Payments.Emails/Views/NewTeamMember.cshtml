@@ -1,0 +1,22 @@
+@using RazorLight
+@inherits TemplatePage<Payments.Emails.Models.NewTeamMemberViewModel>
+
+@{
+    Layout = "Views.Shared._Layout";
+
+    var teamUrl = $"{ViewBag.BaseUrl}/{Model.Team.Slug}";
+} 
+
+<mj-text align="center">
+    <h1>UC Davis Payments</h1>
+    <h3>@Model.Team.Name</h3>
+</mj-text>
+
+<mj-text>
+    <p>Hello @Model.User.Name!</p>
+    <p>You've been granted the "@Model.Role.Name" Role for the UC Davis Payments @Model.Team.Name Team!</p>
+    
+    <p>You can reach your team at: <a href="@teamUrl">@teamUrl</a></p>
+</mj-text>
+
+<mj-button href="@teamUrl" background-color="#004987">Get started!</mj-button>

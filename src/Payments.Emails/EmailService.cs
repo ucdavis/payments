@@ -19,6 +19,8 @@ namespace Payments.Emails
         Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails);
 
         Task SendReceipt(Invoice invoice, PaymentEvent payment);
+
+        Task SendNewTeamMemberNotice(Team team, User user, TeamRole role);
     }
 
     public class SparkpostEmailService : IEmailService
@@ -40,8 +42,7 @@ namespace Payments.Emails
         {
             var client = GetClient();
 
-            dynamic viewbag = new ExpandoObject();
-            viewbag.BaseUrl = _emailSettings.BaseUrl;
+            dynamic viewbag = GetViewBag();
             viewbag.Team = invoice.Team;
 
             var model = new InvoiceViewModel
@@ -104,8 +105,7 @@ namespace Payments.Emails
         {
             var client = GetClient();
 
-            dynamic viewbag = new ExpandoObject();
-            viewbag.BaseUrl = _emailSettings.BaseUrl;
+            dynamic viewbag = GetViewBag();
             viewbag.Team = invoice.Team;
 
             var model = new ReceiptViewModel
@@ -119,7 +119,7 @@ namespace Payments.Emails
             var prehtml = await engine.CompileRenderAsync("Views.Receipt.cshtml", model, viewbag);
 
             // convert email to real html
-            MjmlResponse mjml = await _mjmlServices.Render(prehtml);
+            var mjml = await _mjmlServices.Render(prehtml);
 
             // build email
             var transmission = new Transmission
@@ -153,6 +153,47 @@ namespace Payments.Emails
             Log.ForContext("result", result).Information("Sent Email");
         }
 
+        public async Task SendNewTeamMemberNotice(Team team, User user, TeamRole role)
+        {
+            var client = GetClient();
+
+            dynamic viewbag = GetViewBag();
+            viewbag.Team = team;
+
+            var model = new NewTeamMemberViewModel()
+            {
+                Team = team,
+                User = user,
+                Role = role
+            };
+
+            // add model data to email
+            var engine = GetRazorEngine();
+            var prehtml = await engine.CompileRenderAsync("Views.NewTeamMember.cshtml", model, viewbag);
+
+            // convert email to real html
+            MjmlResponse mjml = await _mjmlServices.Render(prehtml);
+
+            // build email
+            var transmission = new Transmission
+            {
+                Content =
+                {
+                    From = FromAddress,
+                    Html = mjml.Html,
+                    Subject = "UC Davis Payments Invitation",
+                },
+                Recipients = new List<Recipient>()
+                {
+                    new Recipient() {Address = new Address(user.Email, user.Name)},
+                }
+            };
+
+            // ship it
+            var result = await client.Transmissions.Send(transmission);
+            Log.ForContext("result", result).Information("Sent Email");
+        }
+
         private static RazorLightEngine GetRazorEngine()
         {
             var engine = new RazorLightEngineBuilder()
@@ -167,6 +208,13 @@ namespace Payments.Emails
         {
             var client = new Client(_emailSettings.ApiKey);
             return client;
+        }
+
+        private ExpandoObject GetViewBag()
+        {
+            dynamic viewbag = new ExpandoObject();
+            viewbag.BaseUrl = _emailSettings.BaseUrl;
+            return viewbag;
         }
     }
 }
