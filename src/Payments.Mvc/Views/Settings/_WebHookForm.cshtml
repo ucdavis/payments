@@ -25,7 +25,21 @@
                     <input asp-for="TriggerOnPaid" class="pull-left" />
                     <span class="pl-3">
                         @Html.DisplayNameFor(model => model.TriggerOnPaid) <br />
-                        <span class="text-small">@WebHookDescriptions.PaidNotifications</span>
+                        <span class="text-small">@WebHookDescriptions.PaidNotification</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <div class="checkbox">
+                <label class="d-flex align-items-baseline">
+                    <input asp-for="TriggerOnPaid" class="pull-left" />
+                    <span class="pl-3">
+                        @Html.DisplayNameFor(model => model.TriggerOnReconcile) <br />
+                        <span class="text-small">@WebHookDescriptions.ReconcileNotification</span>
                     </span>
                 </label>
             </div>

@@ -117,7 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="PaidNotifications" xml:space="preserve">
+  <data name="PaidNotification" xml:space="preserve">
     <value>Any time an invoice is successfully paid for.</value>
+  </data>
+  <data name="ReconcileNotification" xml:space="preserve">
+    <value>Any time an invoice is reconciled with the bank.</value>
   </data>
 </root>

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
+using Payments.Core.Models.Notifications;
 using Payments.Core.Models.Sloth;
 using Payments.Core.Resources;
 using Payments.Core.Services;
@@ -21,12 +22,14 @@ namespace Payments.Core.Jobs
         private readonly ApplicationDbContext _dbContext;
 
         private readonly ISlothService _slothService;
+        private readonly INotificationService _notificationService;
         private readonly FinanceSettings _financeSettings;
 
-        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService, IOptions<FinanceSettings> financeSettings)
+        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService, INotificationService notificationService, IOptions<FinanceSettings> financeSettings)
         {
             _dbContext = dbContext;
             _slothService = slothService;
+            _notificationService = notificationService;
 
             _financeSettings = financeSettings.Value;
         }
@@ -127,6 +130,20 @@ namespace Payments.Core.Jobs
                         });
 
                         log.Information("Transaction created with ID: {id}", response.Id);
+
+                        // send notifications
+                        try
+                        {
+                            var notification = new ReconcileNotification()
+                            {
+                                InvoiceId = invoice.Id,
+                            };
+                            await _notificationService.SendReconcileNotification(notification);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(ex, "Error while sending notification");
+                        }
                     }
 
                     log.Information("Finishing Job");

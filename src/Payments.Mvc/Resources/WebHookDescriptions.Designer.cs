@@ -63,9 +63,18 @@ namespace Payments.Mvc.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Any time an invoice is successfully paid for..
         /// </summary>
-        public static string PaidNotifications {
+        public static string PaidNotification {
             get {
-                return ResourceManager.GetString("PaidNotifications", resourceCulture);
+                return ResourceManager.GetString("PaidNotification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Any time an invoice is reconciled with the bank..
+        /// </summary>
+        public static string ReconcileNotification {
+            get {
+                return ResourceManager.GetString("ReconcileNotification", resourceCulture);
             }
         }
     }

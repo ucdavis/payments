@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Payments.Core.Domain;
@@ -31,6 +31,10 @@ namespace payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("TriggerOnPaid", "System.Boolean", new List<string>
             {
                 "[System.ComponentModel.DisplayNameAttribute(\"Trigger on Paid\")]",
+            }));
+            expectedFields.Add(new NameAndType("TriggerOnReconcile", "System.Boolean", new List<string>
+            {
+                "[System.ComponentModel.DisplayNameAttribute(\"Trigger on Reconcile\")]",
             }));
             expectedFields.Add(new NameAndType("Url", "System.String", new List<string>
             {

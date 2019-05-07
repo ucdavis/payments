@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -408,11 +408,12 @@ namespace Payments.Mvc.Controllers
             // create webhook and add it
             var webHook = new WebHook()
             {
-                Team          = team,
-                Url           = model.Url,
-                ContentType   = model.ContentType,
-                IsActive      = model.IsActive,
-                TriggerOnPaid = model.TriggerOnPaid
+                Team               = team,
+                Url                = model.Url,
+                ContentType        = model.ContentType,
+                IsActive           = model.IsActive,
+                TriggerOnPaid      = model.TriggerOnPaid,
+                TriggerOnReconcile = model.TriggerOnReconcile,
             };
 
             team.WebHooks.Add(webHook);
@@ -474,10 +475,11 @@ namespace Payments.Mvc.Controllers
             }
 
             // update model
-            webHook.Url           = model.Url;
-            webHook.ContentType   = model.ContentType;
-            webHook.IsActive      = model.IsActive;
-            webHook.TriggerOnPaid = model.TriggerOnPaid;
+            webHook.Url                = model.Url;
+            webHook.ContentType        = model.ContentType;
+            webHook.IsActive           = model.IsActive;
+            webHook.TriggerOnPaid      = model.TriggerOnPaid;
+            webHook.TriggerOnReconcile = model.TriggerOnReconcile;
 
             await _context.SaveChangesAsync();
 

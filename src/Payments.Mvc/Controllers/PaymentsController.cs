@@ -475,10 +475,17 @@ namespace Payments.Mvc.Controllers
                 }
 
                 // process notifications
-                await _notificationService.SendPaidNotification(new PaidNotification()
+                try
                 {
-                    InvoiceId = invoice.Id
-                });
+                    await _notificationService.SendPaidNotification(new PaidNotification()
+                    {
+                        InvoiceId = invoice.Id
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error while sending notification.");
+                }
             }
             else
             {
