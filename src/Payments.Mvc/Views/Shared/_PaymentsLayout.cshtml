@@ -17,10 +17,8 @@
     @RenderSection("AdditionalStyles", required: false)
 </head>
 <body>
-<div class="logo mb-3 text-center">
-    <a href="/">
-        @Html.InlineSvg("/wwwroot/media/logo.svg")
-    </a>
+<div id="logoContainer" class="logo mb-3 text-center">
+    @Html.InlineSvg("/wwwroot/media/logo.svg")
 </div>
 <div class="container">
     @if (!string.IsNullOrWhiteSpace(TempData["ErrorMessage"] as string))
