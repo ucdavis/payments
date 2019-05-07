@@ -310,6 +310,7 @@ namespace Payments.Mvc
                 c.OnSendingHeader = context =>
                 {
                     context.ShouldNotSend = context.HttpContext.Request.Path.StartsWithSegments("/api");
+                    context.ShouldNotSend = context.HttpContext.Request.Path.StartsWithSegments("/api-docs");
                     return Task.CompletedTask;
                 };
             });

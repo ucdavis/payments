@@ -8,6 +8,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
+using Payments.Mvc.Models.InvoiceApiViewModels;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
@@ -53,7 +54,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(CreateInvoiceResult), 200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> Create([FromBody] CreateInvoiceModel model)
         {
@@ -100,10 +101,10 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return new JsonResult(new
+            return new JsonResult(new CreateInvoiceResult
             {
-                success = true,
-                ids = invoices.Select(i => i.Id),
+                Success = true,
+                Ids = invoices.Select(i => i.Id).ToArray(),
             });
         }
 
@@ -114,7 +115,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("{id}")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(EditInvoiceResult), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Edit(int id, [FromBody] EditInvoiceModel model)
@@ -171,14 +172,14 @@ namespace Payments.Mvc.Controllers
             await _dbContext.SaveChangesAsync();
 
             // build response, send possible new link
-            dynamic response = new
+            var response = new EditInvoiceResult
             {
-                success = true,
-                id = invoice.Id,
+                Success = true,
+                Id = invoice.Id,
             };
             if (invoice.Sent)
             {
-                response.link = Url.Action("Pay", "Payments", new { id = invoice.LinkId });
+                response.PaymentLink = Url.Action("Pay", "Payments", new { id = invoice.LinkId });
             }
 
             return new JsonResult(response);
@@ -191,7 +192,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost("{id}/send")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(SendInvoiceResult), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Send(int id, [FromBody]SendInvoiceModel model)
         {
@@ -225,11 +226,11 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return new JsonResult(new
+            return new JsonResult(new EditInvoiceResult
             {
-                success = true,
-                id = invoice.Id,
-                link = Url.Action("Pay", "Payments", new { id = invoice.LinkId }),
+                Success = true,
+                Id = invoice.Id,
+                PaymentLink = Url.Action("Pay", "Payments", new { id = invoice.LinkId }),
             });
         }
     }
