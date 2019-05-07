@@ -10,7 +10,8 @@ body {
   background-color: $bg-color;
 }
 
-#logoContainer svg {
+#logoContainer svg,
+#logoContainer img {
   height: 32px;
 }
 
