@@ -1,4 +1,4 @@
-﻿@model Invoice
+@model Invoice
 
 <!DOCTYPE html>
 <html>
@@ -8,7 +8,8 @@
     <style>
         /* defining explicit font-size solves the scaling issue */
         html, body {
-            font-size: 10px;
+            font-size: 8px;
+            color: rgba(31,31,31,.99);
         }
 
         .footer {
@@ -19,8 +20,8 @@
             width: 100%;
             margin-left: 40px;
             margin-right: 40px;
-            border-top: 3px solid grey;
-            padding-top: 25px;
+            border-top: 2px solid grey;
+            padding-top: 10px;
             padding-bottom: 10px;
         }
 
@@ -37,6 +38,14 @@
             padding: 0 10px;
         }
 
+        .col:first-child {
+            padding-left: 0;
+        }
+
+        .col:last-child {
+            padding-right: 0;
+        }
+
         .text-strong {
             font-weight: bold;
         }
@@ -46,21 +55,21 @@
     <div class="footer">
         <div class="row">
             <div class="col">
-                <p class="text-strong">Pay with card</p>
-                <p>Visit</p>
                 @{
                     var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, "https");
                 }
-                <p class="text-strong">@(paymentPageHref)</p>
+                <p>
+                    <span class="text-strong">Pay with card</span><br />
+                    Visit <span class="text-strong">@(paymentPageHref)</span>
             </div>
         </div>
         <div class="row">
             <div class="col">
-                <p><span class="text-strong">Questions?</span> Call @Model.Team.Name at @Model.Team.ContactPhoneNumber</p>
+                <p><span class="text-strong">Questions?</span> Call @Model.Team.Name at @(Model.Team.ContactPhoneNumber).</p>
             </div>
             <div class="col" style="text-align: right;">
                 <p>
-                    #@Model.Id - Page number <span class="pageNumber"></span> of <span class="totalPages"></span>
+                    @Model.GetFormattedId() - Page number <span class="pageNumber"></span> of <span class="totalPages"></span>
                 </p>
             </div>
         </div>

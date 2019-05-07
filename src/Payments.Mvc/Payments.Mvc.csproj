@@ -20,9 +20,8 @@
     <PackageReference Include="Humanizer.Core" Version="2.5.16" />
     <PackageReference Include="ietws" Version="0.1.7" />
     <PackageReference Include="Joonasw.AspNetCore.SecurityHeaders" Version="2.8.1" />
-    <PackageReference Include="jsreport.AspNetCore" Version="2.0.0" />
-    <PackageReference Include="jsreport.Binary" Version="2.2.0" />
-    <PackageReference Include="jsreport.Local" Version="2.0.0" />
+    <PackageReference Include="jsreport.AspNetCore" Version="2.0.1" />
+    <PackageReference Include="jsreport.Client" Version="3.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />
     <PackageReference Include="Serilog" Version="2.7.1" />

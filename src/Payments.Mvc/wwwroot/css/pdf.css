@@ -1,20 +1,20 @@
-﻿@font-face {
+@font-face {
     font-family: 'proxima-nova-r';
-    src: url({#asset wwwroot/fonts/proximanova-regular-webfont.woff @encoding=dataURI}) format('woff');
+    src: url({#asset proximanova-regular-webfont.woff @encoding=dataURI}) format('woff');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'proxima-nova-i';
-    src: url({#asset wwwroot/fonts/proximanova-regularit-webfont.woff @encoding=dataURI}) format('woff');
+    src: url({#asset proximanova-regularit-webfont.woff @encoding=dataURI}) format('woff');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'proxima-nova-b';
-    src: url({#asset wwwroot/fonts/proximanova-bold-webfont.woff @encoding=dataURI}) format('woff');
+    src: url({#asset proximanova-bold-webfont.woff @encoding=dataURI}) format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -26,3 +26,4 @@ body {
 .memo {
     font-family: "proxima-nova-i", serif;
 }
+

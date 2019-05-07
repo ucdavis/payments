@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using AspNetCore.Security.CAS;
 using Joonasw.AspNetCore.SecurityHeaders;
 using jsreport.AspNetCore;
-using jsreport.Binary;
-using jsreport.Local;
+using jsreport.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -73,6 +72,7 @@ namespace Payments.Mvc
             services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
             services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
             services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
+            services.Configure<JsReportSettings>(Configuration.GetSection("JsReport"));
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -128,17 +128,10 @@ namespace Payments.Mvc
             services.AddCsp(nonceByteAmount: 32);
 
             // add pdf reporting server
-            services.AddJsReport(new LocalReporting()
-                .UseBinary(JsReportBinary.GetBinary())
-                .Configure(c =>
-                {
-                    c.AllowLocalFilesAccess = true;
-                    c.FileSystemStore().BaseUrlAsWorkingDirectory();
-                    return c;
-                })
-                .RunInDirectory(Environment.ContentRootPath)
-                .AsUtility()
-                .Create());
+            services.AddJsReport(new ReportingService(
+                Configuration.GetValue<string>("JsReport:ServiceUrl"),
+                Configuration.GetValue<string>("JsReport:Username"),
+                Configuration.GetValue<string>("JsReport:Password")));
 
             // add swagger
             services.AddSwaggerGen(c =>

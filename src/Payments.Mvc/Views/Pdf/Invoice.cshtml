@@ -16,100 +16,200 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" />
     @Html.EmbedCss("/wwwroot/css/pdf.css")
 
+    <style>
+        #logoContainer svg {
+            width: 30vw;
+            /*height: 32px;*/
+        }
+
+        #headerContainer {
+            margin-top: 1rem;
+            /*margin-bottom: 4rem;*/
+        }
+
+        #invoiceNumber {
+            margin-bottom: 4rem;
+            font-size: 2rem;
+        }
+
+        #invoiceInfo {
+            margin-bottom: 4rem;
+        }
+
+        #memoContainer {
+            margin-bottom: 4rem;
+        }
+
+        #itemsTable th {
+            border-top: 0;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #E8E9ED;
+        }
+
+        /* add bottom border for last row */
+        #itemsTable tr.item td {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #itemsTable tr.summary td {
+            border-top: none;
+        }
+
+        #itemsTable tr.total td {
+            border-top: none;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .text-blue {
+            color: #004987;
+        }
+
+        .text-label {
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #E8E9ED;
+        }
+
+        .address {
+            /*text-transform: uppercase;*/
+        }
+    </style>
+
 </head>
 <body>
-    @Html.InlineSvg("/wwwroot/media/logo.svg")
-
-    <div class="row my-4">
-        <div class="col">
-            <h1>@Model.Team.Name</h1>
+    <div id="headerContainer" class="row align-items-start">
+        <div id="logoContainer" class="col">
+            @Html.InlineSvg("/wwwroot/media/logo.svg")
         </div>
         <div class="col">
-            <h1 class="text-right">Invoice #@Model.Id</h1>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <h5>Payable to</h5>
-            <p>@Model.Team.Name</p>
-            <p>@Model.Team.ContactName</p>
-            <p>@Model.Team.ContactEmail</p>
-            <p>@Model.Team.ContactPhoneNumber</p>
-        </div>
-
-        <div class="col">
-            <h5>Bill to</h5>
-            <p>@Model.CustomerEmail</p>
-        </div>
-
-        <div class="col">
-            <h5>Invoice Number</h5>
-            <p>#@Model.Id</p>
+            <h1 id="invoiceNumber" class="font-weight-bold text-blue text-right">
+                Invoice #@Model.GetFormattedId()
+            </h1>
         </div>
     </div>
 
-    <div class="pay-amount mb-4">
-        <h2 class="text-center">
-            @(string.Format("{0:C}", Model.CalculatedTotal)) <span class="secondary-font">due @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("D") : "")</span>
-        </h2>
+    <div id="invoiceInfo" class="row justify-content-between">
+        <div class="col">
+            <span class="text-label">Contact Info</span><br />
+            <span class="">University of California, Davis</span><br />
+            <span class="">@Model.Team.Name</span><br />
+            <span class="address">
+                @Model.Team.ContactName<br />
+                @Model.Team.ContactEmail<br />
+                @Model.Team.ContactPhoneNumber
+            </span>
+        </div>
+        <div class="col-3">
+            <div class="row">
+                <span class="col text-label">Date of issue</span><br />
+                <span class="col font-weight-bold text-right">@Model.SentAt.Value.ToString("MMM dd, yyyy")</span>
+            </div>
+
+            @if (Model.DueDate.HasValue)
+            {
+                <div class="row">
+                    <span class="col text-label">Date due</span><br />
+                    <span class="col font-weight-bold text-right">@Model.DueDate.Value.ToString("MMM dd, yyyy")</span>
+                </div>
+            }
+            <div class="row">
+                <span class="col text-label">Total Due</span>
+                <span class="col text-right font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
+            </div>
+        </div>
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.Memo))
-    {
-        <h3 class="secondary-font mb-4">Memo</h3>
-        <div class="memo mb-4">
+    <div id="invoiceInfo" class="row">
+        <div class="col">
+            <span class="text-label">Bill to</span><br/>
+            <span class="address">
+                @if (string.IsNullOrEmpty(Model.CustomerName))
+                {
+                    @Model.CustomerName<br/>
+                }
+
+                @Model.CustomerEmail<br/>
+
+                @if (!string.IsNullOrEmpty(Model.CustomerAddress))
+                {
+                    @Model.CustomerAddress
+                }
+            </span>
+        </div>
+    </div>
+
+@if (!string.IsNullOrWhiteSpace(Model.Memo))
+{
+    <div id="memoContainer">
+        <span class="text-label">Memo</span>
+        <div class="memo">
             <p>@Model.Memo</p>
         </div>
+    </div>
+}
+
+<table id="itemsTable" class="table">
+    <thead>
+    <tr>
+        <th class="">#</th>
+        <th class="">Description</th>
+        <th class="text-right">Qty</th>
+        <th class="text-right">Unit Price</th>
+        <th class="text-right">Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    @for (var i = 0; i < Model.Items.Count; i++)
+    {
+        var item = Model.Items[i];
+        <tr class="item">
+            <td>@(i + 1)</td>
+            <td>@item.Description</td>
+            <td class="text-right">@item.Quantity</td>
+            <td class="text-right">$@item.Amount.ToString("F2")</td>
+            <td class="text-right">$@item.Total.ToString("F2")</td>
+        </tr>
+    }
+    </tbody>
+    <tbody class="subtotal-body">
+    @if (Model.CalculatedDiscount > 0)
+    {
+        <tr class="summary">
+            <td colspan="3"></td>
+            <td class="text-right text-label">Subtotal</td>
+            <td class="text-right">$@Model.CalculatedSubtotal.ToString("F2")</td>
+        </tr>
+        <tr class="summary">
+            <td colspan="3"></td>
+            <td class="text-right text-label">Discount</td>
+            <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
+        </tr>
     }
 
-    <table class="table pay-table">
-        <thead>
-            <tr>
-                <th>Description</th>
-                <th class="text-right">Qty</th>
-                <th class="text-right">Unit Price</th>
-                <th class="text-right">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
-                <tr data-id="@item.Id">
-                    <td>@item.Description</td>
-                    <td class="text-right">@item.Quantity</td>
-                    <td class="text-right">$@item.Amount.ToString("F2")</td>
-                    <td class="text-right">$@item.Total.ToString("F2")</td>
-                </tr>
-            }
-
-            @if (Model.CalculatedDiscount > 0)
-            {
-                <tr>
-                    <td></td>
-                    <td class="text-right">Discount</td>
-                    <td></td>
-                    <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
-                </tr>
-            }
-
-            @if (Model.CalculatedTaxAmount > 0)
-            {
-                <tr>
-                    <td></td>
-                    <td class="text-right">Tax (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
-                    <td></td>
-                    <td class="text-right">$@Model.CalculatedTaxAmount.ToString("F2")</td>
-                </tr>
-            }
-            <tr>
-                <td></td>
-                <td class="text-right">Total:</td>
-                <td></td>
-                <td class="text-right">$@Model.CalculatedTotal.ToString("F2")</td>
-            </tr>
-        </tbody>
-    </table>
+    @if (Model.CalculatedTaxAmount > 0)
+    {
+        <tr class="summary">
+            <td colspan="3"></td>
+            <td class="text-right text-label">Total taxable amount</td>
+            <td class="text-right">-$@Model.CalculatedTaxableAmount.ToString("F2")</td>
+        </tr>
+        <tr class="summary">
+            <td colspan="3"></td>
+            <td class="text-right text-label">Tax Rate (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
+            <td class="text-right">$@Model.CalculatedTaxAmount.ToString("F2")</td>
+        </tr>
+    }
+    </tbody>
+    <tbody>
+    <tr class="total">
+        <td class="border-0" colspan="3"></td>
+        <td class="text-right text-label border-top">Total</td>
+        <td class="text-right text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
+    </tr>
+    </tbody>
+</table>
 
 </body>
 </html>
