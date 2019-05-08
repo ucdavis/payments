@@ -12,12 +12,14 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
 using Payments.Core.Services;
+using Payments.Emails;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Models.TeamViewModels;
 using Payments.Mvc.Models.WebHookModels;
 using Payments.Mvc.Services;
+using Serilog;
 
 namespace Payments.Mvc.Controllers
 {
@@ -26,13 +28,20 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IDirectorySearchService _directorySearchService;
         private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
         private readonly ApplicationUserManager _userManager;
 
-        public SettingsController(ApplicationDbContext context, IDirectorySearchService directorySearchService, INotificationService notificationService, ApplicationUserManager userManager)
+        public SettingsController(
+            ApplicationDbContext context,
+            IDirectorySearchService directorySearchService,
+            INotificationService notificationService,
+            IEmailService emailService,
+            ApplicationUserManager userManager)
         {
             _context = context;
             _directorySearchService = directorySearchService;
             _notificationService = notificationService;
+            _emailService = emailService;
             _userManager = userManager;
         }
 
@@ -256,7 +265,6 @@ namespace Payments.Mvc.Controllers
                         await _userManager.AddLoginAsync(userToCreate, loginInfo);
                         foundUser = userToCreate;
                     }
-
                 }
             }
 
@@ -297,6 +305,16 @@ namespace Payments.Mvc.Controllers
 
             _context.TeamPermissions.Add(teamPermission);
             await _context.SaveChangesAsync();
+
+            // send user notification
+            try
+            {
+                await _emailService.SendNewTeamMemberNotice(team, foundUser, role);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "New Member Notice email failed.");
+            }
 
             return RedirectToAction(nameof(Roles), new { team = team.Slug });
         }
