@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
+using Payments.Core.Services;
 using Payments.Mvc.Models.InvoiceApiViewModels;
 using Payments.Mvc.Services;
 
@@ -17,10 +19,12 @@ namespace Payments.Mvc.Controllers
     public class InvoicesApiController : ApiController
     {
         private readonly IInvoiceService _invoiceService;
+        private readonly IStorageService _storageService;
 
-        public InvoicesApiController(ApplicationDbContext dbContext, IInvoiceService invoiceService) : base(dbContext)
+        public InvoicesApiController(ApplicationDbContext dbContext, IInvoiceService invoiceService, IStorageService storageService) : base(dbContext)
         {
             _invoiceService = invoiceService;
+            _storageService = storageService;
         }
 
         /// <summary>
@@ -231,6 +235,49 @@ namespace Payments.Mvc.Controllers
                 Success = true,
                 Id = invoice.Id,
                 PaymentLink = Url.Action("Pay", "Payments", new { id = invoice.LinkId }),
+            });
+        }
+
+        [HttpPost("{id}/file")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> AddAttachment(int id, IFormFile file)
+        {
+            var team = await GetAuthorizedTeam();
+
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Attachments)
+                .Include(i => i.Team)
+                .Where(i => i.Team.Id == team.Id)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // upload file
+            var identifier = await _storageService.UploadFile(file);
+
+            // add to invoice
+            var attachment = new InvoiceAttachment()
+            {
+                Invoice     = invoice,
+                Identifier  = identifier,
+                FileName    = file.FileName,
+                ContentType = file.ContentType,
+                Size        = file.Length,
+            };
+
+            invoice.Attachments.Add(attachment);
+            await _dbContext.SaveChangesAsync();
+
+            return new JsonResult(new
+            {
+                success = true,
+                identifier,
             });
         }
     }

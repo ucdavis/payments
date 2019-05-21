@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedDataSet xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/shareddatasetdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSet Name="DataSet1">
+    <Query>
+      <DataSourceReference>/Payments/Production/Payments Production</DataSourceReference>
+      <CommandText>SELECT
+  TaxLiability.TeamId
+  ,TaxLiability.Name
+  ,TaxLiability.InvoiceId
+  ,TaxLiability.FormattedInvoiceId
+  ,TaxLiability.AccountId
+  ,TaxLiability.IncomeAccount
+  ,TaxLiability.PaidAt
+  ,TaxLiability.PaidOn
+  ,TaxLiability.CalculatedTotal
+  ,TaxLiability.HasTaxExemptItems
+  ,TaxLiability.CalculatedTaxableAmount
+  ,TaxLiability.TaxPercent
+  ,TaxLiability.CalculatedTaxAmount
+FROM
+  TaxLiability</CommandText>
+      <rd:DesignerState>
+        <QueryDefinition xmlns="http://schemas.microsoft.com/ReportingServices/QueryDefinition/Relational">
+          <SelectedColumns>
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="TeamId" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="Name" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="InvoiceId" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="FormattedInvoiceId" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="AccountId" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="IncomeAccount" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="PaidAt" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="PaidOn" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="CalculatedTotal" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="HasTaxExemptItems" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="CalculatedTaxableAmount" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="TaxPercent" />
+            <ColumnExpression ColumnOwner="TaxLiability" ColumnName="CalculatedTaxAmount" />
+          </SelectedColumns>
+        </QueryDefinition>
+      </rd:DesignerState>
+    </Query>
+    <Fields>
+      <Field Name="TeamId">
+        <DataField>TeamId</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="Name">
+        <DataField>Name</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="InvoiceId">
+        <DataField>InvoiceId</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="FormattedInvoiceId">
+        <DataField>FormattedInvoiceId</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="AccountId">
+        <DataField>AccountId</DataField>
+        <rd:TypeName>System.Int32</rd:TypeName>
+      </Field>
+      <Field Name="IncomeAccount">
+        <DataField>IncomeAccount</DataField>
+        <rd:TypeName>System.String</rd:TypeName>
+      </Field>
+      <Field Name="PaidAt">
+        <DataField>PaidAt</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="PaidOn">
+        <DataField>PaidOn</DataField>
+        <rd:TypeName>System.DateTime</rd:TypeName>
+      </Field>
+      <Field Name="CalculatedTotal">
+        <DataField>CalculatedTotal</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="HasTaxExemptItems">
+        <DataField>HasTaxExemptItems</DataField>
+        <rd:TypeName>System.Boolean</rd:TypeName>
+      </Field>
+      <Field Name="CalculatedTaxableAmount">
+        <DataField>CalculatedTaxableAmount</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="TaxPercent">
+        <DataField>TaxPercent</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+      <Field Name="CalculatedTaxAmount">
+        <DataField>CalculatedTaxAmount</DataField>
+        <rd:TypeName>System.Decimal</rd:TypeName>
+      </Field>
+    </Fields>
+  </DataSet>
+  <rd:ReportServerUrl>https://caes-reports.ou.ad3.ucdavis.edu/ReportServer</rd:ReportServerUrl>
+</SharedDataSet>

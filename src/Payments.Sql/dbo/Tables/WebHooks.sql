@@ -6,7 +6,7 @@ CREATE TABLE [dbo].[WebHooks]
     [Url] NVARCHAR(255) NOT NULL, 
     [ContentType] NVARCHAR(50) NOT NULL, 
     [TriggerOnPaid] BIT NOT NULL DEFAULT 0, 
-	[TiggerOnReconcile] BIT NOT NULL DEFAULT 0, 
+	[TriggerOnReconcile] BIT NOT NULL DEFAULT 0, 
     CONSTRAINT [PK_WebHooks] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_WebHooks_Teams_TeamId] FOREIGN KEY ([TeamId]) REFERENCES [dbo].[Teams] ([Id])
 
