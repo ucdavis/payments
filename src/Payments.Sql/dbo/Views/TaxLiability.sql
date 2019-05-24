@@ -1,3 +1,4 @@
+﻿
 
 CREATE VIEW [dbo].[TaxLiability] AS 
 
@@ -9,6 +10,7 @@ SELECT
 	i.AccountId,
 	CONCAT(a.Chart, '-', a.Account) AS IncomeAccount,
 	i.PaidAt,
+	CONVERT(date, i.PaidAt) AS PaidOn,
 	i.CalculatedTotal,
 	CONVERT(bit, l.HasTaxExempt) AS HasTaxExemptItems,
 	i.CalculatedTaxableAmount,
