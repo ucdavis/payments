@@ -382,8 +382,27 @@
 @if (Model.Paid)
 {
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h2>Payment</h2>
+
+            @if (Model.Status == Invoice.StatusCodes.Refunding && userPermissions.Contains(TeamRole.Codes.FinanceOfficer))
+            {
+                <form asp-controller="Invoices" asp-action="Refund" asp-route-id="@Model.Id">
+                    <button class="btn">
+                        <i class="fas fa-hand-holding-usd mr-3"></i>
+                        Mark Refunded
+                    </button>
+                </form>
+            }
+            else if (!Model.Refunded)
+            {
+                <div>
+                    <button class="btn" data-toggle="modal" data-target="#refundModal">
+                        <i class="fas fa-hand-holding-usd mr-3"></i>
+                        Request Refund
+                    </button>
+                </div>
+            }
         </div>
         <div class="card-body card-bot-border invoice-payment-details">
             <dl class="row">
@@ -400,7 +419,6 @@
             @if (successfulPayment != null)
             {
                 var cardClass = CyberSourceCardTypes.GetIconClass(successfulPayment.CardType);
-                var cardNumber = $"XXXX {successfulPayment.CardNumber?.TakeLast(4)}";
 
                 <dl class="row mt-3">
                     
@@ -426,22 +444,28 @@
                     <dd class="col-9">
                         @successfulPayment.BillingEmail
                     </dd>
-
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingPhone
-                    </dd>
+                    
+                    @if (!string.IsNullOrWhiteSpace(successfulPayment.BillingPhone))
+                    {
+                        <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
+                        <dd class="col-9">
+                            @successfulPayment.BillingPhone
+                        </dd>
+                    }
 
                     <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet1)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingStreet1
                     </dd>
 
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet2)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingStreet2
-                    </dd>
-
+                    @if (!string.IsNullOrWhiteSpace(successfulPayment.BillingStreet2))
+                    {
+                        <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet2)</dt>
+                        <dd class="col-9">
+                            @successfulPayment.BillingStreet2
+                        </dd>
+                    }
+                    
                     <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCity)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingCity
@@ -459,7 +483,7 @@
 
                     <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
                     <dd class="col-9">
-                        @successfulPayment.BillingPhone
+                        @successfulPayment.BillingPostalCode
                     </dd>
                 </dl>
             }
@@ -619,6 +643,33 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
                     <button type="submit" id="markPaidFormSubmit" class="btn">Mark as paid</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form method="POST" id="refundForm" asp-action="RequestRefund" asp-route-id="@Model.Id">
+    <div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="markPaidModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="markPaidModalLabel">Request Refund?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        Warning! You are about request a refund for this invoice!
+                    </div>
+                    <p>
+                        Continuing will close this invoice. This is irreversible!
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="markPaidFormSubmit" class="btn">Refund</button>
                 </div>
             </div>
         </div>
