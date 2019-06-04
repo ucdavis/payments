@@ -493,6 +493,8 @@ namespace Payments.Mvc.Controllers
         {
             // find item
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Team)
+                .Include(i => i.PaymentEvents)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -501,15 +503,33 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            if (invoice.Paid && !invoice.Refunded)
+            // cant refund an unpaid invoice
+            if (!invoice.Paid)
+            {
+                return NotFound();
+            }
+
+            // dont duplicate a refund request
+            if (invoice.Status == Invoice.StatusCodes.Refunding)
+            {
+                return NotFound();
+            }
+
+            // cant refund an invoice already refunded
+            if (invoice.Refunded)
+            {
+                return NotFound();
+            }
+
+            // get payment
+            var payment = invoice.PaymentEvents.FirstOrDefault(p => p.ProcessorId == invoice.PaymentProcessorId);
+            if (payment == null)
             {
                 return NotFound();
             }
 
             // issue refund notice
-            // TODO, send email
-
-            invoice.Status = Invoice.StatusCodes.Refunding;
+            await _invoiceService.RefundInvoice(invoice, payment);
 
             // record user action
             var user = await _userManager.GetUserAsync(User);
@@ -544,9 +564,6 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
-
-            // issue refund notice
-            // TODO, send email
 
             invoice.Status = Invoice.StatusCodes.Refunded;
             invoice.Refunded = true;

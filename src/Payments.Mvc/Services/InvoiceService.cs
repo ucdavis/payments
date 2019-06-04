@@ -200,6 +200,13 @@ namespace Payments.Mvc.Services
             invoice.SentAt = DateTime.UtcNow;
         }
 
+        public async Task RefundInvoice(Invoice invoice, PaymentEvent payment)
+        {
+            await _emailService.SendRefundRequest(invoice, payment);
+
+            invoice.Status = Invoice.StatusCodes.Refunding;
+        }
+
         public string SetInvoiceKey(Invoice invoice)
         {
             // setup random 10 character key link id
@@ -231,6 +238,8 @@ namespace Payments.Mvc.Services
         Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
+
+        Task RefundInvoice(Invoice invoice, PaymentEvent payment);
 
         string SetInvoiceKey(Invoice invoice);
     }
