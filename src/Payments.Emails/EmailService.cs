@@ -229,8 +229,7 @@ namespace Payments.Emails
                 },
                 Recipients = new List<Recipient>()
                 {
-                    //new Recipient() {Address = RefundAddress},
-                    new Recipient() {Address = new Address("jpknoll@gmail.com")},
+                    new Recipient() {Address = RefundAddress},
                 }
             };
 
