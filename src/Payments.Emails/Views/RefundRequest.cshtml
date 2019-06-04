@@ -1,0 +1,47 @@
+@using Payments.Core.Domain
+@using RazorLight
+@inherits TemplatePage<Payments.Emails.Models.RefundRequestViewModel>
+
+@{
+    Layout = "Views.Shared._Layout";
+    var team = (Team) ViewBag.Team;
+
+    var invoice = Model.Invoice;
+    var payment = Model.Payment;
+
+    var payHref = $"{ViewBag.BaseUrl}/pay/{invoice.LinkId}";
+    var pdfHref = $"{ViewBag.BaseUrl}/pdf/{invoice.LinkId}";
+} 
+
+<mj-text align="center">
+    <h1>Refund Requested by @team.Name</h1>
+    <h3>Invoice # @invoice.GetFormattedId()</h3>
+</mj-text>
+
+<mj-table>
+    <tr>
+        <td style="vertical-align: top;">
+            <p style="font-weight: bold">Amount Paid:</p>
+            <p>@invoice.CalculatedTotal.ToString("C")</p>
+        </td>
+        <td style="vertical-align: top; text-align: right;">
+            <p style="font-weight: bold">Billed To:</p>
+            @if (!string.IsNullOrWhiteSpace(invoice.CustomerName))
+            {
+                <p>@invoice.CustomerName</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(invoice.CustomerAddress))
+            {
+                <p>@invoice.CustomerAddress</p>
+            }
+            <p>@invoice.CustomerEmail</p>
+        </td>
+    </tr>
+</mj-table>
+
+<mj-text>
+    <p>Card Name: @payment.BillingFirstName @payment.BillingLastName</p>
+    <p>Card Info: @payment.CardType @payment.CardNumber</p>
+    <p>Auth DateTime: @payment.OccuredAt.ToString("U")</p>
+    <p>Processor ID: @payment.ProcessorId</p>
+</mj-text>

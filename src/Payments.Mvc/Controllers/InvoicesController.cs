@@ -489,6 +489,102 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> RequestRefund(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Team)
+                .Include(i => i.PaymentEvents)
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // cant refund an unpaid invoice
+            if (!invoice.Paid)
+            {
+                return NotFound();
+            }
+
+            // dont duplicate a refund request
+            if (invoice.Status == Invoice.StatusCodes.Refunding)
+            {
+                return NotFound();
+            }
+
+            // cant refund an invoice already refunded
+            if (invoice.Refunded)
+            {
+                return NotFound();
+            }
+
+            // get payment
+            var payment = invoice.PaymentEvents.FirstOrDefault(p => p.ProcessorId == invoice.PaymentProcessorId);
+            if (payment == null)
+            {
+                return NotFound();
+            }
+
+            // issue refund notice
+            await _invoiceService.RefundInvoice(invoice, payment);
+
+            // record user action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.RefundRequested.TypeCode,
+                Actor = user.Name,
+                ActionDateTime = DateTime.UtcNow,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
+        public async Task<IActionResult> Refund(int id)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            if (invoice.Status != Invoice.StatusCodes.Refunding)
+            {
+                return NotFound();
+            }
+
+            invoice.Status = Invoice.StatusCodes.Refunded;
+            invoice.Refunded = true;
+            invoice.RefundedAt = DateTime.UtcNow;
+
+            // record user action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type           = HistoryActionTypes.PaymentRefunded.TypeCode,
+                Actor          = user.Name,
+                ActionDateTime = DateTime.UtcNow,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Cancel(int id)
         {
             // find item

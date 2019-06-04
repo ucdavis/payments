@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 
 namespace Payments.Core.Models.History
 {
     public static class HistoryActionTypes
     {
+        public static readonly IHistoryActionType DefaultActionType = new DefaultHistoryActionType();
+
         public static readonly IHistoryActionType CouponAddedByCustomer = new CouponAddedByCustomerHistoryActionType();
 
         public static readonly IHistoryActionType CouponRemovedByCustomer = new CouponRemovedByCustomerHistoryActionType();
@@ -26,66 +28,52 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType MarkPaid = new MarkPaidHistoryActionType();
 
+        public static readonly IHistoryActionType RefundRequested = new RefundRequestHistoryActionType();
+
+        public static readonly IHistoryActionType PaymentRefunded = new PaymentRefundedHistoryActionType();
+
         private static StringComparison _comparer = StringComparison.OrdinalIgnoreCase;
+
+        private static readonly IHistoryActionType[] AllTypes = new[]
+        {
+            CouponAddedByCustomer,
+            CouponRemovedByCustomer,
+            InvoiceCreated,
+            InvoiceEdited,
+            InvoiceSent,
+            InvoiceUnlocked,
+            InvoiceCancelled,
+            InvoiceDeleted,
+            PaymentCompleted,
+            PaymentFailed,
+            MarkPaid,
+            RefundRequested,
+            PaymentRefunded,
+        };
 
         public static IHistoryActionType GetHistoryActionType(string actionType)
         {
-            if (string.Equals(CouponAddedByCustomer.TypeCode, actionType, _comparer))
+            foreach (var historyType in AllTypes)
             {
-                return CouponAddedByCustomer;
+                if (string.Equals(historyType.TypeCode, actionType, _comparer))
+                {
+                    return historyType;
+                }
             }
 
-            if (string.Equals(CouponRemovedByCustomer.TypeCode, actionType, _comparer))
-            {
-                return CouponRemovedByCustomer;
-            }
+            return DefaultActionType;
+        }
+    }
 
-            if (string.Equals(InvoiceCreated.TypeCode, actionType, _comparer))
-            {
-                return InvoiceCreated;
-            }
+    public class DefaultHistoryActionType : IHistoryActionType
+    {
+        public string TypeCode => "";
 
-            if (string.Equals(InvoiceEdited.TypeCode, actionType, _comparer))
-            {
-                return InvoiceEdited;
-            }
+        public string IconClass => "far fa-clock text-body";
 
-            if (string.Equals(InvoiceSent.TypeCode, actionType, _comparer))
-            {
-                return InvoiceSent;
-            }
-
-            if (string.Equals(InvoiceUnlocked.TypeCode, actionType, _comparer))
-            {
-                return InvoiceUnlocked;
-            }
-
-            if (string.Equals(InvoiceCancelled.TypeCode, actionType, _comparer))
-            {
-                return InvoiceCancelled;
-            }
-
-            if (string.Equals(InvoiceDeleted.TypeCode, actionType, _comparer))
-            {
-                return InvoiceDeleted;
-            }
-
-            if (string.Equals(PaymentCompleted.TypeCode, actionType, _comparer))
-            {
-                return PaymentCompleted;
-            }
-
-            if (string.Equals(PaymentFailed.TypeCode, actionType, _comparer))
-            {
-                return PaymentFailed;
-            }
-
-            if (string.Equals(MarkPaid.TypeCode, actionType, _comparer))
-            {
-                return MarkPaid;
-            }
-
-            return null;
+        public string GetMessage(string data)
+        {
+            return $"Event: {data}";
         }
     }
 

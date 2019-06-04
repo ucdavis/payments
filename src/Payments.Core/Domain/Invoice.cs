@@ -83,6 +83,10 @@ namespace Payments.Core.Domain
         [DisplayName("Paid On")]
         public DateTime? PaidAt { get; set; }
 
+        public bool Refunded { get; set; }
+
+        public DateTime? RefundedAt { get; set; }
+
         public string PaymentType { get; set; }
 
         public string PaymentProcessorId { get; set; }
@@ -254,8 +258,12 @@ namespace Payments.Core.Domain
             public const string Paid = "Paid";
             public const string Processing = "Processing";
             public const string Completed = "Completed";
+
+            public const string Refunding = "Refunding";
+            public const string Refunded = "Refunded";
             public const string Cancelled = "Cancelled";
             public const string Deleted = "Deleted";
+
 
             public static string[] GetAllCodes()
             {
@@ -267,6 +275,8 @@ namespace Payments.Core.Domain
                     Processing,
                     Completed,
                     Cancelled,
+                    Refunded,
+                    Refunding,
                 };
             }
 
@@ -275,6 +285,7 @@ namespace Payments.Core.Domain
                 switch (status)
                 {
                     case Draft:
+                    case Refunding:
                         return "badge-warning";
 
                     case Processing:
@@ -288,6 +299,7 @@ namespace Payments.Core.Domain
                     case Cancelled:
                         return "badge-danger";
 
+                    case Refunded:
                     default:
                         return "badge-secondary";
                 }

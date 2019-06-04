@@ -21,6 +21,8 @@ namespace Payments.Emails
         Task SendReceipt(Invoice invoice, PaymentEvent payment);
 
         Task SendNewTeamMemberNotice(Team team, User user, TeamRole role);
+
+        Task SendRefundRequest(Invoice invoice, PaymentEvent payment);
     }
 
     public class SparkpostEmailService : IEmailService
@@ -30,6 +32,8 @@ namespace Payments.Emails
         private readonly IMjmlServices _mjmlServices;
 
         private readonly Address FromAddress = new Address("donotreply@payments-mail.ucdavis.edu", "UC Davis Payments");
+
+        private readonly Address RefundAddress = new Address("refunds@caes.ucdavis.edu", "CAES UC Davis Refunds");
 
         public SparkpostEmailService(IOptions<SparkpostSettings> emailSettings, IMjmlServices mjmlServices)
         {
@@ -186,6 +190,46 @@ namespace Payments.Emails
                 Recipients = new List<Recipient>()
                 {
                     new Recipient() {Address = new Address(user.Email, user.Name)},
+                }
+            };
+
+            // ship it
+            var result = await client.Transmissions.Send(transmission);
+            Log.ForContext("result", result).Information("Sent Email");
+        }
+
+        public async Task SendRefundRequest(Invoice invoice, PaymentEvent payment)
+        {
+            var client = GetClient();
+
+            dynamic viewbag = GetViewBag();
+            viewbag.Team = invoice.Team;
+
+            var model = new RefundRequestViewModel()
+            {
+                Invoice = invoice,
+                Payment = payment
+            };
+
+            // add model data to email
+            var engine = GetRazorEngine();
+            var prehtml = await engine.CompileRenderAsync("Views.RefundRequest.cshtml", model, viewbag);
+
+            // convert email to real html
+            MjmlResponse mjml = await _mjmlServices.Render(prehtml);
+
+            // build email
+            var transmission = new Transmission
+            {
+                Content =
+                {
+                    From = FromAddress,
+                    Html = mjml.Html,
+                    Subject = $"New invoice from {invoice.Team.Name}",
+                },
+                Recipients = new List<Recipient>()
+                {
+                    new Recipient() {Address = RefundAddress},
                 }
             };
 
