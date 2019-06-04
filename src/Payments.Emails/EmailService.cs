@@ -225,7 +225,7 @@ namespace Payments.Emails
                 {
                     From = FromAddress,
                     Html = mjml.Html,
-                    Subject = $"New invoice from {invoice.Team.Name}",
+                    Subject = $"Refund Request from {invoice.Team.Name}",
                 },
                 Recipients = new List<Recipient>()
                 {
