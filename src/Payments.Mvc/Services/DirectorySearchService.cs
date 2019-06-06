@@ -6,6 +6,7 @@ using Ietws;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Payments.Mvc.Models;
+using Serilog;
 
 namespace Payments.Mvc.Services
 {
@@ -38,7 +39,13 @@ namespace Payments.Mvc.Services
             var ucdKerbResult = await ietClient.Kerberos.Search(KerberosSearchField.iamId, ucdContact.IamId);
             EnsureResponseSuccess(ucdKerbResult);
             //TODO: If we use this method. Change the result to return DirectoryResult like GetByKerberous below.
-            var ucdKerbPerson = ucdKerbResult.ResponseData.Results.Single();
+
+            if (ucdKerbResult.ResponseData.Results.Length > 1)
+            {
+                Log.ForContext("result", ucdKerbResult, true).Warning("User search returned multiple results.");
+            }
+
+            var ucdKerbPerson = ucdKerbResult.ResponseData.Results.First();
             return new Person
             {
                 GivenName = ucdKerbPerson.DFirstName,
@@ -61,7 +68,13 @@ namespace Payments.Mvc.Services
                     ErrorMessage = "Login id not found. Please make sure you are using a personal login id."
                 };
             }
-            var ucdKerbPerson = ucdKerbResult.ResponseData.Results.Single();
+
+            if (ucdKerbResult.ResponseData.Results.Length > 1)
+            {
+                Log.ForContext("result", ucdKerbResult, true).Warning("User search returned multiple results.");
+            }
+
+            var ucdKerbPerson = ucdKerbResult.ResponseData.Results.First();
 
             // find their email
             var ucdContactResult = await ietClient.Contacts.Get(ucdKerbPerson.IamId);
