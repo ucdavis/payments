@@ -288,7 +288,8 @@ namespace Payments.Mvc
                     .From("https://stackpath.bootstrapcdn.com")
                     .From("https://use.fontawesome.com")
                     .From("https://cdn.datatables.net")
-                    .From("https://cdnjs.cloudflare.com");
+                    .From("https://cdnjs.cloudflare.com")
+                    .From("https://cdn.jsdelivr.net");
 
                 // allow style loader in development
                 if (Environment.IsDevelopment())
