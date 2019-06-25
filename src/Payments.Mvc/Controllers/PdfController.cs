@@ -39,7 +39,8 @@ namespace Payments.Mvc.Controllers
             }
 
             // look for the file on storage server first
-            var identifier = $"invoice-{invoice.LinkId}-{invoice.GetFormattedId()}";
+            // use the link id, which should always be the most up to date
+            var identifier = $"invoice-{invoice.LinkId}";
 
             var file = await _storageService.DownloadFile(identifier, StorageSettings.InvoicePdfContainerName);
             if (await file.ExistsAsync())
@@ -117,7 +118,8 @@ namespace Payments.Mvc.Controllers
             }
 
             // look for the file on storage server first
-            var identifier = $"receipt-{invoice.LinkId}-{invoice.GetFormattedId()}";
+            // use the link id, which should always be the most up to date
+            var identifier = $"receipt-{invoice.LinkId}";
 
             var file = await _storageService.DownloadFile(identifier, StorageSettings.ReceiptPdfContainerName);
             if (await file.ExistsAsync())
