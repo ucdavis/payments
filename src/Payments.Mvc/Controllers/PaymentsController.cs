@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Notifications;
 using Payments.Core.Resources;
@@ -266,7 +267,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // get file
-            var blob = await _storageService.DownloadFile(attachment.Identifier);
+            var blob = await _storageService.DownloadFile(attachment.Identifier, StorageSettings.AttachmentContainerName);
             var stream = await blob.OpenReadAsync();
 
             // ship it

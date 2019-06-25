@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,20 +19,16 @@ namespace Payments.Core.Services
         /// Returns a unique URL, including Shared Signature, which can be used to upload the file given by fileName
         /// Only valid for a few minutes
         /// </summary>
-        /// <param name="fileName">file name with extension</param>
-        /// <returns></returns>
-        Task<SasResponse> GetSharedAccessSignature(string fileName);
+        Task<SasResponse> GetSharedAccessSignature(string fileName, string containerName);
+
+        Task<string> UploadAttachment(IFormFile file);
 
         /// <summary>
         /// uploads a number of files to blob storage
         /// </summary>
         Task UploadFiles(params UploadRequest[] files);
 
-        string GetFullUriFromIdentifier(string identifier);
-
-        Task<CloudBlob> DownloadFile(string identifier);
-
-        Task<string> UploadFile(IFormFile file);
+        Task<CloudBlob> DownloadFile(string identifier, string containerName);
     }
 
     public class StorageService : IStorageService
@@ -44,7 +40,7 @@ namespace Payments.Core.Services
             _storageSettings = storageSettings.Value;
         }
 
-        public async Task<SasResponse> GetSharedAccessSignature(string fileName)
+        public async Task<SasResponse> GetSharedAccessSignature(string fileName, string containerName)
         {
             var storageConnectionString = _storageSettings.ConnectionString;
 
@@ -71,7 +67,7 @@ namespace Payments.Core.Services
             }
 
             // Get a reference to the container for which shared access signature will be created.
-            var container = blobClient.GetContainerReference(_storageSettings.ContainerName);
+            var container = blobClient.GetContainerReference(containerName);
             await container.CreateIfNotExistsAsync();
 
             var blob = container.GetBlockBlobReference(fileName);
@@ -90,17 +86,17 @@ namespace Payments.Core.Services
             };
         }
 
-        public async Task<CloudBlob> DownloadFile(string identifier)
+        public async Task<CloudBlob> DownloadFile(string identifier, string containerName)
         {
-            var container = await GetContainer();
+            var container = await GetContainer(containerName);
             return container.GetBlobReference(identifier);
         }
 
         public async Task UploadFiles(params UploadRequest[] files)
         {
-            var container = await GetContainer();
             foreach (var fileUpload in files)
             {
+                var container = await GetContainer(fileUpload.ContainerName);
                 var blob = container.GetBlockBlobReference(fileUpload.Identifier);
                 blob.Properties.ContentType = fileUpload.ContentType;
 
@@ -116,7 +112,7 @@ namespace Payments.Core.Services
             }
         }
 
-        private async Task<CloudBlobContainer> GetContainer()
+        private async Task<CloudBlobContainer> GetContainer(string containerName)
         {
             var storageConnectionString = _storageSettings.ConnectionString;
 
@@ -127,17 +123,12 @@ namespace Payments.Core.Services
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             // Get a reference to the container for which shared access signature will be created.
-            var container = blobClient.GetContainerReference(_storageSettings.ContainerName);
+            var container = blobClient.GetContainerReference(containerName);
             await container.CreateIfNotExistsAsync();
             return container;
         }
 
-        public string GetFullUriFromIdentifier(string identifier)
-        {
-            return $"{_storageSettings.UrlBase}{_storageSettings.ContainerName}/{identifier}";
-        }
-
-        public async Task<string> UploadFile(IFormFile file)
+        public async Task<string> UploadAttachment(IFormFile file)
         {
             var name = Path.GetFileNameWithoutExtension(file.FileName) ?? "UnknownFileName";
             var extension = Path.GetExtension(file.FileName);

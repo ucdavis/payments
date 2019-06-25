@@ -6,6 +6,7 @@ using jsreport.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Storage;
 using Payments.Core.Services;
 
@@ -40,7 +41,7 @@ namespace Payments.Mvc.Controllers
             // look for the file on storage server first
             var identifier = $"invoice-{invoice.LinkId}-{invoice.GetFormattedId()}";
 
-            var file = await _storageService.DownloadFile(identifier);
+            var file = await _storageService.DownloadFile(identifier, StorageSettings.InvoicePdfContainerName);
             if (await file.ExistsAsync())
             {
                 var stream = await file.OpenReadAsync();
@@ -85,6 +86,7 @@ namespace Payments.Mvc.Controllers
             var upload = new UploadRequest()
             {
                 Identifier = identifier,
+                ContainerName = StorageSettings.InvoicePdfContainerName,
                 ContentType = report.Meta.ContentType,
                 Data = uploadStream,
             };
@@ -117,7 +119,7 @@ namespace Payments.Mvc.Controllers
             // look for the file on storage server first
             var identifier = $"receipt-{invoice.LinkId}-{invoice.GetFormattedId()}";
 
-            var file = await _storageService.DownloadFile(identifier);
+            var file = await _storageService.DownloadFile(identifier, StorageSettings.ReceiptPdfContainerName);
             if (await file.ExistsAsync())
             {
                 var stream = await file.OpenReadAsync();
@@ -162,6 +164,7 @@ namespace Payments.Mvc.Controllers
             var upload = new UploadRequest()
             {
                 Identifier = identifier,
+                ContainerName = StorageSettings.ReceiptPdfContainerName,
                 ContentType = report.Meta.ContentType,
                 Data = uploadStream,
             };
