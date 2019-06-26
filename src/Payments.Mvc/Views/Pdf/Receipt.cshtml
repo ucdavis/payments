@@ -1,7 +1,10 @@
+@using Payments.Mvc.Models.CyberSource
 @model Invoice
 
 @{
     Layout = null;
+
+    var successfulPayment = Model.PaymentEvents?.FirstOrDefault(p => p.ProcessorId == Model.PaymentProcessorId);
 }
 
 <!DOCTYPE html>
@@ -113,6 +116,13 @@
                 <span class="col text-label">Total Paid</span>
                 <span class="col text-right font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
             </div>
+            @if (successfulPayment != null)
+            {
+                <div class="row">
+                    <span class="col text-label">Card</span>
+                    <span class="col text-right font-weight-bold text-blue">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
+                </div>
+            }
         </div>
     </div>
 
