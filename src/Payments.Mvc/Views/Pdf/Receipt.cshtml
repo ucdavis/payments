@@ -102,20 +102,15 @@
             </span>
         </div>
         <div class="col-3">
-            <div class="row">
-                <span class="col text-label">Date of issue</span><br />
-                <span class="col font-weight-bold text-right">@Model.SentAt.Value.ToString("MMM dd, yyyy")</span>
-            </div>
-
-            @if (Model.DueDate.HasValue)
+            @if (Model.PaidAt.HasValue)
             {
                 <div class="row">
-                    <span class="col text-label">Date due</span><br />
-                    <span class="col font-weight-bold text-right">@Model.DueDate.Value.ToString("MMM dd, yyyy")</span>
+                    <span class="col text-label">Date Paid</span><br />
+                    <span class="col font-weight-bold text-right">@Model.PaidAt.Value.ToString("MMM dd, yyyy")</span>
                 </div>
             }
             <div class="row">
-                <span class="col text-label">Total Due</span>
+                <span class="col text-label">Total Paid</span>
                 <span class="col text-right font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
             </div>
         </div>
@@ -123,7 +118,7 @@
 
     <div id="invoiceInfo" class="row">
         <div class="col">
-            <span class="text-label">Bill to</span><br/>
+            <span class="text-label">Paid by</span><br/>
             <span class="address">
                 @if (string.IsNullOrEmpty(Model.CustomerName))
                 {
@@ -183,7 +178,7 @@
         </tr>
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Discount</td>
+            <td class="text-right text-label">Discount (@Model.Coupon.Name)</td>
             <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
         </tr>
     }
@@ -204,7 +199,7 @@
     <tbody>
     <tr class="total">
         <td class="border-0" colspan="3"></td>
-        <td class="text-right text-label border-top">Total</td>
+        <td class="text-right text-label border-top">Amount Paid</td>
         <td class="text-right text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
     </tr>
     </tbody>

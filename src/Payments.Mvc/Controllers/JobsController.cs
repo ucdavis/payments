@@ -50,24 +50,13 @@ namespace Payments.Mvc.Controllers
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
-        public async Task<IActionResult> MoneyMovementRecords(double from, double to, int utc_offset_from, int utc_offset_to)
+        public async Task<IActionResult> MoneyMovementRecords(DateTime start, DateTime end)
         {
-            // js offsets are in minutes
-            var startOffset = new TimeSpan(0, utc_offset_from, 0);
-            var endOffset = new TimeSpan(0, utc_offset_to, 0);
-
-            // js ticks are in milliseconds, remove offset to utc
-            var start = new DateTime(1970, 1, 1).AddMilliseconds(from) - startOffset;
-            var end = new DateTime(1970, 1, 1).AddMilliseconds(to) - endOffset;
-
             // fetch records
             var records = await _dbContext.MoneyMovementJobRecords
                 .Where(r => r.RanOn >= start && r.RanOn <= end)
                 .OrderBy(r => r.RanOn)
                 .ToListAsync();
-
-            // js epoch is 1/1/1970
-            var jsEpoch = new DateTime(1970, 1, 1).Ticks / 10_000;
 
             // format for js, add offset to local, reset to js epoch
             var events = records.Select(r => new
@@ -76,16 +65,10 @@ namespace Payments.Mvc.Controllers
                 title  = $"{r.Name} - {r.RanOn.ToPacificTime():MMM dd, h:mm tt}",
                 @class = "event-success",
                 url    = Url.Action(nameof(MoneyMovementDetails), new { id = r.Id }),
-                start  = (r.RanOn.ToPacificTime().Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch,
-                end    = (r.RanOn.ToPacificTime().Ticks / 10_000) + (startOffset.Ticks / 10_000) - jsEpoch + 1,
-            });
+                start  = r.RanOn.ToPacificTime(),
+            }).ToList();
 
-
-            return new JsonResult(new
-            {
-                success = 1,
-                result = events,
-            });
+            return new JsonResult(events);
         }
 
         [HttpPost]

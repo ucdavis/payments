@@ -1,0 +1,68 @@
+@model Invoice
+
+<!DOCTYPE html>
+<html>
+<head>
+    @Html.EmbedCss("/wwwroot/css/pdf.css")
+
+    <style>
+        /* defining explicit font-size solves the scaling issue */
+        html, body {
+            font-size: 8px;
+            color: rgba(31,31,31,.99);
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: stretch;
+            width: 100%;
+            margin-left: 40px;
+            margin-right: 40px;
+            border-top: 2px solid grey;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .col {
+            flex-grow: 1;
+            padding: 0 10px;
+        }
+
+        .col:first-child {
+            padding-left: 0;
+        }
+
+        .col:last-child {
+            padding-right: 0;
+        }
+
+        .text-strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="footer">
+        <div class="row">
+            <div class="col">
+                <p><span class="text-strong">Questions?</span> Call @Model.Team.Name at @(Model.Team.ContactPhoneNumber).</p>
+            </div>
+            <div class="col" style="text-align: right;">
+                <p>
+                    @Model.GetFormattedId() - Page number <span class="pageNumber"></span> of <span class="totalPages"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

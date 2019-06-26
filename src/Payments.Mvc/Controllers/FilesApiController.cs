@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 
 namespace Payments.Mvc.Controllers
@@ -37,7 +38,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // fetch file and ship
-            var blob = await _storageService.DownloadFile(attachment.Identifier);
+            var blob = await _storageService.DownloadFile(attachment.Identifier, StorageSettings.AttachmentContainerName);
             var stream = await blob.OpenReadAsync();
 
             return File(stream, attachment.ContentType, attachment.FileName);
@@ -53,7 +54,7 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> UploadAttachment(IFormFile file)
         {
             // upload file to azure
-            var identifier = await _storageService.UploadFile(file);
+            var identifier = await _storageService.UploadAttachment(file);
 
             return new JsonResult(new
             {

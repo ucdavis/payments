@@ -4,7 +4,9 @@
     ViewBag.Title = $"Pay Invoice #{Model.Id}";
     Layout = "_PaymentsLayout";
 
-    var downloadLink = Url.Action("Invoice", "Pdf", new { id = Model.LinkId });
+    var downloadLink = Model.Paid
+        ? Url.Action("Receipt", "Pdf", new { id = Model.LinkId })
+        : Url.Action("Invoice", "Pdf", new { id = Model.LinkId });
 }
 
 <div class="card pay-card">
