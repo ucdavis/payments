@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Payments.Mvc.Models.CyberSource
@@ -78,6 +78,11 @@ namespace Payments.Mvc.Models.CyberSource
 
         public static string FormatCardNumber(string number, string cardCode)
         {
+            if (string.IsNullOrWhiteSpace(number))
+            {
+                return "";
+            }
+
             // most common 4-4-4-4 style
             string[] parts =
             {
