@@ -29,6 +29,7 @@ namespace Payments.Mvc.Controllers
         public async Task<ActionResult> Invoice(string id)
         {
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
@@ -49,7 +50,7 @@ namespace Payments.Mvc.Controllers
                 return new FileStreamResult(stream, file.Properties.ContentType);
             }
 
-            var footer = await _jsReportMvcService.RenderViewToStringAsync(HttpContext, RouteData, "Footer", invoice);
+            var footer = await _jsReportMvcService.RenderViewToStringAsync(HttpContext, RouteData, "InvoiceFooter", invoice);
 
             var request = new RenderRequest()
             {
@@ -102,6 +103,7 @@ namespace Payments.Mvc.Controllers
         public async Task<ActionResult> Receipt(string id)
         {
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Include(i => i.PaymentEvents)
@@ -128,7 +130,7 @@ namespace Payments.Mvc.Controllers
                 return new FileStreamResult(stream, file.Properties.ContentType);
             }
 
-            var footer = await _jsReportMvcService.RenderViewToStringAsync(HttpContext, RouteData, "Footer", invoice);
+            var footer = await _jsReportMvcService.RenderViewToStringAsync(HttpContext, RouteData, "ReceiptFooter", invoice);
 
             var request = new RenderRequest()
             {
