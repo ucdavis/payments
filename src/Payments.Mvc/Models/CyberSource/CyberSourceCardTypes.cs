@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Payments.Mvc.Helpers;
 
 namespace Payments.Mvc.Models.CyberSource
 {
@@ -83,17 +85,10 @@ namespace Payments.Mvc.Models.CyberSource
                 return "";
             }
 
-            // most common 4-4-4-4 style
-            string[] parts =
-            {
-                number.Substring(0, 4),
-                number.Substring(4, 4),
-                number.Substring(8, 4),
-                number.Substring(12, 4),
-            };
+            string[] parts;
 
             // amex 4-6-5 style
-            if (cardCode == "003")
+            if (cardCode == "003" && number.Length >= 15)
             {
                 parts = new[] {
                     number.Substring(0, 4),
@@ -103,13 +98,19 @@ namespace Payments.Mvc.Models.CyberSource
             }
 
             // card blanche 4-6-4 style
-            if (cardCode == "006")
+            else if (cardCode == "006" && number.Length >= 14)
             {
                 parts = new[] {
                     number.Substring(0, 4),
                     number.Substring(4, 6),
                     number.Substring(10, 4)
                 };
+            }
+
+            // most common 4-4-4-4 style
+            else
+            {
+                parts = number.SplitBy(4).ToArray();
             }
 
             return string.Join(' ', parts);
