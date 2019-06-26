@@ -105,12 +105,12 @@
             @if (Model.PaidAt.HasValue)
             {
                 <div class="row">
-                    <span class="col text-label">Date paid</span><br />
+                    <span class="col text-label">Date Paid</span><br />
                     <span class="col font-weight-bold text-right">@Model.PaidAt.Value.ToString("MMM dd, yyyy")</span>
                 </div>
             }
             <div class="row">
-                <span class="col text-label">Total Due</span>
+                <span class="col text-label">Total Paid</span>
                 <span class="col text-right font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
             </div>
         </div>
@@ -178,21 +178,20 @@
         </tr>
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Discount</td>
+            <td class="text-right text-label">Discount (@Model.Coupon.Name)</td>
             <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
         </tr>
     }
 
     @if (Model.CalculatedTaxAmount > 0)
     {
+        var rateText = Model.CalculatedTaxableAmount == Model.CalculatedSubtotal
+            ? Model.TaxPercent.ToString("P3")
+            : $"{Model.TaxPercent:P3} on {Model.CalculatedTaxableAmount:C2}";
+
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Total taxable amount</td>
-            <td class="text-right">-$@Model.CalculatedTaxableAmount.ToString("F2")</td>
-        </tr>
-        <tr class="summary">
-            <td colspan="3"></td>
-            <td class="text-right text-label">Tax Rate (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
+            <td class="text-right text-label">Tax (@rateText)</td>
             <td class="text-right">$@Model.CalculatedTaxAmount.ToString("F2")</td>
         </tr>
     }

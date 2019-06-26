@@ -190,14 +190,13 @@
 
     @if (Model.CalculatedTaxAmount > 0)
     {
+        var rateText = Model.CalculatedTaxableAmount == Model.CalculatedSubtotal
+            ? Model.TaxPercent.ToString("P3")
+            : $"{Model.TaxPercent:P3} on {Model.CalculatedTaxableAmount:C2}";
+
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Total taxable amount</td>
-            <td class="text-right">-$@Model.CalculatedTaxableAmount.ToString("F2")</td>
-        </tr>
-        <tr class="summary">
-            <td colspan="3"></td>
-            <td class="text-right text-label">Tax Rate (@((Model.TaxPercent * 100).ToString("0.####"))%)</td>
+            <td class="text-right text-label">Tax (@rateText)</td>
             <td class="text-right">$@Model.CalculatedTaxAmount.ToString("F2")</td>
         </tr>
     }
