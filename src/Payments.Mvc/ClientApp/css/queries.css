@@ -33,4 +33,8 @@
         display: flex;
         flex-direction: column;
     }
+
+    .navbar {
+        padding-left: 0;
+    }
 }
