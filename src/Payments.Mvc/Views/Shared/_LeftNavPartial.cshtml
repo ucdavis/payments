@@ -55,16 +55,16 @@
     </script>
 }
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a id="logoContainer" href="/">
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a class="mobile_logo_navbar" id="logoContainer" href="/">
         @Html.InlineSvg("/wwwroot/media/logo.svg")
     </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler mobile_button_toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
 
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo02" >
+    <div class="collapse navbar-collapse options-navbar" id="navbarTogglerDemo02" >
         <a class="nav-home" asp-controller="Home" asp-action="Index">
             <div class="nav-item">
                 <div class="svgwrapper">

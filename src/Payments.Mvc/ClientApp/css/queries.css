@@ -6,18 +6,31 @@
 
 @media only screen and (max-width: 768px) {
 
-    .top_nav_mobile {
+    .top_nav_tablet_laptop {
         display: none;
     }
-    
-    
 }
 
 
 /************************ Mobile Phone Style ********************/
 /****************************************************************/
 /****************************************************************/
-@media only screen and (max-width: 576px) {
-    
-}
+@media only screen and (min-width: 768px) {
 
+    .top_nav_mobile {
+        display: none;
+    }
+
+    .mobile_logo_navbar {
+        display: none;
+    }
+
+    .mobile_button_toggler {
+        display: none;
+    }
+
+    .options-navbar {
+        display: flex;
+        flex-direction: column;
+    }
+}
