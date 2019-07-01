@@ -36,11 +36,11 @@
 <body>
     <div class="container">
         <div class="row">
-            <div class="col-md-3 col-lg-2">
+            <div class="col-md-3">
                 <partial name="_LeftNavPartial" />
                 <partial name="_TopNavPartial_mobile" />
             </div>
-            <div class="col-md-9 col-lg-10">
+            <div class="col-md-9">
                 <partial name="_TopNavPartial_tablet_laptop" />
 
                 @if (!string.IsNullOrWhiteSpace(TempData["ErrorMessage"] as string))
