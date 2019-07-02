@@ -1,6 +1,6 @@
 
 
-/************************ Tablet Style ********************/
+/************************ Mobile Style ********************/
 /****************************************************************/
 /****************************************************************/
 
@@ -12,10 +12,39 @@
     .top_nav_tablet_laptop {
         display: none;
     }
+
+    .min-height-card {
+        min-height: 150px;
+    }
+
+    .min-height-card:hover {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    .top-div {
+        margin-bottom: 1rem;
+    }
+
+    .bottom-div-mob {
+        padding-left: 6vw;
+        padding-right: 6vw;
+    }
+    .search_box-div-mob {
+        padding-right: 7px;
+    }
+    s
+    #logocolor {
+        fill: #1D4A83;
+    }
+
+    .container {
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 
-/************************ Mobile Phone Style ********************/
+/************************ Tablet/Laptop Phone Style ********************/
 /****************************************************************/
 /****************************************************************/
 @media only screen and (min-width: 768px) {
@@ -43,5 +72,13 @@
 
     .navbar {
         padding-left: 0;
+    }
+
+    .min-height-card {
+        min-height: 150px;
+    }
+
+    .min-height-card:hover {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     }
 }
