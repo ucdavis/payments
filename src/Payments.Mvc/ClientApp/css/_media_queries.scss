@@ -26,13 +26,10 @@
     }
 
     .bottom-div-mob {
-        padding-left: 6vw;
-        padding-right: 6vw;
+        padding-left: 15px;
+        padding-right: 15px;
     }
-    .search_box-div-mob {
-        padding-right: 7px;
-    }
-    s
+
     #logocolor {
         fill: #1D4A83;
     }
@@ -40,6 +37,10 @@
     .container {
         margin-left: 0;
         margin-right: 0;
+    }
+
+    .mobile_button_toggler:hover {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     }
 }
 
