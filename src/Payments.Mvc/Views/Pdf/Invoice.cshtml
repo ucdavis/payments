@@ -125,12 +125,12 @@
         <div class="col">
             <span class="text-label">Bill to</span><br/>
             <span class="address">
-                @if (string.IsNullOrWhiteSpace(Model.CustomerName))
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
                 {
                     @Model.CustomerName<br/>
                 }
 
-                @if (string.IsNullOrWhiteSpace(Model.CustomerCompany))
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerCompany))
                 {
                     @Model.CustomerCompany<br/>
                 }
