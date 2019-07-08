@@ -53,6 +53,11 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("CustomerAddress", "System.String", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Customer Address\")]",
             }));
+
+            expectedFields.Add(new NameAndType("CustomerCompany", "System.String", new List<string>{
+                "[System.ComponentModel.DisplayNameAttribute(\"Customer Company\")]",
+            }));
+
             expectedFields.Add(new NameAndType("CustomerEmail", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.EmailAddressAttribute()]",
@@ -306,7 +311,7 @@ namespace Payments.Tests.DatabaseTests
         {
             var scType = typeof(Invoice.StatusCodes);
             var props = scType.GetFields();
-            props.Length.ShouldBe(7);
+            props.Length.ShouldBe(9);
             
             //props[0].Name.ShouldBe("Draft");
             Invoice.StatusCodes.Draft.ShouldBe("Draft");
@@ -316,6 +321,8 @@ namespace Payments.Tests.DatabaseTests
             Invoice.StatusCodes.Cancelled.ShouldBe("Cancelled");
             Invoice.StatusCodes.Processing.ShouldBe("Processing");
             Invoice.StatusCodes.Deleted.ShouldBe("Deleted");
-        }
+            Invoice.StatusCodes.Refunded.ShouldBe("Refunded");
+            Invoice.StatusCodes.Refunding.ShouldBe("Refunding");
+    }
     }
 }
