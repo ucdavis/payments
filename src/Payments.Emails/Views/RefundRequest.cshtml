@@ -30,6 +30,12 @@
             {
                 <p>@invoice.CustomerName</p>
             }
+
+            @if (!string.IsNullOrWhiteSpace(invoice.CustomerCompany))
+            {
+                <p>@invoice.CustomerCompany</p>
+            }
+
             @if (!string.IsNullOrWhiteSpace(invoice.CustomerAddress))
             {
                 <p>@invoice.CustomerAddress</p>
