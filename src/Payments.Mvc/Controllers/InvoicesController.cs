@@ -228,6 +228,7 @@ namespace Payments.Mvc.Controllers
                     Name    = invoice.CustomerName,
                     Address = invoice.CustomerAddress,
                     Email   = invoice.CustomerEmail,
+                    Company = invoice.CustomerCompany,
                 },
                 Items = invoice.Items.Select(i => new EditInvoiceItemModel()
                 {

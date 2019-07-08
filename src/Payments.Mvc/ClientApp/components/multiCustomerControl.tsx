@@ -77,7 +77,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
             // TODO: there should be a better way to handle this
             const customer = customers.length 
                 ? customers[0]
-                : { name: '', email: '', address: '' };
+                : { name: '', company: '', email: '', address: '' };
                 
             return (
                 <CustomerControl
@@ -194,6 +194,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
             if (outlookResult && outlookResult[1]) {
                 validCustomers.push({
                     address: '',
+                    company: '',
                     email: outlookResult[2],
                     name: outlookResult[1],
                 });
@@ -203,6 +204,7 @@ export default class MultiCustomerControl extends React.Component<IProps, IState
             if (emailRegex.test(e)) {
                 validCustomers.push({
                     address: '',
+                    company: '',
                     email: e,
                     name: '',
                 });

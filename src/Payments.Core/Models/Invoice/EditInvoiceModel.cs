@@ -41,6 +41,9 @@ namespace Payments.Core.Models.Invoice
         [MaxLength(100)]
         [EmailAddress]
         public string Email { get; set; }
+
+        [MaxLength(100)]
+        public string Company { get; set; }
     }
 
     public class EditInvoiceItemModel

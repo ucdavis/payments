@@ -64,6 +64,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
             attachments: [],
             customers: [{
                 address: '',
+                company: '',
                 email: '',
                 name: ''
             }],
@@ -173,7 +174,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
         let customer: InvoiceCustomer;
         if (customers.length > 1) {
-            customer = { address: '', email: 'Multiple Customers', name: 'Multiple Customers' };
+            customer = { address: '', company: '', email: 'Multiple Customers', name: 'Multiple Customers' };
         } else {
             customer = customers[0];
         }
