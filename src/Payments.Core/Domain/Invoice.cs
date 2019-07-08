@@ -43,6 +43,9 @@ namespace Payments.Core.Domain
         [DisplayName("Customer Email")]
         public string CustomerEmail { get; set; }
 
+        [DisplayName("Customer Company")]
+        public string CustomerCompany { get; set; }
+
         [DataType(DataType.MultilineText)]
         public string Memo { get; set; }
 

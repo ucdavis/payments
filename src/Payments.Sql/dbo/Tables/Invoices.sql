@@ -8,6 +8,7 @@ CREATE TABLE [dbo].[Invoices] (
     [CustomerAddress]			NVARCHAR (MAX)  NULL,
     [CustomerEmail]				NVARCHAR (MAX)  NULL,
     [CustomerName]				NVARCHAR (MAX)  NULL,
+	[CustomerCompany]			NVARCHAR (MAX)  NULL,
     [DueDate]					DATETIME2 (7)   NULL,
     [DraftCount]				INT				NOT NULL  DEFAULT 0, 
     [Memo]						NVARCHAR (MAX)  NULL,
