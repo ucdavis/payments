@@ -296,6 +296,7 @@ namespace Payments.Mvc.Controllers
             {
                 Id               = invoice.GetFormattedId(),
                 CustomerName     = invoice.CustomerName,
+                CustomerCompany  = invoice.CustomerCompany,
                 CustomerEmail    = invoice.CustomerEmail,
                 CustomerAddress  = invoice.CustomerAddress,
                 DueDate          = invoice.DueDate,
@@ -630,6 +631,7 @@ namespace Payments.Mvc.Controllers
                 Id               = invoice.GetFormattedId(),
                 LinkId           = invoice.LinkId,
                 CustomerName     = invoice.CustomerName,
+                CustomerCompany  = invoice.CustomerCompany,
                 CustomerEmail    = invoice.CustomerEmail,
                 CustomerAddress  = invoice.CustomerAddress,
                 Memo             = invoice.Memo,
