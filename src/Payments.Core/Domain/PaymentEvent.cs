@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
@@ -34,6 +34,10 @@ namespace Payments.Core.Domain
         [MaxLength(255)]
         [DisplayName("Billing Email")]
         public string BillingEmail { get; set; }
+
+        [MaxLength(40)]
+        [DisplayName("Billing Company")]
+        public string BillingCompany { get; set; }
 
         [MaxLength(15)]
         [DisplayName("Billing Phone")]

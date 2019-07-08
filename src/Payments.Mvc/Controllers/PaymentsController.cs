@@ -516,6 +516,7 @@ namespace Payments.Mvc.Controllers
                 BillingFirstName  = response.Req_Bill_To_Forename,
                 BillingLastName   = response.Req_Bill_To_Surname,
                 BillingEmail      = response.Req_Bill_To_Email,
+                BillingCompany    = response.Req_Bill_To_Company_Name,
                 BillingPhone      = response.Req_Bill_To_Phone,
                 BillingStreet1    = response.Req_Bill_To_Address_Line1,
                 BillingStreet2    = response.Req_Bill_To_Address_Line2,

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 // ReSharper disable InconsistentNaming
 
@@ -119,6 +119,11 @@ namespace Payments.Mvc.Models.CyberSource
         /// </summary>
         public string Req_Bill_To_Email { get; set; }
 
+        /// <summary>
+        /// Customer provided company name
+        /// </summary>
+        public string Req_Bill_To_Company_Name { get; set; }
+        
         /// <summary>
         /// Customer provided phone number
         /// </summary>

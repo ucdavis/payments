@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[PaymentEvents] (
+CREATE TABLE [dbo].[PaymentEvents] (
 	[Id]				INT				IDENTITY (1, 1) NOT NULL,
     [Processor]			NVARCHAR(50)	NOT NULL,
     [ProcessorId]       NVARCHAR(50)	NULL,
@@ -9,7 +9,8 @@
     [InvoiceId]			INT				NULL, 
     [BillingFirstName]	NVARCHAR(60)    NULL, 
     [BillingLastName]	NVARCHAR(60)    NULL, 
-    [BillingEmail]		NVARCHAR(255)   NULL, 
+    [BillingEmail]		NVARCHAR(255)   NULL,
+	[BillingCompany]	NVARCHAR(40)    NULL,
     [BillingPhone]		NVARCHAR(15)    NULL, 
     [BillingStreet1]	NVARCHAR(60)    NULL, 
     [BillingStreet2]	NVARCHAR(60)    NULL, 
