@@ -79,88 +79,90 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         const totalCalc = calculateTotal(itemsArray, discount, taxPercent);
 
         return (
-            <table className="table invoice-table">
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>
-                            { !!taxPercent &&
-                                <div>
-                                    <span className="mr-2">Tax Exempt</span>
-                                    <span><i className="fas fa-info-circle" /></span>
-                                </div>
-                            }
-                        </th>
-                        <th>Qty</th>
-                        <th className="text-center">Price</th>
-                        <th>Amount</th>
-                        <th/>
-                    </tr>
-                </thead>
-                <tbody className="tbody-invoice-details">
-                    { items.byId.map((id) => this.renderItem(id, items.byHash[id])) }
-                </tbody>
-                <tbody>
-                    <tr>
-                        <td>
-                            <button className="btn-plain primary-color" onClick={this.createNewItem}>
-                                <i className="fas fa-plus mr-2" /> Add another item
-                            </button>
-                        </td>
-                        <td />
-                        <td>Subtotal</td>
-                        <td />
-                        <td>${ subtotalCalc.toFixed(2) }</td>
-                        <td />
-                    </tr>
-                    <tr className="align-text-top">
-                        <td />
-                        <td />
-                        <td>Discount</td>
-                        <td><DiscountInput coupons={coupons} discount={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
-                        <td>{ 
-                                (discount.hasDiscount) && 
-                                <span>-${ discountCalc.toFixed(2) }</span>
-                            }
-                        </td>
-                        <td>
-                            {
-                                (discount.hasDiscount) && 
-                                <button className="btn-link btn-invoice-delete" onClick={this.removeDiscount}>
-                                    <i className="fas fa-times" />
+            <div className="table-responsive">
+                <table className="table invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>
+                                { !!taxPercent &&
+                                    <div>
+                                        <span className="mr-2">Tax Exempt</span>
+                                        <span><i className="fas fa-info-circle" /></span>
+                                    </div>
+                                }
+                            </th>
+                            <th>Qty</th>
+                            <th className="text-center">Price</th>
+                            <th>Amount</th>
+                            <th/>
+                        </tr>
+                    </thead>
+                    <tbody className="tbody-invoice-details">
+                        { items.byId.map((id) => this.renderItem(id, items.byHash[id])) }
+                    </tbody>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <button className="btn-plain primary-color" onClick={this.createNewItem}>
+                                    <i className="fas fa-plus mr-2" /> Add another item
                                 </button>
-                            }
-                        </td>
-                    </tr>
-                    <tr>
-                        <td />
-                        <td />
-                        <td>
-                            <span>Tax</span>
-                            <span className="ml-2">
-                                <a href="https://www.taxjar.com/sales-tax-calculator/" target="_blank" rel="noopener noreferrer"><i className="fas fa-search" /></a>
-                            </span>
-                        </td>
-                        <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
-                        <td>{
-                                !!taxPercent &&
-                                <span>${ taxCalc.toFixed(2) }</span>
-                            }
-                        </td>
-                        <td />
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td />
-                        <td />
-                        <td>Total</td>
-                        <td />
-                        <td>${ totalCalc.toFixed(2) }</td>
-                        <td />
-                    </tr>
-                </tfoot>
-            </table>
+                            </td>
+                            <td />
+                            <td>Subtotal</td>
+                            <td />
+                            <td>${ subtotalCalc.toFixed(2) }</td>
+                            <td />
+                        </tr>
+                        <tr className="align-text-top">
+                            <td />
+                            <td />
+                            <td>Discount</td>
+                            <td><DiscountInput coupons={coupons} discount={discount} onChange={(v) => this.onDiscountChange(v)} /></td>
+                            <td>{ 
+                                    (discount.hasDiscount) && 
+                                    <span>-${ discountCalc.toFixed(2) }</span>
+                                }
+                            </td>
+                            <td>
+                                {
+                                    (discount.hasDiscount) && 
+                                    <button className="btn-link btn-invoice-delete" onClick={this.removeDiscount}>
+                                        <i className="fas fa-times" />
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td />
+                            <td />
+                            <td>
+                                <span>Tax</span>
+                                <span className="ml-2">
+                                    <a href="https://www.taxjar.com/sales-tax-calculator/" target="_blank" rel="noopener noreferrer"><i className="fas fa-search" /></a>
+                                </span>
+                            </td>
+                            <td><TaxInput value={taxPercent * 100} onChange={(v) => this.onTaxPercentChange(v)} /></td>
+                            <td>{
+                                    !!taxPercent &&
+                                    <span>${ taxCalc.toFixed(2) }</span>
+                                }
+                            </td>
+                            <td />
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td />
+                            <td />
+                            <td>Total</td>
+                            <td />
+                            <td>${ totalCalc.toFixed(2) }</td>
+                            <td />
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>    
         );
     }
 
