@@ -103,6 +103,8 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("PaymentProcessorId", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("PaymentType", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("Refunded", "System.Boolean", new List<string>()));
+            expectedFields.Add(new NameAndType("RefundedAt", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("Sent", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("SentAt", "System.Nullable`1[System.DateTime]", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Sent At\")]",
@@ -122,6 +124,8 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
             }));
+
+
 
             #endregion Arrange
 
@@ -282,7 +286,7 @@ namespace Payments.Tests.DatabaseTests
 
             // Assert		
             result.ShouldBeOfType<Dictionary<string, string>>();
-            result.Count.ShouldBe(13 + (2 * invoice.Items.Count));
+            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
@@ -297,6 +301,50 @@ namespace Payments.Tests.DatabaseTests
             result["bill_to_address_country"].ShouldBe("US");
             result["bill_to_address_state"].ShouldBe("CA");
             result["line_item_count"].ShouldBe(value.ToString());
+            result["bill_to_company_name"].ShouldBe(null);
+
+            for (int i = 0; i < value; i++)
+            {
+                result[$"item_{i}_name"].ShouldBe(invoice.Items[i].Description);
+                //result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString()); //This is gone
+                result[$"item_{i}_unit_price"].ShouldBe((invoice.Items[i].Amount * invoice.Items[i].Quantity).ToString("F2"));
+            }
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TestGetPaymentDictionaryReturnsExpectedValues2(int value)
+        {
+            // Arrange
+            var invoice = CreateValidEntities.Invoice(value, value);
+            invoice.CustomerCompany = "FakeCompany";
+            invoice.UpdateCalculatedValues();
+            invoice.CustomerEmail.ShouldNotBeNull();
+            invoice.CustomerName.ShouldNotBeNull();
+
+            // Act
+            var result = invoice.GetPaymentDictionary();
+
+            // Assert		
+            result.ShouldBeOfType<Dictionary<string, string>>();
+            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
+
+            result["transaction_type"].ShouldBe("sale");
+            result["reference_number"].ShouldBe(invoice.Id.ToString());
+            result["amount"].ShouldBe(invoice.CalculatedTotal.ToString("F2"));
+            result["currency"].ShouldBe("USD");
+            result["transaction_uuid"].ShouldNotBeNull();
+            result["signed_date_time"].ShouldNotBeNull();
+            result["unsigned_field_names"].ShouldBe("");
+            result["locale"].ShouldBe("en");
+            result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
+            result["bill_to_forename"].ShouldBe(invoice.CustomerName);
+            result["bill_to_address_country"].ShouldBe("US");
+            result["bill_to_address_state"].ShouldBe("CA");
+            result["line_item_count"].ShouldBe(value.ToString());
+            result["bill_to_company_name"].ShouldBe("FakeCompany");
 
             for (int i = 0; i < value; i++)
             {
