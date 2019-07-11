@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Payments.Core.Domain;
 using Shouldly;
 using TestHelpers.Helpers;
@@ -18,6 +18,10 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("BillingCity", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)50)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing City\")]",
+            }));
+            expectedFields.Add(new NameAndType("BillingCompany", "System.String", new List<string>{
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)40)]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Billing Company\")]",
             }));
             expectedFields.Add(new NameAndType("BillingCountry", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)2)]",
@@ -73,7 +77,6 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("ReturnedResults", "System.String", new List<string>{
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
-
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(PaymentEvent));
