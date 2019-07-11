@@ -259,7 +259,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // upload file
-            var identifier = await _storageService.UploadFile(file);
+            var identifier = await _storageService.UploadAttachment(file);
 
             // add to invoice
             var attachment = new InvoiceAttachment()

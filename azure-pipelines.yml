@@ -61,4 +61,4 @@ steps:
   displayName: 'Test'
   inputs:
     command: 'test'
-    projects: './test/payments.test/payments.Tests.csproj'
+    projects: './tests/payments.tests/payments.tests.csproj'

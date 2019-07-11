@@ -5,7 +5,6 @@
 
 @section AdditionalStyles
 {
-    <link rel="stylesheet" href="~/css/calendar.css" />
 }
 
 <div class="card">
@@ -20,7 +19,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div id="jobsCalendar"></div>
+        <div id="react-job-log-calendar"></div>
     </div>
 </div>
 
@@ -46,24 +45,69 @@
 
 @section scripts
 {
-    <script src="https://cdn.jsdelivr.net/npm/underscore@1.9.1/underscore-min.js"></script>
-    <script src="~/js/calendar.js"></script>
-    <script asp-add-nonce="true">
-        $('#jobsCalendar').calendar({
-            tmpl_path: "/calendar/",
-            events_source: '@Url.Action("MoneyMovementRecords")',
-            views: {
-                week: {
-                    enable: 0
-                },
-                day: {
-                    enable: 0
+    <script src="https://cdn.jsdelivr.net/npm/@@fullcalendar/core@4.2.0/main.min.js" integrity="sha256-GBryZPfVv8G3K1Lu2QwcqQXAO4Szv4xlY4B/ftvyoMI=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@fullcalendar/daygrid@4.2.0/main.min.js" integrity="sha256-FT1eN+60LmWX0J8P25UuTjEEE0ZYvpC07nnU6oFKFuI=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fullcalendar/core@4.2.0/main.css" integrity="sha256-nJK+Jim06EmZazdCbGddx5ixnqfXA13Wlw3JizKK1GU=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fullcalendar/daygrid@4.2.0/main.css" integrity="sha256-QG5qcyovbK2zsUkGMWTVn0PZM1P7RVx0Z05QwB9dCeg=" crossorigin="anonymous">
+
+    <script>
+
+        $(function () {
+            var targetEl = document.getElementById('react-job-log-calendar');
+            var calendar = new FullCalendar.Calendar(targetEl,
+                {
+                    defaultView: 'dayGridMonth',
+                    plugins: ['dayGrid'],
+                    eventLimit: true,
+                    eventOrder: 'start',
+                    events: getEvents,
+                    eventRender: function (info) {
+                        $(info.el).tooltip({
+                            title: info.event.title,
+                            placement: 'top',
+                            trigger: 'hover',
+                            container: 'body'
+                        });
+                    }
                 }
-            }
+            );
+
+            calendar.render();
         });
 
-        $('#run-job-modal-action').click(function() {
-            $('#run-job-modal-form').submit();
-        });
+        const dateFormat = "MM/DD/YYYY";
+        const eventUrl = '@Html.Raw(Url.Action("MoneyMovementRecords", new { start = "start-xxx", end = "end-xxx" }))';
+        function getEvents(info, success, failure) {
+
+            const startParam = encodeURIComponent(
+                window.dateFns.format(info.start, dateFormat));
+            const endParam = encodeURIComponent(
+                window.dateFns.format(info.end, dateFormat));
+
+            let url = eventUrl.replace('start-xxx', startParam);
+            url = url.replace('end-xxx', endParam);
+
+            fetch(url, {
+                    credentials: "same-origin",
+                    method: "GET",
+                })
+                .then(function (response) {
+                    if (response.status !== 200) {
+                        throw Error("Bad Response");
+                    }
+                    return response.json();
+                })
+                .then(function(events) {
+                    // transform events
+                    events.forEach(function(e) {
+                        e.allDay = true;
+                    });
+
+                    return events;
+                })
+                .then(success)
+                .catch(failure);
+        }
     </script>
 }
