@@ -43,6 +43,9 @@ namespace Payments.Core.Domain
         [DisplayName("Customer Email")]
         public string CustomerEmail { get; set; }
 
+        [DisplayName("Customer Company")]
+        public string CustomerCompany { get; set; }
+
         [DataType(DataType.MultilineText)]
         public string Memo { get; set; }
 
@@ -236,6 +239,7 @@ namespace Payments.Core.Domain
                 {"locale"                 , "en"},
                 {"bill_to_email"          , CustomerEmail},
                 {"bill_to_forename"       , CustomerName},
+                {"bill_to_company_name"   , CustomerCompany},
                 {"bill_to_address_country", "US"},
                 {"bill_to_address_state"  , "CA"}
             };

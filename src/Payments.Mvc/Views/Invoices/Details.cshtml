@@ -163,6 +163,19 @@
                         }
                     </dd>
 
+                    <dt class="col-6">@Html.DisplayNameFor(x => x.CustomerCompany)</dt>
+                    <dd class="col-6">
+                        @if (!string.IsNullOrWhiteSpace(Model.CustomerCompany))
+                        {
+                            <span>@Model.CustomerCompany</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None Specified</span>
+
+                        }
+                    </dd>
+
                     <dt class="col-6">@Html.DisplayNameFor(x => x.CustomerEmail)</dt>
                     <dd class="col-6">
                         @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))

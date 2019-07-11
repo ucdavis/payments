@@ -64,6 +64,7 @@ namespace Payments.Mvc.Services
                     CustomerAddress = customer.Address,
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
+                    CustomerCompany = customer.Company,
                     Memo            = model.Memo,
                     Status          = Invoice.StatusCodes.Draft,
                     Sent            = false,
@@ -137,6 +138,7 @@ namespace Payments.Mvc.Services
             invoice.CustomerAddress = model.Customer.Address;
             invoice.CustomerEmail   = model.Customer.Email;
             invoice.CustomerName    = model.Customer.Name;
+            invoice.CustomerCompany = model.Customer.Company;
             invoice.Memo            = model.Memo;
             invoice.ManualDiscount  = model.ManualDiscount;
             invoice.TaxPercent      = model.TaxPercent;

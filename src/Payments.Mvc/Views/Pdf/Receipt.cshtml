@@ -130,14 +130,19 @@
         <div class="col">
             <span class="text-label">Paid by</span><br/>
             <span class="address">
-                @if (string.IsNullOrEmpty(Model.CustomerName))
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
                 {
                     @Model.CustomerName<br/>
                 }
 
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerCompany))
+                {
+                    @Model.CustomerCompany<br/>
+                }
+
                 @Model.CustomerEmail<br/>
 
-                @if (!string.IsNullOrEmpty(Model.CustomerAddress))
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerAddress))
                 {
                     @Model.CustomerAddress
                 }

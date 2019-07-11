@@ -4,8 +4,28 @@
     var id = !string.IsNullOrWhiteSpace(Model.Id) ? Model.Id : "0000-DRAFT";
 }
 
-<div class="pay-top">
-    <h1>Invoice from @Model.Team.Name</h1><br />
-    <span class="pay-top-customer">Billed to @Model.CustomerEmail</span><br />
-    <span class="pay-top-invoice-info">Invoice #@id</span>
-</div>
+    <div class="pay-top">
+        <h1 class="mb-0">Invoice #@id</h1>
+        <h2 class="">From @Model.Team.Name</h2><br />
+        <span class="pay-top-invoice-info">Billed To</span> <br />
+
+        @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
+        {
+            <span class="pay-top-customer">@Model.CustomerName</span><br />
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.CustomerCompany))
+        {
+            <span class="pay-top-customer">@Model.CustomerCompany</span><br />
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))
+        {
+            <span class="pay-top-customer">@Model.CustomerEmail</span><br />
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.CustomerAddress))
+        {
+            <span class="pay-top-customer">@Model.CustomerAddress</span><br />
+        }
+    </div>
