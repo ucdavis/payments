@@ -40,7 +40,7 @@
                 @foreach (var invoice in Model.Invoices)
                 {
                     <tr data-id="@invoice.Id">
-                        <td class="invoices-id-col">
+                        <td data-sort="@invoice.Id" class="invoices-id-col">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
                                     @invoice.GetFormattedId()
