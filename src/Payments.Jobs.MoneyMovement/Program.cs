@@ -77,6 +77,7 @@ namespace Payments.Jobs.MoneyMovement
             );
 
             // required services
+            services.AddTransient<INotificationService, NotificationService>();
             services.AddTransient<ISlothService, SlothService>();
 
             services.AddSingleton<MoneyMovementJob>();
