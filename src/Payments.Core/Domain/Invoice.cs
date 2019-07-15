@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Payments.Core.Extensions;
 
 namespace Payments.Core.Domain
 {
@@ -33,6 +34,7 @@ namespace Payments.Core.Domain
             return $"{Id:D3}-{DraftCount:D3}";
         }
 
+        //This is truncated to 60 characters when sent to CyberSource
         [DisplayName("Customer Name")]
         public string CustomerName { get; set; }
 
@@ -43,6 +45,7 @@ namespace Payments.Core.Domain
         [DisplayName("Customer Email")]
         public string CustomerEmail { get; set; }
 
+        //This is truncated to 40 characters when sent to CyberSource
         [DisplayName("Customer Company")]
         public string CustomerCompany { get; set; }
 
@@ -238,8 +241,8 @@ namespace Payments.Core.Domain
                 {"unsigned_field_names"   , string.Empty},
                 {"locale"                 , "en"},
                 {"bill_to_email"          , CustomerEmail},
-                {"bill_to_forename"       , CustomerName},
-                {"bill_to_company_name"   , CustomerCompany},
+                {"bill_to_forename"       , CustomerName.SafeTruncate(60)},
+                {"bill_to_company_name"   , CustomerCompany.SafeTruncate(40)},
                 {"bill_to_address_country", "US"},
                 {"bill_to_address_state"  , "CA"}
             };
