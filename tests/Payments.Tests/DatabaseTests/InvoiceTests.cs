@@ -354,6 +354,113 @@ namespace Payments.Tests.DatabaseTests
             }
         }
 
+        [Theory]
+        [InlineData("123456789 123456789 123456789 123456789X", "123456789 123456789 123456789 123456789X")]
+        [InlineData("123456789 123456789 123456789 123456789X1", "123456789 123456789 123456789 123456789X")]
+        [InlineData("123", "123")]
+        [InlineData("", "")]
+        [InlineData(" ", " ")]
+        [InlineData(null, null)]
+        public void TestCyberSourceTruncationOfDictionaryFieldCompanyName1(string value, string expectedValue)
+        {
+            // Arrange
+            var invoice = CreateValidEntities.Invoice(1, 1);
+            invoice.CustomerCompany = value;
+            invoice.UpdateCalculatedValues();
+            invoice.CustomerEmail.ShouldNotBeNull();
+            invoice.CustomerName.ShouldNotBeNull();
+
+            // Act
+            var result = invoice.GetPaymentDictionary();
+
+            // Assert		
+            result.ShouldBeOfType<Dictionary<string, string>>();
+            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
+
+            result["transaction_type"].ShouldBe("sale");
+            result["reference_number"].ShouldBe(invoice.Id.ToString());
+            result["amount"].ShouldBe(invoice.CalculatedTotal.ToString("F2"));
+            result["currency"].ShouldBe("USD");
+            result["transaction_uuid"].ShouldNotBeNull();
+            result["signed_date_time"].ShouldNotBeNull();
+            result["unsigned_field_names"].ShouldBe("");
+            result["locale"].ShouldBe("en");
+            result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
+            result["bill_to_forename"].ShouldBe(invoice.CustomerName);
+            result["bill_to_address_country"].ShouldBe("US");
+            result["bill_to_address_state"].ShouldBe("CA");
+            result["line_item_count"].ShouldBe("1");
+            if (expectedValue == null)
+            {
+                result["bill_to_company_name"].ShouldBeNull();
+            }
+            else
+            {
+                result["bill_to_company_name"].Length.ShouldBeLessThanOrEqualTo(40);
+                result["bill_to_company_name"].ShouldBe(expectedValue);
+            }
+
+            for (int i = 0; i < 1; i++)
+            {
+                result[$"item_{i}_name"].ShouldBe(invoice.Items[i].Description);
+                //result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString()); //This is gone
+                result[$"item_{i}_unit_price"].ShouldBe((invoice.Items[i].Amount * invoice.Items[i].Quantity).ToString("F2"));
+            }
+        }
+
+        [Theory]
+        [InlineData("123456789 123456789 123456789 123456789 123456789 123456789X", "123456789 123456789 123456789 123456789 123456789 123456789X")]
+        [InlineData("123456789 123456789 123456789 123456789 123456789 123456789X1", "123456789 123456789 123456789 123456789 123456789 123456789X")]
+        [InlineData("123", "123")]
+        [InlineData("", "")]
+        [InlineData(" ", " ")]
+        [InlineData(null, null)]
+        public void TestCyberSourceTruncationOfDictionaryFieldCustomerName(string value, string expectedValue)
+        {
+            // Arrange
+            var invoice = CreateValidEntities.Invoice(1, 1);
+            invoice.CustomerName = value;
+            invoice.UpdateCalculatedValues();
+            invoice.CustomerEmail.ShouldNotBeNull();
+            
+
+            // Act
+            var result = invoice.GetPaymentDictionary();
+
+            // Assert		
+            result.ShouldBeOfType<Dictionary<string, string>>();
+            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
+
+            result["transaction_type"].ShouldBe("sale");
+            result["reference_number"].ShouldBe(invoice.Id.ToString());
+            result["amount"].ShouldBe(invoice.CalculatedTotal.ToString("F2"));
+            result["currency"].ShouldBe("USD");
+            result["transaction_uuid"].ShouldNotBeNull();
+            result["signed_date_time"].ShouldNotBeNull();
+            result["unsigned_field_names"].ShouldBe("");
+            result["locale"].ShouldBe("en");
+            result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
+            result["bill_to_address_country"].ShouldBe("US");
+            result["bill_to_address_state"].ShouldBe("CA");
+            result["line_item_count"].ShouldBe("1");
+            if (expectedValue == null)
+            {
+                result["bill_to_forename"].ShouldBeNull();
+            }
+            else
+            {
+                result["bill_to_forename"].Length.ShouldBeLessThanOrEqualTo(60);
+                result["bill_to_forename"].ShouldBe(expectedValue);
+            }
+
+            for (int i = 0; i < 1; i++)
+            {
+                result[$"item_{i}_name"].ShouldBe(invoice.Items[i].Description);
+                //result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString()); //This is gone
+                result[$"item_{i}_unit_price"].ShouldBe((invoice.Items[i].Amount * invoice.Items[i].Quantity).ToString("F2"));
+            }
+        }
+
         [Fact]
         public void TestStatusCodesHaveExpectedValues()
         {
