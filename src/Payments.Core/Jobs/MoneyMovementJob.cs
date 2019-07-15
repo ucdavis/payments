@@ -74,7 +74,7 @@ namespace Payments.Core.Jobs
                         invoice.Status = Invoice.StatusCodes.Processing;
 
                         // calculate fees
-                        var feeAmount = invoice.CalculatedTotal * FeeSchedule.StandardRate;
+                        var feeAmount = Math.Round(invoice.CalculatedTotal * FeeSchedule.StandardRate, 2);
                         var incomeAmount = invoice.CalculatedTotal - feeAmount;
 
                         // create transfers
