@@ -297,6 +297,8 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
                 body = JSON.stringify({
                     ccEmails,
                 });
+            } else {
+                body = JSON.stringify({ ccEmails: "" });
             }
 
             const response = await fetch(url, {
