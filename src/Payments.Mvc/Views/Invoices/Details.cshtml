@@ -1,5 +1,6 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
+@using Payments.Core.Extensions
 @using Payments.Core.Models.History
 @using Payments.Mvc.Models.CyberSource
 @using Payments.Mvc.Identity
@@ -99,7 +100,7 @@
                 </div>
                 <div>
                     <span>@action.GetMessage()</span><br />
-                    <span class="text-muted">@action.ActionDateTime.ToString("MMM dd, h:mm tt")</span>
+                    <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, h:mm tt")</span>
                 </div>
             </div>
         }
