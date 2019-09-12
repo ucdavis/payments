@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Http
+@using Payments.Core.Extensions
 @model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -75,10 +76,10 @@
                                 </div>
                             </a>
                         </td>
-                        <td data-sort="@invoice.CreatedAt.Ticks">
+                        <td data-sort="@invoice.CreatedAt.ToPacificTime().Ticks">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
-                                    @invoice.CreatedAt.ToString("d")
+                                    @invoice.CreatedAt.ToPacificTime().ToString("d")
                                 </div>
                             </a>
                         </td>

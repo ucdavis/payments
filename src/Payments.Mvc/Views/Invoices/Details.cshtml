@@ -383,7 +383,7 @@
         <dl class="row">
             <dt class="col-2 text-right">Created</dt>
             <dd class="col-10">
-                @Model.CreatedAt.ToString("g")
+                @Model.CreatedAt.ToPacificTime().ToString("g")
             </dd>
         </dl>
         @if (Model.Sent)

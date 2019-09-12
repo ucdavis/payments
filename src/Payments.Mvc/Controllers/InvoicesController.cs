@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Extensions;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Resources;
@@ -24,6 +25,7 @@ namespace Payments.Mvc.Controllers
     [Authorize(Policy = PolicyCodes.TeamEditor)]
     public class InvoicesController : SuperController
     {
+        private const int MaxRows = 1000;
         private readonly ApplicationUserManager _userManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly IInvoiceService _invoiceService;
@@ -56,19 +58,19 @@ namespace Payments.Mvc.Controllers
 
             if (filter.CreatedDateStart.HasValue)
             {
-                query = query.Where(i => i.CreatedAt >= filter.CreatedDateStart.Value);
+                query = query.Where(i => i.CreatedAt >= filter.CreatedDateStart.FromPacificTime().Value);
             }
 
             if (filter.CreatedDateEnd.HasValue)
             {
-                query = query.Where(i => i.CreatedAt <= filter.CreatedDateEnd.Value);
+                query = query.Where(i => i.CreatedAt <= filter.CreatedDateEnd.FromPacificTime().Value);
             }
 
             // get count for display reasons
             //var count = query.Count();
 
             var invoices = query
-                .Take(100)
+                .Take(MaxRows)
                 .OrderByDescending(i => i.Id)
                 .ToList();
 
@@ -86,6 +88,10 @@ namespace Payments.Mvc.Controllers
                     Value = c,
                 });
 
+            if (invoices.Count >= MaxRows)
+            {
+                Message = $"Only showing {MaxRows} records, adjust filters to show other invoices.";
+            }
             return View(model);
         }
 
