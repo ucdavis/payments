@@ -90,7 +90,9 @@ namespace Payments.Mvc.Controllers
 
             if (invoices.Count >= MaxRows)
             {
-                Message = $"Only showing {MaxRows} records, adjust filters to show other invoices.";
+                //Message = $"Only showing {MaxRows} records, adjust filters to show other invoices.";
+                //Something strange with tempData. It shows up ONLY the second time
+                ViewBag.Message = $"Only showing {MaxRows} records, adjust filters to show other invoices.";
             }
             return View(model);
         }
