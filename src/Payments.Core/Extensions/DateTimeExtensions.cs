@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Payments.Core.Extensions
 {
@@ -19,6 +19,12 @@ namespace Payments.Core.Extensions
         public static DateTime FromPacificTime(this DateTime dateTime)
         {
             return TimeZoneInfo.ConvertTimeToUtc(dateTime, Pacific);
+        }
+
+        public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
+        {
+            int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
+            return dt.AddDays(-1 * diff).Date;
         }
 
         /// <summary>
