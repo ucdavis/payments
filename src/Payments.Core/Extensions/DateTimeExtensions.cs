@@ -20,6 +20,10 @@ namespace Payments.Core.Extensions
         {
             return TimeZoneInfo.ConvertTimeToUtc(dateTime, Pacific);
         }
+        public static DateTime? FromPacificTime(this DateTime? dateTime)
+        {
+            return dateTime?.FromPacificTime();
+        }
 
         public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
         {
