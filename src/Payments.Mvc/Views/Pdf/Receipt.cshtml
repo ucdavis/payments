@@ -1,3 +1,4 @@
+@using Payments.Core.Extensions
 @using Payments.Mvc.Models.CyberSource
 @model Invoice
 
@@ -109,7 +110,7 @@
             {
                 <div class="row">
                     <span class="col text-label">Date Paid</span><br />
-                    <span class="col font-weight-bold text-right">@Model.PaidAt.Value.ToString("MMM dd, yyyy")</span>
+                    <span class="col font-weight-bold text-right">@Model.PaidAt.Value.ToPacificTime().ToString("MMM dd, yyyy")</span>
                 </div>
             }
             <div class="row">

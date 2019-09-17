@@ -1,3 +1,4 @@
+@using Payments.Core.Extensions
 @model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
 <div class="pay-description">
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
@@ -29,7 +30,7 @@
 
             @if (Model.Discount > 0 || Model.Coupon != null)
             {
-                var isExpired = (Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow);
+                var isExpired = (Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date);
 
                 <tr>
                     <td></td>

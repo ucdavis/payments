@@ -1,3 +1,4 @@
+@using Payments.Core.Extensions
 @model IEnumerable<Invoice>
 
 @{
@@ -35,7 +36,7 @@
                     </a>
                 </td>
                 <td>@invoice.Account.GetAccountString()</td>
-                <td data-sort="@invoice.PaidAt?.Ticks">@invoice.PaidAt?.ToString("d")</td>
+                <td data-sort="@invoice.PaidAt.ToPacificTime()?.Ticks">@invoice.PaidAt.ToPacificTime()?.ToString("d")</td>
                 <td class="text-right">@invoice.CalculatedTotal.ToString("C")</td>
                 <td class="text-center" data-sort="@hasTaxExempt">
                     @if (hasTaxExempt)

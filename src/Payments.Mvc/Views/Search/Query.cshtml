@@ -74,10 +74,10 @@
                                 </div>
                             </a>
                         </td>
-                        <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
+                        <td data-sort="@(invoice.SentAt.ToPacificTime()?.Ticks ?? 0)">
                             <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
                                 <div>
-                                    @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
+                                    @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")
                                 </div>
                             </a>
                         </td>

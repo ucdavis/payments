@@ -272,7 +272,7 @@
                 {
 
                     // paid invoices don't expire
-                    var isExpired = (!Model.Paid && Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow);
+                    var isExpired = (!Model.Paid && Model.Coupon?.ExpiresAt != null && Model.Coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date);
 
                 <tr>
                     <td></td>
@@ -435,7 +435,7 @@
 
                 <dt class="col-3 text-right">Paid on</dt>
                 <dd class="col-9">
-                    @Model.PaidAt?.ToString("g")
+                    @Model.PaidAt.ToPacificTime()?.ToString("g")
                 </dd>
             </dl>
             @if (successfulPayment != null)

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Extensions;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Notifications;
@@ -161,7 +162,7 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("Pay", new { id });
             }
 
-            if (coupon.ExpiresAt.HasValue && coupon.ExpiresAt.Value < DateTime.UtcNow)
+            if (coupon.ExpiresAt.HasValue && coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date)
             {
                 ErrorMessage = "Coupon code has expired.";
                 return RedirectToAction("Pay", new { id });
@@ -310,7 +311,7 @@ namespace Payments.Mvc.Controllers
                 Subtotal         = invoice.CalculatedSubtotal,
                 Total            = invoice.CalculatedTotal,
                 Paid             = invoice.Paid,
-                PaidDate         = invoice.PaidAt,
+                PaidDate         = invoice.PaidAt.ToPacificTime(),
                 Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
             };
 
@@ -646,7 +647,7 @@ namespace Payments.Mvc.Controllers
                 Total            = invoice.CalculatedTotal,
                 DueDate          = invoice.DueDate,
                 Paid             = invoice.Paid,
-                PaidDate         = invoice.PaidAt,
+                PaidDate         = invoice.PaidAt.ToPacificTime(),
                 Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
             };
 

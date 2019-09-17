@@ -154,7 +154,7 @@ namespace Payments.Mvc.Controllers
                 });
 
             ViewBag.Coupons = team.Coupons
-                .Where(c => c.ExpiresAt == null || c.ExpiresAt >= DateTime.UtcNow)
+                .Where(c => c.ExpiresAt == null || c.ExpiresAt >= DateTime.UtcNow.ToPacificTime().Date)
                 .Select(c => new
                 {
                     c.Id,
@@ -210,7 +210,7 @@ namespace Payments.Mvc.Controllers
             // include all active coupons, and the currently selected coupon
             ViewBag.Coupons = team.Coupons
                 .Where(c => c.ExpiresAt == null
-                        || c.ExpiresAt >= DateTime.UtcNow
+                        || c.ExpiresAt >= DateTime.UtcNow.ToPacificTime().Date
                         || c.Id == invoice.Coupon?.Id)
                 .Select(c => new
                 {

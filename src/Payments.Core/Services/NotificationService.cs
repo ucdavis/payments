@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Extensions;
 using Payments.Core.Models.Notifications;
 using Payments.Core.Models.Webhooks;
 using Serilog;
@@ -49,7 +50,7 @@ namespace Payments.Core.Services
             var payload = new PaidPayload()
             {
                 InvoiceId = invoice.Id,
-                PaidOn = invoice.PaidAt.Value,
+                PaidOn = invoice.PaidAt.ToPacificTime().Value,
             };
             foreach (var webHook in hooks)
             {

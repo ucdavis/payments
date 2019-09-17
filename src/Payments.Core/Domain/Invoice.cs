@@ -151,7 +151,7 @@ namespace Payments.Core.Domain
             }
 
             // check for expired coupon on unpaid invoices
-            if (Coupon.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow)
+            if (Coupon.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date)
             {
                 return 0;
             }
