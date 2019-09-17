@@ -114,7 +114,7 @@
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
             {
                 <a asp-controller="Pdf" asp-action="Invoice" asp-route-id="@Model.LinkId" class="btn" download>
-                    <i class="fas fa-file-invoice mr-3"></i>
+                    <i class="fas fa-download mr-3"></i>
                     Invoice
                 </a>
             }
@@ -122,7 +122,7 @@
             @if (Model.Paid)
             {
                 <a asp-controller="Pdf" asp-action="Receipt" asp-route-id="@Model.LinkId" class="btn" download>
-                    <i class="fas fa-receipt mr-3"></i>
+                    <i class="fas fa-download mr-3"></i>
                     Receipt
                 </a>
             }
