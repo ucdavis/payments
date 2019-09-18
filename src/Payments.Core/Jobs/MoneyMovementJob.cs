@@ -96,7 +96,7 @@ namespace Payments.Core.Jobs
                             Chart       = _financeSettings.FeeChart,
                             Account     = _financeSettings.FeeAccount,
                             ObjectCode  = ObjectCodes.Income,
-                            Description = "Processing Fee INV {invoice.GetFormattedId()}".SafeTruncate(40)
+                            Description = $"Processing Fee INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
 
                         var incomeCredit = new CreateTransfer()
