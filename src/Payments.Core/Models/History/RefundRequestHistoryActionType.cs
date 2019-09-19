@@ -12,6 +12,7 @@ namespace Payments.Core.Models.History
 
         public string GetMessage(string data)
         {
+            //This has data (refund reason), but I'm showing it differently
             return "Refund Requested.";
         }
     }

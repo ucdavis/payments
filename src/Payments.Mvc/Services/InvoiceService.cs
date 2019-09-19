@@ -202,9 +202,9 @@ namespace Payments.Mvc.Services
             invoice.SentAt = DateTime.UtcNow;
         }
 
-        public async Task RefundInvoice(Invoice invoice, PaymentEvent payment)
+        public async Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user)
         {
-            await _emailService.SendRefundRequest(invoice, payment);
+            await _emailService.SendRefundRequest(invoice, payment, refundReason, user);
 
             invoice.Status = Invoice.StatusCodes.Refunding;
         }
@@ -241,7 +241,7 @@ namespace Payments.Mvc.Services
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
 
-        Task RefundInvoice(Invoice invoice, PaymentEvent payment);
+        Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user);
 
         string SetInvoiceKey(Invoice invoice);
     }

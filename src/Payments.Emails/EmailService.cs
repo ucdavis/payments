@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Mjml.AspNetCore;
 using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
+using Payments.Core.Models.History;
 using Payments.Emails.Models;
 using RazorLight;
 using Serilog;
@@ -22,7 +23,7 @@ namespace Payments.Emails
 
         Task SendNewTeamMemberNotice(Team team, User user, TeamRole role);
 
-        Task SendRefundRequest(Invoice invoice, PaymentEvent payment);
+        Task SendRefundRequest(Invoice invoice, PaymentEvent payment, string refundReason, User user);
     }
 
     public class SparkpostEmailService : IEmailService
@@ -32,9 +33,11 @@ namespace Payments.Emails
         private readonly IMjmlServices _mjmlServices;
 
         private readonly Address FromAddress = new Address("donotreply@payments-mail.ucdavis.edu", "UC Davis Payments");
-
+#if DEBUG
+        private readonly Address RefundAddress = new Address("jsylvestre@ucdavis.edu", "CAES UC Davis Refunds");
+#else
         private readonly Address RefundAddress = new Address("refunds@caes.ucdavis.edu", "CAES UC Davis Refunds");
-
+#endif
         public SparkpostEmailService(IOptions<SparkpostSettings> emailSettings, IMjmlServices mjmlServices)
         {
             _mjmlServices = mjmlServices;
@@ -198,17 +201,20 @@ namespace Payments.Emails
             Log.ForContext("result", result).Information("Sent Email");
         }
 
-        public async Task SendRefundRequest(Invoice invoice, PaymentEvent payment)
+        public async Task SendRefundRequest(Invoice invoice, PaymentEvent payment, string refundReason, User user)
         {
             var client = GetClient();
 
             dynamic viewbag = GetViewBag();
             viewbag.Team = invoice.Team;
+            viewbag.Slug = invoice.Team.Slug;
 
             var model = new RefundRequestViewModel()
             {
                 Invoice = invoice,
-                Payment = payment
+                Payment = payment,
+                RefundReason = refundReason,
+                User = user,
             };
 
             // add model data to email
