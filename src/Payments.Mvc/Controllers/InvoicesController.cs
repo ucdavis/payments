@@ -503,7 +503,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RequestRefund(int id)
+        public async Task<IActionResult> RequestRefund(int id, string refundReason)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -541,17 +541,18 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
             // issue refund notice
-            await _invoiceService.RefundInvoice(invoice, payment);
+            await _invoiceService.RefundInvoice(invoice, payment, refundReason, user);
 
             // record user action
-            var user = await _userManager.GetUserAsync(User);
+            
             var action = new History()
             {
                 Type = HistoryActionTypes.RefundRequested.TypeCode,
                 Actor = user.Name,
                 ActionDateTime = DateTime.UtcNow,
+                Data = refundReason,
             };
             invoice.History.Add(action);
 
