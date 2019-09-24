@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Mvc.Models.SearchViewModels;
@@ -40,9 +41,13 @@ namespace Payments.Mvc.Controllers
             }
             else
             {
-                var temp = q.Split('-');
+                var temp = q.Split('-').FirstOrDefault();
+                if (temp != null && temp.StartsWith("#"))
+                {
+                    temp = temp.TrimStart('#');
+                }
                 var id = 0;
-                Int32.TryParse(temp.FirstOrDefault(), out id);
+                Int32.TryParse(temp, out id);
                 query = query.Where(a => a.Id == id);
 
             }
