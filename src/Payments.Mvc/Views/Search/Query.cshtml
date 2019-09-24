@@ -1,5 +1,6 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
+@using Payments.Core.Extensions
 @model Payments.Mvc.Models.SearchViewModels.SearchResultsViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 @{
@@ -73,17 +74,17 @@
                                 </div>
                             </a>
                         </td>
-                        <td data-sort="@(invoice.SentAt?.Ticks ?? 0)">
+                        <td data-sort="@(invoice.SentAt.ToPacificTime()?.Ticks ?? 0)">
                             <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
                                 <div>
-                                    @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToString("d") : "")
+                                    @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")
                                 </div>
                             </a>
                         </td>
-                        <td data-sort="@invoice.CreatedAt.Ticks">
+                        <td data-sort="@invoice.CreatedAt.ToPacificTime().Ticks">
                             <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
                                 <div>
-                                    @invoice.CreatedAt.ToString("d")
+                                    @invoice.CreatedAt.ToPacificTime().ToString("d")
                                 </div>
                             </a>
                         </td>

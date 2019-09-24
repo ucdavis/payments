@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
+using Payments.Core.Extensions;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models;

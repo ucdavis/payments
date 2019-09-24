@@ -16,6 +16,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public string CustomerName { get; set; }
 
+        public string CustomerCompany { get; set; }
+
         public string CustomerAddress { get; set; }
 
         public string CustomerEmail { get; set; }

@@ -218,6 +218,11 @@ namespace Payments.Mvc.Controllers
                 });
             }
 
+            if (model == null)
+            {
+                model = new SendInvoiceModel();
+            }
+
             await _invoiceService.SendInvoice(invoice, model);
 
             // record action

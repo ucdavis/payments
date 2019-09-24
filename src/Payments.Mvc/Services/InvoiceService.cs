@@ -64,6 +64,7 @@ namespace Payments.Mvc.Services
                     CustomerAddress = customer.Address,
                     CustomerEmail   = customer.Email,
                     CustomerName    = customer.Name,
+                    CustomerCompany = customer.Company,
                     Memo            = model.Memo,
                     Status          = Invoice.StatusCodes.Draft,
                     Sent            = false,
@@ -137,6 +138,7 @@ namespace Payments.Mvc.Services
             invoice.CustomerAddress = model.Customer.Address;
             invoice.CustomerEmail   = model.Customer.Email;
             invoice.CustomerName    = model.Customer.Name;
+            invoice.CustomerCompany = model.Customer.Company;
             invoice.Memo            = model.Memo;
             invoice.ManualDiscount  = model.ManualDiscount;
             invoice.TaxPercent      = model.TaxPercent;
@@ -200,9 +202,9 @@ namespace Payments.Mvc.Services
             invoice.SentAt = DateTime.UtcNow;
         }
 
-        public async Task RefundInvoice(Invoice invoice, PaymentEvent payment)
+        public async Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user)
         {
-            await _emailService.SendRefundRequest(invoice, payment);
+            await _emailService.SendRefundRequest(invoice, payment, refundReason, user);
 
             invoice.Status = Invoice.StatusCodes.Refunding;
         }
@@ -239,7 +241,7 @@ namespace Payments.Mvc.Services
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
 
-        Task RefundInvoice(Invoice invoice, PaymentEvent payment);
+        Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user);
 
         string SetInvoiceKey(Invoice invoice);
     }

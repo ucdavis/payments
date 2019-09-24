@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Extensions;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Notifications;
 using Payments.Core.Models.Sloth;
@@ -74,7 +75,7 @@ namespace Payments.Core.Jobs
                         invoice.Status = Invoice.StatusCodes.Processing;
 
                         // calculate fees
-                        var feeAmount = invoice.CalculatedTotal * FeeSchedule.StandardRate;
+                        var feeAmount = Math.Round(invoice.CalculatedTotal * FeeSchedule.StandardRate, 2);
                         var incomeAmount = invoice.CalculatedTotal - feeAmount;
 
                         // create transfers
@@ -85,7 +86,7 @@ namespace Payments.Core.Jobs
                             Chart       = _financeSettings.ClearingChart,
                             Account     = _financeSettings.ClearingAccount,
                             ObjectCode  = ObjectCodes.Income,
-                            Description = "Funds Distribution"
+                            Description = $"Funds Distribution INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
 
                         var feeCredit = new CreateTransfer()
@@ -95,7 +96,7 @@ namespace Payments.Core.Jobs
                             Chart       = _financeSettings.FeeChart,
                             Account     = _financeSettings.FeeAccount,
                             ObjectCode  = ObjectCodes.Income,
-                            Description = "Processing Fee"
+                            Description = $"Processing Fee INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
 
                         var incomeCredit = new CreateTransfer()
@@ -106,7 +107,7 @@ namespace Payments.Core.Jobs
                             Account     = team.DefaultAccount.Account,
                             SubAccount  = team.DefaultAccount.SubAccount,
                             ObjectCode  = ObjectCodes.Income,
-                            Description = "Funds Distribution"
+                            Description = $"Funds Distribution INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
 
                         // setup transaction

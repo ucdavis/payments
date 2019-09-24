@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +18,7 @@ namespace Payments.Core.Domain
 
         public decimal? DiscountAmount { get; set; }
 
-        public DateTime? ExpiresAt { get; set; }
+        public DateTime? ExpiresAt { get; set; } //This is stored as a Pacific Time Date ie: 2019-10-01 00:00:00.0000000
 
         [JsonIgnore]
         [Required]

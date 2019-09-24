@@ -7,5 +7,9 @@ namespace Payments.Emails.Models
     {
         public Invoice Invoice { get; set; }
         public PaymentEvent Payment { get; set; }
+
+        public string RefundReason { get; set; }
+
+        public User User { get; set; }
     }
 }

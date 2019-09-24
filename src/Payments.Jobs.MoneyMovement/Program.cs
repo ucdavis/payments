@@ -36,6 +36,7 @@ namespace Payments.Jobs.MoneyMovement
 
             var assembyName = typeof(Program).Assembly.GetName();
             _log.Information("Running {job} build {build}", assembyName.Name, assembyName.Version);
+            _log.Information("MoneyMovement Version 2");
 
             // setup di
             var provider = ConfigureServices();
@@ -77,6 +78,7 @@ namespace Payments.Jobs.MoneyMovement
             );
 
             // required services
+            services.AddTransient<INotificationService, NotificationService>();
             services.AddTransient<ISlothService, SlothService>();
 
             services.AddSingleton<MoneyMovementJob>();

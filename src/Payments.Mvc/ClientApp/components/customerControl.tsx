@@ -11,7 +11,7 @@ interface IProps {
 export default class CustomerControl extends React.Component<IProps, {}> {
 
     public render() {
-        const { name, email, address } = this.props.customer;
+        const { name, company, email, address } = this.props.customer;
 
         return (
             <div>
@@ -29,6 +29,23 @@ export default class CustomerControl extends React.Component<IProps, {}> {
                             placeholder="Joe Person"
                             onChange={(e) => { this.onChange({ name: e.target.value }) }}
                             value={name}
+                        />
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label>Customer Company</label>
+                    <div className="input-group">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">
+                                <i className="far fa-fw fa-building mr" />
+                            </span>
+                        </div>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Company"
+                            onChange={(e) => { this.onChange({ company: e.target.value }) }}
+                            value={company}
                         />
                     </div>
                 </div>

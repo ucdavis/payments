@@ -9,13 +9,19 @@
     var invoice = Model.Invoice;
     var payment = Model.Payment;
 
-    var payHref = $"{ViewBag.BaseUrl}/pay/{invoice.LinkId}";
-    var pdfHref = $"{ViewBag.BaseUrl}/pdf/{invoice.LinkId}";
-} 
+    var detailsHref = $"{ViewBag.BaseUrl}/{ViewBag.Slug}/Invoices/{invoice.Id}";
+}
 
 <mj-text align="center">
-    <h1>Refund Requested by @team.Name</h1>
+    <h1>Refund Requested for team:</h1>
+    <h1>@team.Name</h1>
+    <h3>By: @Model.User.Name (@Model.User.Email)</h3>
     <h3>Invoice # @invoice.GetFormattedId()</h3>
+</mj-text>
+<mj-button href="@detailsHref" background-color="#004987">View Details</mj-button>
+<mj-text align="left">
+    <p style="font-weight: bold">Reason:</p>
+    <p>@Model.RefundReason</p>
 </mj-text>
 
 <mj-table>
@@ -30,6 +36,12 @@
             {
                 <p>@invoice.CustomerName</p>
             }
+
+            @if (!string.IsNullOrWhiteSpace(invoice.CustomerCompany))
+            {
+                <p>@invoice.CustomerCompany</p>
+            }
+
             @if (!string.IsNullOrWhiteSpace(invoice.CustomerAddress))
             {
                 <p>@invoice.CustomerAddress</p>

@@ -1,3 +1,4 @@
+@using Payments.Core.Extensions
 @model IList<Invoice>
 
 @{
@@ -61,7 +62,7 @@
             {
                 <tr>
                     <td>@invoice.TeamName</td>
-                    <td>@invoice.PaidAt</td>
+                    <td>@invoice.PaidAt.ToPacificTime()</td>
                     <td>@invoice.Memo</td>
                     <td>Retail Goods</td>
                     <td>UC Davis Campus</td>
