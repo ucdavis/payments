@@ -57,7 +57,7 @@ namespace Payments.Mvc.Controllers
                 .ToList();
             if (invoices.Count == 0)
             {
-                ViewBag.Message = "No Invoioces found for your search criteria (Invoice # or email).";
+                ViewBag.Message = "No Invoices found for your search criteria (Invoice # or email).";
             }
 
             var model = new SearchResultsViewModel()
