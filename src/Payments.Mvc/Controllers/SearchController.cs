@@ -41,6 +41,7 @@ namespace Payments.Mvc.Controllers
             }
             else
             {
+                //Search Invoice number
                 var temp = q.Split('-').FirstOrDefault();
                 if (temp != null && temp.StartsWith("#"))
                 {
