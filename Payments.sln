@@ -3,9 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29318.209
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D1C93383-2244-4990-B2E9-5EF966F0E5A5}"
-	ProjectSection(SolutionItems) = preProject
-		src\Payments.Mvc\global.json = src\Payments.Mvc\global.json
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Mvc", "src\Payments.Mvc\Payments.Mvc.csproj", "{135399D3-650D-459A-8C55-8F8F1D82FC2B}"
 EndProject
