@@ -15,10 +15,6 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@1
-  inputs:
-    versionSpec: 4.9.x
-
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
