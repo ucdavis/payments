@@ -15,10 +15,11 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: NuGetToolInstaller@1
+
 - task: NuGetCommand@2
   inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
+    restoreSolution: '$(solution)'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build Payments.Mvc'
