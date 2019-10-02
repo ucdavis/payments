@@ -7,8 +7,8 @@
 @if (User.Identity.IsAuthenticated && user != null)
 {
     <div class="profile">
-        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <img class="profile-picture" src="https://secure.gravatar.com/avatar/@(user.EmailHash)d=mm&rating=gs=40" alt="User Picture"/>
+        <button class="dropdown-toggle d-flex align-items-center" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img class="profile-picture" src="https://secure.gravatar.com/avatar/@(user.EmailHash)?d=mp&r=g&s=40" alt="User Picture"/>
         </button>
         <div class="dropdown-menu dropdown-menu-right">
             <a class="dropdown-item" asp-controller="Account" asp-action="Index">

@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <div class="card-body">
+    <div class="card-body table-responsive">
         <table id="Invoices" class="table table-hover">
             <thead>
                 <tr>
@@ -40,8 +40,8 @@
             <tbody>
                 @foreach (var invoice in Model.Invoices)
                 {
-                    <tr data-id="@invoice.Id">
-                        <td class="invoices-id-col">
+                    <tr>
+                        <td data-sort="@invoice.Id" class="invoices-id-col">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
                                     @invoice.GetFormattedId()

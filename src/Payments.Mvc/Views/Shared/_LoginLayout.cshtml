@@ -19,11 +19,19 @@
     <style asp-add-nonce="true">
         #particles-js {
             position: fixed;
+            height: 100%;
             top: 0;
             left: 0;
             width: 100%;
             z-index: 0;
             background-color: #004987;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -155,7 +163,7 @@
             "retina_detect": true
         };
 
-        particlesJS('particles-js', par, function(){});
+        particlesJS('particles-js', par, function () { });
     </script>
 </body>
 </html>

@@ -58,6 +58,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Shared\_TopNavPartial_tablet_laptop.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources\WebHookDescriptions.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>WebHookDescriptions.Designer.cs</LastGenOutput>

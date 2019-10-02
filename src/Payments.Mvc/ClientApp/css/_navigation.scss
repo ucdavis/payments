@@ -21,10 +21,10 @@ ul.main-nav {
 
 }
 nav {
-  margin-top: 2rem;
-
+  margin-top: 1rem;
+  margin-bottom:0.5rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: start;
 
   .nav-item {
