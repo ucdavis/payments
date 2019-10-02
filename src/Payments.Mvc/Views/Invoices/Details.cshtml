@@ -43,7 +43,7 @@
             <h2 class="m0">@ViewBag.Title for @Model.CalculatedTotal.ToString("C")</h2>
             <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
         </div>
-        p
+
         @if (Model.Status == Invoice.StatusCodes.Draft)
         {
             <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">

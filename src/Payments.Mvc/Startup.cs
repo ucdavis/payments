@@ -143,8 +143,8 @@ namespace Payments.Mvc
                     Description = "Accept and process credit card payments for CA&ES",
                     Contact = new Contact()
                     {
-                        Name = "John Knoll",
-                        Email = "jpknoll@ucdavis.edu"
+                        Name = "CAES Application Requests",
+                        Email = "apprequests@caes.ucdavis.edu"
                     },
                     License = new License()
                     {

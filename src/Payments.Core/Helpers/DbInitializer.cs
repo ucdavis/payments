@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -56,17 +56,6 @@ namespace Payments.Core.Helpers
                     Name           = "Jason Sylvestre",
                 };
                 await FindOrCreateUser(jason);
-
-                var john = new User
-                {
-                    Email          = "jpknoll@ucdavis.edu",
-                    UserName       = "jpknoll@ucdavis.edu",
-                    FirstName      = "John",
-                    LastName       = "Knoll",
-                    Name           = "John Knoll",
-                    CampusKerberos = "jpknoll",
-                };
-                await FindOrCreateUser(john);
 
                 var scott = new User
                 {
