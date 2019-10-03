@@ -1,6 +1,68 @@
-﻿@model Coupon
+@model Coupon
 
 @{
     ViewBag.Title = "Coupon " + Model.Id;
 }
 
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <dl class="dl-horizontal col-lg">
+                <dt>
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Code)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Code)
+                </dd>
+            </dl>
+            <dl class="dl-horizontal col-lg">
+                @if (Model.DiscountAmount.HasValue)
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.DiscountAmount)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.DiscountAmount)
+                    </dd>
+                }
+                @if (Model.DiscountPercent.HasValue)
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.DiscountPercent)
+                    </dt>
+                    <dd>
+                        @Model.DiscountPercent.Value.ToString("P")
+                    </dd>
+                }
+                @if (Model.ExpiresAt.HasValue)
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.ExpiresAt)
+                    </dt>
+                    <dd>
+                        @Model.ExpiresAt.Value.ToString("d")
+                    </dd>
+                }
+                else
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.ExpiresAt)
+                    </dt>
+                    <dd>
+                        Not set to expire
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+</div>
