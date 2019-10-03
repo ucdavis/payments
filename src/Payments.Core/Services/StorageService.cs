@@ -144,7 +144,8 @@ namespace Payments.Core.Services
             {
                 Identifier  = nameBase,
                 ContentType = file.ContentType,
-                Data        = file.OpenReadStream()
+                Data        = file.OpenReadStream(),
+                ContainerName = StorageSettings.AttachmentContainerName,
             };
 
             await UploadFiles(fileUpload);
