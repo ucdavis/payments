@@ -10,14 +10,19 @@ namespace Payments.Core.Domain
     {
         public int Id { get; set; }
 
+        [Display(Name = "Coupon Name")]
         public string Name { get; set; }
 
+        [Display(Name = "Coupon Code")]
         public string Code { get; set; }
 
+        [Display(Name = "Discount Percent")]
         public decimal? DiscountPercent { get; set; }
 
+        [Display(Name = "Discount Amount")]
         public decimal? DiscountAmount { get; set; }
 
+        [Display(Name = "Expiration Date")]
         public DateTime? ExpiresAt { get; set; } //This is stored as a Pacific Time Date ie: 2019-10-01 00:00:00.0000000
 
         [JsonIgnore]
