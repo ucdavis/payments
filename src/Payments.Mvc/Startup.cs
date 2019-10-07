@@ -377,6 +377,11 @@ namespace Payments.Mvc
                     defaults: new { controller = "payments", action = "pay" });
 
                 routes.MapRoute(
+                    name: "download-invoice",
+                    template: "download/{id}",
+                    defaults: new { controller = "payments", action = "download" });
+
+                routes.MapRoute(
                     name: "invoice-file",
                     template: "file/{id}/{fileId}",
                     defaults: new { controller = "payments", action = "file" });

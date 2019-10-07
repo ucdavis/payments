@@ -1,0 +1,54 @@
+@model Payments.Mvc.Models.PaymentViewModels.PaymentInvoiceViewModel
+
+@{
+    ViewBag.Title = $"Pay Invoice #{Model.Id}";
+    Layout = "_PaymentsLayout";
+
+}
+
+<div class="card pay-card">
+    <div class="card-gradient-header-bleed">
+        <div class="card-gradient-header">
+        </div>
+    </div>
+    <div>
+        <partial name="_TopInfo" />
+        <div class="pay-action">
+            @if (!Model.Paid)
+            {
+                <h1>Invoice Unpaid</h1>
+                <span class="pay-action-total">@(string.Format("{0:C}", Model.Total))</span>
+
+                if (Model.DueDate.HasValue)
+                {
+                    <span class="pay-action-date" class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</span>
+                }
+            }
+            else
+            {
+                <h1>Invoice Paid</h1>
+                if (Model.PaidDate.HasValue)
+                {
+                    <h2>@Model.Total.ToString("C") USD paid @Model.PaidDate.Value.ToString("D")</h2>
+                }
+            }
+        </div>
+        <partial name="_Attachments" />
+        <div class="pay-download">
+            <img src="/media/download.svg" alt="download icon">
+            <h3></h3>
+
+            <a href="@(Url.Action("Invoice", "Pdf", new { id = Model.LinkId }))" class="btn-inverse" download>
+                Download Invoice PDF
+            </a>
+            @if(Model.Paid)
+            {
+            <a href="@(Url.Action("Receipt", "Pdf", new {id = Model.LinkId}))" class="btn-inverse" download>
+                Download Receipt PDF
+            </a>
+            }
+        </div>
+        <partial name="_Footer" model="@Model.Team" />
+    </div>
+</div>
+
