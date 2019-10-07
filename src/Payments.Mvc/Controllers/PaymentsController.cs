@@ -168,23 +168,6 @@ namespace Payments.Mvc.Controllers
 
             var model = CreateInvoicePaymentViewModel(invoice);
 
-            if (invoice.Status == Invoice.StatusCodes.Sent)
-            {
-                // prepare dictionary
-                var dictionary = invoice.GetPaymentDictionary();
-                dictionary.Add("access_key", _cyberSourceSettings.AccessKey);
-                dictionary.Add("profile_id", _cyberSourceSettings.ProfileId);
-
-                var fieldNames = string.Join(",", dictionary.Keys);
-                dictionary.Add("signed_field_names", "signed_field_names," + fieldNames);
-
-                ViewBag.Signature = _dataSigningService.Sign(dictionary);
-
-                ViewBag.CyberSourceUrl = _cyberSourceSettings.BaseUrl;
-
-                model.PaymentDictionary = dictionary;
-            }
-
             return View(model);
         }
 
