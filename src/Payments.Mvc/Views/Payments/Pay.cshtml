@@ -26,17 +26,19 @@
                     <span class="pay-action-date" class="secondary-font">Due @(Model.DueDate.Value.ToString("D"))</span>
                 }
 
-                <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px">
-                    @foreach (var pair in Model.PaymentDictionary)
-                    {
-                        <input type="hidden" name="@pair.Key" value="@pair.Value" />
-                    }
-                    <input type="hidden" name="signature" value="@ViewBag.Signature" />
-                    <button type="submit" class="btn-gold btn-lg pay-now-button" aria-hidden="true">
-                        <i class="fas fa-credit-card mr-3" aria-hidden="true"></i>
-                        Pay Now
-                    </button>
-                </form>
+                <div style="align-content: center">
+                    <form action="@ViewBag.CyberSourceUrl" method="post" autocomplete="off" style="margin-right: 3px;">
+                        @foreach (var pair in Model.PaymentDictionary)
+                        {
+                            <input type="hidden" name="@pair.Key" value="@pair.Value" />
+                        }
+                        <input type="hidden" name="signature" value="@ViewBag.Signature" />
+                        <button type="submit" class="btn-gold btn-lg pay-now-button" aria-hidden="true">
+                            <i class="fas fa-credit-card mr-3" aria-hidden="true"></i>
+                            Pay Now
+                        </button>
+                    </form>
+                </div>
             }
             else
             {
