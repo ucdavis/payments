@@ -13,7 +13,7 @@ using Payments.Core.Services;
 namespace Payments.Mvc.Controllers
 {
     public class PdfController : Controller
-    {
+    { 
         private readonly ApplicationDbContext _dbContext;
         private readonly IStorageService _storageService;
         private readonly IJsReportMVCService _jsReportMvcService;
