@@ -530,6 +530,28 @@
     </div>
 }
 
+<div class="card">
+    <div class="card-header">
+        <h2>Account</h2>
+    </div>
+    <div class="card-body invoice-details">
+        <dl class="row">
+            <dt class="col-2 text-right">Name</dt>
+            <dd class="col-10">
+                @Model.Account.Name
+            </dd>
+            <dt class="col-2 text-right">Description</dt>
+            <dd class="col-10">
+                @Model.Account.Description
+            </dd>
+            <dt class="col-2 text-right">Account</dt>
+            <dd class="col-10">
+                @Model.Account.GetAccountString()
+            </dd>
+        </dl>
+    </div>
+</div>
+
 <div>
     <a asp-action="Index"><i class="fas fa-chevron-left mr-3"></i> Back</a>
 </div>
