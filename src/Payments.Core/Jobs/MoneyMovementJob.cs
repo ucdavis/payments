@@ -44,6 +44,7 @@ namespace Payments.Core.Jobs
                     // get all invoices that are waiting for reconcile
                     var invoices = _dbContext.Invoices
                         .Where(i => i.Status == Invoice.StatusCodes.Paid)
+                        .Include(i => i.Account)
                         .Include(i => i.Team)
                         .ThenInclude(t => t.Accounts)
                         .ToList();
@@ -78,6 +79,17 @@ namespace Payments.Core.Jobs
                         var feeAmount = Math.Round(invoice.CalculatedTotal * FeeSchedule.StandardRate, 2);
                         var incomeAmount = invoice.CalculatedTotal - feeAmount;
 
+                        var incomeAccountChart = team.DefaultAccount.Chart;
+                        var incomeAccount = team.DefaultAccount.Account;
+                        var incomeSubAccount = team.DefaultAccount.SubAccount;
+
+                        if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.Account) && invoice.Account.IsActive) {
+                            // the invoice has a specified account, use it instead of the team's default
+                            incomeAccountChart = invoice.Account.Chart;
+                            incomeAccount = invoice.Account.Account;
+                            incomeSubAccount = invoice.Account.SubAccount;
+                        }
+
                         // create transfers
                         var debitHolding = new CreateTransfer()
                         {
@@ -103,9 +115,9 @@ namespace Payments.Core.Jobs
                         {
                             Amount      = incomeAmount,
                             Direction   = Transfer.CreditDebit.Credit,
-                            Chart       = team.DefaultAccount.Chart,
-                            Account     = team.DefaultAccount.Account,
-                            SubAccount  = team.DefaultAccount.SubAccount,
+                            Chart       = incomeAccountChart,
+                            Account     = incomeAccount,
+                            SubAccount  = incomeSubAccount,
                             ObjectCode  = ObjectCodes.Income,
                             Description = $"Funds Distribution INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
