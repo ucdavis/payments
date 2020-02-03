@@ -36,7 +36,7 @@ namespace Payments.Jobs.MoneyMovement
 
             var assembyName = typeof(Program).Assembly.GetName();
             _log.Information("Running {job} build {build}", assembyName.Name, assembyName.Version);
-            _log.Information("MoneyMovement Version 2");
+            _log.Information("MoneyMovement Version 3");
 
             // setup di
             var provider = ConfigureServices();
