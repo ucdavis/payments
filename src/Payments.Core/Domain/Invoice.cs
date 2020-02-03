@@ -151,10 +151,10 @@ namespace Payments.Core.Domain
             }
 
             // check for expired coupon on unpaid invoices //JCS: If we zero out expired coupons, we MUST show the correct info on the user's invoice, pdf, emails, etc.
-            //if (Coupon.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date)
-            //{
-            //    return 0;
-            //}
+            if (Coupon.ExpiresAt != null && Coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date)
+            {
+                return 0;
+            }
 
             if (Coupon.DiscountAmount.HasValue)
             {
