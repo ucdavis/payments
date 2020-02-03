@@ -495,6 +495,7 @@ namespace Payments.Mvc.Controllers
             var invoice = _dbContext.Invoices
                 .Include(i => i.Items)
                 .Include(i => i.Team)
+                .Include(i => i.Coupon)
                 .SingleOrDefault(a => a.Id == response.Req_Reference_Number);
 
             if (invoice == null)
@@ -508,11 +509,13 @@ namespace Payments.Mvc.Controllers
 
             if (response.Decision == ReplyCodes.Accept)
             {
+                invoice.ManualDiscount = invoice.ManualDiscount >= 0 ? invoice.ManualDiscount : invoice.GetDiscountAmount(); //Before it is set to paid. Even this way, depending when it happens, the notify might happen after the coupon expires.
                 invoice.Status = Invoice.StatusCodes.Paid;
                 invoice.Paid = true;
                 invoice.PaidAt = response.AuthorizationDateTime;
                 invoice.PaymentType = PaymentTypes.CreditCard;
                 invoice.PaymentProcessorId = response.Transaction_Id;
+                
 
                 // record action
                 var action = new History()
