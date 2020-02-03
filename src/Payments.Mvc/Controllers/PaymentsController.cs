@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -589,7 +590,7 @@ namespace Payments.Mvc.Controllers
                 ReturnedResults   = JsonConvert.SerializeObject(dictionary),
             };
 
-            if (decimal.TryParse(response.Auth_Amount, out decimal amount))
+            if (decimal.TryParse(response.Auth_Amount, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture , out decimal amount))
             {
                 paymentEvent.Amount = amount;
             }

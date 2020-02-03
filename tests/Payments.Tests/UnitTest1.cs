@@ -1,5 +1,7 @@
 using System;
+using System.Globalization;
 using System.Linq;
+using Castle.Components.DictionaryAdapter;
 using Serilog;
 using Serilog.Sinks.TestCorrelator;
 using Shouldly;
@@ -14,6 +16,28 @@ namespace payments.Tests
         {
             var xxx = "Test";
             xxx.ShouldBe("Test");
+        }
+
+        [Fact]
+        public void TestDecimal1()
+        {
+            decimal xxx = 0.0m;
+            if (decimal.TryParse("1.50", NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out decimal amount))
+            {
+                xxx = amount;
+            }
+            xxx.ShouldBe(1.50m);
+        }
+
+        [Fact]
+        public void TestDecimal2()
+        {
+            decimal xxx = 0.0m;
+            if (decimal.TryParse("1.50", out decimal amount))
+            {
+                xxx = amount;
+            }
+            xxx.ShouldBe(1.50m);
         }
 
         [Fact]
