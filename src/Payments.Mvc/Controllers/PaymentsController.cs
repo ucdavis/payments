@@ -517,6 +517,7 @@ namespace Payments.Mvc.Controllers
                 invoice.PaymentType = PaymentTypes.CreditCard;
                 invoice.PaymentProcessorId = response.Transaction_Id;
                 
+                invoice.UpdateCalculatedValues(); //Need to do after it is paid because they may not have got an expired discount?
 
                 // record action
                 var action = new History()
