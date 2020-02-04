@@ -21,8 +21,13 @@
 
     @if (Model.CalculatedDiscount > 0)
     {
+        var extra = string.Empty;
+        if (Model.Coupon != null && Model.Coupon.ExpiresAt.HasValue)
+        {
+            extra = $"Expires {Model.Coupon.ExpiresAt.Value.ToString("MMM dd, yyyy")}";
+        }
         <tr>
-            <td style="padding: 10px 0;">Discount</td>
+            <td style="padding: 10px 0;">Discount @extra</td>
             <td style="padding: 10px 0; text-align: right">-@Model.CalculatedDiscount.ToString("C")</td>
         </tr>
     }
