@@ -420,6 +420,8 @@ namespace Payments.Mvc.Controllers
                 return PublicNotFound();
             }
 
+            invoice.UpdateCalculatedValues();
+
             var responseValid = CheckResponse(response);
             if (!responseValid.IsValid)
             {
