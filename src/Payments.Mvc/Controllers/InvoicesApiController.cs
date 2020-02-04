@@ -206,6 +206,7 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
                 .Include(i => i.Team)
+                .Include(i => i.Coupon)
                 .Where(i => i.Team.Id == team.Id)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
