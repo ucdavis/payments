@@ -182,14 +182,20 @@
     <tbody class="subtotal-body">
     @if (Model.CalculatedDiscount > 0)
     {
+        var extra = string.Empty;
         <tr class="summary">
             <td colspan="3"></td>
             <td class="text-right text-label">Subtotal</td>
             <td class="text-right">$@Model.CalculatedSubtotal.ToString("F2")</td>
         </tr>
+        if (Model.Coupon != null && Model.Coupon.ExpiresAt.HasValue)
+        {
+            extra = $"Expires {Model.Coupon.ExpiresAt.Value.ToString("MMM dd, yyyy")}";
+        }
+
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Discount</td>
+            <td class="text-right text-label">Discount @extra</td>
             <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
         </tr>
     }
