@@ -61,6 +61,8 @@ namespace payments.Tests
         [InlineData("Abc 123-.' xxx", "Abc 123-.' xxx")]
         [InlineData("Abc;cbA", "AbccbA")]
         [InlineData("Abc!@#$%^&*()++cbA", "AbccbA")]
+        [InlineData(null, null)]
+        [InlineData(" ", " ")]
         public void TestRegex(string value, string result)
         {
             value.SafeRegexRemove().ShouldBe(result);
