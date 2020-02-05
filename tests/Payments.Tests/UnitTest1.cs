@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Castle.Components.DictionaryAdapter;
+using Payments.Core.Extensions;
 using Serilog;
 using Serilog.Sinks.TestCorrelator;
 using Shouldly;
@@ -54,6 +55,17 @@ namespace payments.Tests
                 logInfo.ElementAt(0).MessageTemplate.Text.ShouldBe("My log message!");
                 
             }
+        }
+
+        [Theory]
+        [InlineData("Abc 123-.' xxx", "Abc 123-.' xxx")]
+        [InlineData("Abc;cbA", "AbccbA")]
+        [InlineData("Abc!@#$%^&*()++cbA", "AbccbA")]
+        [InlineData(null, null)]
+        [InlineData(" ", " ")]
+        public void TestRegex(string value, string result)
+        {
+            value.SafeRegexRemove().ShouldBe(result);
         }
     }
 }

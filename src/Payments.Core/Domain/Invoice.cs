@@ -242,7 +242,7 @@ namespace Payments.Core.Domain
                 {"locale"                 , "en"},
                 {"bill_to_email"          , CustomerEmail},
                 {"bill_to_forename"       , CustomerName.SafeTruncate(60)},
-                {"bill_to_company_name"   , CustomerCompany.SafeTruncate(40)},
+                {"bill_to_company_name"   , CustomerCompany.SafeRegexRemove().SafeTruncate(40)},
                 {"bill_to_address_country", "US"},
                 {"bill_to_address_state"  , "CA"}
             };
