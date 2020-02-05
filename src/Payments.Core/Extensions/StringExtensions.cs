@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Payments.Core.Extensions
 {
@@ -28,6 +29,25 @@ namespace Payments.Core.Extensions
             }
 
             return value.Substring(0, max);
+        }
+
+        public static string SafeRegexRemove(this string value, string regEx = @"[^0-9a-zA-Z\.\-\' ]+")
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+            
+            try
+            {
+                return Regex.Replace(value, regEx, string.Empty);
+            }
+            catch (Exception e)
+            {
+                return value;
+            }
+
+            
         }
     }
 }
