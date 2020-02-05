@@ -42,7 +42,7 @@ namespace Payments.Core.Extensions
             {
                 return Regex.Replace(value, regEx, string.Empty);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return value;
             }
