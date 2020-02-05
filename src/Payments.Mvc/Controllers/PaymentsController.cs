@@ -201,6 +201,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // the customer isn't allowed to add another coupon
+            //TODO: We should also check the manual discount.
             if (invoice.Coupon != null)
             {
                 ErrorMessage = "The invoice already has a coupon. To add a different coupon, please remove the current one.";
@@ -421,6 +422,8 @@ namespace Payments.Mvc.Controllers
             }
 
             invoice.UpdateCalculatedValues();
+
+            //TODO: Update invoice in the DB here? Would that cause conflicts if it happens in the "official" ProviderNotify endpoint?
 
             var responseValid = CheckResponse(response);
             if (!responseValid.IsValid)
