@@ -656,7 +656,10 @@ namespace Payments.Mvc.Controllers
             // you can only delete invoices that are drafts
             if (invoice.Status != Invoice.StatusCodes.Draft)
             {
-                return NotFound();
+                if (invoice.Paid || invoice.Refunded)
+                {
+                    return NotFound();
+                }
             }
 
             // mark as deleted
