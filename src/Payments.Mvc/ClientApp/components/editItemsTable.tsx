@@ -189,7 +189,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         </table>
         {totalCalc > 99999.99 && (
           <div className="text-center alert-warning">
-            The max amount the credit card will process is $99,999.00. Please
+            The max amount the credit card will process is $99,999.99. Please
             use multiple invoices.
           </div>
         )}
