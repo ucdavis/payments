@@ -448,7 +448,14 @@
             <dl class="row">
                 <dt class="col-3 text-right">Amount</dt>
                 <dd class="col-9">
-                    @($"${successfulPayment.Amount}")
+                    @if (successfulPayment != null)
+                    {
+                        <span>$@successfulPayment.Amount</span>
+                    }
+                    else
+                    {
+                        <span>Successful Payment not Found (maybe manually marked as paid)</span>
+                    }
                 </dd>
 
                 <dt class="col-3 text-right">Paid on</dt>
