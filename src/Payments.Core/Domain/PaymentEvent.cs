@@ -23,47 +23,47 @@ namespace Payments.Core.Domain
 
         public decimal Amount { get; set; }
 
-        [MaxLength(60)]
+        [MaxLength(255)]
         [DisplayName("Billing First Name")]
         public string BillingFirstName { get; set; }
 
-        [MaxLength(60)]
+        [MaxLength(255)]
         [DisplayName("Billing Last Name")]
         public string BillingLastName { get; set; }
 
-        [MaxLength(255)]
+        [MaxLength(500)]
         [DisplayName("Billing Email")]
         public string BillingEmail { get; set; }
 
-        [MaxLength(40)]
+        [MaxLength(500)]
         [DisplayName("Billing Company")]
         public string BillingCompany { get; set; }
 
-        [MaxLength(15)]
+        [MaxLength(255)]
         [DisplayName("Billing Phone")]
         public string BillingPhone { get; set; }
 
-        [MaxLength(60)]
+        [MaxLength(500)]
         [DisplayName("Billing Street")]
         public string BillingStreet1 { get; set; }
 
-        [MaxLength(60)]
+        [MaxLength(500)]
         [DisplayName("Billing Street 2")]
         public string BillingStreet2 { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(500)]
         [DisplayName("Billing City")]
         public string BillingCity { get; set; }
 
-        [MaxLength(2)]
+        [MaxLength(255)]
         [DisplayName("Billing State")]
         public string BillingState { get; set; }
 
-        [MaxLength(2)]
+        [MaxLength(255)]
         [DisplayName("Billing Country")]
         public string BillingCountry { get; set; }
 
-        [MaxLength(10)]
+        [MaxLength(255)]
         [DisplayName("Billing Postal Code")]
         public string BillingPostalCode { get; set; }
 
