@@ -31,23 +31,23 @@ namespace Payments.Core.Domain
         [DisplayName("Billing Last Name")]
         public string BillingLastName { get; set; }
 
-        [MaxLength(255)]
+        [MaxLength(1500)]
         [DisplayName("Billing Email")]
         public string BillingEmail { get; set; }
 
-        [MaxLength(40)]
+        [MaxLength(60)]
         [DisplayName("Billing Company")]
         public string BillingCompany { get; set; }
 
-        [MaxLength(15)]
+        [MaxLength(100)]
         [DisplayName("Billing Phone")]
         public string BillingPhone { get; set; }
 
-        [MaxLength(60)]
+        [MaxLength(400)]
         [DisplayName("Billing Street")]
         public string BillingStreet1 { get; set; }
 
-        [MaxLength(60)]
+        [MaxLength(400)]
         [DisplayName("Billing Street 2")]
         public string BillingStreet2 { get; set; }
 
@@ -55,7 +55,7 @@ namespace Payments.Core.Domain
         [DisplayName("Billing City")]
         public string BillingCity { get; set; }
 
-        [MaxLength(2)]
+        [MaxLength(64)]
         [DisplayName("Billing State")]
         public string BillingState { get; set; }
 
