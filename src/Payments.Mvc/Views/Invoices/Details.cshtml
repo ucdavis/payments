@@ -450,7 +450,7 @@
                 <dd class="col-9">
                     @if (successfulPayment != null)
                     {
-                        @($"${successfulPayment.Amount}")
+                        <span>$@successfulPayment.Amount</span>
                     }
                     else
                     {
