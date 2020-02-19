@@ -20,7 +20,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing City\")]",
             }));
             expectedFields.Add(new NameAndType("BillingCompany", "System.String", new List<string>{
-                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)40)]",
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)60)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Company\")]",
             }));
             expectedFields.Add(new NameAndType("BillingCountry", "System.String", new List<string>{
@@ -28,7 +28,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Country\")]",
             }));
             expectedFields.Add(new NameAndType("BillingEmail", "System.String", new List<string>{
-                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)255)]",
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)1500)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Email\")]",
             }));
             expectedFields.Add(new NameAndType("BillingFirstName", "System.String", new List<string>{
@@ -40,7 +40,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Last Name\")]",
             }));
             expectedFields.Add(new NameAndType("BillingPhone", "System.String", new List<string>{
-                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)15)]",
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)100)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Phone\")]",
             }));
             expectedFields.Add(new NameAndType("BillingPostalCode", "System.String", new List<string>{
@@ -48,15 +48,15 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Postal Code\")]",
             }));
             expectedFields.Add(new NameAndType("BillingState", "System.String", new List<string>{
-                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)2)]",
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)64)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing State\")]",
             }));
             expectedFields.Add(new NameAndType("BillingStreet1", "System.String", new List<string>{
-                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)60)]",
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)400)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Street\")]",
             }));
             expectedFields.Add(new NameAndType("BillingStreet2", "System.String", new List<string>{
-                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)60)]",
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)400)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing Street 2\")]",
             }));
             expectedFields.Add(new NameAndType("CardExpiry", "System.Nullable`1[System.DateTime]", new List<string>()));
