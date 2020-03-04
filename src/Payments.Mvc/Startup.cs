@@ -234,7 +234,7 @@ namespace Payments.Mvc
             }
 
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
-
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             // various security middlewares
