@@ -97,11 +97,10 @@ namespace Payments.Mvc
 
             // add cas auth
             services.AddAuthentication()
-                .AddCAS("UCDavis", options =>
-                {
-                    options.CasServerUrlBase = Configuration["Settings:CasBaseUrl"];
-                    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-                });
+            .AddCAS("UCDavis", options =>
+            {
+                options.CasServerUrlBase = Configuration["Settings:CasBaseUrl"];
+            });
 
             // add policy auth
             services.AddAuthorization(options =>
