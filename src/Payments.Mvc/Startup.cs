@@ -9,6 +9,7 @@ using jsreport.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
@@ -99,6 +100,7 @@ namespace Payments.Mvc
                 .AddCAS("UCDavis", options =>
                 {
                     options.CasServerUrlBase = Configuration["Settings:CasBaseUrl"];
+                    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
                 });
 
             // add policy auth
