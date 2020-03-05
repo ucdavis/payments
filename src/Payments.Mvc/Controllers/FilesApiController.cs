@@ -60,6 +60,9 @@ namespace Payments.Mvc.Controllers
             {
                 success = true,
                 identifier,
+                file.FileName,
+                file.ContentType,
+                size = file.Length
             });
         }
     }
