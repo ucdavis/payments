@@ -82,7 +82,7 @@ namespace Payments.Mvc.Services
                 invoice.Items = items.ToList();
 
                 // add attachments
-                var attachments = model.Attachments.Select(a => new InvoiceAttachment()
+                var attachments = model.Attachments.Where(a => !string.IsNullOrWhiteSpace(a.Identifier)).Select(a => new InvoiceAttachment()
                 {
                     Identifier  = a.Identifier,
                     FileName    = a.FileName,
