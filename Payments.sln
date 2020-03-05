@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D1C93383-2244-4990-B2E9-5EF966F0E5A5}"
 EndProject
@@ -96,8 +96,6 @@ Global
 		{02AA0336-4F06-40C8-98A9-E29F510E3E57}.Release|x86.ActiveCfg = Release|Any CPU
 		{02AA0336-4F06-40C8-98A9-E29F510E3E57}.Release|x86.Build.0 = Release|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|x64.Build.0 = Debug|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|x64.Deploy.0 = Debug|Any CPU
@@ -105,8 +103,6 @@ Global
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|x86.Build.0 = Debug|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Debug|x86.Deploy.0 = Debug|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Release|x64.ActiveCfg = Release|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Release|x64.Build.0 = Release|Any CPU
 		{1C67A279-CA98-494D-B9A6-DD5D99FD1A8F}.Release|x64.Deploy.0 = Release|Any CPU
