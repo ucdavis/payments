@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Mvc.Models.Roles;
@@ -15,12 +16,15 @@ namespace Payments.Core.Helpers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly User _superuserSettings;
 
-        public DbInitializer(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public DbInitializer(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager,
+            IOptions<User> superuserSettings)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _superuserSettings = superuserSettings.Value;
         }
 
         public async Task Recreate()
@@ -43,41 +47,10 @@ namespace Payments.Core.Helpers
             var editorRole = await FindOrCreateRole(TeamRole.Codes.Editor);
             var reportRole = await FindOrCreateRole(TeamRole.Codes.ReportUser);
 
-            // create system users
-            if (!_context.Users.Any())
+            // create system user
+            if (!_context.Users.Any() && !string.IsNullOrWhiteSpace(_superuserSettings.CampusKerberos))
             {
-                var jason = new User
-                {
-                    Email          = "jsylvestre@ucdavis.edu",
-                    UserName       = "jsylvestre@ucdavis.edu",
-                    CampusKerberos = "jsylvest",
-                    FirstName      = "Jason",
-                    LastName       = "Sylvestre",
-                    Name           = "Jason Sylvestre",
-                };
-                await FindOrCreateUser(jason);
-
-                var scott = new User
-                {
-                    Email          = "srkirkland@ucdavis.edu",
-                    UserName       = "srkirkland@ucdavis.edu",
-                    FirstName      = "Scott",
-                    LastName       = "Kirkland",
-                    Name           = "Scott Kirkland",
-                    CampusKerberos = "postit",
-                };
-                await FindOrCreateUser(scott);
-
-                var cal = new User
-                {
-                    Email          = "cydoval@ucdavis.edu",
-                    UserName       = "cydoval@ucdavis.edu",
-                    FirstName      = "Calvin",
-                    LastName       = "Doval",
-                    Name           = "Calvin Y Doval",
-                    CampusKerberos = "cydoval",
-                };
-                await FindOrCreateUser(cal);
+                await FindOrCreateUser(_superuserSettings);
             }
 
             await _context.SaveChangesAsync();
