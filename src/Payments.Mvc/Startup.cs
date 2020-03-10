@@ -30,6 +30,7 @@ using Payments.Mvc.Handlers;
 using Payments.Mvc.Helpers;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Logging;
+using Payments.Mvc.Models;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
@@ -74,6 +75,7 @@ namespace Payments.Mvc
             services.Configure<StorageSettings>(Configuration.GetSection("Storage"));
             services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
             services.Configure<JsReportSettings>(Configuration.GetSection("JsReport"));
+            services.Configure<SuperuserSettings>(Configuration.GetSection("Superuser"));
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")

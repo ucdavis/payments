@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Helpers;
+using Payments.Mvc.Models;
 
 namespace Payments.Mvc
 {
@@ -22,7 +23,8 @@ namespace Payments.Mvc
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 var rolemanager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                var dbInitilizer = new DbInitializer(dbContext, userManager, rolemanager);
+                var superuserSettings = scope.ServiceProvider.GetRequiredService<IOptions<SuperuserSettings>>();
+                var dbInitilizer = new DbInitializer(dbContext, userManager, rolemanager, superuserSettings);
 #if DEBUG            
                 if (settings.Value.RebuildDb == "Yes")
                 {
