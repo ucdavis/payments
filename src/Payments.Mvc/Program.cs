@@ -19,13 +19,13 @@ namespace Payments.Mvc
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {
-                var settings = scope.ServiceProvider.GetRequiredService<IOptions<Settings>>();
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 var rolemanager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 var superuserSettings = scope.ServiceProvider.GetRequiredService<IOptions<SuperuserSettings>>();
                 var dbInitilizer = new DbInitializer(dbContext, userManager, rolemanager, superuserSettings);
 #if DEBUG            
+                var settings = scope.ServiceProvider.GetRequiredService<IOptions<Settings>>();
                 if (settings.Value.RebuildDb == "Yes")
                 {
                     Task.Run(() => dbInitilizer.Recreate()).Wait();

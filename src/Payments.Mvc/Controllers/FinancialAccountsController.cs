@@ -200,10 +200,9 @@ namespace Payments.Mvc.Controllers
                 ModelState.AddModelError("Project", "Project Not Valid.");
             }
 
-            var accountLookup = new KfsAccount();
             if (ModelState.IsValid)
             {
-                accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                var accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
                 if (!accountLookup.IsValidIncomeAccount)
                 {
                     ModelState.AddModelError("Account", "Not An Income Account.");
