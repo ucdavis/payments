@@ -267,7 +267,7 @@ export default class EditInvoiceContainer extends React.Component<IProps, IState
 
         this.setState({
             errorMessage: result.errorMessage
-        })
+        });
         return false;
     }
 

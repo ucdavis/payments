@@ -270,7 +270,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
 
         this.setState({
             errorMessage: result.errorMessage
-        })
+        });
         return false;
     }
 
@@ -280,7 +280,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
         if (ids === undefined) {
             this.setState({
                 errorMessage: "Could not send email. Try to Save and Close instead."
-            })
+            });
             return false;
         }
 
