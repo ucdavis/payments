@@ -11,7 +11,6 @@ import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
-import { PreviewInvoice } from '../models/PreviewInvoice';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
@@ -165,7 +164,7 @@ export default class CreateInvoiceContainer extends React.Component<IProps, ISta
     }
 
     private renderSendModal() {
-        const { coupons, team } = this.props;
+        const { team } = this.props;
         const { attachments, dueDate, customers, discount, taxPercent, items, memo, isSendModalOpen } = this.state;
 
         if (!isSendModalOpen) {

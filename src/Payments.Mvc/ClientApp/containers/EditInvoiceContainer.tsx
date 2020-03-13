@@ -12,7 +12,6 @@ import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
-import { PreviewInvoice } from '../models/PreviewInvoice';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
