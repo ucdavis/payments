@@ -308,12 +308,23 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
             byId: items.byId.filter(i => i !== id)
         };
 
-        this.onItemsChange(newItems);
-
         // if this would set the list empty, add an empty one back
         if (newItems.byId.length < 1) {
-            this.createNewItem();
+            const newId = 1;
+
+            newItems.byHash[newId] = {
+                amount: 0,
+                description: '',
+                id: newId,
+                quantity: 0,
+                taxExempt: false,
+                total: 0
+            };
+
+            newItems.byId.push(newId);
         }
+
+        this.onItemsChange(newItems);
     };
 
     private updateItem = (id: number, item: InvoiceItem) => {
