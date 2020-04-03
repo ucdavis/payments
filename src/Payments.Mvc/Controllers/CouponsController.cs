@@ -45,6 +45,12 @@ namespace Payments.Mvc.Controllers
                 Team            = team
             };
 
+            if (team.Coupons.Any(a => a.Code != null && a.Code.Equals(coupon.Code, StringComparison.OrdinalIgnoreCase)))
+            {
+                ErrorMessage = $"Coupon Code {coupon.Code} is already in use. Please select a new one.";
+                return RedirectToAction("Index");
+            }
+
             team.Coupons.Add(coupon);
             await _dbContext.SaveChangesAsync();
 

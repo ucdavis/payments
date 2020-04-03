@@ -208,10 +208,10 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("Pay", new { id });
             }
 
+            var teamCoupons = await _dbContext.Coupons.Where(c => c.Team.Slug == invoice.Team.Slug).ToListAsync();
+
             // find the coupon on same team
-            var coupon = await _dbContext.Coupons
-                .Where(c => c.Team.Slug == invoice.Team.Slug)
-                .FirstOrDefaultAsync(c => string.Equals(c.Code, code, StringComparison.OrdinalIgnoreCase));
+            var coupon = teamCoupons.FirstOrDefault(c => string.Equals(c.Code, code, StringComparison.OrdinalIgnoreCase));
 
             if (coupon == null)
             {
@@ -219,7 +219,20 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("Pay", new { id });
             }
 
-            if (coupon.ExpiresAt.HasValue && coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date)
+            bool expiredCoupon = coupon.ExpiresAt.HasValue && coupon.ExpiresAt.Value < DateTime.UtcNow.ToPacificTime().Date;
+
+            if (expiredCoupon)
+            {
+                //Check for other coupons
+                coupon = teamCoupons.OrderByDescending(a => a.Id).FirstOrDefault(a => a.ExpiresAt == null || a.ExpiresAt.Value >= DateTime.UtcNow.ToPacificTime().Date);
+                if (coupon != null)
+                {
+                    expiredCoupon = false;
+                }
+            }
+
+
+            if (expiredCoupon)
             {
                 ErrorMessage = "Coupon code has expired.";
                 return RedirectToAction("Pay", new { id });
