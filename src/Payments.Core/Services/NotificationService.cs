@@ -97,13 +97,14 @@ namespace Payments.Core.Services
             {
                 var data = JsonConvert.SerializeObject(payload);
 
-                var body = new StringContent(data, Encoding.UTF8, "application/json");
+                using (var body = new StringContent(data, Encoding.UTF8, "application/json"))
+                {
+                    var response = await client.PostAsync(webHook.Url, body);
 
-                var response = await client.PostAsync(webHook.Url, body);
-
-                Log.ForContext("webhook", webHook, true)
-                   .ForContext("response", response, true)
-                   .Information("Sent webhook");
+                    Log.ForContext("webhook", webHook, true)
+                       .ForContext("response", response, true)
+                       .Information("Sent webhook");
+                }
             }
         }
     }

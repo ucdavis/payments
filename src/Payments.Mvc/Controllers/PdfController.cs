@@ -80,7 +80,6 @@ namespace Payments.Mvc.Controllers
 
             // generate pdf
             var report = await _jsReportMvcService.RenderViewAsync(HttpContext, request, RouteData, "Invoice", invoice);
-            var logs = report.Meta.Logs;
 
             // save result to storage server for retrieval
             var uploadStream = new MemoryStream();
@@ -160,7 +159,6 @@ namespace Payments.Mvc.Controllers
 
             // generate pdf
             var report = await _jsReportMvcService.RenderViewAsync(HttpContext, request, RouteData, "Receipt", invoice);
-            var logs = report.Meta.Logs;
 
             // save result to storage server for retrieval
             var uploadStream = new MemoryStream();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -8,8 +8,11 @@ namespace Payments.Mvc.Helpers
     {
         public static string GetSHA256Hash(this string input)
         {
-            var alg = SHA256.Create();
-            var hash = alg.ComputeHash(Encoding.UTF8.GetBytes(input));
+            byte[] hash;
+            using (var alg = SHA256.Create())
+            {
+                hash = alg.ComputeHash(Encoding.UTF8.GetBytes(input));
+            }
 
             var sb = new StringBuilder();
             foreach (var b in hash)

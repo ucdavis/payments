@@ -90,7 +90,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // setup claims properly to deal with how CAS represents things
-            if (IsUcdLogin(info))
+            if (IsUcdLogin(info)) // lgtm [cs/user-controlled-bypass]
             {
                 // kerberos comes across in both name and nameidentifier
                 var kerb = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -118,7 +118,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true); // lgtm [cs/user-controlled-bypass]
 
             if (result.Succeeded)
             {
@@ -138,7 +138,7 @@ namespace Payments.Mvc.Controllers
                 FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
                 LastName = info.Principal.FindFirstValue(ClaimTypes.Surname),
                 Name = info.Principal.FindFirstValue(ClaimTypes.Name),
-                CampusKerberos = IsUcdLogin(info) ? info.ProviderKey : string.Empty
+                CampusKerberos = IsUcdLogin(info) ? info.ProviderKey : string.Empty // lgtm [cs/user-controlled-bypass]
             };
 
             if (string.IsNullOrWhiteSpace(user.Name))
@@ -149,7 +149,7 @@ namespace Payments.Mvc.Controllers
             var createResult = await _userManager.CreateAsync(user);
             if (createResult.Succeeded)
             {
-                createResult = await _userManager.AddLoginAsync(user, info);
+                createResult = await _userManager.AddLoginAsync(user, info); // lgtm [cs/user-controlled-bypass]
                 if (createResult.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);

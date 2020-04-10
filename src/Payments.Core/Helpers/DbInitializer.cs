@@ -42,10 +42,10 @@ namespace Payments.Core.Helpers
             }
 
             // create team roles
-            var adminRole = await FindOrCreateRole(TeamRole.Codes.Admin);
-            var financeRole = await FindOrCreateRole(TeamRole.Codes.FinanceOfficer);
-            var editorRole = await FindOrCreateRole(TeamRole.Codes.Editor);
-            var reportRole = await FindOrCreateRole(TeamRole.Codes.ReportUser);
+            await FindOrCreateRole(TeamRole.Codes.Admin);
+            await FindOrCreateRole(TeamRole.Codes.FinanceOfficer);
+            await FindOrCreateRole(TeamRole.Codes.Editor);
+            await FindOrCreateRole(TeamRole.Codes.ReportUser);
 
             // create system user
             if (!_context.Users.Any() && !string.IsNullOrWhiteSpace(_superuserSettings.CampusKerberos))
