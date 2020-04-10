@@ -59,7 +59,7 @@ class AttachmentsControl extends React.Component<IProps, {}> {
                 <span className='col-2 d-flex justify-content-center'>{ sizeText }</span>
 
                 <div className='col-1 d-flex justify-content-end align-items-center'>
-                    <a href={href} className='btn-link btn-invoice-delete mx-2' target='_blank'>
+                    <a href={href} className='btn-link btn-invoice-delete mx-2' target='_blank'> {/* lgtm [js/unsafe-external-link] */}
                         <i className='fas fa-download' />
                     </a>
 

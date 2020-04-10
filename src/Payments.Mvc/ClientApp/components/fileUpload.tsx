@@ -178,7 +178,7 @@ class FileUpload extends React.Component<IProps, IState> {
     }
 
     private onUploadProgress = (progressEvent: ProgressEvent, identifier: string) => {
-        const { attachmentsUploading } = this.state;
+        const attachmentsUploading = [...this.state.attachmentsUploading];
 
         // find and update attachment
         const index = attachmentsUploading.findIndex(a => a.identifier === identifier);

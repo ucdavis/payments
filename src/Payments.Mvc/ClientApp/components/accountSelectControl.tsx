@@ -65,7 +65,7 @@ export default class AccountSelectControl extends React.Component<IProps, IState
     }
 
     private renderModal() {
-        const { accounts, value } = this.props;
+        const { accounts } = this.props;
         const { isModalOpen } = this.state;
 
         const ordered = [...accounts].sort(sortAccounts);
