@@ -54,6 +54,10 @@
     <script asp-add-nonce="true">
 
         $(function () {
+            $('#run-job-modal-action').click(function () {
+                $('#run-job-modal-form').submit();
+            });
+
             var targetEl = document.getElementById('react-job-log-calendar');
             var calendar = new FullCalendar.Calendar(targetEl,
                 {
