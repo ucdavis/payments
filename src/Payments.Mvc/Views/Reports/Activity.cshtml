@@ -6,6 +6,11 @@
 }
 
 <div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+        Shows all invoices created in the last 3 months (since @DateTime.Now.AddMonths(-3).ToString("d")).
+        Export to excel to view additional columns.
+    </div>
     <div class="card-body table-responsive">
         <table id="Invoices" class="table">
             <thead>
