@@ -4,7 +4,15 @@ namespace Payments.Core.Extensions
 {
     public static class DateTimeExtensions
     {
-        public static readonly TimeZoneInfo Pacific = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+        public static TimeZoneInfo Pacific {
+            get {
+                try {
+                    return TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+                } catch (TimeZoneNotFoundException) {
+                    return TimeZoneInfo.FindSystemTimeZoneById("America/Los_Angeles");
+                }
+            }
+        }
 
         public static DateTime ToPacificTime(this DateTime dateTime)
         {

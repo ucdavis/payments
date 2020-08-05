@@ -1,0 +1,66 @@
+@using Payments.Core.Extensions
+
+@model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
+@{
+    ViewBag.Title = "Activity Report";
+}
+
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+        Shows all invoices created in the last 3 months (since @DateTime.Now.AddMonths(-3).ToString("d")).
+        Export to excel to view additional columns.
+    </div>
+    <div class="card-body table-responsive">
+        <table id="Invoices" class="table">
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Status</th>
+                    <th>Customer Email</th>
+                    <th>Customer Name</th>
+                    <th>Customer Company</th>
+                    <th>Amount</th>
+                    <th>Sent At</th>
+                    <th>Created</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model.Invoices)
+                {
+                    <tr>
+                        <td>@invoice.GetFormattedId()</td>
+                        <td>@invoice.Status</td>
+                        <td>@invoice.CustomerEmail</td>
+                        <td>@invoice.CustomerName</td>
+                        <td>@invoice.CustomerCompany</td>
+                        <td>@invoice.CalculatedTotal</td>
+                        <td>@(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
+                        <td>@(invoice.DueDate.HasValue ? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript" asp-add-nonce="true">
+        $(function() {
+            // setup table
+            $("#Invoices").DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel'
+                ],
+                order: [[ 7, 'desc' ]],
+                columnDefs: [
+                    { targets: [3, 4, 8], visible: false }
+                ],
+            });
+        });
+    </script>
+}
