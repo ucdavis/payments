@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Mvc.Models.InvoiceViewModels;
 using Payments.Mvc.Models.ReportViewModels;
 
 namespace Payments.Mvc.Controllers
@@ -24,8 +25,23 @@ namespace Payments.Mvc.Controllers
         }
 
         #region team reports
-        /* system wide reports should use attribute routes */
+        public IActionResult Activity(string team) {
+            // TODO: add in date range filters
 
+            var invoices = _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .OrderByDescending(i => i.Id)
+                .AsNoTracking()
+                .ToList();
+
+            var model = new InvoiceListViewModel()
+            {
+                Invoices = invoices,
+                Filter = null
+            };
+
+            return View(model);
+        }
         
         #endregion
 

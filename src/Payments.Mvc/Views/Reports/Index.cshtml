@@ -23,15 +23,15 @@
 
     <div class="row mb-4">
         <div class="col-lg-4">
-            <a asp-action="TeamTaxReport" asp-team="@teamSlug">
+            <a asp-action="Activity" asp-team="@teamSlug">
                 <div class="card job min-height-card">
                     <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="zoom in of the eye on the dollar">
                     <div class="card-body">
                         <h5 class="card-title">
-                            Team's Tax Liability Report
+                            Team Activity Report
                         </h5>
                         <p class="card-text">
-                            Get your tax report for last fiscal year
+                            View recent activity for your team
                         </p>
                     </div>
                 </div>
@@ -47,27 +47,9 @@
             <h2>System Reports</h2>
         </div>
         <div class="card-body">
-            <p>See below for system wide reports.</p>
+            <p>There are no system wide reports.</p>
 
             <p>Have an idea for a report? Make a recommendation with a help ticket <a href="https://caeshelp.ucdavis.edu/?appname=Payments" class="btn btn-gold" target="_blank" rel="noopener noreferrer">Here</a></p>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4">
-            <a asp-action="TaxReportByMonth">
-                <div class="card job min-height-card">
-                    <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="zoom in of the eye on the dollar">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            System Wide Tax Report
-                        </h5>
-                        <p class="card-text">
-                            Get your tax report for last fiscal year
-                        </p>
-                    </div>
-                </div>
-            </a>
         </div>
     </div>
 }
