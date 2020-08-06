@@ -30,7 +30,7 @@ namespace Payments.Mvc.Controllers
             var invoices = _dbContext.Invoices
                 .Include(i => i.Account)
                 .Where(i => i.Team.Slug == TeamSlug)
-                .Where(i => i.CreatedAt >= DateTime.Now.AddMonths(-3))
+                .Where(i => i.CreatedAt >= DateTime.Now.AddMonths(-12))
                 .OrderByDescending(i => i.Id)
                 .AsNoTracking()
                 .ToList();
