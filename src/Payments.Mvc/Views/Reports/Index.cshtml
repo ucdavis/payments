@@ -25,18 +25,37 @@
         <div class="col-lg-4">
             <a asp-action="Activity" asp-team="@teamSlug">
                 <div class="card job min-height-card">
-                    <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="zoom in of the eye on the dollar">
+                    <img class="card-img-top" src="~/media/accounting-balance-blur-164686.jpg" alt="zoom in of the eye on the dollar">
                     <div class="card-body">
                         <h5 class="card-title">
                             Team Activity Report
                         </h5>
                         <p class="card-text">
-                            View recent activity for your team
+                            View all invoices created in the last 12 months. Export to excel to view additional columns.
                         </p>
                     </div>
                 </div>
             </a>
         </div>
+        <div class="col-lg-4">
+            <a asp-action="Aging" asp-team="@teamSlug">
+                <div class="card job min-height-card">
+                    <img class="card-img-top" src="~/media/abstract-art-artistic-251287.jpg" alt="accounting book">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Team Aging Report
+                        </h5>
+                        <p class="card-text">
+                            Shows all invoices that have not been paid, grouped by customer and bucketed by age
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+
     </div>
 }
 

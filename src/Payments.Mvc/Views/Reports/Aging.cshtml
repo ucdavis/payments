@@ -1,0 +1,64 @@
+@using Payments.Core.Extensions
+
+@model Payments.Mvc.Models.ReportViewModels.CustomerAgingTotals[]
+@{
+    ViewBag.Title = "Aging Report";
+}
+
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+        Shows all invoices that have not been paid, grouped by customer and bucketed by age.
+    </div>
+    <div class="card-body table-responsive">
+        <table id="Invoices" class="table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>0-1 Month</th>
+                    <th>1-2 Months</th>
+                    <th>2-3 Months</th>
+                    <th>3-4 Months</th>
+                    <th>4-6 Months</th>
+                    <th>6-12 Months</th>
+                    <th>1-2 Years</th>
+                    <th>2+ Years</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customerAge in Model)
+                {
+                    <tr>
+                        <td>@customerAge.CustomerEmail</td>
+                        <td>@customerAge.OneMonth.ToString("F2")</td>
+                        <td>@customerAge.TwoMonths.ToString("F2")</td>
+                        <td>@customerAge.ThreeMonths.ToString("F2")</td>
+                        <td>@customerAge.FourMonths.ToString("F2")</td>
+                        <td>@customerAge.FourToSixMonths.ToString("F2")</td>
+                        <td>@customerAge.SixToTwelveMonths.ToString("F2")</td>
+                        <td>@customerAge.OneToTwoYears.ToString("F2")</td>
+                        <td>@customerAge.OverTwoYears.ToString("F2")</td>
+                        <td>@customerAge.Total.ToString("F2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript" asp-add-nonce="true">
+        $(function() {
+            // setup table
+            $("#Invoices").DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel'
+                ],
+                order: [[ 0, 'asc' ]],
+            });
+        });
+    </script>
+}
