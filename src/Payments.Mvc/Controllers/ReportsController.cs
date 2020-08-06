@@ -28,6 +28,7 @@ namespace Payments.Mvc.Controllers
             // TODO: add in date range filters
 
             var invoices = _dbContext.Invoices
+                .Include(i => i.Account)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .Where(i => i.CreatedAt >= DateTime.Now.AddMonths(-3))
                 .OrderByDescending(i => i.Id)
