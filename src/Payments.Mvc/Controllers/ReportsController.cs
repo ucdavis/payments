@@ -1,10 +1,8 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
-using Payments.Core.Domain;
 using Payments.Mvc.Models.InvoiceViewModels;
 using Payments.Mvc.Models.ReportViewModels;
 
@@ -81,19 +79,5 @@ namespace Payments.Mvc.Controllers
 
 
         #endregion
-    }
-
-    public class CustomerAgingTotals
-    {
-        public string CustomerEmail { get; set; }
-        public decimal OneMonth { get; set; }
-        public decimal TwoMonths { get; set; }
-        public decimal ThreeMonths { get; set; }
-        public decimal FourMonths { get; set; }
-        public decimal FourToSixMonths { get; set; }
-        public decimal SixToTwelveMonths { get; set; }
-        public decimal OneToTwoYears { get; set; }
-        public decimal OverTwoYears { get; set; }
-        public decimal Total { get; set; }
     }
 }
