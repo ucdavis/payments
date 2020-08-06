@@ -25,7 +25,8 @@ namespace Payments.Mvc.Controllers
         }
 
         #region team reports
-        public IActionResult Activity(string team) {
+        public IActionResult Activity(string team)
+        {
             // TODO: add in date range filters
 
             var invoices = _dbContext.Invoices
@@ -43,13 +44,56 @@ namespace Payments.Mvc.Controllers
 
             return View(model);
         }
-        
+
+        /// Shows all unpaid invoices, grouping by customer to show how much is unpaid based on sent date brackets
+        public IActionResult Aging(string team)
+        {
+            // TODO: add in date range filters
+            var invoices = _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .Where(i => !i.Paid && i.Sent) // just show invoices that have been sent but not paid
+                .AsNoTracking()
+                .ToList();
+
+            var byCustomer = invoices.GroupBy(i => i.CustomerEmail);
+
+            var agingTotals = byCustomer.Select(c => new CustomerAgingTotals
+            {
+                CustomerEmail = c.Key,
+                OneMonth = c.Where(i => i.SentAt.Value >= DateTime.Now.AddMonths(-1)).Sum(i => i.CalculatedTotal),
+                TwoMonths = c.Where(i => i.SentAt.Value >= DateTime.Now.AddMonths(-2) && i.SentAt.Value < DateTime.Now.AddMonths(-1)).Sum(i => i.CalculatedTotal),
+                ThreeMonths = c.Where(i => i.SentAt.Value >= DateTime.Now.AddMonths(-3) && i.SentAt.Value < DateTime.Now.AddMonths(-2)).Sum(i => i.CalculatedTotal),
+                FourMonths = c.Where(i => i.SentAt.Value >= DateTime.Now.AddMonths(-4) && i.SentAt.Value < DateTime.Now.AddMonths(-3)).Sum(i => i.CalculatedTotal),
+                FourToSixMonths = c.Where(i => i.SentAt.Value >= DateTime.Now.AddMonths(-6) && i.SentAt.Value < DateTime.Now.AddMonths(-4)).Sum(i => i.CalculatedTotal),
+                SixToTwelveMonths = c.Where(i => i.SentAt.Value >= DateTime.Now.AddMonths(-12) && i.SentAt.Value < DateTime.Now.AddMonths(-6)).Sum(i => i.CalculatedTotal),
+                OneToTwoYears = c.Where(i => i.SentAt.Value >= DateTime.Now.AddYears(-2) && i.SentAt.Value < DateTime.Now.AddYears(-1)).Sum(i => i.CalculatedTotal),
+                OverTwoYears = c.Where(i => i.SentAt.Value < DateTime.Now.AddYears(-2)).Sum(i => i.CalculatedTotal),
+                Total = c.Sum(i => i.CalculatedTotal)
+            }).ToArray();
+
+            return View(agingTotals);
+        }
+
         #endregion
 
         #region system reports
         /* system wide reports should use attribute routes */
 
-        
+
         #endregion
+    }
+
+    public class CustomerAgingTotals
+    {
+        public string CustomerEmail { get; set; }
+        public decimal OneMonth { get; set; }
+        public decimal TwoMonths { get; set; }
+        public decimal ThreeMonths { get; set; }
+        public decimal FourMonths { get; set; }
+        public decimal FourToSixMonths { get; set; }
+        public decimal SixToTwelveMonths { get; set; }
+        public decimal OneToTwoYears { get; set; }
+        public decimal OverTwoYears { get; set; }
+        public decimal Total { get; set; }
     }
 }
