@@ -1310,6 +1310,6 @@ DateAdd(DateInterval.Day, 1 - Day(Today()), Today()))</Value>
     </GridLayoutDefinition>
   </ReportParametersLayout>
   <rd:ReportUnitType>Inch</rd:ReportUnitType>
-  <rd:ReportServerUrl>https://caes-reports.ou.ad3.ucdavis.edu/ReportServer</rd:ReportServerUrl>
+  <rd:ReportServerUrl>https://reports.caes.ucdavis.edu/ReportServer</rd:ReportServerUrl>
   <rd:ReportID>5c81de8d-4093-4e61-b2ba-8469ad067998</rd:ReportID>
 </Report>
