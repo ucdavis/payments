@@ -123,9 +123,11 @@ namespace Payments.Mvc.Controllers
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         [Route("csp-report")]
-        public IActionResult CspReport(CspReport model)
+        public IActionResult CspReport([FromBody]CspReportRequest model)
         {
-            Log.ForContext("report", model, true).Warning("csp-report");
+            if (model.CspReport != null) {
+                Log.ForContext("report", model.CspReport, true).Warning("csp-report");
+            }
 
             return new EmptyResult();
         }
