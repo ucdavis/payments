@@ -326,7 +326,6 @@ namespace Payments.Mvc
             app.UseFeaturePolicy(b =>
             {
                 b.AllowAccelerometer.FromNowhere();
-                b.AllowAmbientLightSensor.FromNowhere();
                 b.AllowAutoplay.FromNowhere();
                 b.AllowCamera.FromNowhere();
                 b.AllowEncryptedMedia.FromNowhere();
@@ -336,15 +335,10 @@ namespace Payments.Mvc
                 b.AllowMagnetometer.FromNowhere();
                 b.AllowMicrophone.FromNowhere();
                 b.AllowMidi.FromNowhere();
-                b.AllowNotifications.FromNowhere();
                 b.AllowPayment.FromNowhere();
                 b.AllowPictureInPicture.FromNowhere();
-                b.AllowPush.FromNowhere();
-                b.AllowSpeaker.FromNowhere();
                 b.AllowSyncXhr.FromNowhere();
                 b.AllowUsb.FromNowhere();
-                b.AllowVibrate.FromNowhere();
-                b.AllowVr.FromNowhere();
             });
 
             // authentication middlwares
