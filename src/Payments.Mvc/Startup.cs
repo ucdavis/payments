@@ -138,7 +138,7 @@ namespace Payments.Mvc
                             Log.Logger.Warning(args.ErrorContext.Error, "JSON Serialization Error: {message}", args.ErrorContext.Error.Message);
                         };
                     });
-                    
+
             services.AddDistributedMemoryCache();
             services.AddSession();
             services.AddCsp(nonceByteAmount: 32);
@@ -272,7 +272,13 @@ namespace Payments.Mvc
                 c.AllowScripts
                     .From("https://www.googletagmanager.com")
                     .From("https://www.google-analytics.com");
-;
+
+                c.AllowConnections.To("https://www.google-analytics.com");
+
+                if (Environment.IsDevelopment()) {
+                    c.AllowConnections.ToSelf(); // for HMR
+                }
+
                 c.AllowImages
                     .From("https://www.google-analytics.com");
 
