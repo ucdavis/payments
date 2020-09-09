@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AspNetCore.Security.CAS;
 using Joonasw.AspNetCore.SecurityHeaders;
@@ -11,6 +12,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.SpaServices.Webpack;
@@ -118,7 +121,16 @@ namespace Payments.Mvc
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             // add application services
-            services.AddMvc()
+            services.AddMvc(options => {
+                // add the csp-report content type to that handled by the JsonInputFormatter
+                options
+                    .InputFormatters
+                    .Where(item => item.GetType() == typeof(JsonInputFormatter))
+                    .Cast<JsonInputFormatter>()
+                    .Single()
+                    .SupportedMediaTypes
+                    .Add("application/csp-report");
+            })
                 .AddJsonOptions((options) =>
                     {
                         options.SerializerSettings.Error += (sender, args) =>
@@ -126,6 +138,7 @@ namespace Payments.Mvc
                             Log.Logger.Warning(args.ErrorContext.Error, "JSON Serialization Error: {message}", args.ErrorContext.Error.Message);
                         };
                     });
+
             services.AddDistributedMemoryCache();
             services.AddSession();
             services.AddCsp(nonceByteAmount: 32);
@@ -259,7 +272,13 @@ namespace Payments.Mvc
                 c.AllowScripts
                     .From("https://www.googletagmanager.com")
                     .From("https://www.google-analytics.com");
-;
+
+                c.AllowConnections.To("https://www.google-analytics.com");
+
+                if (Environment.IsDevelopment()) {
+                    c.AllowConnections.ToSelf(); // for HMR
+                }
+
                 c.AllowImages
                     .From("https://www.google-analytics.com");
 
