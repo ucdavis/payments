@@ -273,11 +273,7 @@ namespace Payments.Mvc
                     .From("https://www.googletagmanager.com")
                     .From("https://www.google-analytics.com");
 
-                c.AllowConnections.To("https://www.google-analytics.com");
-
-                if (Environment.IsDevelopment()) {
-                    c.AllowConnections.ToSelf(); // for HMR
-                }
+                c.AllowConnections.ToSelf().To("https://www.google-analytics.com");
 
                 c.AllowImages
                     .From("https://www.google-analytics.com");
