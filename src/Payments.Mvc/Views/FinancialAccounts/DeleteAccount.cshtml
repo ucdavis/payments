@@ -67,7 +67,8 @@
             </dl>
 
             <form asp-action="DeleteAccount">
-                <input type="submit" value="Delete" class="btn" />
+                @Html.HiddenFor(a => a.TeamId)
+                <input type="submit" value="Delete" class="btn"/>
             </form>
         </div>
     </div>
