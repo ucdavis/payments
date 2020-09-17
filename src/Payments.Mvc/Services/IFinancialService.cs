@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -35,7 +35,7 @@ namespace Payments.Mvc.Services
 
         public async Task<string> GetAccountName(string chart, string account, string subAccount)
         {
-            //https://kfs.ucdavis.edu/kfs-prd/api-docs/ //Documentation
+            //https://kfs.ucdavis.edu/kfs-prd/api-docs/ //Documentation - Maybe under a new URL after Nov 26, 2020
             string url;
             string validationUrl;
             if (!String.IsNullOrWhiteSpace(subAccount))
