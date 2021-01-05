@@ -22,6 +22,10 @@ steps:
     version: 2.2.106
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
+- task: NodeTool@0
+  inputs:
+    versionSpec: '12.x'
+
 - task: NuGetToolInstaller@1
   inputs:
     versionSpec: 4.9.x
