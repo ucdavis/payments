@@ -35,7 +35,7 @@ namespace Payments.Mvc.Controllers
         }
 
         #region Money Movement
-        public async Task<IActionResult> MoneyMovement()
+        public IActionResult MoneyMovement()
         {
             return View();
         }
@@ -49,7 +49,6 @@ namespace Payments.Mvc.Controllers
             return View(record);
         }
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
         public async Task<IActionResult> MoneyMovementRecords(DateTime start, DateTime end)
         {
             // fetch records

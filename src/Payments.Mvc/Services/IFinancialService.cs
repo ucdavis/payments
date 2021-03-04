@@ -102,8 +102,7 @@ namespace Payments.Mvc.Services
         /// Current fiscal year
         /// </summary>
         /// <param name="chart"></param>
-        /// <param name="account"></param>
-        /// <param name="subAccount"></param>
+        /// <param name="objectCode"></param>
         /// <returns></returns>
         public async Task<bool> IsObjectValid(string chart, string objectCode)
         {

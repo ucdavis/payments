@@ -78,7 +78,6 @@ namespace Payments.Mvc.Controllers
 
         /// <summary>
         /// </summary>
-        /// <param name="id">Team Id</param>
         /// <returns></returns>
         [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> Edit()
@@ -179,7 +178,6 @@ namespace Payments.Mvc.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id">Team Id</param>
         /// <returns></returns>
         [Authorize(Policy = PolicyCodes.TeamAdmin)]
         public async Task<IActionResult> CreatePermission()
