@@ -46,12 +46,9 @@ namespace Payments.Mvc.Logging
         {
             if (_configuration == null) throw new InvalidOperationException("Call Setup() before requesting a Logger Configuration"); ;
 
-            _configuration.ConfigureStackifyLogging();
-
             var loggingSection = _configuration.GetSection("Stackify");
 
             var logConfig = new LoggerConfiguration()
-                .MinimumLevel.Debug()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 // .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning) // uncomment this to hide EF core general info logs
@@ -63,8 +60,8 @@ namespace Payments.Mvc.Logging
                 .Enrich.WithExceptionDetails()
                 .Enrich.WithProperty("Application", loggingSection.GetValue<string>("AppName"))
                 .Enrich.WithProperty("AppEnvironment", loggingSection.GetValue<string>("Environment"))
-                .WriteTo.Stackify()
-                .WriteTo.Console();
+                .WriteTo.Console()
+                .WriteToStackifyCustom();
 
 
             // add in elastic search sink if the uri is valid
@@ -87,6 +84,16 @@ namespace Payments.Mvc.Logging
         {
             return GetConfiguration()
                 .WriteToSqlCustom();
+        }
+
+        private static LoggerConfiguration WriteToStackifyCustom(this LoggerConfiguration logConfig)
+        {
+            if (!_loggingSetup)
+            {
+                _configuration.ConfigureStackifyLogging();
+            }
+
+            return logConfig.WriteTo.Stackify();
         }
 
         private static LoggerConfiguration WriteToSqlCustom(this LoggerConfiguration logConfig)
