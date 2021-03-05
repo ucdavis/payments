@@ -39,7 +39,7 @@ namespace Payments.Emails
 #if DEBUG
         private readonly MailAddress _refundAddress = new MailAddress("jsylvestre@ucdavis.edu", "CAES UC Davis Refunds");
 #else
-        private readonly Address _refundAddress = new MailAddress("refunds@caes.ucdavis.edu", "CAES UC Davis Refunds");
+        private readonly MailAddress _refundAddress = new MailAddress("refunds@caes.ucdavis.edu", "CAES UC Davis Refunds");
 #endif
         public SparkpostEmailService(IOptions<SparkpostSettings> emailSettings, IMjmlServices mjmlServices)
         {
