@@ -8,7 +8,6 @@
   <ItemGroup>
     <PackageReference Include="Mjml.AspNetCore" Version="1.0.24" />
     <PackageReference Include="RazorLight" Version="2.0.0-beta1" />
-    <PackageReference Include="SparkPost" Version="1.14.0" />
   </ItemGroup>
 
   <ItemGroup>
