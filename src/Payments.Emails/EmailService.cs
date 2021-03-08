@@ -36,18 +36,18 @@ namespace Payments.Emails
         private readonly SmtpClient _client;
 
         private readonly MailAddress _fromAddress = new MailAddress("donotreply@payments-mail.ucdavis.edu", "UC Davis Payments");
-#if DEBUG
-        private readonly MailAddress _refundAddress = new MailAddress("jsylvestre@ucdavis.edu", "CAES UC Davis Refunds");
-#else
-        private readonly MailAddress _refundAddress = new MailAddress("refunds@caes.ucdavis.edu", "CAES UC Davis Refunds");
-#endif
-        public SparkpostEmailService(IOptions<SparkpostSettings> emailSettings, IMjmlServices mjmlServices)
+
+        private readonly MailAddress _refundAddress;
+
+        public SparkpostEmailService(IOptions<SparkpostSettings> sparkpostSettings, IMjmlServices mjmlServices)
         {
             _mjmlServices = mjmlServices;
 
-            _sparkpostSettings = emailSettings.Value;
+            _sparkpostSettings = sparkpostSettings.Value;
 
             _client = new SmtpClient(_sparkpostSettings.Host, _sparkpostSettings.Port) { Credentials = new NetworkCredential(_sparkpostSettings.UserName, _sparkpostSettings.Password), EnableSsl = true };
+
+            _refundAddress = new MailAddress(_sparkpostSettings.RefundAddress, "CAES UC Davis Refunds");
         }
 
         public async Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails)
