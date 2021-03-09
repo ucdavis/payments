@@ -45,24 +45,13 @@ namespace Payments.Mvc
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
-
-            if (env.IsDevelopment())
-            {
-                builder.AddUserSecrets<Startup>();
-            }
-
-            builder.AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
             Environment = env;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         public IHostingEnvironment Environment { get; }
 
@@ -130,6 +119,8 @@ namespace Payments.Mvc
                     .Single()
                     .SupportedMediaTypes
                     .Add("application/csp-report");
+
+                options.Filters.Add<SerilogControllerActionFilter>();
             })
                 .AddJsonOptions((options) =>
                     {
@@ -215,20 +206,9 @@ namespace Payments.Mvc
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app,
-            IHostingEnvironment env,
-            ILoggerFactory loggerFactory,
-            IApplicationLifetime appLifetime)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            // setup logging
-            LoggingConfiguration.Setup(Configuration);
-            app.ConfigureStackifyLogging(Configuration);
-            loggerFactory.AddSerilog();
-
-            appLifetime.ApplicationStopped.Register(Log.CloseAndFlush);
-
             app.UseMiddleware<CorrelationIdMiddleware>();
-            app.UseMiddleware<LoggingIdentityMiddleware>();
 
             // setup tracing
             app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
@@ -251,6 +231,7 @@ namespace Payments.Mvc
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSerilogRequestLogging();
 
             // various security middlewares
             app.UseCsp(c =>

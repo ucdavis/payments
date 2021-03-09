@@ -86,7 +86,6 @@ namespace Payments.Mvc.Controllers
         /// <summary>
         /// GET: FinancialAccounts/Create
         /// </summary>
-        /// <param name="id">Team id</param>
         /// <returns></returns>
         public async Task<IActionResult> CreateAccount()
         {
@@ -96,8 +95,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new FinancialAccountModel();
-            model.Team = team;
+            var model = new FinancialAccountModel {Team = team};
             return View(model);
         }
 
@@ -173,15 +171,17 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var financialAccount = new FinancialAccount();
-            financialAccount.Name = financialAccountModel.Name;
-            financialAccount.Description = financialAccountModel.Description;
-            financialAccount.Chart = financialAccountModel.Chart;
-            financialAccount.Account = financialAccountModel.Account;
-            financialAccount.SubAccount = financialAccountModel.SubAccount;
-            financialAccount.Project = financialAccountModel.Project;
-            financialAccount.IsDefault = financialAccountModel.IsDefault;
-            financialAccount.TeamId = team.Id;
+            var financialAccount = new FinancialAccount
+            {
+                Name = financialAccountModel.Name,
+                Description = financialAccountModel.Description,
+                Chart = financialAccountModel.Chart,
+                Account = financialAccountModel.Account,
+                SubAccount = financialAccountModel.SubAccount,
+                Project = financialAccountModel.Project,
+                IsDefault = financialAccountModel.IsDefault,
+                TeamId = team.Id
+            };
 
 
 
@@ -249,7 +249,6 @@ namespace Payments.Mvc.Controllers
         /// GET: FinancialAccounts/Edit/5
         /// </summary>
         /// <param name="id">FinancialAccount Id</param>
-        /// <param name="teamId">Team Id</param>
         /// <returns></returns>
         public async Task<IActionResult> EditAccount(int? id)
         {
@@ -359,8 +358,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new FinancialAccountDetailsModel();
-            model.FinancialAccount = financialAccount;
+            var model = new FinancialAccountDetailsModel {FinancialAccount = financialAccount};
 
             // fetch kfs details
             if (string.IsNullOrWhiteSpace(financialAccount.SubAccount))

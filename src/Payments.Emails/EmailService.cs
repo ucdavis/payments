@@ -11,7 +11,8 @@ using Payments.Core.Models.History;
 using Payments.Emails.Models;
 using RazorLight;
 using Serilog;
-using SparkPost;
+using System.Net;
+using System.Net.Mail;
 
 namespace Payments.Emails
 {
@@ -28,27 +29,29 @@ namespace Payments.Emails
 
     public class SparkpostEmailService : IEmailService
     {
-        private readonly SparkpostSettings _emailSettings;
+        private readonly SparkpostSettings _sparkpostSettings;
 
         private readonly IMjmlServices _mjmlServices;
 
-        private readonly Address FromAddress = new Address("donotreply@payments-mail.ucdavis.edu", "UC Davis Payments");
-#if DEBUG
-        private readonly Address RefundAddress = new Address("jsylvestre@ucdavis.edu", "CAES UC Davis Refunds");
-#else
-        private readonly Address RefundAddress = new Address("refunds@caes.ucdavis.edu", "CAES UC Davis Refunds");
-#endif
-        public SparkpostEmailService(IOptions<SparkpostSettings> emailSettings, IMjmlServices mjmlServices)
+        private readonly SmtpClient _client;
+
+        private readonly MailAddress _fromAddress = new MailAddress("donotreply@payments-mail.ucdavis.edu", "UC Davis Payments");
+
+        private readonly MailAddress _refundAddress;
+
+        public SparkpostEmailService(IOptions<SparkpostSettings> sparkpostSettings, IMjmlServices mjmlServices)
         {
             _mjmlServices = mjmlServices;
 
-            _emailSettings = emailSettings.Value;
+            _sparkpostSettings = sparkpostSettings.Value;
+
+            _client = new SmtpClient(_sparkpostSettings.Host, _sparkpostSettings.Port) { Credentials = new NetworkCredential(_sparkpostSettings.UserName, _sparkpostSettings.Password), EnableSsl = true };
+
+            _refundAddress = new MailAddress(_sparkpostSettings.RefundAddress, "CAES UC Davis Refunds");
         }
 
         public async Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails)
         {
-            var client = GetClient();
-
             dynamic viewbag = GetViewBag();
             viewbag.Team = invoice.Team;
 
@@ -65,53 +68,38 @@ namespace Payments.Emails
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
 
             // build email
-            var transmission = new Transmission
+            using (var message = new MailMessage { From = _fromAddress, Subject = $"New invoice from {invoice.Team.Name}" })
             {
-                Content =
-                {
-                    From = FromAddress,
-                    Html = mjml.Html,
-                    Subject = $"New invoice from {invoice.Team.Name}",
-                },
-                Recipients = new List<Recipient>()
-                {
-                    new Recipient() {Address = new Address(invoice.CustomerEmail, invoice.CustomerName)},
-                }
-            };
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+                message.To.Add(new MailAddress(invoice.CustomerEmail, invoice.CustomerName));
 
-            // add cc
-            if (!string.IsNullOrWhiteSpace(ccEmails))
-            {
-                var splitEmails = ccEmails.Split(';');
-                var ccRecipients = splitEmails.Select(e => new Recipient()
-                    { Address = new Address(e), Type = RecipientType.CC });
-                foreach (var ccRecipient in ccRecipients)
+                // add cc
+                if (!string.IsNullOrWhiteSpace(ccEmails))
                 {
-                    transmission.Recipients.Add(ccRecipient);
+                    ccEmails.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(e => new MailAddress(e))
+                        .ToList()
+                        .ForEach(e => message.CC.Add(e));
                 }
+
+                // add bcc
+                if (!string.IsNullOrWhiteSpace(bccEmails))
+                {
+                    bccEmails.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(e => new MailAddress(e))
+                        .ToList()
+                        .ForEach(e => message.Bcc.Add(e));
+                }
+
+                // ship it
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
             }
-
-            // add bcc
-            if (!string.IsNullOrWhiteSpace(bccEmails))
-            {
-                var splitEmails = bccEmails.Split(';');
-                var bccRecipients = splitEmails.Select(e => new Recipient()
-                    { Address = new Address(e), Type = RecipientType.BCC });
-                foreach (var bccRecipient in bccRecipients)
-                {
-                    transmission.Recipients.Add(bccRecipient);
-                }
-            }
-
-            // ship it
-            var result = await client.Transmissions.Send(transmission);
-            Log.ForContext("result", result).Information("Sent Email");
         }
 
         public async Task SendReceipt(Invoice invoice, PaymentEvent payment)
         {
-            var client = GetClient();
-
             dynamic viewbag = GetViewBag();
             viewbag.Team = invoice.Team;
 
@@ -129,41 +117,27 @@ namespace Payments.Emails
             var mjml = await _mjmlServices.Render(prehtml);
 
             // build email
-            var transmission = new Transmission
+            using (var message = new MailMessage { From = _fromAddress, Subject = $"Receipt from {invoice.Team.Name}" })
             {
-                Content =
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+                message.To.Add(new MailAddress(invoice.CustomerEmail, invoice.CustomerName));
+
+                // add cc if the billing email is different
+                if (!string.Equals(invoice.CustomerEmail, payment.BillingEmail, StringComparison.OrdinalIgnoreCase))
                 {
-                    From = FromAddress,
-                    Html = mjml.Html,
-                    Subject = $"Receipt from {invoice.Team.Name}",
-                },
-                Recipients = new List<Recipient>()
-                {
-                    new Recipient() {Address = new Address(invoice.CustomerEmail, invoice.CustomerName)},
+                    var ccName = $"{payment.BillingFirstName} {payment.BillingLastName}";
+                    message.CC.Add(new MailAddress(payment.BillingEmail, ccName));
                 }
-            };
 
-            // add cc if the billing email is different
-            if (!string.Equals(invoice.CustomerEmail, payment.BillingEmail, StringComparison.OrdinalIgnoreCase))
-            {
-                var ccName = $"{payment.BillingFirstName} {payment.BillingLastName}";
-                var ccRecipient = new Recipient()
-                {
-                    Address = new Address(payment.BillingEmail, ccName),
-                    Type = RecipientType.CC,
-                };
-                transmission.Recipients.Add(ccRecipient);
+                // ship it
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
             }
-
-            // ship it
-            var result = await client.Transmissions.Send(transmission);
-            Log.ForContext("result", result).Information("Sent Email");
         }
 
         public async Task SendNewTeamMemberNotice(Team team, User user, TeamRole role)
         {
-            var client = GetClient();
-
             dynamic viewbag = GetViewBag();
             viewbag.Team = team;
 
@@ -182,29 +156,20 @@ namespace Payments.Emails
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
 
             // build email
-            var transmission = new Transmission
+            using (var message = new MailMessage { From = _fromAddress, Subject = "UC Davis Payments Invitation" })
             {
-                Content =
-                {
-                    From = FromAddress,
-                    Html = mjml.Html,
-                    Subject = "UC Davis Payments Invitation",
-                },
-                Recipients = new List<Recipient>()
-                {
-                    new Recipient() {Address = new Address(user.Email, user.Name)},
-                }
-            };
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+                message.To.Add(new MailAddress(user.Email, user.Name));
 
-            // ship it
-            var result = await client.Transmissions.Send(transmission);
-            Log.ForContext("result", result).Information("Sent Email");
+                // ship it
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
+            }
         }
 
         public async Task SendRefundRequest(Invoice invoice, PaymentEvent payment, string refundReason, User user)
         {
-            var client = GetClient();
-
             dynamic viewbag = GetViewBag();
             viewbag.Team = invoice.Team;
             viewbag.Slug = invoice.Team.Slug;
@@ -225,23 +190,16 @@ namespace Payments.Emails
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
 
             // build email
-            var transmission = new Transmission
+            using (var message = new MailMessage { From = _fromAddress, Subject = $"Refund Request from {invoice.Team.Name}" })
             {
-                Content =
-                {
-                    From = FromAddress,
-                    Html = mjml.Html,
-                    Subject = $"Refund Request from {invoice.Team.Name}",
-                },
-                Recipients = new List<Recipient>()
-                {
-                    new Recipient() {Address = RefundAddress},
-                }
-            };
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+                message.To.Add(_refundAddress);
 
-            // ship it
-            var result = await client.Transmissions.Send(transmission);
-            Log.ForContext("result", result).Information("Sent Email");
+                // ship it
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
+            }
         }
 
         private static RazorLightEngine GetRazorEngine()
@@ -254,16 +212,10 @@ namespace Payments.Emails
             return engine;
         }
 
-        private Client GetClient()
-        {
-            var client = new Client(_emailSettings.ApiKey);
-            return client;
-        }
-
         private ExpandoObject GetViewBag()
         {
             dynamic viewbag = new ExpandoObject();
-            viewbag.BaseUrl = _emailSettings.BaseUrl;
+            viewbag.BaseUrl = _sparkpostSettings.BaseUrl;
             return viewbag;
         }
     }
