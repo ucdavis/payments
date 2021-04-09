@@ -114,7 +114,7 @@
                     }
                     <br />
                     <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, h:mm tt")</span>
-                    @if (actionType == HistoryActionTypes.RefundRequested && !string.IsNullOrWhiteSpace(action.Data))
+                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid) && !string.IsNullOrWhiteSpace(action.Data))
                     {
                         <br/>
                         <span class="text-muted">Reason: @action.Data</span>
@@ -708,6 +708,10 @@
                     <p>
                         Continuing will close this invoice and mark it paid. This is irreversible!
                     </p>
+                </div>
+                <label class="control-label">Reason</label>
+                <div class="form-group">
+                    <textarea id="paidReason" name="paidReason" required="" class="form-control"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
