@@ -463,7 +463,7 @@ namespace Payments.Mvc.Controllers
 
         [HttpPost]
         [Authorize(Policy = PolicyCodes.FinancialOfficer)]
-        public async Task<IActionResult> MarkPaid(int id)
+        public async Task<IActionResult> MarkPaid(int id, string paidReason)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -495,6 +495,7 @@ namespace Payments.Mvc.Controllers
                 Type = HistoryActionTypes.MarkPaid.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
                 Actor = user.Name,
+                Data = paidReason,
             };
             invoice.History.Add(action);
 
