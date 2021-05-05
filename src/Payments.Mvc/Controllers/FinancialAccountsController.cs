@@ -363,13 +363,10 @@ namespace Payments.Mvc.Controllers
             model.FinancialAccount = financialAccount;
 
             // fetch kfs details
-            if (string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+            model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+            if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
             {
-                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
-            }
-            else
-            {
-                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                //Populate subaccount info
                 model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
             }
 
