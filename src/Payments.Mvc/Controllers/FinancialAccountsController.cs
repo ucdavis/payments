@@ -365,13 +365,12 @@ namespace Payments.Mvc.Controllers
             // fetch kfs details
             if (string.IsNullOrWhiteSpace(financialAccount.SubAccount))
             {
-                model.KfsAccount =
-                    await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
             }
             else
             {
-                model.KfsAccount =
-                    await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
             }
 
             // check if account is valid
