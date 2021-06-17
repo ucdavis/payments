@@ -214,6 +214,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                                 this.updateItemProperty(id, 'description', e.target.value);
                             }}
                             required={true}
+                            maxLength={100}
                         />
                         {taxPercent > 0 && (
                             <div className="input-group-append">
