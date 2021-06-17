@@ -48,7 +48,7 @@ namespace Payments.Core.Models.Invoice
 
     public class EditInvoiceItemModel
     {
-        [MaxLength(100)]
+        [MaxLength(500)]
         public string Description { get; set; }
 
         [Range(0, 1_000_000)]
