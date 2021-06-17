@@ -84,7 +84,7 @@ namespace Payments.Core.Models.Invoice
         /// <summary>
         /// Name of invoice item
         /// </summary>
-        [MaxLength(100)]
+        [MaxLength(500)]
         public string Description { get; set; }
 
         /// <summary>
