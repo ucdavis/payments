@@ -203,7 +203,7 @@ namespace Payments.Core.Jobs
 
                         if (distribution == null)
                         {
-                            log.Warning("No reconciliation found for invoice id: {id} Created Date: {CreatedAt}", invoice.Id, invoice.CreatedAt);
+                            log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
                             continue;
                         }
 
