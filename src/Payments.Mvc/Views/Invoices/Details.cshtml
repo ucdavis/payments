@@ -113,7 +113,7 @@
                         <span class="text-muted text-small"> <i class="far fa-user"></i> by @action.Actor</span>
                     }
                     <br />
-                    <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, h:mm tt")</span>
+                    <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy -- h:mm tt")</span>
                     @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid) && !string.IsNullOrWhiteSpace(action.Data))
                     {
                         <br/>
