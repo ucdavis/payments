@@ -59,14 +59,38 @@ namespace Payments.Mvc.Controllers
             var agingTotals = byCustomer.Select(c => new CustomerAgingTotals
             {
                 CustomerEmail = c.Key,
-                OneMonth = c.Where(i => i.SentAt.HasValue && i.SentAt.Value >= DateTime.UtcNow.AddMonths(-1)).Sum(i => i.CalculatedTotal),
-                TwoMonths = c.Where(i => i.SentAt.HasValue && i.SentAt.Value >= DateTime.UtcNow.AddMonths(-2) && i.SentAt.Value < DateTime.UtcNow.AddMonths(-1)).Sum(i => i.CalculatedTotal),
-                ThreeMonths = c.Where(i => i.SentAt.HasValue && i.SentAt.Value >= DateTime.UtcNow.AddMonths(-3) && i.SentAt.Value < DateTime.UtcNow.AddMonths(-2)).Sum(i => i.CalculatedTotal),
-                FourMonths = c.Where(i => i.SentAt.HasValue && i.SentAt.Value >= DateTime.UtcNow.AddMonths(-4) && i.SentAt.Value < DateTime.UtcNow.AddMonths(-3)).Sum(i => i.CalculatedTotal),
-                FourToSixMonths = c.Where(i => i.SentAt.HasValue && i.SentAt.Value >= DateTime.UtcNow.AddMonths(-6) && i.SentAt.Value < DateTime.UtcNow.AddMonths(-4)).Sum(i => i.CalculatedTotal),
-                SixToTwelveMonths = c.Where(i => i.SentAt.HasValue && i.SentAt.Value >= DateTime.UtcNow.AddMonths(-12) && i.SentAt.Value < DateTime.UtcNow.AddMonths(-6)).Sum(i => i.CalculatedTotal),
-                OneToTwoYears = c.Where(i => i.SentAt.HasValue && i.SentAt.Value >= DateTime.UtcNow.AddYears(-2) && i.SentAt.Value < DateTime.UtcNow.AddYears(-1)).Sum(i => i.CalculatedTotal),
-                OverTwoYears = c.Where(i => i.SentAt.HasValue && i.SentAt.Value < DateTime.UtcNow.AddYears(-2)).Sum(i => i.CalculatedTotal),
+                OneMonth = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value >= DateTime.UtcNow.AddMonths(-1)) || 
+                    (!i.DueDate.HasValue && i.CreatedAt >= DateTime.UtcNow.AddMonths(-1))
+                ).Sum(i => i.CalculatedTotal),
+                TwoMonths = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value >= DateTime.UtcNow.AddMonths(-2) && i.DueDate.Value < DateTime.UtcNow.AddMonths(-1)) || 
+                    (!i.DueDate.HasValue && i.CreatedAt >= DateTime.UtcNow.AddMonths(-2) && i.CreatedAt < DateTime.UtcNow.AddMonths(-1))
+                ).Sum(i => i.CalculatedTotal),
+                ThreeMonths = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value >= DateTime.UtcNow.AddMonths(-3) && i.DueDate.Value < DateTime.UtcNow.AddMonths(-2)) ||
+                    (!i.DueDate.HasValue && i.CreatedAt >= DateTime.UtcNow.AddMonths(-3) && i.CreatedAt < DateTime.UtcNow.AddMonths(-2))
+                ).Sum(i => i.CalculatedTotal),
+                FourMonths = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value >= DateTime.UtcNow.AddMonths(-4) && i.DueDate.Value < DateTime.UtcNow.AddMonths(-3)) ||
+                    (!i.DueDate.HasValue && i.CreatedAt >= DateTime.UtcNow.AddMonths(-4) && i.CreatedAt < DateTime.UtcNow.AddMonths(-3))
+                ).Sum(i => i.CalculatedTotal),
+                FourToSixMonths = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value >= DateTime.UtcNow.AddMonths(-6) && i.DueDate.Value < DateTime.UtcNow.AddMonths(-4)) ||
+                    (!i.DueDate.HasValue && i.CreatedAt >= DateTime.UtcNow.AddMonths(-6) && i.CreatedAt < DateTime.UtcNow.AddMonths(-4))
+                ).Sum(i => i.CalculatedTotal),
+                SixToTwelveMonths = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value >= DateTime.UtcNow.AddMonths(-12) && i.DueDate.Value < DateTime.UtcNow.AddMonths(-6)) ||
+                    (!i.DueDate.HasValue && i.CreatedAt >= DateTime.UtcNow.AddMonths(-12) && i.CreatedAt < DateTime.UtcNow.AddMonths(-6))
+                ).Sum(i => i.CalculatedTotal),
+                OneToTwoYears = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value >= DateTime.UtcNow.AddYears(-2) && i.DueDate.Value < DateTime.UtcNow.AddYears(-1)) ||
+                    (!i.DueDate.HasValue && i.CreatedAt >= DateTime.UtcNow.AddYears(-2) && i.CreatedAt < DateTime.UtcNow.AddYears(-1))
+                ).Sum(i => i.CalculatedTotal),
+                OverTwoYears = c.Where(i => 
+                    (i.DueDate.HasValue && i.DueDate.Value < DateTime.UtcNow.AddYears(-2)) ||
+                    (!i.DueDate.HasValue && i.CreatedAt < DateTime.UtcNow.AddYears(-2))
+                ).Sum(i => i.CalculatedTotal),
                 Total = c.Sum(i => i.CalculatedTotal)
             }).ToArray();
 
