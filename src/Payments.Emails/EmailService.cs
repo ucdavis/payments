@@ -9,10 +9,10 @@ using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.History;
 using Payments.Emails.Models;
-using RazorLight;
 using Serilog;
 using System.Net;
 using System.Net.Mail;
+using Razor.Templating.Core;
 
 namespace Payments.Emails
 {
@@ -61,8 +61,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var engine = GetRazorEngine();
-            var prehtml = await engine.CompileRenderAsync("Views.Invoice.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("Views.Invoice.cshtml", model, viewbag);
 
             // convert email to real html
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
@@ -110,8 +109,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var engine = GetRazorEngine();
-            var prehtml = await engine.CompileRenderAsync("Views.Receipt.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("Views.Receipt.cshtml", model, viewbag);
 
             // convert email to real html
             var mjml = await _mjmlServices.Render(prehtml);
@@ -149,8 +147,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var engine = GetRazorEngine();
-            var prehtml = await engine.CompileRenderAsync("Views.NewTeamMember.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("Views.NewTeamMember.cshtml", model, viewbag);
 
             // convert email to real html
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
@@ -183,8 +180,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var engine = GetRazorEngine();
-            var prehtml = await engine.CompileRenderAsync("Views.RefundRequest.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("Views.RefundRequest.cshtml", model, viewbag);
 
             // convert email to real html
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
@@ -200,16 +196,6 @@ namespace Payments.Emails
                 await _client.SendMailAsync(message);
                 Log.Information("Sent Email");
             }
-        }
-
-        private static RazorLightEngine GetRazorEngine()
-        {
-            var engine = new RazorLightEngineBuilder()
-                .UseEmbeddedResourcesProject(typeof(SparkpostEmailService))
-                .UseMemoryCachingProvider()
-                .Build();
-
-            return engine;
         }
 
         private ExpandoObject GetViewBag()

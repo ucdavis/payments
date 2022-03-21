@@ -1,22 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <MvcRazorExcludeRefAssembliesFromPublish>false</MvcRazorExcludeRefAssembliesFromPublish>
+    <TargetFramework>net6.0</TargetFramework>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mjml.AspNetCore" Version="1.0.24" />
-    <PackageReference Include="RazorLight" Version="2.0.0-beta1" />
+    <!-- <PackageReference Include="Mjml.AspNetCore" Version="1.0.24" /> -->
   </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App"/>
+	</ItemGroup>
+	<ItemGroup>
+    <PackageReference Include="Mjml.AspNetCore" Version="1.0.24" />
+		<PackageReference Include="Razor.Templating.Core" Version="1.7.0" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="Views\**" />
-    <EmbeddedResource Include="Views\**" />
-  </ItemGroup>
 
 </Project>

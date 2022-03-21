@@ -16,11 +16,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
-using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.AspNetCore.SpaServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Mjml.AspNetCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -37,7 +41,9 @@ using Payments.Mvc.Models;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
+using Payments.Mvc.Swagger;
 using Serilog;
+using SpaCliMiddleware;
 using StackifyLib;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -45,7 +51,7 @@ namespace Payments.Mvc
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             Environment = env;
@@ -53,7 +59,7 @@ namespace Payments.Mvc
 
         public IConfiguration Configuration { get; }
 
-        public IHostingEnvironment Environment { get; }
+        public IWebHostEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -110,25 +116,28 @@ namespace Payments.Mvc
             services.AddScoped<IAuthorizationHandler, VerifyTeamPermissionHandler>();
 
             // add application services
-            services.AddMvc(options => {
-                // add the csp-report content type to that handled by the JsonInputFormatter
-                options
-                    .InputFormatters
-                    .Where(item => item.GetType() == typeof(JsonInputFormatter))
-                    .Cast<JsonInputFormatter>()
-                    .Single()
-                    .SupportedMediaTypes
-                    .Add("application/csp-report");
-
+            services.AddMvc(options =>
+            {
                 options.Filters.Add<SerilogControllerActionFilter>();
             })
-                .AddJsonOptions((options) =>
+                .AddNewtonsoftJson((options) =>
                     {
                         options.SerializerSettings.Error += (sender, args) =>
                         {
                             Log.Logger.Warning(args.ErrorContext.Error, "JSON Serialization Error: {message}", args.ErrorContext.Error.Message);
                         };
                     });
+
+            // add the csp-report content type to that handled by the JsonInputFormatter
+            // must be done after adding mvc - otherwise the json formatter will not be found.
+            services.Configure<MvcOptions>(c =>
+            {
+                var jsonFormatter = c.InputFormatters?.OfType<NewtonsoftJsonInputFormatter>().FirstOrDefault();
+                if (jsonFormatter != null)
+                {
+                    jsonFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/csp-report"));
+                }
+            });
 
             services.AddDistributedMemoryCache();
             services.AddSession();
@@ -143,24 +152,24 @@ namespace Payments.Mvc
             // add swagger
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Payments API v1",
                     Version = "v1",
                     Description = "Accept and process credit card payments for CA&ES",
-                    Contact = new Contact()
+                    Contact = new OpenApiContact()
                     {
                         Name = "CAES Application Requests",
                         Email = "apprequests@caes.ucdavis.edu"
                     },
-                    License = new License()
+                    License = new OpenApiLicense()
                     {
                         Name = "MIT",
-                        Url = "https://www.github.com/ucdavis/payments/LICENSE"
+                        Url = new Uri("https://www.github.com/ucdavis/payments/LICENSE")
                     },
                     Extensions =
                     {
-                        {"ProjectUrl", "https://www.github.com/ucdavis/payments"}
+                        {"ProjectUrl", new OpenApiString("https://www.github.com/ucdavis/payments")}
                     }
                 });
 
@@ -168,20 +177,30 @@ namespace Payments.Mvc
                 c.IncludeXmlComments(xmlFilePath);
                 c.EnableAnnotations();
 
-                c.AddSecurityDefinition("apiKey", new ApiKeyScheme()
+                var securityScheme = new OpenApiSecurityScheme
                 {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "ApiKey"
+                    },
+                    Type = SecuritySchemeType.ApiKey,
                     Description = "API Key Authentication",
-                    Name = ApiKeyMiddleware.HeaderKey,
-                    In = "header",
-                    Type = "apiKey"
-                });
+                    Name = "X-Auth-Token", //ApiKeyMiddleware.HeaderKey,
+                    In = ParameterLocation.Header,
+                    Scheme = "ApiKey"
+                };
 
-                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                c.AddSecurityDefinition("ApiKey", securityScheme);
+
+
+                c.OperationFilter<SecurityRequirementsOperationFilter>(securityScheme);
+
+                // In production, the React files will be served from this directory
+                services.AddSpaStaticFiles(configuration =>
                 {
-                    { "apiKey", new string[] { } }
-                });
-
-                c.OperationFilter<FileOperationFilter>();
+                    configuration.RootPath = "wwwroot";
+                });                
             });
 
             // email services
@@ -203,10 +222,16 @@ namespace Payments.Mvc
             services.AddHostedService<QueuedHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddScoped<MoneyMovementJob>();
+
+            // In production, the React files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "wwwroot";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<CorrelationIdMiddleware>();
 
@@ -216,12 +241,6 @@ namespace Payments.Mvc
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
-                app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-                {
-                    HotModuleReplacement = true,
-                    ReactHotModuleReplacement = true
-                });
             }
             else
             {
@@ -231,6 +250,22 @@ namespace Payments.Mvc
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSpaStaticFiles(new StaticFileOptions()
+            {
+                OnPrepareResponse = (context) =>
+                {
+                    // cache our static assest, i.e. CSS and JS, for a long time
+                    if (context.Context.Request.Path.Value.StartsWith("/dist"))
+                    {
+                        var headers = context.Context.Response.GetTypedHeaders();
+                        headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+                        {
+                            Public = true,
+                            MaxAge = TimeSpan.FromDays(365)
+                        };
+                    }
+                }
+            });
             app.UseSerilogRequestLogging();
 
             // various security middlewares
@@ -337,6 +372,8 @@ namespace Payments.Mvc
                 b.AllowUsb.FromNowhere();
             });
 
+            app.UseRouting();
+
             // authentication middlwares
             app.UseAuthentication();
             app.UseMiddleware<ApiKeyMiddleware>();
@@ -355,41 +392,43 @@ namespace Payments.Mvc
                 c.SwaggerEndpoint("/api-docs/v1/swagger.json", "Payments API v1");
             });
 
-            app.UseMvc(routes =>
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
                 // customer routes
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "pay-responses",
-                    template: "pay/{action}",
+                    pattern: "pay/{action}",
                     defaults: new { controller = "payments" },
                     constraints: new { action = "(receipt|cancel|providernotify)" });
 
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "pay-invoice",
-                    template: "pay/{id}",
+                    pattern: "pay/{id}",
                     defaults: new { controller = "payments", action = "pay" });
 
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "download-invoice",
-                    template: "download/{id}",
+                    pattern: "download/{id}",
                     defaults: new { controller = "payments", action = "download" });
 
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "invoice-file",
-                    template: "file/{id}/{fileId}",
+                    pattern: "file/{id}/{fileId}",
                     defaults: new { controller = "payments", action = "file" });
 
                 // non team root routes
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "non-team-routes",
-                    template: "{controller}/{action=Index}/{id?}",
+                    pattern: "{controller}/{action=Index}/{id?}",
                     defaults: new { },
                     constraints: new { controller = "(account|teams|jobs|system)" });
 
                 // team level routes
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "team-index",
-                    template: "{team}",
+                    pattern: "{team}",
                     defaults: new { controller = "home", action = "teamindex" },
                     constraints: new
                     {
@@ -399,9 +438,9 @@ namespace Payments.Mvc
                         })
                     });
 
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "team-routes",
-                    template: "{team}/{controller=Home}/{action=Index}/{id?}",
+                    pattern: "{team}/{controller=Home}/{action=Index}/{id?}",
                     defaults: new { },
                     constraints: new
                     {
@@ -412,9 +451,22 @@ namespace Payments.Mvc
                     });
 
                 // le default fallback for controllers that are excluded by the team = NotConstraint above
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                if (env.IsDevelopment())
+                {
+                    endpoints.MapToSpaCliProxy(
+                        "/dist/{*path}",
+                        new SpaOptions { SourcePath = "ClientApp" },
+                        npmScript: "start",
+                        port: 3001,
+                        regex: "Project is running",
+                        forceKill: true,
+                        useProxy: true,
+                        runner: ScriptRunnerType.Npm);
+                }                    
             });
         }
     }

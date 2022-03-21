@@ -58,7 +58,7 @@ namespace Payments.Core.Helpers
 
         private async Task<TeamRole> FindOrCreateRole(string name)
         {
-            var role = await _context.TeamRoles.FirstOrDefaultAsync(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase));
+            var role = await _context.TeamRoles.FirstOrDefaultAsync(r => r.Name == name);
 
             if (role != null)
             {

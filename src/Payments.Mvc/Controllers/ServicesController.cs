@@ -6,7 +6,7 @@ using Payments.Mvc.Models.Roles;
 namespace Payments.Mvc.Controllers
 {
     [Authorize(Policy = PolicyCodes.ServiceKey)]
-    public abstract class ServicesController : Controller
+    public abstract class ServicesController : Microsoft.AspNetCore.Mvc.Controller
     {
     }
 }

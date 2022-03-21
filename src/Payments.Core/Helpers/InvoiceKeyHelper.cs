@@ -13,7 +13,7 @@ namespace Payments.Core.Helpers
             // ignore similar characters (0/O) (1/I) (2/Z)
             var chars = "ABCDEFGHJKLMNPQRSTUVWXY3456789".ToCharArray();
             var data = new byte[1];
-            using (var crypto = new RNGCryptoServiceProvider())
+            using (var crypto = RandomNumberGenerator.Create())
             {
                 crypto.GetNonZeroBytes(data);
                 data = new byte[KeyLength];

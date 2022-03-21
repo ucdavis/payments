@@ -12,7 +12,7 @@ using Payments.Core.Services;
 
 namespace Payments.Mvc.Controllers
 {
-    public class PdfController : Controller
+    public class PdfController : Microsoft.AspNetCore.Mvc.Controller
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IStorageService _storageService;
@@ -26,7 +26,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet("/pdf/{id}")]
-        public async Task<ActionResult> Invoice(string id)
+        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> Invoice(string id)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Coupon)
@@ -99,7 +99,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet("/receipt/{id}")]
-        public async Task<ActionResult> Receipt(string id)
+        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> Receipt(string id)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Coupon)

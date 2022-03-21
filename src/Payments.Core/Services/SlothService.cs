@@ -32,7 +32,7 @@ namespace Payments.Core.Services
         {
             using (var client = GetHttpClient())
             {
-                var escapedId = Uri.EscapeUriString(id);
+                var escapedId = Uri.EscapeDataString(id);
                 var url = $"transactions/processor/{escapedId}";
 
                 var response = await client.GetAsync(url);
@@ -45,7 +45,7 @@ namespace Payments.Core.Services
         {
             using (var client = GetHttpClient())
             {
-                var escapedKey = Uri.EscapeUriString(kfskey);
+                var escapedKey = Uri.EscapeDataString(kfskey);
                 var url = $"transactions/kfskey/{escapedKey}";
 
                 var response = await client.GetAsync(url);
