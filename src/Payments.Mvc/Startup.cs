@@ -303,6 +303,10 @@ namespace Payments.Mvc
                     // allow stackify prefix
                     c.AllowScripts
                         .From("http://127.0.0.1:2012/scripts/stckjs.min.js");
+
+                    // allow HMR connections
+                    c.AllowConnections
+                        .To("http://localhost:3001");
                 }
                 else
                 {
@@ -342,8 +346,10 @@ namespace Payments.Mvc
 
                 c.OnSendingHeader = context =>
                 {
-                    context.ShouldNotSend = context.HttpContext.Request.Path.StartsWithSegments("/api");
-                    context.ShouldNotSend = context.HttpContext.Request.Path.StartsWithSegments("/api-docs");
+                    var path = context.HttpContext.Request.Path;
+                    context.ShouldNotSend = path.StartsWithSegments("/api")
+                        || path.StartsWithSegments("/api-docs")
+                        || path.StartsWithSegments("/info");
                     return Task.CompletedTask;
                 };
             });
