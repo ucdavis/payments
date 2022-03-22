@@ -66,7 +66,7 @@ stages:
               command: "publish"
               publishWebProjects: false
               zipAfterPublish: false
-              projects: "./src/Payments.Jobs.Moneymovement/Payments.Jobs.Moneymovement.csproj"
+              projects: "./src/Payments.Jobs.MoneyMovement/Payments.Jobs.MoneyMovement.csproj"
               arguments: "--configuration $(buildConfiguration) --runtime win-x64 --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered"
 
           - task: PublishBuildArtifacts@1
