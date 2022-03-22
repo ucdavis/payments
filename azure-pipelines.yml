@@ -18,22 +18,22 @@ stages:
   - stage: Test
     jobs:
       - job:
-          steps:
-            - task: UseDotNet@2
-              displayName: "Use .NET 6 sdk"
-              inputs:
-                packageType: "sdk"
-                version: 6.x
+        steps:
+          - task: UseDotNet@2
+            displayName: "Use .NET 6 sdk"
+            inputs:
+              packageType: "sdk"
+              version: 6.x
 
-            - task: NodeTool@0
-              displayName: "Use Node 14 (LTS)"
-              inputs:
-                versionSpec: "14.x"
+          - task: NodeTool@0
+            displayName: "Use Node 14 (LTS)"
+            inputs:
+              versionSpec: "14.x"
 
-            - task: DotNetCoreCLI@2
-              displayName: "Run Server Tests"
-              inputs:
-                command: "test"
+          - task: DotNetCoreCLI@2
+            displayName: "Run Server Tests"
+            inputs:
+              command: "test"
 
   - stage: Publish
     jobs:
