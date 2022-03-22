@@ -21,7 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -132,11 +132,9 @@ namespace Payments.Mvc
             // must be done after adding mvc - otherwise the json formatter will not be found.
             services.Configure<MvcOptions>(c =>
             {
-                var jsonFormatter = c.InputFormatters?.OfType<NewtonsoftJsonInputFormatter>().FirstOrDefault();
-                if (jsonFormatter != null)
-                {
-                    jsonFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/csp-report"));
-                }
+                var jsonFormatter = c.InputFormatters.OfType<NewtonsoftJsonInputFormatter>()
+                    .First(i => i.SupportedMediaTypes.Contains("application/json"));
+                jsonFormatter.SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/csp-report"));
             });
 
             services.AddDistributedMemoryCache();
@@ -200,7 +198,7 @@ namespace Payments.Mvc
                 services.AddSpaStaticFiles(configuration =>
                 {
                     configuration.RootPath = "wwwroot";
-                });                
+                });
             });
 
             // email services
@@ -466,7 +464,7 @@ namespace Payments.Mvc
                         forceKill: true,
                         useProxy: true,
                         runner: ScriptRunnerType.Npm);
-                }                    
+                }
             });
         }
     }

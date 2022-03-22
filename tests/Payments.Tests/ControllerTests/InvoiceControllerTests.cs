@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -42,7 +43,8 @@ namespace payments.Tests.ControllerTests
 
         public InvoiceControllerTests()
         {
-            var mockDataProvider = new Mock<SessionStateTempDataProvider>();
+            var mockTempDataSerializer = new Mock<TempDataSerializer>();
+            var mockDataProvider = new Mock<SessionStateTempDataProvider>(mockTempDataSerializer.Object);
 
 
             MockDbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
@@ -110,7 +112,7 @@ namespace payments.Tests.ControllerTests
             InvoiceData[0].History.Count.ShouldBe(1);
             InvoiceData[0].History[0].Actor.ShouldBe("FirstName2 LastName2");
             InvoiceData[0].History[0].Type.ShouldBe(HistoryActionTypes.InvoiceUnlocked.TypeCode);
-            InvoiceData[0].History[0].ActionDateTime.ShouldNotBeNull();
+            InvoiceData[0].History[0].ActionDateTime.ShouldNotBe(default);
         }
 
         [Fact]
