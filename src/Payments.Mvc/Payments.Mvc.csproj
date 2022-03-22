@@ -87,4 +87,24 @@
     </ItemGroup>
   </Target>
   
+  <PropertyGroup>
+    <!-- File with mtime of last successful npm install -->
+    <NpmInstallStampFile>node_modules/.install-stamp</NpmInstallStampFile>
+  </PropertyGroup>
+  <Target Name="NpmInstallDebug"
+    BeforeTargets="BeforeBuild"
+    Condition=" '$(Configuration)' == 'Debug' "
+    Inputs="package.json"
+    Outputs="$(NpmInstallStampFile)">
+    <Exec Command="npm install" />
+    <Touch Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
+  </Target>
+  <Target Name="NpmInstallRelease"
+    BeforeTargets="BeforeBuild"
+    Condition=" '$(Configuration)' == 'Release' "
+    Inputs="package.json"
+    Outputs="$(NpmInstallStampFile)">
+    <Exec Command="npm ci" />
+    <Touch Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
+  </Target>
 </Project>
