@@ -392,7 +392,7 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public Microsoft.AspNetCore.Mvc.ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
         {
-            var model = System.Text.Json.JsonSerializer.Deserialize<PreviewInvoiceViewModel>(json);
+            var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
 
             return View("preview", model);
         }
