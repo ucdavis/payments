@@ -13,7 +13,7 @@ namespace Payments.Mvc.Helpers
     {
         public static IHtmlContent InlineSvg(this IHtmlHelper html, string path)
         {
-            var host = (IHostingEnvironment)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IHostingEnvironment));
+            var host = (IWebHostEnvironment)html.ViewContext.HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
             var root = host.ContentRootPath;
 
             var svg = File.ReadAllText(root + path);

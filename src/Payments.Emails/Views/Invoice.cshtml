@@ -1,15 +1,14 @@
 @using Payments.Core.Domain
-@using RazorLight
-@inherits TemplatePage<Payments.Emails.Models.InvoiceViewModel>
+@model Payments.Emails.Models.InvoiceViewModel
 
 @{
-    Layout = "Views.Shared._Layout";
-    var team = (Team) ViewBag.Team;
+    Layout = "_EmailLayout";
+    var team = (Team) ViewData["Team"];
 
     var invoice = Model.Invoice;
 
-    var payHref = $"{ViewBag.BaseUrl}/pay/{invoice.LinkId}";
-    var pdfHref = $"{ViewBag.BaseUrl}/download/{invoice.LinkId}";
+    var payHref = $"{ViewData["BaseUrl"]}/pay/{invoice.LinkId}";
+    var pdfHref = $"{ViewData["BaseUrl"]}/download/{invoice.LinkId}";
 } 
 
 <mj-text align="center">
@@ -46,6 +45,6 @@
 
 <mj-button href="@payHref" background-color="#004987">Pay this Invoice</mj-button>
 
-@{ await IncludeAsync("Views.Shared._Summary", invoice); }
+@{ await Html.PartialAsync("_EmailSummary", invoice); }
 
 <mj-button href="@pdfHref" background-color="#004987">Download as PDF</mj-button>

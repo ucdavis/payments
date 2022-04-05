@@ -2,7 +2,6 @@ const path = require('path');
 const webpack = require('webpack');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -13,6 +12,16 @@ module.exports = env => {
     const isDevBuild = !(env && env.prod);
     const isAnalyze = (env && env.analyze);
     return [{
+        devServer: {
+            contentBase: path.join(__dirname, "./wwwroot"),
+            compress: true,
+            overlay: true,
+            port: 3001,
+            // proxying back to the fronting aspnetcore app can cause an infinite loop
+            // proxy: {
+            //   "/": "http://localhost:5000",
+            // },
+        },
         stats: {
             modules: false
         },
@@ -36,7 +45,7 @@ module.exports = env => {
             rules: [{
                     test: /\.tsx?$/,
                     include: /ClientApp/,
-                    use: 'awesome-typescript-loader?silent=true',
+                    use: 'ts-loader',
                 },
                 {
                     test: /\.css$/,
@@ -78,6 +87,7 @@ module.exports = env => {
                             loader: 'sass-loader',
                             options: {
                                 sourceMap: true,
+                                implementation: require("sass")
                             },
                         },
                     ]
@@ -111,8 +121,6 @@ module.exports = env => {
             }
         },
         plugins: [
-            new CheckerPlugin(),
-            
             ...isDevBuild ?
             [
                 // Plugins that apply in development builds only

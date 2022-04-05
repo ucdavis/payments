@@ -1,10 +1,9 @@
-@using RazorLight
-@inherits TemplatePage<Payments.Emails.Models.NewTeamMemberViewModel>
+@model Payments.Emails.Models.NewTeamMemberViewModel
 
 @{
-    Layout = "Views.Shared._Layout";
+    Layout = "_EmailLayout";
 
-    var teamUrl = $"{ViewBag.BaseUrl}/{Model.Team.Slug}";
+    var teamUrl = $"{ViewData["BaseUrl"]}/{Model.Team.Slug}";
 } 
 
 <mj-text align="center">

@@ -1,9 +1,7 @@
 @using Payments.Core.Domain
-@using RazorLight
-@inherits TemplatePage<dynamic>
 
 @{
-    var team = (Team) ViewBag.Team;
+    var team = (Team) ViewData["Team"];
 }
 
 <mjml lang="en-us">

@@ -23,6 +23,7 @@ using Payments.Mvc.Models.CyberSource;
 using Payments.Mvc.Models.PaymentViewModels;
 using Payments.Mvc.Services;
 using Serilog;
+using System.Text.Json;
 
 namespace Payments.Mvc.Controllers
 {
@@ -392,7 +393,9 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
         {
-            var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
+            var model = System.Text.Json.JsonSerializer.Deserialize<PreviewInvoiceViewModel>(
+                json, 
+                new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
             return View("preview", model);
         }

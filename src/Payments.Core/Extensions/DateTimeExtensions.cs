@@ -45,7 +45,7 @@ namespace Payments.Core.Extensions
         /// <returns>Fiscal Year</returns>
         public static int FiscalYear(this DateTime datetime)
         {
-            if (datetime == null)
+            if (datetime == default)
             {
                 throw new ArgumentNullException(nameof(datetime));
             }
@@ -70,7 +70,7 @@ namespace Payments.Core.Extensions
         /// <returns>Fiscal Period string</returns>
         public static int FiscalPeriod(this DateTime datetime)
         {
-            if (datetime == null)
+            if (datetime == default)
             {
                 throw new ArgumentNullException(nameof(datetime));
             }

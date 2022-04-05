@@ -4,72 +4,75 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+  - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: "ubuntu-latest"
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  solution: "**/*.sln"
+  buildPlatform: "Any CPU"
+  buildConfiguration: "Release"
 
-steps:
-- task: UseDotNet@2
-  displayName: 'Use .NET Core sdk'
-  inputs:
-    packageType: sdk
-    version: 2.2.106
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+stages:
+  - stage: Test
+    jobs:
+      - job:
+        steps:
+          - task: UseDotNet@2
+            displayName: "Use .NET 6 sdk"
+            inputs:
+              packageType: "sdk"
+              version: 6.x
 
-- task: NodeTool@0
-  inputs:
-    versionSpec: '12.x'
+          - task: NodeTool@0
+            displayName: "Use Node 14 (LTS)"
+            inputs:
+              versionSpec: "14.x"
 
-- task: NuGetToolInstaller@1
-  inputs:
-    versionSpec: 4.9.x
+          - task: DotNetCoreCLI@2
+            displayName: "Run Server Tests"
+            inputs:
+              command: "test"
 
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
+  - stage: Publish
+    jobs:
+      - job:
+        steps:
+          - task: UseDotNet@2
+            displayName: "Use .NET 6 sdk"
+            inputs:
+              packageType: "sdk"
+              version: 6.x
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build Payments.Mvc'
-  inputs:
-    command: 'build'
-    projects: './src/payments.mvc/payments.mvc.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+          - task: NodeTool@0
+            displayName: "Use Node 14 (LTS)"
+            inputs:
+              versionSpec: "14.x"
 
-- task: DotNetCoreCLI@2
-  displayName: 'Assemble Payments.Mvc'
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    zipAfterPublish: false
-    modifyOutputPath: false
-    projects: './src/payments.mvc/payments.mvc.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/'
+          - task: DotNetCoreCLI@2
+            displayName: "Publish Payments.Mvc"
+            inputs:
+              command: "publish"
+              publishWebProjects: true
+              zipAfterPublish: false
+              modifyOutputPath: false
+              projects: "./src/Payments.Mvc/Payments.Mvc.csproj"
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)/"
 
-- task: DotNetCoreCLI@2
-  displayName: 'Assemble Payments.Jobs.MoneyMovement'
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    zipAfterPublish: false
-    projects: './src/payments.jobs.moneymovement/payments.jobs.moneymovement.csproj'
-    arguments: '--configuration $(buildConfiguration) --runtime win-x64 --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered'
+          - task: DotNetCoreCLI@2
+            displayName: "Publish Payments.Jobs.MoneyMovement"
+            inputs:
+              command: "publish"
+              publishWebProjects: false
+              zipAfterPublish: false
+              projects: "./src/Payments.Jobs.MoneyMovement/Payments.Jobs.MoneyMovement.csproj"
+              arguments: "--configuration $(buildConfiguration) --runtime win-x64 --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered"
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifacts'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'build'
-    publishLocation: 'Container'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Test'
-  inputs:
-    command: 'test'
-    projects: './tests/payments.tests/payments.tests.csproj'
+          - task: PublishBuildArtifacts@1
+            condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+            displayName: "Publish Build Artifacts for master branch builds"
+            inputs:
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              ArtifactName: "build"
+              publishLocation: "Container"

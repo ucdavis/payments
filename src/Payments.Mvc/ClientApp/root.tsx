@@ -3,17 +3,17 @@ import './polyfills/array.js';
 import * as dateFns from 'date-fns';
 
 interface ExtraWindow extends Window {
-    dateFns: any;
+  dateFns: any;
 }
 
-const extraWindow = window as ExtraWindow;
+const extraWindow = window as unknown as ExtraWindow;
 
 extraWindow.dateFns = {
-    format: dateFns.format,
+  format: dateFns.format,
 
-    getMonth: dateFns.getMonth,
-    setMonth: dateFns.setMonth,
+  getMonth: dateFns.getMonth,
+  setMonth: dateFns.setMonth,
 
-    getYear: dateFns.getYear,
-    setYear: dateFns.setYear,
-}
+  getYear: dateFns.getYear,
+  setYear: dateFns.setYear
+};
