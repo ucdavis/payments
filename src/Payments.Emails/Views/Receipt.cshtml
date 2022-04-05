@@ -2,7 +2,7 @@
 @model Payments.Emails.Models.ReceiptViewModel
 
 @{
-    Layout = "_Layout";
+    Layout = "_EmailLayout";
     var team = (Team)ViewData["Team"];
 
     var invoice = Model.Invoice;
@@ -43,7 +43,7 @@
     </tr>
 </mj-table>
 
-@{ await Html.PartialAsync("_Summary", invoice); }
+@{ await Html.PartialAsync("_EmailSummary", invoice); }
 
 <mj-text>
     <p>@payment.CardType @payment.CardNumber</p>
