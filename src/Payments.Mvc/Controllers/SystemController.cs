@@ -25,7 +25,7 @@ namespace Payments.Mvc.Controllers
             _signInManager = signInManager;
         }
 
-        public Microsoft.AspNetCore.Mvc.ActionResult Index()
+        public ActionResult Index()
         {
             return View();
         }

@@ -17,7 +17,7 @@ namespace Payments.Mvc.Helpers
             var root = host.ContentRootPath;
 
             var svg = File.ReadAllText(root + path);
-            return new Microsoft.AspNetCore.Html.HtmlString(svg);
+            return new HtmlString(svg);
         }
     }
 }

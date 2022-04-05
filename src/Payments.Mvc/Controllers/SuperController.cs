@@ -8,7 +8,7 @@ namespace Payments.Mvc.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [AutoValidateAntiforgeryToken]
     [Authorize]
-    public abstract class SuperController : Microsoft.AspNetCore.Mvc.Controller
+    public abstract class SuperController : Controller
     {
         protected SuperController()
         {

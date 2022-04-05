@@ -21,7 +21,7 @@ namespace Payments.Mvc.Controllers
 
         [HttpGet]
         [MiddlewareFilter(typeof(JsReportPipeline))]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> TaxReport()
+        public async Task<ActionResult> TaxReport()
         {
             var invoices = await _dbContext.Invoices
                 .Include(i => i.Account)

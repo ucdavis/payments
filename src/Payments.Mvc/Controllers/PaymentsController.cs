@@ -23,10 +23,11 @@ using Payments.Mvc.Models.CyberSource;
 using Payments.Mvc.Models.PaymentViewModels;
 using Payments.Mvc.Services;
 using Serilog;
+using System.Text.Json;
 
 namespace Payments.Mvc.Controllers
 {
-    public class PaymentsController : Microsoft.AspNetCore.Mvc.Controller
+    public class PaymentsController : Controller
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IDataSigningService _dataSigningService;
@@ -48,7 +49,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> Pay(string id)
+        public async Task<ActionResult> Pay(string id)
         {
             //Changes here should be made to Download too
             var invoice = await _dbContext.Invoices
@@ -119,7 +120,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> Download(string id)
+        public async Task<ActionResult> Download(string id)
         {
             //This is a copy of Pay, changes there should be reflected here
             var invoice = await _dbContext.Invoices
@@ -173,7 +174,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> AddCoupon(string id, string code)
+        public async Task<ActionResult> AddCoupon(string id, string code)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
@@ -259,7 +260,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> RemoveCoupon(string id)
+        public async Task<ActionResult> RemoveCoupon(string id)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
@@ -315,7 +316,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> File(string id, int fileId)
+        public async Task<ActionResult> File(string id, int fileId)
         {
             if (string.IsNullOrWhiteSpace(id) || fileId <= 0)
             {
@@ -347,7 +348,7 @@ namespace Payments.Mvc.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> Preview(int id)
+        public async Task<ActionResult> Preview(int id)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
@@ -390,16 +391,18 @@ namespace Payments.Mvc.Controllers
 
         [Authorize]
         [HttpPost]
-        public Microsoft.AspNetCore.Mvc.ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
+        public ActionResult PreviewFromJson([FromForm(Name = "json")] string json)
         {
-            var model = JsonConvert.DeserializeObject<PreviewInvoiceViewModel>(json);
+            var model = System.Text.Json.JsonSerializer.Deserialize<PreviewInvoiceViewModel>(
+                json, 
+                new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
             return View("preview", model);
         }
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> Receipt(ReceiptResponseModel response)
+        public async Task<ActionResult> Receipt(ReceiptResponseModel response)
         {
 #if DEBUG
             // For testing local only, we should process the actual payment
@@ -459,7 +462,7 @@ namespace Payments.Mvc.Controllers
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> Cancel(ReceiptResponseModel response)
+        public async Task<ActionResult> Cancel(ReceiptResponseModel response)
         {
 #if DEBUG
             // For testing local only, we should process the actual payment
@@ -495,7 +498,7 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
-        public async Task<Microsoft.AspNetCore.Mvc.ActionResult> ProviderNotify(ReceiptResponseModel response)
+        public async Task<ActionResult> ProviderNotify(ReceiptResponseModel response)
         {
             Log.ForContext("response", response, true).Information("Provider Notification Received");
 
@@ -739,7 +742,7 @@ namespace Payments.Mvc.Controllers
         /// override NotFound to return 
         /// </summary>
         /// <returns></returns>
-        public Microsoft.AspNetCore.Mvc.ActionResult PublicNotFound()
+        public ActionResult PublicNotFound()
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
             return View("NotFound");

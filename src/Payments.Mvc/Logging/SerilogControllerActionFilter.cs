@@ -7,7 +7,7 @@ using Serilog;
 
 namespace Payments.Mvc.Logging
 {
-    public class SerilogControllerActionFilter : Microsoft.AspNetCore.Mvc.Filters.IActionFilter
+    public class SerilogControllerActionFilter : IActionFilter
     {
         private readonly IDiagnosticContext _diagnosticContext;
         public SerilogControllerActionFilter(IDiagnosticContext diagnosticContext)
@@ -15,7 +15,7 @@ namespace Payments.Mvc.Logging
             _diagnosticContext = diagnosticContext;
         }
 
-        public void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
+        public void OnActionExecuting(ActionExecutingContext context)
         {
             _diagnosticContext.Set("RouteData", context.ActionDescriptor.RouteValues);
             _diagnosticContext.Set("ActionName", context.ActionDescriptor.DisplayName);
@@ -49,7 +49,7 @@ namespace Payments.Mvc.Logging
             //}
         }
 
-        public void OnActionExecuted(Microsoft.AspNetCore.Mvc.Filters.ActionExecutedContext context)
+        public void OnActionExecuted(ActionExecutedContext context)
         {
             // Set the content-type of the Response at this point
             _diagnosticContext.Set("ResponseContentType", context.HttpContext.Response.ContentType);
