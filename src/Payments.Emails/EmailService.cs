@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -52,8 +51,8 @@ namespace Payments.Emails
 
         public async Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails)
         {
-            dynamic viewbag = GetViewBag();
-            viewbag.Team = invoice.Team;
+            var viewbag = GetViewData();
+            viewbag["Team"] = invoice.Team;
 
             var model = new InvoiceViewModel
             {
@@ -61,7 +60,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var prehtml = await RazorTemplateEngine.RenderAsync("Views.Invoice.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/Invoice.cshtml", model, viewbag);
 
             // convert email to real html
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
@@ -99,8 +98,8 @@ namespace Payments.Emails
 
         public async Task SendReceipt(Invoice invoice, PaymentEvent payment)
         {
-            dynamic viewbag = GetViewBag();
-            viewbag.Team = invoice.Team;
+            var viewbag = GetViewData();
+            viewbag["Team"] = invoice.Team;
 
             var model = new ReceiptViewModel
             {
@@ -109,7 +108,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var prehtml = await RazorTemplateEngine.RenderAsync("Views.Receipt.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/Receipt.cshtml", model, viewbag);
 
             // convert email to real html
             var mjml = await _mjmlServices.Render(prehtml);
@@ -136,8 +135,8 @@ namespace Payments.Emails
 
         public async Task SendNewTeamMemberNotice(Team team, User user, TeamRole role)
         {
-            dynamic viewbag = GetViewBag();
-            viewbag.Team = team;
+            var viewbag = GetViewData();
+            viewbag["Team"] = team;
 
             var model = new NewTeamMemberViewModel()
             {
@@ -147,7 +146,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var prehtml = await RazorTemplateEngine.RenderAsync("Views.NewTeamMember.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/NewTeamMember.cshtml", model, viewbag);
 
             // convert email to real html
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
@@ -167,9 +166,9 @@ namespace Payments.Emails
 
         public async Task SendRefundRequest(Invoice invoice, PaymentEvent payment, string refundReason, User user)
         {
-            dynamic viewbag = GetViewBag();
-            viewbag.Team = invoice.Team;
-            viewbag.Slug = invoice.Team.Slug;
+            var viewbag = GetViewData();
+            viewbag["Team"] = invoice.Team;
+            viewbag["Slug"] = invoice.Team.Slug;
 
             var model = new RefundRequestViewModel()
             {
@@ -180,7 +179,7 @@ namespace Payments.Emails
             };
 
             // add model data to email
-            var prehtml = await RazorTemplateEngine.RenderAsync("Views.RefundRequest.cshtml", model, viewbag);
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/RefundRequest.cshtml", model, viewbag);
 
             // convert email to real html
             MjmlResponse mjml = await _mjmlServices.Render(prehtml);
@@ -198,11 +197,11 @@ namespace Payments.Emails
             }
         }
 
-        private ExpandoObject GetViewBag()
+        private Dictionary<string, object> GetViewData()
         {
-            dynamic viewbag = new ExpandoObject();
-            viewbag.BaseUrl = _sparkpostSettings.BaseUrl;
-            return viewbag;
+            return new Dictionary<string, object>{
+                { "BaseUrl", _sparkpostSettings.BaseUrl },
+            };
         }
     }
 }
