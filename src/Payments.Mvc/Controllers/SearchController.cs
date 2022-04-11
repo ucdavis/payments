@@ -37,7 +37,7 @@ namespace Payments.Mvc.Controllers
 
             if (q.Contains("@"))
             {
-                query = query.Where(a => a.CustomerEmail.Equals(q, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(a => a.CustomerEmail == q);
             }
             else
             {
