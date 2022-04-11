@@ -7,6 +7,7 @@
   },
   "scripts": {
     "start": "node_modules/.bin/webpack-dev-server",
+    "debug": "dotnet watch run",
     "webpack": "node node_modules/webpack/bin/webpack.js --env.dev --watch"
   },
   "dependencies": {
