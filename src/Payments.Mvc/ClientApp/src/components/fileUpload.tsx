@@ -2,10 +2,8 @@ import * as React from 'react';
 
 import axios, { AxiosResponse, CancelTokenSource } from 'axios';
 import Dropzone, { DropzoneRenderArgs } from 'react-dropzone';
-import { compose, fromRenderProps } from 'recompose';
 
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
-import { Team } from '../models/Team';
 
 import TeamContext from '../contexts/TeamContext';
 
@@ -20,7 +18,6 @@ interface UploadingInvoiceAttachment extends InvoiceAttachment {
 
 interface IProps {
     className?: string;
-    team: Team;
     onFileUpload: (file: InvoiceAttachment) => void;
 }
 
@@ -28,7 +25,8 @@ interface IState {
     attachmentsUploading: UploadingInvoiceAttachment[]
 }
 
-class FileUpload extends React.Component<IProps, IState> {
+export default class FileUpload extends React.Component<IProps, IState> {
+    static contextType = TeamContext;
 
     constructor(props) {
         super(props);
@@ -137,7 +135,7 @@ class FileUpload extends React.Component<IProps, IState> {
     }
 
     private startUpload = (accepted: File[], rejected, event) => {
-        const { slug } = this.props.team;
+        const { slug } = this.context;
 
         // start uploads
         for (const file of accepted) {
@@ -230,7 +228,3 @@ class FileUpload extends React.Component<IProps, IState> {
         });
     }
 }
-
-export default compose(
-    fromRenderProps(TeamContext.Consumer, (team) => ({ team })),
-)(FileUpload);

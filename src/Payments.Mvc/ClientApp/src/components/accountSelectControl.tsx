@@ -14,7 +14,7 @@ interface IState {
     isModalOpen: boolean;
 }
 
-function sortAccounts(a, b) {
+function sortAccounts(a: Account, b: Account) {
     if (a.isDefault) {
         return -1;
     }
@@ -36,7 +36,7 @@ function sortAccounts(a, b) {
 
 export default class AccountSelectControl extends React.Component<IProps, IState> {
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
 
         this.state = {
