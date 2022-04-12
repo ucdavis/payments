@@ -27,7 +27,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
 
     private renderAttachment = (attachment: InvoiceAttachment) => {
 
-        const { team } = this.context;
+        const team = this.context;
 
         const fileTypeIcon = this.getFileTypeIcon(attachment.contentType)
 
