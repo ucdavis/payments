@@ -86,9 +86,7 @@
     </environment>
     <environment names="Staging,Production">
         @* In a production deployment, we will use a dynamic view component to load the generated scripts *@
-        <cache expires-after="@TimeSpan.FromMinutes(30)">
-            @await Component.InvokeAsync("DynamicScripts")
-        </cache>
+        @await Component.InvokeAsync("DynamicScripts")
     </environment>
 
 

@@ -23,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -224,6 +225,9 @@ namespace Payments.Mvc
             services.AddHostedService<QueuedHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddScoped<MoneyMovementJob>();
+
+            // Used by dynamic scripts/styles loader
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory())); // lgtm [cs/local-not-disposed] 
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
