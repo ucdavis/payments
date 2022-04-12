@@ -5,4 +5,7 @@ extraction:
     index:
       dotnet:
         arguments: "--configuration Release"
-        version: "2.2.106"
+        version: "6.0.100"
+path_classifiers:
+  library:
+    - "**/wwwroot/lib/*"

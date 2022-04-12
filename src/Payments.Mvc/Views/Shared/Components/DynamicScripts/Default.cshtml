@@ -1,0 +1,8 @@
+@model Payments.Mvc.Views.Shared.Components.DynamicScripts.DynamicScriptModel
+
+<script asp-add-nonce>@Html.Raw(Model.Inline)</script>
+
+@foreach (var script in Model.Scripts)
+{
+    @Html.Raw(script)
+}

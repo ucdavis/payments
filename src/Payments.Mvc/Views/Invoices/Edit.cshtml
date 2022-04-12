@@ -4,10 +4,6 @@
     ViewBag.Title = "Edit Invoice";
 }
 
-<div id="react-app">
-    Loading Edit Invoice...
-</div>
-
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
 {
     @Html.AntiForgeryToken()
@@ -30,5 +26,4 @@
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
     </script>
-    <script src="~/dist/edit-invoice.js" asp-append-version="true"></script>
 }

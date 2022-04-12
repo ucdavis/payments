@@ -17,11 +17,13 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.AspNetCore.SpaServices;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -74,6 +76,9 @@ namespace Payments.Mvc
             services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
             services.Configure<JsReportSettings>(Configuration.GetSection("JsReport"));
             services.Configure<SuperuserSettings>(Configuration.GetSection("Superuser"));
+
+            // write env name
+            Log.Information($"Environment: {Environment.EnvironmentName}");
 
             // setup entity framework / database
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
@@ -221,10 +226,13 @@ namespace Payments.Mvc
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddScoped<MoneyMovementJob>();
 
+            // Used by dynamic scripts/styles loader
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory())); // lgtm [cs/local-not-disposed] 
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "wwwroot";
+                configuration.RootPath = "ClientApp/build";
             });
         }
 
@@ -253,7 +261,7 @@ namespace Payments.Mvc
                 OnPrepareResponse = (context) =>
                 {
                     // cache our static assest, i.e. CSS and JS, for a long time
-                    if (context.Context.Request.Path.Value.StartsWith("/dist"))
+                    if (context.Context.Request.Path.Value.StartsWith("/static"))
                     {
                         var headers = context.Context.Response.GetTypedHeaders();
                         headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
@@ -292,10 +300,22 @@ namespace Payments.Mvc
                 c.AllowImages
                     .From("https://www.google-analytics.com");
 
+
+                c.AllowStyles
+                    .From("https://stackpath.bootstrapcdn.com")
+                    .From("https://use.fontawesome.com")
+                    .From("https://cdn.datatables.net")
+                    .From("https://cdnjs.cloudflare.com")
+                    .From("https://cdn.jsdelivr.net");
+                
+
                 // allow unsafe methods in development
                 // otherwise, support nonce (both aren't supported at the same time
                 if (Environment.IsDevelopment())
                 {
+                    c.AllowStyles
+                        .AllowUnsafeInline(); // to support webpack style injection
+
                     c.AllowScripts
                         .AllowUnsafeInline()
                         .AllowUnsafeEval();
@@ -306,7 +326,7 @@ namespace Payments.Mvc
 
                     // allow HMR connections
                     c.AllowConnections
-                        .To("http://localhost:3001");
+                        .To("wss://localhost:*");
                 }
                 else
                 {
@@ -316,16 +336,13 @@ namespace Payments.Mvc
                     // cloudflare rocket-loader
                     c.AllowScripts
                         .From("https://ajax.cloudflare.com");
+
+                    // in prod we load CRA generated, self hosted files
+                    c.AllowStyles
+                        .AddNonce()
+                        .FromSelf();
                 }
 
-                c.AllowStyles
-                    .AddNonce()
-                    .FromSelf()
-                    .From("https://stackpath.bootstrapcdn.com")
-                    .From("https://use.fontawesome.com")
-                    .From("https://cdn.datatables.net")
-                    .From("https://cdnjs.cloudflare.com")
-                    .From("https://cdn.jsdelivr.net");
 
                 // allow style loader in development
                 if (Environment.IsDevelopment())
@@ -429,47 +446,85 @@ namespace Payments.Mvc
                     defaults: new { },
                     constraints: new { controller = "(account|teams|jobs|system)" });
 
-                // team level routes
-                endpoints.MapControllerRoute(
-                    name: "team-index",
-                    pattern: "{team}",
-                    defaults: new { controller = "home", action = "teamindex" },
-                    constraints: new
-                    {
-                        team = new CompositeRouteConstraint(new IRouteConstraint[]{
-                            new RegexInlineRouteConstraint(Team.SlugRegex),
-                            new NotConstraint("(reports|support)"),
-                        })
-                    });
+                // fallback to home which will load SPA
+                // TODO: likely will need to add some team routes here
+                if (env.IsDevelopment())
+                {
+                    // Specific route for HMR websocket.
+                    var spaHmrSocketRegex = "^(?!sockjs-node).*$";
 
-                endpoints.MapControllerRoute(
-                    name: "team-routes",
-                    pattern: "{team}/{controller=Home}/{action=Index}/{id?}",
-                    defaults: new { },
-                    constraints: new
-                    {
-                        team = new CompositeRouteConstraint(new IRouteConstraint[]{
-                            new RegexInlineRouteConstraint(Team.SlugRegex),
-                            new NotConstraint("(reports|support)"),
-                        })
-                    });
+                    // team level routes
+                    endpoints.MapControllerRoute(
+                        name: "team-index",
+                        pattern: "{team}",
+                        defaults: new { controller = "home", action = "teamindex" },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)"),
+                                new RegexInlineRouteConstraint("^(?!sockjs-node).*$")
+                            })
+                        });
 
-                // le default fallback for controllers that are excluded by the team = NotConstraint above
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    endpoints.MapControllerRoute(
+                        name: "team-routes",
+                        pattern: "{team}/{controller=Home}/{action=Index}/{id?}",
+                        defaults: new { },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)"),
+                                new RegexInlineRouteConstraint("^(?!sockjs-node).*$")
+                            })
+                        });
+
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}",
+                        constraints: new { controller = spaHmrSocketRegex });
+                }
+                else
+                {
+
+                    // team level routes
+                    endpoints.MapControllerRoute(
+                        name: "team-index",
+                        pattern: "{team}",
+                        defaults: new { controller = "home", action = "teamindex" },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)")
+                            })
+                        });
+
+                    endpoints.MapControllerRoute(
+                        name: "team-routes",
+                        pattern: "{team}/{controller=Home}/{action=Index}/{id?}",
+                        defaults: new { },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)")
+                            })
+                        });
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                }
+            });
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
 
                 if (env.IsDevelopment())
                 {
-                    endpoints.MapToSpaCliProxy(
-                        "/dist/{*path}",
-                        new SpaOptions { SourcePath = "ClientApp" },
-                        npmScript: "start",
-                        port: 3001,
-                        regex: "Project is running",
-                        forceKill: true,
-                        useProxy: true,
-                        runner: ScriptRunnerType.Npm);
+                    spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
         }

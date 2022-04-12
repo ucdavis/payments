@@ -1,21 +1,18 @@
 import * as React from 'react';
-import { compose, fromRenderProps } from 'recompose';
 
-import FileUpload from '../components/fileUpload';
+import FileUpload from './fileUpload';
 
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
-import { Team } from '../models/Team';
 
 import TeamContext from '../contexts/TeamContext';
 
-
 interface IProps {
     attachments: InvoiceAttachment[];
-    team: Team;
     onChange: (value: InvoiceAttachment[]) => void;
 }
 
-class AttachmentsControl extends React.Component<IProps, {}> {
+export default class AttachmentsControl extends React.Component<IProps, {}> {
+    static contextType = TeamContext;
 
     public render() {
         const { attachments } = this.props;
@@ -30,7 +27,7 @@ class AttachmentsControl extends React.Component<IProps, {}> {
 
     private renderAttachment = (attachment: InvoiceAttachment) => {
 
-        const { team } = this.props;
+        const team = this.context;
 
         const fileTypeIcon = this.getFileTypeIcon(attachment.contentType)
 
@@ -142,7 +139,3 @@ class AttachmentsControl extends React.Component<IProps, {}> {
         onChange(newAttachments);
     }
 }
-
-export default compose(
-    fromRenderProps(TeamContext.Consumer, (team) => ({ team })),
-)(AttachmentsControl);

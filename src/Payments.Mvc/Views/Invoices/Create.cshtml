@@ -2,17 +2,13 @@
     ViewBag.Title = "Create Invoice";
 }
 
-<div id="react-app">
-    Loading Create Invoice...
-</div>
-
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
 {
     @Html.AntiForgeryToken()
 }
 
 @section scripts {
-    <script asp-add-nonce="true">
+    <script asp-add-nonce>
         window.team = @(Json.Serialize(ViewBag.Team));
 
         window.accounts = @(Json.Serialize(ViewBag.Accounts));
@@ -22,5 +18,4 @@
         var form = $("#__AjaxAntiForgeryForm");
         window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
     </script>
-    <script src="~/dist/create-invoice.js" asp-append-version="true"></script>
 }
