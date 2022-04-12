@@ -442,37 +442,39 @@ namespace Payments.Mvc
                     defaults: new { },
                     constraints: new { controller = "(account|teams|jobs|system)" });
 
-                // team level routes
-                endpoints.MapControllerRoute(
-                    name: "team-index",
-                    pattern: "{team}",
-                    defaults: new { controller = "home", action = "teamindex" },
-                    constraints: new
-                    {
-                        team = new CompositeRouteConstraint(new IRouteConstraint[]{
-                            new RegexInlineRouteConstraint(Team.SlugRegex),
-                            new NotConstraint("(reports|support)"),
-                        })
-                    });
-
-                endpoints.MapControllerRoute(
-                    name: "team-routes",
-                    pattern: "{team}/{controller=Home}/{action=Index}/{id?}",
-                    defaults: new { },
-                    constraints: new
-                    {
-                        team = new CompositeRouteConstraint(new IRouteConstraint[]{
-                            new RegexInlineRouteConstraint(Team.SlugRegex),
-                            new NotConstraint("(reports|support)"),
-                        })
-                    });
-
                 // fallback to home which will load SPA
                 // TODO: likely will need to add some team routes here
                 if (env.IsDevelopment())
                 {
                     // Specific route for HMR websocket.
                     var spaHmrSocketRegex = "^(?!sockjs-node).*$";
+
+                    // team level routes
+                    endpoints.MapControllerRoute(
+                        name: "team-index",
+                        pattern: "{team}",
+                        defaults: new { controller = "home", action = "teamindex" },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)"),
+                                new RegexInlineRouteConstraint("^(?!sockjs-node).*$")
+                            })
+                        });
+
+                    endpoints.MapControllerRoute(
+                        name: "team-routes",
+                        pattern: "{team}/{controller=Home}/{action=Index}/{id?}",
+                        defaults: new { },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)"),
+                                new RegexInlineRouteConstraint("^(?!sockjs-node).*$")
+                            })
+                        });
 
                     endpoints.MapControllerRoute(
                         name: "default",
@@ -481,6 +483,31 @@ namespace Payments.Mvc
                 }
                 else
                 {
+
+                    // team level routes
+                    endpoints.MapControllerRoute(
+                        name: "team-index",
+                        pattern: "{team}",
+                        defaults: new { controller = "home", action = "teamindex" },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)")
+                            })
+                        });
+
+                    endpoints.MapControllerRoute(
+                        name: "team-routes",
+                        pattern: "{team}/{controller=Home}/{action=Index}/{id?}",
+                        defaults: new { },
+                        constraints: new
+                        {
+                            team = new CompositeRouteConstraint(new IRouteConstraint[]{
+                                new RegexInlineRouteConstraint(Team.SlugRegex),
+                                new NotConstraint("(reports|support)")
+                            })
+                        });
                     endpoints.MapControllerRoute(
                         name: "default",
                         pattern: "{controller=Home}/{action=Index}/{id?}");
