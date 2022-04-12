@@ -734,7 +734,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
-                        Warning! You are about request a refund for this invoice!
+                        @(successfulPayment != null ? "Warning! You are about request a refund for this invoice!" : "This does not have a successful payment. Unable to refund.")
                     </div>
                     <p>
                         Continuing will close this invoice. This is irreversible!
@@ -747,7 +747,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
-                    <button type="submit" id="markPaidFormSubmit" class="btn">Refund</button>
+                    <button type="submit" id="markPaidFormSubmit" class="btn" @(successfulPayment == null ? "disabled=\"disabled\"":string.Empty)>Refund</button>
                 </div>
             </div>
         </div>
