@@ -427,12 +427,14 @@
 
             @if (Model.Status == Invoice.StatusCodes.Refunding && userPermissions.Contains(TeamRole.Codes.FinanceOfficer))
             {
+                <div>
                 <form asp-controller="Invoices" asp-action="Refund" asp-route-id="@Model.Id">
                     <button class="btn">
                         <i class="fas fa-hand-holding-usd mr-3"></i>
                         Mark Refunded
                     </button>
                 </form>
+                </div>
             }
             else if (!Model.Refunded)
             {
