@@ -1,7 +1,4 @@
-import * as React from 'react'; 
-import * as ReactDOM from 'react-dom'; 
-import { AppContainer } from 'react-hot-loader';
-
+import * as React from 'react';
 import TeamContext from '../contexts/TeamContext';
 
 import EditInvoiceContainer from '../containers/EditInvoiceContainer';
@@ -18,24 +15,15 @@ declare var model: EditInvoice;
 declare var sent: boolean;
 declare var team: Team;
 
-function renderApp() { 
-    // This code starts up the React app when it runs in a browser. It sets up the routing 
-    // configuration and injects the app into a DOM element.
-    ReactDOM.render( 
-        <AppContainer>
-            <TeamContext.Provider value={team}>
-                <EditInvoiceContainer
-                    accounts={accounts}
-                    coupons={coupons}
-                    id={id}
-                    invoice={model}
-                    sent={sent}
-                    team={team}
-                />
-            </TeamContext.Provider>
-        </AppContainer>, 
-        document.getElementById('react-app') 
-    ); 
-} 
- 
-renderApp(); 
+export const EditInvoicePage = () => (
+  <TeamContext.Provider value={team}>
+    <EditInvoiceContainer
+      accounts={accounts}
+      coupons={coupons}
+      id={id}
+      invoice={model}
+      sent={sent}
+      team={team}
+    />
+  </TeamContext.Provider>
+);

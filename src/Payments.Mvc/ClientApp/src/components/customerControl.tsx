@@ -44,7 +44,7 @@ export default class CustomerControl extends React.Component<IProps, {}> {
                             className="form-control"
                             placeholder="Company"
                             onChange={(e) => { this.onChange({ company: e.target.value }) }}
-                            value={company}
+                            value={company || ''}
                         />
                     </div>
                 </div>
