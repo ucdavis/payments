@@ -296,10 +296,22 @@ namespace Payments.Mvc
                 c.AllowImages
                     .From("https://www.google-analytics.com");
 
+
+                c.AllowStyles
+                    .From("https://stackpath.bootstrapcdn.com")
+                    .From("https://use.fontawesome.com")
+                    .From("https://cdn.datatables.net")
+                    .From("https://cdnjs.cloudflare.com")
+                    .From("https://cdn.jsdelivr.net");
+                
+
                 // allow unsafe methods in development
                 // otherwise, support nonce (both aren't supported at the same time
                 if (Environment.IsDevelopment())
                 {
+                    c.AllowStyles
+                        .AllowUnsafeInline(); // to support webpack style injection
+
                     c.AllowScripts
                         .AllowUnsafeInline()
                         .AllowUnsafeEval();
@@ -310,7 +322,7 @@ namespace Payments.Mvc
 
                     // allow HMR connections
                     c.AllowConnections
-                        .To("http://localhost:3001");
+                        .To("wss://localhost:*");
                 }
                 else
                 {
@@ -320,16 +332,13 @@ namespace Payments.Mvc
                     // cloudflare rocket-loader
                     c.AllowScripts
                         .From("https://ajax.cloudflare.com");
+
+                    // in prod we load CRA generated, self hosted files
+                    c.AllowStyles
+                        .AddNonce()
+                        .FromSelf();
                 }
 
-                c.AllowStyles
-                    .AddNonce()
-                    .FromSelf()
-                    .From("https://stackpath.bootstrapcdn.com")
-                    .From("https://use.fontawesome.com")
-                    .From("https://cdn.datatables.net")
-                    .From("https://cdnjs.cloudflare.com")
-                    .From("https://cdn.jsdelivr.net");
 
                 // allow style loader in development
                 if (Environment.IsDevelopment())
