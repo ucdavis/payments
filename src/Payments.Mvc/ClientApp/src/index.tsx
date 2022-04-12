@@ -6,6 +6,8 @@ import './css/site.scss';
 import './polyfills/array.js';
 import * as dateFns from 'date-fns';
 
+import { CreateInvoicePage } from './pages/CreateInvoice';
+
 declare let window: any;
 
 interface ExtraWindow extends Window {
@@ -25,7 +27,11 @@ extraWindow.dateFns = {
 };
 
 // Non-react routes can return nothing since the content will come from the server
-const ReactTest = () => <><p>Welcome to react!</p></>;
+const ReactTest = () => (
+  <>
+    <p>Welcome to react!</p>
+  </>
+);
 
 const rootElement = document.getElementById('root');
 
@@ -36,14 +42,11 @@ if (rootElement) {
       <React.Fragment>
         <Switch>
           {/* Match any server-side routes and send empty content to let MVC return the view details */}
-          <Route
-              path="/react"
-              component={ReactTest}
-            />
+          <Route path='/react' component={ReactTest} />
+          <Route path='/:team/Invoices/Create' component={CreateInvoicePage} />
         </Switch>
       </React.Fragment>
     </BrowserRouter>,
     rootElement
   );
 }
-
