@@ -54,6 +54,7 @@ namespace Payments.Core.Domain
 
         [DisplayFormat(DataFormatString = "{0:P}")]
         [DisplayName("Tax Percentage")]
+        [Column(TypeName = "decimal(18,5)")] //Not sure if it is needed here, some of these are set in the onmodel creating
         public decimal TaxPercent { get; set; }
 
         public DateTime? DueDate { get; set; }
@@ -63,6 +64,7 @@ namespace Payments.Core.Domain
         public Coupon Coupon { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ManualDiscount { get; set; }
 
         public FinancialAccount Account { get; set; }
@@ -118,22 +120,28 @@ namespace Payments.Core.Domain
         // ----------------------
         [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Subtotal")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal CalculatedSubtotal { get; private set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Discount")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal CalculatedDiscount { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Taxable Amount")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal CalculatedTaxableAmount { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Tax")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal CalculatedTaxAmount { get; private set; }
 
         [DisplayFormat(DataFormatString = "{0:C}")]
         [DisplayName("Total")]
+        [Column(TypeName = "decimal(18,2)")]
+
         public decimal CalculatedTotal { get; private set; }
 
         public decimal GetDiscountAmount()
