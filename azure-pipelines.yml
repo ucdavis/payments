@@ -67,7 +67,7 @@ stages:
               publishWebProjects: false
               zipAfterPublish: false
               projects: "./src/Payments.Jobs.MoneyMovement/Payments.Jobs.MoneyMovement.csproj"
-              arguments: "--configuration $(buildConfiguration) --runtime win-x64 --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered"
+              arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered"
 
           - task: PublishBuildArtifacts@1
             condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
