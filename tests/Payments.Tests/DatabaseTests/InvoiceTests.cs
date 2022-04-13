@@ -22,27 +22,33 @@ namespace Payments.Tests.DatabaseTests
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
             expectedFields.Add(new NameAndType("CalculatedDiscount", "System.Decimal", new List<string>
-            {
-                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",                
+            {               
+                "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Discount\")]",
+                
             }));
             expectedFields.Add(new NameAndType("CalculatedSubtotal", "System.Decimal", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Subtotal\")]",
             }));
             expectedFields.Add(new NameAndType("CalculatedTaxableAmount", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Taxable Amount\")]",
             }));
             expectedFields.Add(new NameAndType("CalculatedTaxAmount", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Tax\")]",                
             }));
             expectedFields.Add(new NameAndType("CalculatedTotal", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Total\")]",
             }));
             expectedFields.Add(new NameAndType("Coupon", "Payments.Core.Domain.Coupon", new List<string>()));
@@ -88,6 +94,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("ManualDiscount", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
             }));
             expectedFields.Add(new NameAndType("Memo", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.DataTypeAttribute((System.ComponentModel.DataAnnotations.DataType)9)]",
@@ -113,6 +120,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("TaxPercent", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:P}\")]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,5)\")]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Tax Percentage\")]",
             }));
             expectedFields.Add(new NameAndType("Team", "Payments.Core.Domain.Team", new List<string>
