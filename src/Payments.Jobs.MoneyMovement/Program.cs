@@ -55,11 +55,16 @@ namespace Payments.Jobs.MoneyMovement
                 moneyMovementJob.FindBankReconcileTransactions(_log).GetAwaiter().GetResult();
 
                 moneyMovementJob.FindIncomeTransactions(_log).GetAwaiter().GetResult();
+                jobRecord.Status = "Finished";
+            }
+            catch (Exception ex)
+            {
+                jobRecord.Status = "Error";
+                _log.Error("Error running money movement job", ex);
+                throw;
             }
             finally
-            {
-                // record status
-                jobRecord.Status = "Finished";
+            {               
                 dbContext.SaveChanges();
             }
         }
