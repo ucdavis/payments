@@ -84,7 +84,8 @@ namespace Payments.Mvc
             if (!Environment.IsDevelopment() || Configuration.GetSection("Dev:UseSql").Value == "True")
             {
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))                    
                 );
             }
             else
