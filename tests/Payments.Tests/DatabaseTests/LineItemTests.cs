@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Payments.Core.Domain;
 using TestHelpers.Helpers;
 using Xunit;
@@ -17,7 +17,8 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Amount", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
-                "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",                
+                "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
             }));
             expectedFields.Add(new NameAndType("Description", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>
@@ -27,6 +28,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Quantity", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
             }));
 
             expectedFields.Add(new NameAndType("TaxExempt", "System.Boolean", new List<string>
@@ -36,6 +38,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
                 "[System.ComponentModel.DataAnnotations.RangeAttribute((Int32)0, (Int32)1000000)]",
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
             }));
             #endregion Arrange
 

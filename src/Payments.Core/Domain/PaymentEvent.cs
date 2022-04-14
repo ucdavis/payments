@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
@@ -21,6 +22,7 @@ namespace Payments.Core.Domain
 
         public string Decision { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
         [MaxLength(60)]

@@ -14,7 +14,9 @@ namespace Payments.Tests.DatabaseTests
         {
             #region Arrange
             var expectedFields = new List<NameAndType>();
-            expectedFields.Add(new NameAndType("Amount", "System.Decimal", new List<string>()));
+            expectedFields.Add(new NameAndType("Amount", "System.Decimal", new List<string>{
+                "[System.ComponentModel.DataAnnotations.Schema.ColumnAttribute(TypeName = \"decimal(18,2)\")]",
+            }));
             expectedFields.Add(new NameAndType("BillingCity", "System.String", new List<string>{
                 "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)50)]",
                 "[System.ComponentModel.DisplayNameAttribute(\"Billing City\")]",
