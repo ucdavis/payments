@@ -146,7 +146,7 @@ namespace Payments.Mvc.Controllers
                 await _userManager.RemoveFromRoleAsync(user, ApplicationRoleCodes.Admin);
             }
             await _dbContext.SaveChangesAsync();
-            Message = "User removed from Admin role.";
+            Message = $"{user.CampusKerberos} removed from Admin role.";
             return RedirectToAction("Index");
         }
 
