@@ -132,7 +132,21 @@ namespace Payments.Mvc.Controllers
             await _userManager.AddToRoleAsync(foundUser, ApplicationRoleCodes.Admin);
 
             await _dbContext.SaveChangesAsync();
+          
 
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> RemoveAdmin(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                await _userManager.RemoveFromRoleAsync(user, ApplicationRoleCodes.Admin);
+            }
+            await _dbContext.SaveChangesAsync();
+            Message = "User removed from Admin role.";
             return RedirectToAction("Index");
         }
 

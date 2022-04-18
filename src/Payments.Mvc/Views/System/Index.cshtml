@@ -50,14 +50,10 @@
                             @item.Email
                         </td>
                         <td class="text-center">
-
-                            <span>
-                                @*                                <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@item.Slug">Select</a> |
-                                    <a asp-controller="Settings" asp-action="Edit" asp-route-team="@item.Slug">Edit</a> |
-                                    <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>*@
-                            </span>
-
-
+                            <form asp-controller="System" asp-action="RemoveAdmin">
+                                <input type="hidden" name="id" value="@item.Id">
+                                <button type="submit" class="btn">Revoke</button>
+                            </form>
                         </td>
                     </tr>
                 }
