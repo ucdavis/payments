@@ -30,7 +30,7 @@
                 {
                     <tr>
                         <td data-sort="@invoice.Id" class="invoices-id-col">
-                            <a asp-controller="Invoices" asp-route-team="@invoice.Team.Slug" asp-action="Details" asp-route-id="@invoice.Id">
+                            <a asp-controller="Invoices" asp-route-team="@invoice.Team.Slug" asp-action="Details" asp-route-id="@invoice.Id" target="_blank">
                                 <div>
                                     @invoice.GetFormattedId()
                                 </div>
