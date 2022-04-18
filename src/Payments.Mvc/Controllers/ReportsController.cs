@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Mvc.Models.InvoiceViewModels;
 using Payments.Mvc.Models.ReportViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Payments.Mvc.Models.Roles;
+using static Payments.Core.Domain.Invoice;
+using System.Threading.Tasks;
 
 namespace Payments.Mvc.Controllers
 {
@@ -102,6 +106,20 @@ namespace Payments.Mvc.Controllers
         #region system reports
         /* system wide reports should use attribute routes */
 
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> StuckInProcessing()
+        {
+            //Look at all paid invoices in the processing status that were paid a week ago.
+            var invoices = await _dbContext.Invoices
+                .Where(a => a.Paid && a.Status == StatusCodes.Processing && (a.PaidAt == null || a.PaidAt < DateTime.UtcNow.AddDays(-7)))
+                .Include(i => i.Team)
+                .Include( i => i.Account)
+                .AsSplitQuery() //Split it?
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(invoices);            
+        }
 
         #endregion
     }

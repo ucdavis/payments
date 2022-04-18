@@ -1,0 +1,71 @@
+@using Payments.Core.Extensions
+
+@model IEnumerable<Invoice>
+@{
+    ViewBag.Title = "Stuck Invoices Report";
+}
+
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+        Shows all invoices that have been paid more than a week ago and are still processing
+    </div>
+    <div class="card-body table-responsive">
+        <table id="Invoices" class="table">
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Team</th>
+                    <th>Customer Email</th>
+                    <th>Customer Name</th>
+                    <th>Customer Company</th>
+                    <th>Amount</th>
+                    <th>Account</th>
+                    <th>Paid At</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model)
+                {
+                    <tr>
+                        <td data-sort="@invoice.Id" class="invoices-id-col">
+                            <a asp-controller="Invoices" asp-route-team="@invoice.Team.Slug" asp-action="Details" asp-route-id="@invoice.Id">
+                                <div>
+                                    @invoice.GetFormattedId()
+                                </div>
+                            </a>
+                        </td>
+                        <td>@invoice.Team.Slug</td>
+                        <td>@invoice.CustomerEmail</td>
+                        <td>@invoice.CustomerName</td>
+                        <td>@invoice.CustomerCompany</td>
+                        <td>@invoice.CalculatedTotal</td>
+                        <td>@invoice.Account.GetAccountString()</td>
+                        <td>@(invoice.PaidAt.HasValue ? invoice.PaidAt.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts
+{
+<script type="text/javascript" asp-add-nonce="true">
+    $(function() {
+        // setup table
+        $("#Invoices").DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'excel'
+            ],
+            order: [[ 7, 'desc' ]],
+            columnDefs: [
+                { targets: [3,4], visible: false }
+            ],
+        });
+    });
+</script>
+}
