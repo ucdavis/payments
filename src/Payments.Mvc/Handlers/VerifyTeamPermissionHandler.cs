@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Payments.Core.Domain;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
 using Payments.Mvc.Authorization;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Roles;
@@ -27,11 +27,12 @@ namespace Payments.Mvc.Handlers
                 return;
             }
             var team = "";
-            if (context.Resource is AuthorizationFilterContext mvcContext)
+            if (context.Resource is HttpContext mvcContext)
             {
-                if (mvcContext.RouteData.Values["team"] != null)
+                var routeData = mvcContext.GetRouteData();
+                if (routeData.Values["team"] != null)
                 {
-                    team = mvcContext.RouteData.Values["team"].ToString();
+                    team = routeData.Values["team"].ToString();
                 }
             }
 
