@@ -475,7 +475,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            // TODO: determine if this requirment is true
+            // TODO: determine if this requirement is true
             // you can only mark a paid invoice if it's been sent
             if (invoice.Status != Invoice.StatusCodes.Sent)
             {
