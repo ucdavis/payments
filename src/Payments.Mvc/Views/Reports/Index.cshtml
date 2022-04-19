@@ -55,7 +55,6 @@
     </div>
 
     <div class="row mb-4">
-
     </div>
 }
 
@@ -66,9 +65,25 @@
             <h2>System Reports</h2>
         </div>
         <div class="card-body">
-            <p>There are no system wide reports.</p>
-
             <p>Have an idea for a report? Make a recommendation with a help ticket <a href="https://caeshelp.ucdavis.edu/?appname=Payments" class="btn btn-gold" target="_blank" rel="noopener noreferrer">Here</a></p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <a asp-action="StuckInProcessing">
+                <div class="card job min-height-card">
+                    <img class="card-img-top" src="~/media/budget-cash-coins-33692.jpg" alt="Stuck In Processing">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Paid Invoices Stuck in Processing
+                        </h5>
+                        <p class="card-text">
+                            Shows all invoices that have been paid more than a week ago and are still in Processing status
+                        </p>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
 }

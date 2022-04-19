@@ -4,6 +4,7 @@
 @using Payments.Core.Models.History
 @using Payments.Mvc.Models.CyberSource
 @using Payments.Mvc.Identity
+@using Payments.Mvc.Models.Roles
 @model Invoice
 @inject IHttpContextAccessor _httpContextAccessor
 @inject ApplicationUserManager _applicationUserManager
@@ -95,6 +96,17 @@
                 Mark as paid
             </button>
         }
+        @if (Model.Status == Invoice.StatusCodes.Processing && User.IsInRole(ApplicationRoleCodes.Admin))
+        {
+            var modalTarget = User.IsInRole(ApplicationRoleCodes.Admin)
+                ? "#markCompletedModal"
+                : "#markCompletedNoPermissionModal";
+
+            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+                <i class="far fa-check-square"></i>
+                Mark as completed
+            </button>
+        }
     </div>
     <div class="card-body history-timeline">
         @foreach (var action in timeline)
@@ -114,7 +126,7 @@
                     }
                     <br />
                     <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy @ h:mm tt")</span>
-                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid) && !string.IsNullOrWhiteSpace(action.Data))
+                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.MarkCompleted) && !string.IsNullOrWhiteSpace(action.Data))
                     {
                         <br/>
                         <span class="text-muted">Reason: @action.Data</span>
@@ -724,6 +736,37 @@
     </div>
 </form>
 
+<form method="POST" id="markCompletedForm" asp-action="MarkCompleted" asp-route-id="@Model.Id">
+    <div class="modal fade" id="markCompletedModal" tabindex="-1" role="dialog" aria-labelledby="markCompletedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="markCompletedModalLabel">Mark Invoice Completed?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        Warning! You are about to mark this invoice as completed!
+                    </div>
+                    <p>
+                        Continuing will close this invoice and mark it completed. This is irreversible!
+                    </p>
+                    <label class="control-label">Reason</label>
+                    <div class="form-group">
+                        <textarea id="paidReason" name="completedReason" required="" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="markCompletedFormSubmit" class="btn">Mark as completed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 <form method="POST" id="refundForm" asp-action="RequestRefund" asp-route-id="@Model.Id">
     <div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="markPaidModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -768,6 +811,27 @@
             <div class="modal-body">
                 <div class="alert alert-danger" role="alert">
                     You do not have permission to close this invoice. Contact your team's Financial Officer.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="markCompletedNoPermissionModal" tabindex="-1" role="dialog" aria-labelledby="markCompletedNoPermissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="markCompletedModalLabel">Mark Invoice Completed?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    You do not have permission to complete this invoice. Contact Help.
                 </div>
             </div>
             <div class="modal-footer">

@@ -28,6 +28,8 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType MarkPaid = new MarkPaidHistoryActionType();
 
+        public static readonly IHistoryActionType MarkCompleted = new MarkCompletedHistoryActionType();
+
         public static readonly IHistoryActionType RefundRequested = new RefundRequestHistoryActionType();
 
         public static readonly IHistoryActionType PaymentRefunded = new PaymentRefundedHistoryActionType();
@@ -47,6 +49,7 @@ namespace Payments.Core.Models.History
             PaymentCompleted,
             PaymentFailed,
             MarkPaid,
+            MarkCompleted,
             RefundRequested,
             PaymentRefunded,
         };

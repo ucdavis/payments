@@ -1,4 +1,4 @@
-﻿
+@model IEnumerable<Payments.Core.Domain.User>
 @{
     ViewData["Title"] = "System";
 }
@@ -9,8 +9,63 @@
             <h2>@ViewData["Title"]</h2>
         </div>
     </div>
+    <div class="card-body">
+        <a asp-controller="Jobs" asp-action="Index" class="btn">Jobs</a>
+    </div>
 </div>
 
-<div>
-    <a asp-controller="Jobs" asp-action="Index">Jobs</a>
+
+
+
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>System Admins</h1>
+
+        <a asp-controller="System" asp-action="AddAdmin" asp-route-team="" class="btn"><i class="far fa-plus-square mr-3"></i>Add Admin</a>
+
+    </div>
+    <div class="card-body table-responsive">
+        <table id="adminsTable" class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>Login</th>
+                    <th>
+                        Email
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td>@item.CampusKerberos</td>
+                        <td>
+                            @item.Email
+                        </td>
+                        <td class="text-center">
+                            <form asp-controller="System" asp-action="RemoveAdmin">
+                                <input type="hidden" name="id" value="@item.Id">
+                                <button type="submit" class="btn">Revoke</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+@section scripts {
+<script type="text/javascript" asp-add-nonce="true">
+    $(function() {
+        $("#adminsTable").DataTable();
+    });
+</script>
+}

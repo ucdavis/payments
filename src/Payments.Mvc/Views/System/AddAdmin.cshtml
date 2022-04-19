@@ -1,0 +1,39 @@
+@using Payments.Mvc.Models.SystemViewModels
+@model CreateSystemAdminViewModel
+
+@{
+    ViewData["Title"] = "Add Admin";
+}
+
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+            <h1>@ViewBag.Title</h1>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="AddAdmin">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group">
+                        <label asp-for="@Model.UserLookup" class="control-label"></label>
+                        <input asp-for="@Model.UserLookup" class="form-control" />
+                        <span asp-validation-for="@Model.UserLookup" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Add" class="btn" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
