@@ -505,6 +505,50 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> MarkCompleted(int id, string completedReason)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+
+            if (invoice.Paid && invoice.Status != Invoice.StatusCodes.Processing)
+            {
+                return BadRequest();
+            }
+
+            if(invoice.PaidAt >= DateTime.UtcNow.AddDays(-5))
+            {
+                return BadRequest();
+            }
+
+            // mark as complete with payment!
+            invoice.Status = Invoice.StatusCodes.Completed;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.MarkCompleted.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+                Data = completedReason,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> RequestRefund(int id, string refundReason)
         {
             // find item
