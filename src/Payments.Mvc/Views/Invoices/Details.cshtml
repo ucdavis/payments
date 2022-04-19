@@ -96,7 +96,7 @@
                 Mark as paid
             </button>
         }
-        @if (Model.Status == Invoice.StatusCodes.Processing)
+        @if (Model.Status == Invoice.StatusCodes.Processing && User.IsInRole(ApplicationRoleCodes.Admin))
         {
             var modalTarget = User.IsInRole(ApplicationRoleCodes.Admin)
                 ? "#markCompletedModal"
