@@ -13,6 +13,7 @@ using Payments.Core.Extensions;
 using Payments.Mvc.Models;
 using Payments.Mvc.Services;
 using System.Security.Claims;
+using Serilog;
 
 namespace Payments.Mvc.Controllers
 {
@@ -100,6 +101,7 @@ namespace Payments.Mvc.Controllers
                         await _userManager.AddLoginAsync(userToCreate, loginInfo);
                         foundUser = userToCreate;
                     }
+                    Log.Information($"Admin User Add: User added to db: {foundUser.CampusKerberos}");
                 }
             }
 
@@ -133,6 +135,7 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
           
+            Log.Information($"Admin User Add: User: {foundUser.CampusKerberos} added by: {CurrentUserId}");
 
             return RedirectToAction("Index");
         }
@@ -147,6 +150,9 @@ namespace Payments.Mvc.Controllers
             }
             await _dbContext.SaveChangesAsync();
             Message = $"{user.CampusKerberos} removed from Admin role.";
+
+            Log.Information($"Admin User Remove: User: {user.CampusKerberos} added by: {CurrentUserId}");
+
             return RedirectToAction("Index");
         }
 
