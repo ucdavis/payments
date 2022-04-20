@@ -11,10 +11,12 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Moq;
 using payments.Tests.Helpers;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Models.History;
 using Payments.Core.Services;
 using Payments.Mvc.Controllers;
@@ -32,6 +34,8 @@ namespace payments.Tests.ControllerTests
         public Mock<HttpContext> MockHttpContext { get; set; }
         public Mock<IInvoiceService> MockInvoiceService { get; set; }
         public Mock<FakeApplicationUserManager> MockUserManager { get; set; }
+
+        public Mock<IOptions<SlothSettings>> MockSettings { get; set; }
         //public Mock<ClaimsPrincipal> MockClaimsPrincipal { get; set; }
 
         //Setup Data
@@ -50,6 +54,7 @@ namespace payments.Tests.ControllerTests
             MockDbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
             MockInvoiceService = new Mock<IInvoiceService>();
             MockUserManager = new Mock<FakeApplicationUserManager>();
+            MockSettings = new Mock<IOptions<SlothSettings>>();
 
             //MockClaimsPrincipal = new Mock<ClaimsPrincipal>();
             MockHttpContext = new Mock<HttpContext>();
@@ -78,7 +83,7 @@ namespace payments.Tests.ControllerTests
 
             var routeData = new RouteData();
             routeData.Values.Add( "team", "testSlug" );
-            Controller = new InvoicesController(MockUserManager.Object, MockDbContext.Object, MockInvoiceService.Object)
+            Controller = new InvoicesController(MockUserManager.Object, MockDbContext.Object, MockInvoiceService.Object, MockSettings.Object)
             {
                 ControllerContext = new ControllerContext
                 {

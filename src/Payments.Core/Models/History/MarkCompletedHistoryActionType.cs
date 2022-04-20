@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Payments.Core.Models.History
 {
-    public class MarkCompletedHistoryActionType : IHistoryActionType
+    public class SetBackToPaidHistoryActionType : IHistoryActionType
     {
         public string TypeCode => "mark-completed";
 
@@ -12,7 +12,7 @@ namespace Payments.Core.Models.History
 
         public string GetMessage(string data)
         {
-            return "Invoice was marked completed";
+            return "Invoice set back to paid to generate disbursements";
         }
     }
 }
