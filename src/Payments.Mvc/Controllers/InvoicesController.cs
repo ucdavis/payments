@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Resources;
@@ -29,12 +31,14 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationUserManager _userManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly IInvoiceService _invoiceService;
+        private readonly SlothSettings _slothSettings;
 
-        public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IInvoiceService invoiceService)
+        public InvoicesController(ApplicationUserManager userManager, ApplicationDbContext dbContext, IInvoiceService invoiceService, IOptions<SlothSettings> slothSettings)
         {
             _userManager = userManager;
             _dbContext = dbContext;
             _invoiceService = invoiceService;
+            _slothSettings = slothSettings.Value;
         }
 
         public IActionResult Index()
@@ -125,6 +129,8 @@ namespace Payments.Mvc.Controllers
 
             // update totals
             invoice.UpdateCalculatedValues();
+
+            ViewBag.TransactionLookup = $"{_slothSettings.TransactionLookup}{id}";
 
             return View(invoice);
         }
@@ -506,7 +512,8 @@ namespace Payments.Mvc.Controllers
 
         [HttpPost]
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
-        public async Task<IActionResult> MarkCompleted(int id, string completedReason)
+        //public async Task<IActionResult> MarkCompleted(int id, string completedReason)
+        public async Task<IActionResult> SetBackToPaid(int id)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -529,17 +536,16 @@ namespace Payments.Mvc.Controllers
                 return BadRequest();
             }
 
-            // mark as complete with payment!
-            invoice.Status = Invoice.StatusCodes.Completed;
+            // mark as Paid so job will create sloth disbursements
+            invoice.Status = Invoice.StatusCodes.Paid;
 
             // record action
             var user = await _userManager.GetUserAsync(User);
             var action = new History()
             {
-                Type = HistoryActionTypes.MarkCompleted.TypeCode,
+                Type = HistoryActionTypes.SetBackToPaid.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
                 Actor = user.Name,
-                Data = completedReason,
             };
             invoice.History.Add(action);
 

@@ -24,6 +24,7 @@
     var userPermissions = user.TeamPermissions.Where(p => p.Team.Slug == teamSlug).Select(p => p.Role.Name);
 
     var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
+    
 }
 
 @section AdditionalStyles
@@ -99,12 +100,12 @@
         @if (Model.Status == Invoice.StatusCodes.Processing && User.IsInRole(ApplicationRoleCodes.Admin))
         {
             var modalTarget = User.IsInRole(ApplicationRoleCodes.Admin)
-                ? "#markCompletedModal"
-                : "#markCompletedNoPermissionModal";
+                ? "#setBackPaidModal"
+                : "#setBackPaidNoPermissionModal";
 
             <button class="btn" data-toggle="modal" data-target="@modalTarget">
                 <i class="far fa-check-square"></i>
-                Mark as completed
+                Set Back to Paid
             </button>
         }
     </div>
@@ -126,7 +127,7 @@
                     }
                     <br />
                     <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy @ h:mm tt")</span>
-                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.MarkCompleted) && !string.IsNullOrWhiteSpace(action.Data))
+                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid) && !string.IsNullOrWhiteSpace(action.Data))
                     {
                         <br/>
                         <span class="text-muted">Reason: @action.Data</span>
@@ -736,31 +737,29 @@
     </div>
 </form>
 
-<form method="POST" id="markCompletedForm" asp-action="MarkCompleted" asp-route-id="@Model.Id">
-    <div class="modal fade" id="markCompletedModal" tabindex="-1" role="dialog" aria-labelledby="markCompletedModalLabel" aria-hidden="true">
+<form method="POST" id="setBackPaidForm" asp-action="SetBackToPaid" asp-route-id="@Model.Id">
+    <div class="modal fade" id="setBackPaidModal" tabindex="-1" role="dialog" aria-labelledby="setBackPaidModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="markCompletedModalLabel">Mark Invoice Completed?</h5>
+                    <h5 class="modal-title" id="setBackPaidModalLabel">Set back to paid?</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
-                        Warning! You are about to mark this invoice as completed!
+                        Warning! You are about to set this back to paid!
                     </div>
                     <p>
-                        Continuing will close this invoice and mark it completed. This is irreversible!
+                        You should only do this after you have confirmed in sloth that the CyberSource transaction exists <strong>AND</strong> there are no disbursement transactions.
                     </p>
-                    <label class="control-label">Reason</label>
-                    <div class="form-group">
-                        <textarea id="paidReason" name="completedReason" required="" class="form-control"></textarea>
-                    </div>
+                    <p><a href="@ViewBag.TransactionLookup" target="_blank">Sloth Transactions</a></p>
+                    <p>This will set the invoice back to paid and the next time the money movement job runs it will create the disbursements. After a few days, if this isn't in completed contact help.</p>                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
-                    <button type="submit" id="markCompletedFormSubmit" class="btn">Mark as completed</button>
+                    <button type="submit" id="setBackPaidFormSubmit" class="btn">Set To Paid</button>
                 </div>
             </div>
         </div>
