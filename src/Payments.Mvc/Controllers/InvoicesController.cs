@@ -512,7 +512,6 @@ namespace Payments.Mvc.Controllers
 
         [HttpPost]
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
-        //public async Task<IActionResult> MarkCompleted(int id, string completedReason)
         public async Task<IActionResult> SetBackToPaid(int id)
         {
             // find item
@@ -546,6 +545,46 @@ namespace Payments.Mvc.Controllers
                 Type = HistoryActionTypes.SetBackToPaid.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
                 Actor = user.Name,
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Invoices", new { id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> CancelRefundRequest(int id, string reason)
+        {
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+
+            if (invoice.Paid && invoice.Status != Invoice.StatusCodes.Refunding)
+            {
+                return BadRequest();
+            }
+
+
+            // mark as Completed. //It is possible this was just paid and the disbursement never happened. So make a note of that in the UI
+            invoice.Status = Invoice.StatusCodes.Completed;
+
+            // record action
+            var user = await _userManager.GetUserAsync(User);
+            var action = new History()
+            {
+                Type = HistoryActionTypes.RefundCancelled.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+                Data = reason,
             };
             invoice.History.Add(action);
 
