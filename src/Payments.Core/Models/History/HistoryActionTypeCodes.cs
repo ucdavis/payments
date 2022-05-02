@@ -32,6 +32,8 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType RefundRequested = new RefundRequestHistoryActionType();
 
+        public static readonly IHistoryActionType RefundCancelled = new RefundCancelledHistoryActionType();
+
         public static readonly IHistoryActionType PaymentRefunded = new PaymentRefundedHistoryActionType();
 
         private static StringComparison _comparer = StringComparison.OrdinalIgnoreCase;
@@ -52,6 +54,7 @@ namespace Payments.Core.Models.History
             SetBackToPaid,
             RefundRequested,
             PaymentRefunded,
+            RefundCancelled,
         };
 
         public static IHistoryActionType GetHistoryActionType(string actionType)

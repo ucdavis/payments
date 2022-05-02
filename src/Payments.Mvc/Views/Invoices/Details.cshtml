@@ -108,6 +108,17 @@
                 Set Back to Paid
             </button>
         }
+        @if (Model.Status == Invoice.StatusCodes.Refunding && User.IsInRole(ApplicationRoleCodes.Admin))
+        {
+            var modalTarget = User.IsInRole(ApplicationRoleCodes.Admin)
+                ? "#cancelRefundRequestModal"
+                : "#cancelRefundRequestNoPermissionModal";
+
+            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+                <i class="far fa-check-square"></i>
+                Cancel Refund Request
+            </button>
+        }
     </div>
     <div class="card-body history-timeline">
         @foreach (var action in timeline)
@@ -127,7 +138,7 @@
                     }
                     <br />
                     <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy @ h:mm tt")</span>
-                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid) && !string.IsNullOrWhiteSpace(action.Data))
+                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.RefundCancelled) && !string.IsNullOrWhiteSpace(action.Data))
                     {
                         <br/>
                         <span class="text-muted">Reason: @action.Data</span>
@@ -760,6 +771,38 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
                     <button type="submit" id="setBackPaidFormSubmit" class="btn">Set To Paid</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form method="POST" id="cancelRefundRequestForm" asp-action="CancelRefundRequest" asp-route-id="@Model.Id">
+    <div class="modal fade" id="cancelRefundRequestModal" tabindex="-1" role="dialog" aria-labelledby="cancelRefundRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelRefundRequestModalLabel">Set to completed?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        Warning! You are about to set this back to completed!
+                    </div>
+                    <p>
+                        If this payment was set to Refunding before the disbursements were created, those disbursements will not happen automatically. If this is the case, please contact technical support first.
+                    </p>
+                    <p><a href="@ViewBag.TransactionLookup" target="_blank">Sloth Transactions</a></p>
+                    <label class="control-label">Reason</label>
+                    <div class="form-group">                        
+                        <textarea id="refundCancelReason" name="reason" required="true" class="form-control"></textarea>
+                    </div>                  
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="cancelRefundRequestFormSubmit" class="btn">Set To Completed</button>
                 </div>
             </div>
         </div>
