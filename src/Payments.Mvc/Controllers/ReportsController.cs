@@ -121,6 +121,21 @@ namespace Payments.Mvc.Controllers
             return View(invoices);            
         }
 
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> PendingRefundRequests()
+        {
+            //Look at all paid invoices in the processing status that were paid a week ago.
+            var invoices = await _dbContext.Invoices
+                .Where(a => a.Status == StatusCodes.Refunding)
+                .Include(i => i.Team)
+                .Include(i => i.Account)
+                .AsSplitQuery() //Split it?
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(invoices);
+        }
+
         #endregion
     }
 }
