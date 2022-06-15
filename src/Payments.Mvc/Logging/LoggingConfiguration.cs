@@ -69,7 +69,7 @@ namespace Payments.Mvc.Logging
             {
                 logConfig.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(elasticUri)
                 {
-                    IndexFormat = "aspnet-payments-{0:yyyy.MM.dd}"
+                    IndexFormat = "aspnet-payments-{0:yyyy.MM}"
                 });
             }
 
