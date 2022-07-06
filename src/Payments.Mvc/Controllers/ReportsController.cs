@@ -27,14 +27,23 @@ namespace Payments.Mvc.Controllers
         }
 
         #region team reports
-        public IActionResult Activity(string team)
+        public IActionResult Activity(string team, int? year = null)
         {
-            // TODO: add in date range filters
-
-            var invoices = _dbContext.Invoices
+            var invoiceQuery = _dbContext.Invoices
                 .Include(i => i.Account)
-                .Where(i => i.Team.Slug == TeamSlug)
-                .Where(i => i.CreatedAt >= DateTime.UtcNow.AddMonths(-12))
+                .Where(i => i.Team.Slug == TeamSlug);
+            if (year.HasValue)
+            {
+                invoiceQuery = invoiceQuery.Where(i => i.CreatedAt >= new DateTime(year.Value, 1, 1) && i.CreatedAt <= new DateTime(year.Value, 12, 31));
+            }
+            else
+            {
+                invoiceQuery = invoiceQuery.Where(i => i.CreatedAt >= DateTime.UtcNow.AddMonths(-12));
+            }
+
+
+
+            var invoices = invoiceQuery
                 .OrderByDescending(i => i.Id)
                 .AsNoTracking()
                 .ToList();
@@ -42,7 +51,8 @@ namespace Payments.Mvc.Controllers
             var model = new InvoiceListViewModel()
             {
                 Invoices = invoices,
-                Filter = null
+                Filter = null,
+                Year = year,
             };
 
             return View(model);
