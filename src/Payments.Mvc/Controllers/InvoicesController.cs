@@ -48,26 +48,31 @@ namespace Payments.Mvc.Controllers
 
             // fetch filter from session
             var filter = GetInvoiceFilter();
+            ViewBag.FilterApplied = false;
 
             // hide deleted unless explicitly asked to show
             if (!filter.ShowDeleted)
             {
                 query = query.Where(i => !i.Deleted);
+                ViewBag.FilterApplied = true;
             }
 
             if (filter.Statuses.Any())
             {
                 query = query.Where(i => filter.Statuses.Contains(i.Status));
+                ViewBag.FilterApplied = true;
             }
 
             if (filter.CreatedDateStart.HasValue)
             {
                 query = query.Where(i => i.CreatedAt >= filter.CreatedDateStart.FromPacificTime().Value);
+                ViewBag.FilterApplied = true;
             }
 
             if (filter.CreatedDateEnd.HasValue)
             {
                 query = query.Where(i => i.CreatedAt <= filter.CreatedDateEnd.FromPacificTime().Value);
+                ViewBag.FilterApplied = true;
             }
 
             // get count for display reasons
@@ -774,6 +779,13 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
 
+            return RedirectToAction("Index", "Invoices");
+        }
+
+        [HttpPost]
+        public IActionResult ClearFilter()
+        {
+            SetInvoiceFilter(null);
             return RedirectToAction("Index", "Invoices");
         }
 
