@@ -53,8 +53,7 @@ namespace Payments.Mvc.Controllers
             // hide deleted unless explicitly asked to show
             if (!filter.ShowDeleted)
             {
-                query = query.Where(i => !i.Deleted);
-                ViewBag.FilterApplied = true;
+                query = query.Where(i => !i.Deleted);                
             }
 
             if (filter.Statuses.Any())
