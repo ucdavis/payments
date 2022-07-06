@@ -1,4 +1,4 @@
-﻿using Payments.Core.Domain;
+using Payments.Core.Domain;
 using System.Collections.Generic;
 
 namespace Payments.Mvc.Models.InvoiceViewModels
@@ -8,5 +8,7 @@ namespace Payments.Mvc.Models.InvoiceViewModels
         public IList<Invoice> Invoices { get; set; }
 
         public InvoiceFilterViewModel Filter { get; set; }
+
+        public int? Year { get;set;}
     }
 }

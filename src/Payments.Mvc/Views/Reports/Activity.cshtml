@@ -8,8 +8,41 @@
 <div class="card">
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
-        Shows all invoices created in the last 12 months (since @DateTime.Now.AddMonths(-12).ToString("d")).
-        Export to excel to view additional columns.
+
+   
+    </div>
+        <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+
+         @if (Model.Year.HasValue)
+        {
+            <div>Shows all invoices created in @Model.Year. Export to excel to view additional columns.</div>
+        }
+        else
+        {
+            <div>Shows all invoices created in the last 12 months (since @DateTime.Now.AddMonths(-12).ToString("d")). Export to excel to view additional columns.</div>
+        }
+   
+    </div>
+    <div class="card-content">
+        <form asp-action="Activity" method="post">
+            <div class="row align-items-end">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="form-group col-12">
+                            <label>Filter for Year</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" placeholder="YYYY" asp-for="Year" asp-format="{0:yyyy}" />
+                            </div>
+                        </div>
+                        <div class="form-group col-12">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-link"><i class="fas fa-sync-alt fa-sm"></i> Refresh Report</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
     <div class="card-body table-responsive">
         <table id="Invoices" class="table">
@@ -62,6 +95,14 @@
                 columnDefs: [
                     { targets: [3, 4], visible: false }
                 ],
+            });
+            // setup datepickers
+            $('#Year').datepicker({
+                keepEmptyValues: true,
+                format: "yyyy",
+                startView: "years",
+                minViewMode: "years",
+                endDate: new Date(),
             });
         });
     </script>
