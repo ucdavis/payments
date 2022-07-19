@@ -38,8 +38,7 @@
     <script type="text/javascript" asp-add-nonce="true">
         $(function () {
             var fssVal = $("#FinancialSegmentString").val();
-            //if xxx isn't null or empty enable FinancialSegmentString
-            if (fssVal != null && fssVal != "") {
+            if (fssVal === "") {
                 $("#FinancialSegmentString").prop("disabled", false);
             }
 
