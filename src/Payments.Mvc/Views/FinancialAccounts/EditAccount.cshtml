@@ -34,4 +34,17 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script type="text/javascript" asp-add-nonce="true">
+        $(function () {
+            var fssVal = $("#FinancialSegmentString").val();
+            //if xxx isn't null or empty enable FinancialSegmentString
+            if (fssVal != null && fssVal != "") {
+                $("#FinancialSegmentString").prop("disabled", false);
+            }
+
+        });
+
+    </script>
 }
+

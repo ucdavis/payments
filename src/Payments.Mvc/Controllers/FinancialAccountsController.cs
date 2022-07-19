@@ -305,7 +305,10 @@ namespace Payments.Mvc.Controllers
             financialAccountToUpdate.Description = financialAccount.Description;
             financialAccountToUpdate.IsDefault = financialAccount.IsDefault;
             financialAccountToUpdate.IsActive = financialAccount.IsActive;
-
+            if (String.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString))
+            {
+                financialAccountToUpdate.FinancialSegmentString = financialAccount.FinancialSegmentString; //Only allow it to be updated once if it is empty.
+            }
             ModelState.Clear();
             TryValidateModel(financialAccountToUpdate);
 
