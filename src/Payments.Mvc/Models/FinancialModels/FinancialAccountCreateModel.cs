@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Payments.Core.Domain;
 
@@ -16,11 +16,9 @@ namespace Payments.Mvc.Models.FinancialModels
         public string Description { get; set; }
 
         [StringLength(1)]
-        [Required]
         public string Chart { get; set; }
 
         [StringLength(7)]
-        [Required]
         public string Account { get; set; }
 
         [StringLength(5)]
@@ -40,5 +38,9 @@ namespace Payments.Mvc.Models.FinancialModels
         public Team Team { get; set; }
 
         public KfsAccount KfsAccount { get; set; }
+
+        [StringLength(128)]
+        [Display(Name = "AE Financial Segment String (COA)")]
+        public string FinancialSegmentString { get; set; }
     }
 }

@@ -116,7 +116,7 @@ namespace Payments.Mvc.Controllers
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
-            financialAccount.Project = financialAccount.Project.SafeToUpper();
+            financialAccount.Project = financialAccount.Project.SafeToUpper();            
 
             if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
             {
@@ -127,6 +127,8 @@ namespace Payments.Mvc.Controllers
             {
                 ModelState.AddModelError("Project", "Project Not Valid.");
             }
+
+            //TODO: validate AE and stop validating chart, etc.
 
             var accountLookup = new KfsAccount();
             if (ModelState.IsValid)
@@ -180,6 +182,7 @@ namespace Payments.Mvc.Controllers
                 SubAccount = financialAccountModel.SubAccount,
                 Project = financialAccountModel.Project,
                 IsDefault = financialAccountModel.IsDefault,
+                FinancialSegmentString = financialAccountModel.FinancialSegmentString,
                 TeamId = team.Id
             };
 
