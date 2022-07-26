@@ -70,6 +70,14 @@ namespace Payments.Core.Jobs
                             log.Warning("Team {team} has no default account for payments", team.Name);
                             continue;
                         }
+                        if (!_financeSettings.RequireKfsAccount)
+                        {
+                            if (String.IsNullOrWhiteSpace(team.DefaultAccount.FinancialSegmentString))
+                            {
+                                log.Warning("Team {team} has no financial segment string for payments", team.Name);
+                                continue;
+                            }
+                        }
 
                         // transaction found, bank reconcile was successful
                         invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
@@ -83,12 +91,22 @@ namespace Payments.Core.Jobs
                         var incomeAccount = team.DefaultAccount.Account;
                         var incomeSubAccount = team.DefaultAccount.SubAccount;
 
+                        var incomeAeAccount = team.DefaultAccount.FinancialSegmentString;
+
                         if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.Account) && invoice.Account.IsActive) {
                             // the invoice has a specified account, use it instead of the team's default
                             incomeAccountChart = invoice.Account.Chart;
                             incomeAccount = invoice.Account.Account;
                             incomeSubAccount = invoice.Account.SubAccount;
                         }
+
+                        if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
+                        {
+                            //Validate? here and if invalid use the team default?                            
+                            // the invoice has a specified account, use it instead of the team's default
+                            incomeAeAccount = invoice.Account.FinancialSegmentString; 
+                        }
+
 
                         // create transfers
                         var debitHolding = new CreateTransfer()
@@ -100,6 +118,13 @@ namespace Payments.Core.Jobs
                             ObjectCode  = ObjectCodes.Income,
                             Description = $"Funds Distribution INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
+                        var aeDebitHolding = new CreateTransfer()
+                        {
+                            Amount = invoice.CalculatedTotal,
+                            Direction = Transfer.CreditDebit.Debit,
+                            FinancialSegmentString = _financeSettings.ClearingFinancialSegmentString,
+                            Description = "Funds Distribution"
+                        };
 
                         var feeCredit = new CreateTransfer()
                         {
@@ -110,6 +135,13 @@ namespace Payments.Core.Jobs
                             ObjectCode  = ObjectCodes.Income,
                             Description = $"Processing Fee INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
+                        var aeFeeCredit = new CreateTransfer()
+                        {
+                            Amount = feeAmount,
+                            Direction = Transfer.CreditDebit.Credit,
+                            FinancialSegmentString = _financeSettings.FeeFinancialSegmentString,
+                            Description = "Processing Fee"
+                        };  
 
                         var incomeCredit = new CreateTransfer()
                         {
@@ -121,27 +153,55 @@ namespace Payments.Core.Jobs
                             ObjectCode  = ObjectCodes.Income,
                             Description = $"Funds Distribution INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
+                        var aeIncomeCredit = new CreateTransfer()
+                        {
+                            Amount = incomeAmount,
+                            Direction = Transfer.CreditDebit.Credit,
+                            FinancialSegmentString = incomeAeAccount,
+                            Description = "Funds Distribution"
+                        };
 
                         // setup transaction
                         var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
-
-                        var response = await _slothService.CreateTransaction(new CreateTransaction()
+                        CreateSlothTransactionResponse response = null;
+                        if (_financeSettings.RequireKfsAccount)
                         {
-                            AutoApprove            = true,
-                            MerchantTrackingNumber = transaction.MerchantTrackingNumber,
-                            MerchantTrackingUrl    = merchantUrl,
-                            KfsTrackingNumber      = transaction.KfsTrackingNumber,
-                            TransactionDate        = DateTime.UtcNow,
-                            Transfers              = new List<CreateTransfer>()
+                            response = await _slothService.CreateTransaction(new CreateTransaction()
+                            {
+                                AutoApprove = true,
+                                MerchantTrackingNumber = transaction.MerchantTrackingNumber,
+                                MerchantTrackingUrl = merchantUrl,
+                                KfsTrackingNumber = transaction.KfsTrackingNumber,
+                                TransactionDate = DateTime.UtcNow,
+                                Transfers = new List<CreateTransfer>()
                             {
                                 debitHolding,
                                 feeCredit,
                                 incomeCredit,
                             },
-                            Source     = "Payments",
-                            SourceType = "CyberSource",
-                        });
-
+                                Source = "Payments",
+                                SourceType = "CyberSource",
+                            });
+                        }
+                        else
+                        {
+                            response = await _slothService.CreateTransaction(new CreateTransaction()
+                            {
+                                AutoApprove = true,
+                                MerchantTrackingNumber = transaction.MerchantTrackingNumber,
+                                MerchantTrackingUrl = merchantUrl,
+                                KfsTrackingNumber = transaction.KfsTrackingNumber,
+                                TransactionDate = DateTime.UtcNow,
+                                Transfers = new List<CreateTransfer>()
+                            {
+                                aeDebitHolding,
+                                aeFeeCredit,
+                                aeIncomeCredit,
+                            },
+                                Source = "Payments",
+                                SourceType = "CyberSource",
+                            });
+                        }
                         log.Information("Transaction created with ID: {id}", response.Id);
 
                         // send notifications
