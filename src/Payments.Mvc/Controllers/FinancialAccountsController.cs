@@ -150,6 +150,7 @@ namespace Payments.Mvc.Controllers
             }
             else
             {
+                financialAccount.KfsAccount = new KfsAccount();
                 if (String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
                 {
                     ModelState.AddModelError("FinancialSegmentString", "Financial Segment String is required.");
@@ -248,6 +249,7 @@ namespace Payments.Mvc.Controllers
             }
             if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
             {
+                //TODO: Extra payments account validation (income, etc.)
                 if (!await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString))
                 {
                     ModelState.AddModelError("FinancialSegmentString", "Financial Segment String is not valid.");
@@ -431,6 +433,10 @@ namespace Payments.Mvc.Controllers
                 {
                     model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
                 }
+            }
+            else
+            {
+                model.KfsAccount = new KfsAccount();
             }
             if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
             {
