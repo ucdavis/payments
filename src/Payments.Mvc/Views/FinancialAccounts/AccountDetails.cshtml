@@ -49,6 +49,11 @@
             </dt>
             <dd class="col-md-8">
                 @Html.DisplayFor(model => model.FinancialAccount.FinancialSegmentString)
+                @if (!Model.IsAeAccountValid)
+                {
+                    <span style="color: red"> ** Account is Invalid</span>
+                }
+
             </dd>
             <dt class="col-md-4">
                 @Html.DisplayNameFor(model => model.FinancialAccount.Chart)
