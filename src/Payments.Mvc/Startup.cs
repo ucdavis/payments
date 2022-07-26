@@ -76,6 +76,7 @@ namespace Payments.Mvc
             services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
             services.Configure<JsReportSettings>(Configuration.GetSection("JsReport"));
             services.Configure<SuperuserSettings>(Configuration.GetSection("Superuser"));
+            services.Configure<AggieEnterpriseOptions>(Configuration.GetSection("AggieEnterprise"));
 
             // write env name
             Log.Information($"Environment: {Environment.EnvironmentName}");
@@ -214,6 +215,7 @@ namespace Payments.Mvc
             services.AddSingleton<IDataSigningService, DataSigningService>();
             services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
             services.AddSingleton<IFinancialService, FinancialService>();
+            services.AddSingleton<IAggieEnterpriseService, AggieEnterpriseService>();
             services.AddSingleton<ISlothService, SlothService>();
             services.AddSingleton<IStorageService, StorageService>();
 
