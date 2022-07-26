@@ -11,5 +11,8 @@ namespace Payments.Core.Models.Configuration
         public string FeeChart { get; set; }
         public string FeeAccount { get; set; }
         public bool RequireKfsAccount { get; set; } = true; //We can turn this off and or remove when we switch over to AE
+
+        public string ClearingFinancialSegmentString { get; set; }
+        public string FeeFinancialSegmentString { get; set; }
     }
 }
