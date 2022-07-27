@@ -26,6 +26,11 @@
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                     <div class="form-group">
+                        <label asp-for="FinancialSegmentString" class="control-label"></label>
+                        <input asp-for="FinancialSegmentString" class="form-control" style="text-transform:uppercase"/>
+                        <span asp-validation-for="FinancialSegmentString" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
                         <label asp-for="Chart" class="control-label"></label>
                         <input asp-for="Chart" disabled class="form-control" style="text-transform:uppercase" />
                         <span asp-validation-for="Chart" class="text-danger"></span>
@@ -75,6 +80,7 @@
             $("#Object").prop('disabled', false);
             $("#SubObject").prop('disabled', false);
             $("#Project").prop('disabled', false);
+            $("#FinancialSegmentString").prop('disabled', false);
         });
 
     </script>

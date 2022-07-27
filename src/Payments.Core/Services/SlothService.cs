@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
@@ -22,10 +22,12 @@ namespace Payments.Core.Services
     public class SlothService : ISlothService
     {
         private readonly SlothSettings _settings;
+        private readonly FinanceSettings _financeSettings;
 
-        public SlothService(IOptions<SlothSettings> settings)
+        public SlothService(IOptions<SlothSettings> settings, IOptions<FinanceSettings> financeSettings)
         {
             _settings = settings.Value;
+            _financeSettings = financeSettings.Value;
         }
 
         public async Task<Transaction> GetTransactionsByProcessorId(string id)
@@ -69,9 +71,13 @@ namespace Payments.Core.Services
         private HttpClient GetHttpClient()
         {
             var client = new HttpClient()
-            {
+            {                
                 BaseAddress = new Uri(_settings.BaseUrl),
             };
+            if(!_financeSettings.RequireKfsAccount)
+            {
+                client.BaseAddress = new Uri(_settings.BaseUrlV2);
+            }
             client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.ApiKey);
 
             return client;

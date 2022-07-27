@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -18,7 +18,6 @@ namespace Payments.Core.Models.Sloth
         /// Chart Code associated with transaction.
         /// </summary>
         [MaxLength(1)]
-        [Required]
         public string Chart { get; set; }
 
         /// <summary>
@@ -27,7 +26,6 @@ namespace Payments.Core.Models.Sloth
         /// </summary>
         [MaxLength(7)]
         [RegularExpression("[A-Z0-9]*")]
-        [Required]
         public string Account { get; set; }
 
         /// <summary>
@@ -45,7 +43,6 @@ namespace Payments.Core.Models.Sloth
         /// </summary>
         [MaxLength(4)]
         [RegularExpression("[A-Z0-9]*")]
-        [Required]
         public string ObjectCode { get; set; }
 
         /// <summary>
@@ -78,5 +75,7 @@ namespace Payments.Core.Models.Sloth
         /// </summary>
         [Required]
         public Transfer.CreditDebit Direction { get; set; }
+
+        public string FinancialSegmentString { get; set; }
     }
 }

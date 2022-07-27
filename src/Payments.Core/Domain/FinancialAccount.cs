@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -19,7 +19,6 @@ namespace Payments.Core.Domain
         /// Chart Code.
         /// </summary>
         [StringLength(1)]
-        [Required]
         public string Chart { get; set; }
 
         /// <summary>
@@ -28,8 +27,10 @@ namespace Payments.Core.Domain
         /// </summary>
         [StringLength(7)]
         [RegularExpression("[A-Z0-9]*")]
-        [Required]
         public string Account { get; set; }
+
+        [StringLength(128)]
+        public string FinancialSegmentString { get;set;}
 
         /// <summary>
         /// Sub-Account is an optional accounting unit attribute.

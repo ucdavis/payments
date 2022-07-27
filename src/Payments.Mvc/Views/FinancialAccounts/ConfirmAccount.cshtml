@@ -27,6 +27,12 @@
                     </div>
                     <dl class="dl-horizontal">
                         <dt>
+                            @Html.DisplayNameFor(model => model.FinancialSegmentString)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.FinancialSegmentString)
+                        </dd>
+                        <dt>
                             @Html.DisplayNameFor(model => model.Chart)
                         </dt>
                         <dd>
@@ -90,6 +96,7 @@
                     <input type="hidden" asp-for="SubAccount" />
                     <input type="hidden" asp-for="Project" />
                     <input type="hidden" asp-for="IsDefault" />
+                    <input type="hidden" asp-for="FinancialSegmentString" />
 
                     <input type="hidden" id="confirm" name="confirm" value="true" />
                     <div class="form-group">

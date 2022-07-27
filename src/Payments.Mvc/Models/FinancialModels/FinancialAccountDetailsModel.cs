@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Payments.Core.Domain;
 
 namespace Payments.Mvc.Models.FinancialModels
@@ -12,5 +12,7 @@ namespace Payments.Mvc.Models.FinancialModels
         public bool IsAccountValid { get; set; }
 
         public bool? IsProjectValid { get; set; } = null;
+
+        public bool IsAeAccountValid { get; set; } = true;
     }
 }

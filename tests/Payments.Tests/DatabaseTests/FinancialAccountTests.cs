@@ -1,4 +1,4 @@
-﻿using Payments.Core.Domain;
+using Payments.Core.Domain;
 using System.Collections.Generic;
 using TestHelpers.Helpers;
 using Xunit;
@@ -17,15 +17,17 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("Account", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.RegularExpressionAttribute(\"[A-Z0-9]*\")]",
-                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)7)]",  
             }));
             expectedFields.Add(new NameAndType("Chart", "System.String", new List<string>
             {
-                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)1)]",
             }));
             expectedFields.Add(new NameAndType("Description", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("FinancialSegmentString", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
+            }));
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
@@ -58,7 +60,7 @@ namespace Payments.Tests.DatabaseTests
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("TeamId", "System.Int32", new List<string>()));
+            expectedFields.Add(new NameAndType("TeamId", "System.Int32", new List<string>()));            
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(FinancialAccount));

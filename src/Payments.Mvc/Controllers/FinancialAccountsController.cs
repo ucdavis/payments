@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Core.Models.Configuration;
+using Payments.Core.Services;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.FinancialModels;
 using Payments.Mvc.Models.Roles;
@@ -22,12 +25,16 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
         private readonly ApplicationUserManager _userManager;
+        private readonly IAggieEnterpriseService _aggieEnterpriseService;
+        private readonly FinanceSettings _financeSettings;
 
-        public FinancialAccountsController(ApplicationDbContext context, IFinancialService financialService, ApplicationUserManager userManager)
+        public FinancialAccountsController(ApplicationDbContext context, IFinancialService financialService, ApplicationUserManager userManager, IOptions<FinanceSettings> financeSettings, IAggieEnterpriseService aggieEnterpriseService)
         {
             _context = context;
             _financialService = financialService;
             _userManager = userManager;
+            _aggieEnterpriseService = aggieEnterpriseService;
+            _financeSettings = financeSettings.Value;
         }
 
         [Authorize(Policy = "TeamEditor")]
@@ -113,46 +120,67 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            financialAccount.Chart = financialAccount.Chart.SafeToUpper();
-            financialAccount.Account = financialAccount.Account.SafeToUpper();
-            financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
-            financialAccount.Project = financialAccount.Project.SafeToUpper();
-
-            if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
+            if (_financeSettings.RequireKfsAccount)
             {
-                ModelState.AddModelError("Account", "Valid Account Not Found.");
+                financialAccount.Chart = financialAccount.Chart.SafeToUpper();
+                financialAccount.Account = financialAccount.Account.SafeToUpper();
+                financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
+                financialAccount.Project = financialAccount.Project.SafeToUpper();
+
+                if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
+                {
+                    ModelState.AddModelError("Account", "Valid Account Not Found.");
+                }
+
+                if (!string.IsNullOrWhiteSpace(financialAccount.Project) && !await _financialService.IsProjectValid(financialAccount.Project))
+                {
+                    ModelState.AddModelError("Project", "Project Not Valid.");
+                }
+                var accountLookup = new KfsAccount();
+                if (ModelState.IsValid)
+                {
+                    accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                    if (!accountLookup.IsValidIncomeAccount)
+                    {
+                        ModelState.AddModelError("Account", "Not An Income Account.");
+                    }
+                    //OK, it is valid, so lookup display values
+                    financialAccount.KfsAccount = accountLookup;
+                }
+            }
+            else
+            {
+                financialAccount.KfsAccount = new KfsAccount();
+                if (String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
+                {
+                    ModelState.AddModelError("FinancialSegmentString", "Financial Segment String is required.");
+                }
+            }
+            if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString) )
+            {
+                if (!await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString))
+                {
+                    ModelState.AddModelError("FinancialSegmentString", "Financial Segment String is not valid.");
+                }
             }
 
-            if (!string.IsNullOrWhiteSpace(financialAccount.Project) && ! await _financialService.IsProjectValid(financialAccount.Project))
-            {
-                ModelState.AddModelError("Project", "Project Not Valid.");
-            }
 
-            var accountLookup = new KfsAccount();
+
             if (ModelState.IsValid)
             {
-                accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
-                if (!accountLookup.IsValidIncomeAccount)
+                if (_financeSettings.RequireKfsAccount)
                 {
-                    ModelState.AddModelError("Account", "Not An Income Account.");
-                }
-            }
+                    if (!string.IsNullOrWhiteSpace(financialAccount.Project))
+                    {
+                        financialAccount.KfsAccount.ProjectName = await _financialService.GetProjectName(financialAccount.Project);
+                    }
 
+                    if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+                    {
+                        financialAccount.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                    }
 
-            if (ModelState.IsValid)
-            {
-                //OK, it is valid, so lookup display values
-                financialAccount.KfsAccount = accountLookup;
-                if (!string.IsNullOrWhiteSpace(financialAccount.Project))
-                {
-                    financialAccount.KfsAccount.ProjectName = await _financialService.GetProjectName(financialAccount.Project);
                 }
-
-                if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
-                {
-                    financialAccount.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
-                }
-                
                 financialAccount.Team = team;
                 return View(financialAccount);
             }
@@ -180,6 +208,7 @@ namespace Payments.Mvc.Controllers
                 SubAccount = financialAccountModel.SubAccount,
                 Project = financialAccountModel.Project,
                 IsDefault = financialAccountModel.IsDefault,
+                FinancialSegmentString = financialAccountModel.FinancialSegmentString,
                 TeamId = team.Id
             };
 
@@ -190,22 +219,40 @@ namespace Payments.Mvc.Controllers
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
             financialAccount.Project = financialAccount.Project.SafeToUpper();
 
-            if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
+            if (_financeSettings.RequireKfsAccount)
             {
-                ModelState.AddModelError("Account", "Valid Account Not Found.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(financialAccount.Project) && !await _financialService.IsProjectValid(financialAccount.Project))
-            {
-                ModelState.AddModelError("Project", "Project Not Valid.");
-            }
-
-            if (ModelState.IsValid)
-            {
-                var accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
-                if (!accountLookup.IsValidIncomeAccount)
+                if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
                 {
-                    ModelState.AddModelError("Account", "Not An Income Account.");
+                    ModelState.AddModelError("Account", "Valid Account Not Found.");
+                }
+
+                if (!string.IsNullOrWhiteSpace(financialAccount.Project) && !await _financialService.IsProjectValid(financialAccount.Project))
+                {
+                    ModelState.AddModelError("Project", "Project Not Valid.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    var accountLookup = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                    if (!accountLookup.IsValidIncomeAccount)
+                    {
+                        ModelState.AddModelError("Account", "Not An Income Account.");
+                    }
+                }
+            }
+            else
+            {
+                if (String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
+                {
+                    ModelState.AddModelError("FinancialSegmentString", "Financial Segment String is required.");
+                }
+            }
+            if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
+            {
+                //TODO: Extra payments account validation (income, etc.)
+                if (!await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString))
+                {
+                    ModelState.AddModelError("FinancialSegmentString", "Financial Segment String is not valid.");
                 }
             }
 
@@ -302,8 +349,16 @@ namespace Payments.Mvc.Controllers
             financialAccountToUpdate.Description = financialAccount.Description;
             financialAccountToUpdate.IsDefault = financialAccount.IsDefault;
             financialAccountToUpdate.IsActive = financialAccount.IsActive;
-
             ModelState.Clear();
+            if (String.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString))
+            {
+                financialAccountToUpdate.FinancialSegmentString = financialAccount.FinancialSegmentString; //Only allow it to be updated once if it is empty.
+                if (!await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString))
+                {
+                    ModelState.AddModelError("FinancialSegmentString", "Financial Segment String is not valid.");
+                }
+            }
+            
             TryValidateModel(financialAccountToUpdate);
 
             if (ModelState.IsValid)
@@ -360,23 +415,34 @@ namespace Payments.Mvc.Controllers
 
             var model = new FinancialAccountDetailsModel {FinancialAccount = financialAccount};
 
-            // fetch kfs details
-            model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
-            if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+            if(_financeSettings.RequireKfsAccount)
             {
-                //Populate subaccount info
-                model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                // fetch kfs details
+                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+                {
+                    //Populate subaccount info
+                    model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                }
+
+                // check if account is valid
+                model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+
+                // check if project is valid
+                if (!string.IsNullOrWhiteSpace(financialAccount.Project))
+                {
+                    model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
+                }
+            }
+            else
+            {
+                model.KfsAccount = new KfsAccount();
+            }
+            if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
+            {
+                model.IsAeAccountValid = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
             }
 
-            // check if account is valid
-            model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
-
-            // check if project is valid
-            if (!string.IsNullOrWhiteSpace(financialAccount.Project))
-            {
-                model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
-            }
-            
             return View(model);
         }
 
