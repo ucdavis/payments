@@ -17,7 +17,6 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
-using StackifyLib;
 
 namespace Payments.Mvc
 {

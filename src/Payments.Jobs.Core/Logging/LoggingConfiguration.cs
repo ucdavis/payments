@@ -8,7 +8,6 @@ using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 using Serilog.Sinks.MSSqlServer;
-using StackifyLib;
 
 namespace Payments.Jobs.Core.Logging
 {
@@ -43,7 +42,7 @@ namespace Payments.Jobs.Core.Logging
         }
 
         /// <summary>
-        /// Get a logger configuration that logs to stackify
+        /// Get a logger configuration
         /// </summary>
         /// <returns></returns>
         public static LoggerConfiguration GetConfiguration()
@@ -63,8 +62,7 @@ namespace Payments.Jobs.Core.Logging
                 .Enrich.WithProperty("Application", loggingSection.GetValue<string>("AppName"))
                 .Enrich.WithProperty("AppEnvironment", loggingSection.GetValue<string>("Environment"))
                 .WriteTo.Console()
-                .WriteToSqlCustom()
-                .WriteToStackifyCustom();
+                .WriteToSqlCustom();
 
 
             // add in elastic search sink if the uri is valid
@@ -77,16 +75,6 @@ namespace Payments.Jobs.Core.Logging
             }
 
             return logConfig;
-        }
-
-        private static LoggerConfiguration WriteToStackifyCustom(this LoggerConfiguration logConfig)
-        {
-            if (!_loggingSetup)
-            {
-                _configuration.ConfigureStackifyLogging();
-            }
-
-            return logConfig.WriteTo.Stackify();
         }
 
         private static LoggerConfiguration WriteToSqlCustom(this LoggerConfiguration logConfig)
