@@ -28,10 +28,7 @@
     <PackageReference Include="Serilog.Exceptions" Version="8.1.0" />
     <PackageReference Include="Serilog.Sinks.ElasticSearch" Version="8.4.1" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.7.0" />
-    <PackageReference Include="Serilog.Sinks.Stackify" Version="2.0.2" />
     <PackageReference Include="SpaCliMiddleware" Version="5.0.0" />
-    <PackageReference Include="StackifyLib.AspNetCore" Version="2.1.5" />
-    <PackageReference Include="StackifyMiddleware" Version="3.0.5.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.0" />
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.310801">

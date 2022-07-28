@@ -46,7 +46,6 @@ using Payments.Mvc.Services;
 using Payments.Mvc.Swagger;
 using Serilog;
 using SpaCliMiddleware;
-using StackifyLib;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Payments.Mvc
@@ -242,9 +241,6 @@ namespace Payments.Mvc
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<CorrelationIdMiddleware>();
-
-            // setup tracing
-            app.UseMiddleware<StackifyMiddleware.RequestTracerMiddleware>();
 
             if (env.IsDevelopment())
             {
