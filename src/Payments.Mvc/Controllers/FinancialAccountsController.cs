@@ -451,6 +451,7 @@ namespace Payments.Mvc.Controllers
             else
             {
                 model.KfsAccount = new KfsAccount();
+                model.ShowKfsAccount = false;
             }
             if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
             {

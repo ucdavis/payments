@@ -14,5 +14,6 @@ namespace Payments.Mvc.Models.FinancialModels
         public bool? IsProjectValid { get; set; } = null;
 
         public bool IsAeAccountValid { get; set; } = true;
+        public bool ShowKfsAccount { get; set; } = true;
     }
 }
