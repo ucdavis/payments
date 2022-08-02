@@ -27,6 +27,7 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("FinancialSegmentString", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
+                "[System.ComponentModel.DisplayNameAttribute(\"Financial Segment String\")]",
             }));
             expectedFields.Add(new NameAndType("Id", "System.Int32", new List<string>
             {

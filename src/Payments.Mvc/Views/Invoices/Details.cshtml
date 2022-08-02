@@ -584,10 +584,20 @@
             <dd class="col-10">
                 @Model.Account.Description
             </dd>
-            <dt class="col-2 text-right">Account</dt>
-            <dd class="col-10">
-                @Model.Account.GetAccountString()
-            </dd>
+            @if (!string.IsNullOrWhiteSpace(Model.Account.Account))
+            {
+                <dt class="col-2 text-right">Account</dt>
+                <dd class="col-10">
+                    @Model.Account.GetAccountString()
+                </dd>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Account.FinancialSegmentString))
+            {
+                <dt class="col-2 text-right">Financial Segment String</dt>
+                <dd class="col-10">
+                    @Model.Account.FinancialSegmentString
+                </dd>
+            }
         </dl>
     </div>
 </div>

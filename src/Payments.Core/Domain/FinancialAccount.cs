@@ -30,6 +30,7 @@ namespace Payments.Core.Domain
         public string Account { get; set; }
 
         [StringLength(128)]
+        [DisplayName("Financial Segment String")]
         public string FinancialSegmentString { get;set;}
 
         /// <summary>
