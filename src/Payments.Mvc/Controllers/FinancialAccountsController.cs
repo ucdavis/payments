@@ -122,6 +122,20 @@ namespace Payments.Mvc.Controllers
 
             if (_financeSettings.RequireKfsAccount)
             {
+                if (String.IsNullOrEmpty(financialAccount.Account))
+                {
+                    ModelState.AddModelError("Account", "KFS Account is required");
+                }
+                if (String.IsNullOrEmpty(financialAccount.Chart))
+                {
+                    ModelState.AddModelError("Chart", "KFS Chart is required");
+                }
+                if (!ModelState.IsValid)
+                {
+                    financialAccount.Team = team;
+                    return View("CreateAccount", financialAccount);
+                }
+                
                 financialAccount.Chart = financialAccount.Chart.SafeToUpper();
                 financialAccount.Account = financialAccount.Account.SafeToUpper();
                 financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
