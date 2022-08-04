@@ -121,7 +121,7 @@ namespace Payments.Mvc.Controllers
         {
             //Look at all paid invoices in the processing status that were paid a week ago.
             var invoices = await _dbContext.Invoices
-                .Where(a => a.Paid && a.Status == StatusCodes.Processing && (a.PaidAt == null || a.PaidAt < DateTime.UtcNow.AddDays(-7)))
+                .Where(a => a.Paid && (a.Status == StatusCodes.Processing || a.Status == StatusCodes.Paid) && (a.PaidAt == null || a.PaidAt < DateTime.UtcNow.AddDays(-7)))
                 .Include(i => i.Team)
                 .Include( i => i.Account)
                 .AsSplitQuery() //Split it?
