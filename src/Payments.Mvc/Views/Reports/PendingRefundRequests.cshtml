@@ -20,7 +20,9 @@
                     <th>Customer Name</th>
                     <th>Customer Company</th>
                     <th>Amount</th>
-                    <th>Account</th>
+                    <th>Account Name</th>
+                    <th>KFS Account</th>
+                    <th>AE Account</th>
                     <th>Paid At</th>
                     <th>Created</th>
                 </tr>
@@ -41,7 +43,9 @@
                         <td>@invoice.CustomerName</td>
                         <td>@invoice.CustomerCompany</td>
                         <td>@invoice.CalculatedTotal</td>
+                        <td>@invoice.Account.Name</td>
                         <td>@invoice.Account.GetAccountString()</td>
+                        <td>@invoice.Account.FinancialSegmentString</td>
                         <td>@(invoice.PaidAt.HasValue ? invoice.PaidAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
                     </tr>
@@ -63,7 +67,7 @@
             ],
             order: [[ 7, 'desc' ]],
             columnDefs: [
-                { targets: [3,4], visible: false }
+                { targets: [3,4, 7, 8], visible: false }
             ],
         });
     });
