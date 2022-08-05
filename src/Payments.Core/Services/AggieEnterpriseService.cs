@@ -31,8 +31,34 @@ namespace Payments.Core.Services
                 var result = await _aggieClient.GlValidateChartstring.ExecuteAsync(financialSegmentString, validateCVRs);
 
                 var data = result.ReadData();
-                
-                return data.GlValidateChartstring.ValidationResponse.Valid;
+
+                var isValid = data.GlValidateChartstring.ValidationResponse.Valid;
+
+                if (isValid)
+                {
+                    //Is fund valid?
+                    var fund = data.GlValidateChartstring.Segments.Fund;
+                    if ("13U00,13U01,13U02".Contains(fund) )//TODO: Make a configurable list of valid funds
+                    {
+                        //These three are excluded
+                        isValid = false;                       
+                    }
+                    else 
+                    {
+                        var funds = await _aggieClient.FundParents.ExecuteAsync(fund);
+                        var dataFunds = funds.ReadData();
+                        if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
+                        {
+                            isValid = true;
+                        }
+                        else
+                        {
+                            isValid = false;
+                        }
+                    }
+                }
+
+                return isValid;
             }
 
             if (segmentStringType == FinancialChartStringType.Ppm)
@@ -44,8 +70,14 @@ namespace Payments.Core.Services
 
                 var data = result.ReadData();
 
-                return data.PpmSegmentsValidate.ValidationResponse.Valid;
+                var isValid = data.PpmSegmentsValidate.ValidationResponse.Valid;
+
+                //TODO: Extra validation for PPM strings?
+
+                return isValid;
             }
+
+          
 
             return false;
         }
