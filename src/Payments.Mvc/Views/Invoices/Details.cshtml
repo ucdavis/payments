@@ -501,24 +501,24 @@
                         <dd class="col-9">
                             <span class="text-monospace">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
                             <i class="@cardClass"></i>
-                            @if (successfulPayment.CardExpiry.HasValue)
+@*                            @if (successfulPayment.CardExpiry.HasValue)
                             {
                                 <span class="badge badge-primary">@successfulPayment.CardExpiry.Value.ToString("MM/yyyy")</span>
-                            }
+                            }*@
                         </dd>
                     }
-
+@*
                     <dt class="col-3 text-right">Billing Name</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingFirstName @successfulPayment.BillingLastName
-                    </dd>
+                    </dd>*@
 
                     <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingEmail
                     </dd>
                     
-                    @if (!string.IsNullOrWhiteSpace(successfulPayment.BillingPhone))
+                    @*@if (!string.IsNullOrWhiteSpace(successfulPayment.BillingPhone))
                     {
                         <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
                         <dd class="col-9">
@@ -557,7 +557,7 @@
                     <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingPostalCode
-                    </dd>
+                    </dd>*@
                     <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
                     <dd class="col-9">
                         @successfulPayment.ProcessorId
