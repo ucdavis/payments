@@ -558,6 +558,10 @@
                     <dd class="col-9">
                         @successfulPayment.BillingPostalCode
                     </dd>
+                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
+                    <dd class="col-9">
+                        @successfulPayment.ProcessorId
+                    </dd>
                 </dl>
             }
         </div>
