@@ -207,6 +207,8 @@ namespace Payments.Core.Jobs
                                 SourceType = "CyberSource",
                             });
                         }
+
+                        //TODO: If there was a problem with the response, set the status back to paid?
                         log.Information("Transaction created with ID: {id}", response.Id);
 
                         // send notifications
