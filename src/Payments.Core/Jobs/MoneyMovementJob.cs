@@ -264,7 +264,7 @@ namespace Payments.Core.Jobs
                         // look for transfers into the fees account that have completed
                         var distribution = transactions?.FirstOrDefault(t =>
                             string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
-                            && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount) || string.Equals(r.Account, _financeSettings.FeeFinancialSegmentString)));
+                            && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount) || string.Equals(r.FinancialSegmentString, _financeSettings.FeeFinancialSegmentString)));
 
                         if (distribution == null)
                         {
