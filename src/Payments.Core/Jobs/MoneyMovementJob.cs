@@ -178,6 +178,7 @@ namespace Payments.Core.Jobs
                                 MerchantTrackingUrl = merchantUrl,
                                 KfsTrackingNumber = transaction.KfsTrackingNumber,
                                 TransactionDate = DateTime.UtcNow,
+                                Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
                                 Transfers = new List<CreateTransfer>()
                             {
                                 debitHolding,
@@ -197,6 +198,7 @@ namespace Payments.Core.Jobs
                                 MerchantTrackingUrl = merchantUrl,
                                 KfsTrackingNumber = transaction.KfsTrackingNumber,
                                 TransactionDate = DateTime.UtcNow,
+                                Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
                                 Transfers = new List<CreateTransfer>()
                             {
                                 aeDebitHolding,
@@ -264,6 +266,7 @@ namespace Payments.Core.Jobs
                         var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber);
 
                         // look for transfers into the fees account that have completed
+                        // TODO: Use the sloth transaction.Description to identify these? It depends on what we write there
                         var distribution = transactions?.FirstOrDefault(t =>
                             string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
                             && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount) || string.Equals(r.FinancialSegmentString, _financeSettings.FeeFinancialSegmentString)));

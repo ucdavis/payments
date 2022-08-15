@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -75,6 +75,8 @@ namespace Payments.Core.Models.Sloth
         [Required]
         [DisplayName("Transaction Date")]
         public DateTime TransactionDate { get; set; }
+
+        public string Description { get; set; }
 
         public IList<Transfer> Transfers { get; set; }
     }
