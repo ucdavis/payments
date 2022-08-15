@@ -59,6 +59,11 @@ namespace Payments.Core.Jobs
                             log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
                             continue;
                         }
+                        if(transaction.Status != "Completed")
+                        {
+                            log.Warning("No completed reconciliation found for invoice id: {id} Paid Date: {PaidAt} Status: {status}", invoice.Id, invoice.PaidAt, transaction.Status);
+                            continue;
+                        }
 
                         log.Information("Invoice {id} reconciliation found with transaction: {transactionId}",
                             invoice.Id, transaction.Id);
@@ -202,6 +207,8 @@ namespace Payments.Core.Jobs
                                 SourceType = "CyberSource",
                             });
                         }
+
+                        //TODO: If there was a problem with the response, set the status back to paid?
                         log.Information("Transaction created with ID: {id}", response.Id);
 
                         // send notifications
@@ -259,7 +266,7 @@ namespace Payments.Core.Jobs
                         // look for transfers into the fees account that have completed
                         var distribution = transactions?.FirstOrDefault(t =>
                             string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
-                            && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount)));
+                            && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount) || string.Equals(r.FinancialSegmentString, _financeSettings.FeeFinancialSegmentString)));
 
                         if (distribution == null)
                         {
