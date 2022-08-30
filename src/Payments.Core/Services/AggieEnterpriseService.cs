@@ -63,14 +63,11 @@ namespace Payments.Core.Services
 
             if (segmentStringType == FinancialChartStringType.Ppm)
             {
-                // there is no validate ppm string, but we can validate by segments
-                var segments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
-
-                var result = await _aggieClient.PpmSegmentsValidate.ExecuteAsync(ConvertToPpmSegmentInput(segments), accountingDate: null);
+                var result = await _aggieClient.PpmStringSegmentsValidate.ExecuteAsync(financialSegmentString);
 
                 var data = result.ReadData();
 
-                var isValid = data.PpmSegmentsValidate.ValidationResponse.Valid;
+                var isValid = data.PpmStringSegmentsValidate.ValidationResponse.Valid;
 
                 //TODO: Extra validation for PPM strings?
 
