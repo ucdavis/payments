@@ -59,6 +59,8 @@ namespace Payments.Core.Models.Sloth
         [Required]
         public string SourceType { get; set; }
 
+        public string Description { get; set; }
+
         [Required]
         public IList<CreateTransfer> Transfers { get; set; }
     }
