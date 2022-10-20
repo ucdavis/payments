@@ -288,6 +288,10 @@ namespace Payments.Mvc
                     .From("https://stackpath.bootstrapcdn.com")
                     .From("https://ajax.aspnetcdn.com");
 
+                //Finjector
+                c.AllowScripts
+                    .From("https://finjector.ucdavis.edu");
+
                 // allow google analytics
                 c.AllowScripts
                     .From("https://www.googletagmanager.com")

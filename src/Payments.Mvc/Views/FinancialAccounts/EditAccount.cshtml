@@ -32,6 +32,14 @@
     <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.Id"><i class="fas fa-chevron-left mr-3"></i>Back</a>
 </div>
 
+@section AdditionalStyles {
+    <style asp-add-nonce="true">
+        .force-upper{
+            text-transform: uppercase;
+        }
+    </style>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     
@@ -40,9 +48,29 @@
             var fssVal = $("#FinancialSegmentString").val();
             if (fssVal === "") {
                 $("#FinancialSegmentString").prop("disabled", false);
+                $("#ccoa-picker").prop("disabled", false);
             }
 
         });
+
+    </script>
+
+    <script src="https://finjector.ucdavis.edu/finjector.js?v=3" type="text/javascript" asp-add-nonce="true"></script>
+
+    <script type="text/javascript" asp-add-nonce="true">
+
+        $("#ccoa-picker").on("click",
+
+            async function () {
+                const chart = await window.Finjector.findChartSegmentString("https://finjector.ucdavis.edu/landing");
+                if (chart && chart.status === "success") {
+                    $("#FinancialSegmentString").val(chart.data);
+                }
+                else {
+                    alert("Something went wrong with the CCOA picker")
+                }
+                return false;
+            });
 
     </script>
 }

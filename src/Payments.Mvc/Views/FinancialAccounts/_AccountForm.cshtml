@@ -15,7 +15,12 @@
 </div>
 <div class="form-group">
     <label asp-for="FinancialSegmentString" class="control-label"></label>
-    <input asp-for="FinancialSegmentString" disabled class="form-control" style="text-transform:uppercase"/>
+    <div class="input-group">
+        <input asp-for="FinancialSegmentString" disabled class="form-control force-upper" />
+        <div class="input-group-append">
+            <button id="ccoa-picker" class="btn btn-primary" type="button" disabled>CCOA Picker</button>
+        </div>
+    </div>
     <span asp-validation-for="FinancialSegmentString" class="text-danger"></span>
 </div>
 <div class="form-group">
