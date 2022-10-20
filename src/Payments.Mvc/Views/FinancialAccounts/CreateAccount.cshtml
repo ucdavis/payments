@@ -11,7 +11,7 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-8">
                 <form asp-action="ConfirmAccount">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="Id" />
@@ -27,27 +27,32 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="FinancialSegmentString" class="control-label"></label>
-                        <input asp-for="FinancialSegmentString" class="form-control" style="text-transform:uppercase"/>
+                        <div class="input-group">
+                            <input asp-for="FinancialSegmentString" class="form-control force-upper" />
+                            <div class="input-group-append">
+                                <button id="ccoa-picker" class="btn btn-primary" type="button">CCOA Picker</button>
+                            </div>
+                        </div>
                         <span asp-validation-for="FinancialSegmentString" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Chart" class="control-label"></label>
-                        <input asp-for="Chart" disabled class="form-control" style="text-transform:uppercase" />
+                        <input asp-for="Chart" disabled class="form-control force-upper" />
                         <span asp-validation-for="Chart" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Account" class="control-label"></label>
-                        <input asp-for="Account" disabled class="form-control" style="text-transform:uppercase" />
+                        <input asp-for="Account" disabled class="form-control force-upper" />
                         <span asp-validation-for="Account" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="SubAccount" class="control-label"></label>
-                        <input asp-for="SubAccount" disabled class="form-control" style="text-transform:uppercase" placeholder="-----" />
+                        <input asp-for="SubAccount" disabled class="form-control force-upper" placeholder="-----" />
                         <span asp-validation-for="SubAccount" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Project" class="control-label"></label>
-                        <input asp-for="Project" disabled class="form-control" style="text-transform:uppercase" placeholder="---------" />
+                        <input asp-for="Project" disabled class="form-control force-upper" placeholder="---------" />
                         <span asp-validation-for="Project" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -70,6 +75,14 @@
     <a asp-action="Index"><i class="fas fa-chevron-left mr-3"></i>Back to Accounts</a>
 </div>
 
+@section AdditionalStyles {
+    <style asp-add-nonce="true">
+        .force-upper{
+            text-transform: uppercase;
+        }
+    </style>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script type="text/javascript" asp-add-nonce="true">
@@ -82,6 +95,24 @@
             $("#Project").prop('disabled', false);
             $("#FinancialSegmentString").prop('disabled', false);
         });
+
+    </script>
+    <script src="https://finjector.ucdavis.edu/finjector.js?v=3" type="text/javascript" asp-add-nonce="true"></script>
+
+    <script type="text/javascript" asp-add-nonce="true">
+
+        $("#ccoa-picker").on("click",
+
+            async function () {
+                const chart = await window.Finjector.findChartSegmentString("https://finjector.ucdavis.edu/landing");
+                if (chart && chart.status === "success") {
+                    $("#FinancialSegmentString").val(chart.data);
+                }
+                else {
+                    alert("Something went wrong with the CCOA picker")
+                }
+                return false;
+            });
 
     </script>
 }
