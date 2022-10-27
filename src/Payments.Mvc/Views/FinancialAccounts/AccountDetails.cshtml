@@ -51,7 +51,8 @@
                 @Html.DisplayFor(model => model.FinancialAccount.FinancialSegmentString)
                 @if (!Model.IsAeAccountValid)
                 {
-                    <span style="color: red"> ** Account is Invalid</span>
+                    <div style="color: red"> ** Account is Invalid</div>
+                    <div style="color: red"> @Model.AeValidationMessage</div>
                 }
             </dd>
             @if (Model.ShowKfsAccount)

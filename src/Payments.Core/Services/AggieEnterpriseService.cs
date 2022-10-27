@@ -4,6 +4,7 @@ using AggieEnterpriseApi.Types;
 using AggieEnterpriseApi.Validation;
 using Microsoft.Extensions.Options;
 using Payments.Core.Models.Configuration;
+using Payments.Core.Models.Validation;
 using System.Threading.Tasks;
 
 
@@ -11,7 +12,7 @@ namespace Payments.Core.Services
 {
     public interface IAggieEnterpriseService
     {
-        Task<bool> IsAccountValid(string financialSegmentString, bool validateCVRs = true);
+        Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true);
     }
     public class AggieEnterpriseService : IAggieEnterpriseService
     {
@@ -24,8 +25,10 @@ namespace Payments.Core.Services
 
         //TODO: Change this to return invalid reasons
 
-        public async Task<bool> IsAccountValid(string financialSegmentString, bool validateCVRs = true)
+        public async Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true)
         {
+            var rtValue = new AccountValidationModel();
+
             var segmentStringType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
 
             if (segmentStringType == FinancialChartStringType.Gl)
@@ -34,16 +37,24 @@ namespace Payments.Core.Services
 
                 var data = result.ReadData();
 
-                var isValid = data.GlValidateChartstring.ValidationResponse.Valid;
+                rtValue.IsValid = data.GlValidateChartstring.ValidationResponse.Valid;
+                if (!rtValue.IsValid)
+                {
+                    foreach(var err in data.GlValidateChartstring.ValidationResponse.ErrorMessages)
+                    {
+                        rtValue.Messages.Add(err);
+                    }
+                }
 
-                if (isValid)
+                if (rtValue.IsValid)
                 {
                     //Is fund valid?
                     var fund = data.GlValidateChartstring.Segments.Fund;
                     if ("13U00,13U01,13U02".Contains(fund) )//TODO: Make a configurable list of valid funds
                     {
                         //These three are excluded
-                        isValid = false;                       
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("Fund is not valid. Can't be one of 13U00,13U01,13U02");
                     }
                     else 
                     {
@@ -55,11 +66,12 @@ namespace Payments.Core.Services
                         }
                         else
                         {
-                            isValid = false;
+                            rtValue.IsValid = false;
+                            rtValue.Messages.Add("Fund is not valid. Must roll up to 1200C, 1300C, or 5000C");
                         }
                     }
                 }
-                if (isValid)
+                if (rtValue.IsValid)
                 {
                     //Does Natural Account roll up to 41000D or 44000D? (It can't be either of those values)
                     var naturalAcct = data.GlValidateChartstring.Segments.Account;
@@ -71,11 +83,12 @@ namespace Payments.Core.Services
                     }
                     else
                     {
-                        isValid = false;
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("Natural Account is not valid. Must roll up to 41000D or 44000D");
                     }
                 }
 
-                return isValid;
+                return rtValue;
             }
 
             if (segmentStringType == FinancialChartStringType.Ppm)
@@ -84,16 +97,23 @@ namespace Payments.Core.Services
 
                 var data = result.ReadData();
 
-                var isValid = data.PpmStringSegmentsValidate.ValidationResponse.Valid;
+                rtValue.IsValid = data.PpmStringSegmentsValidate.ValidationResponse.Valid;
+                if (!rtValue.IsValid)
+                {
+                    foreach (var err in data.PpmStringSegmentsValidate.ValidationResponse.ErrorMessages)
+                    {
+                        rtValue.Messages.Add(err);
+                    }
+                }
 
                 //TODO: Extra validation for PPM strings?
 
-                return isValid;
+                return rtValue;
             }
 
           
 
-            return false;
+            return rtValue;
         }
 
         private PpmSegmentInput ConvertToPpmSegmentInput(PpmSegments segments)
