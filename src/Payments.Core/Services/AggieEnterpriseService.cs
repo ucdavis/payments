@@ -22,6 +22,8 @@ namespace Payments.Core.Services
             _aggieClient = GraphQlClient.Get(options.Value.GraphQlUrl, options.Value.Token);
         }
 
+        //TODO: Change this to return invalid reasons
+
         public async Task<bool> IsAccountValid(string financialSegmentString, bool validateCVRs = true)
         {
             var segmentStringType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
@@ -49,12 +51,27 @@ namespace Payments.Core.Services
                         var dataFunds = funds.ReadData();
                         if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
                         {
-                            isValid = true;
+                            //isValid = true; //Avoid setting to true if it might be false
                         }
                         else
                         {
                             isValid = false;
                         }
+                    }
+                }
+                if (isValid)
+                {
+                    //Does Natural Account roll up to 41000D or 44000D? (It can't be either of those values)
+                    var naturalAcct = data.GlValidateChartstring.Segments.Account;
+                    var accountParents = await _aggieClient.ErpAccountRollup.ExecuteAsync(naturalAcct);
+                    var dataAccountParents = accountParents.ReadData();
+                    if (DoesNaturalAccountRollUp.NaturalAccount(dataAccountParents.ErpAccount, "41000D") || DoesNaturalAccountRollUp.NaturalAccount(dataAccountParents.ErpAccount, "44000D"))
+                    {
+                        //isValid = true;
+                    }
+                    else
+                    {
+                        isValid = false;
                     }
                 }
 
