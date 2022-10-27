@@ -20,12 +20,8 @@ namespace Payments.Core.Models.Validation
                 {
                     return string.Empty;
                 }
-                var temp = string.Empty;
-                foreach (var item in Messages)
-                {   
-                    temp = $"{temp} {item}";
-                }
-                return temp;
+
+                return string.Join(" ", Messages);
             }
         }
 
