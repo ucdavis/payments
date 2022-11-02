@@ -174,7 +174,13 @@ namespace Payments.Core.Services
                 return rtValue;
             }
 
-          
+            if (segmentStringType == FinancialChartStringType.Invalid)
+            {
+                rtValue.IsValid = false;
+                rtValue.Messages.Add("Invalid Financial Chart String format");
+                return rtValue;
+
+            }
 
             return rtValue;
         }
