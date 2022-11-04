@@ -10,64 +10,61 @@
         <a asp-action="Index">Back</a>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
-                <form asp-action="ConfirmAccount">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Description" class="control-label"></label>
-                        <input asp-for="Description" class="form-control" />
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="FinancialSegmentString" class="control-label"></label>
-                        <div class="input-group">
-                            <input asp-for="FinancialSegmentString" class="form-control force-upper" />
-                            <div class="input-group-append">
-                                <button id="ccoa-picker" class="btn btn-primary" type="button">CCOA Picker</button>
-                            </div>
-                        </div>
-                        <span asp-validation-for="FinancialSegmentString" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Chart" class="control-label"></label>
-                        <input asp-for="Chart" disabled class="form-control force-upper" />
-                        <span asp-validation-for="Chart" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Account" class="control-label"></label>
-                        <input asp-for="Account" disabled class="form-control force-upper" />
-                        <span asp-validation-for="Account" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="SubAccount" class="control-label"></label>
-                        <input asp-for="SubAccount" disabled class="form-control force-upper" placeholder="-----" />
-                        <span asp-validation-for="SubAccount" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Project" class="control-label"></label>
-                        <input asp-for="Project" disabled class="form-control force-upper" placeholder="---------" />
-                        <span asp-validation-for="Project" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label>
-                                <input asp-for="IsDefault" /> @Html.DisplayNameFor(model => model.IsDefault)
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Next" class="btn" />
-                    </div>
-                </form>
+
+        <form asp-action="ConfirmAccount">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-        </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FinancialSegmentString" class="control-label"></label>
+                <div class="input-group">
+                    <input asp-for="FinancialSegmentString" class="form-control force-upper" />
+                    <div class="input-group-append">
+                        <button id="ccoa-picker" class="btn btn-primary" type="button">CCOA Picker</button>
+                    </div>
+                </div>
+                <span asp-validation-for="FinancialSegmentString" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Chart" class="control-label"></label>
+                <input asp-for="Chart" disabled class="form-control force-upper" />
+                <span asp-validation-for="Chart" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Account" class="control-label"></label>
+                <input asp-for="Account" disabled class="form-control force-upper" />
+                <span asp-validation-for="Account" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubAccount" class="control-label"></label>
+                <input asp-for="SubAccount" disabled class="form-control force-upper" placeholder="-----" />
+                <span asp-validation-for="SubAccount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Project" class="control-label"></label>
+                <input asp-for="Project" disabled class="form-control force-upper" placeholder="---------" />
+                <span asp-validation-for="Project" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="IsDefault" /> @Html.DisplayNameFor(model => model.IsDefault)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Next" class="btn" />
+            </div>
+        </form>
     </div>
 </div>
 
@@ -77,8 +74,8 @@
 
 @section AdditionalStyles {
     <style asp-add-nonce="true">
-        .force-upper{
-            text-transform: uppercase; 
+        .force-upper {
+            text-transform: uppercase;
         }
     </style>
 }
