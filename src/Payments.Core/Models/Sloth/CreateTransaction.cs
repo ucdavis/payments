@@ -61,6 +61,8 @@ namespace Payments.Core.Models.Sloth
 
         public string Description { get; set; }
 
+        public Dictionary<string, string> Metadata { get; set; }
+
         [Required]
         public IList<CreateTransfer> Transfers { get; set; }
     }

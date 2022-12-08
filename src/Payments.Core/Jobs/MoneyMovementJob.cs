@@ -84,6 +84,17 @@ namespace Payments.Core.Jobs
                             }
                         }
 
+                        var meta = new Dictionary<string, string>();
+                        try
+                        {
+                            meta.Add("Team Name", team.Name);
+                            meta.Add("Team Slug", team.Slug);
+                        }
+                        catch
+                        {
+                            log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
+                        }
+
                         // transaction found, bank reconcile was successful
                         invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
                         invoice.Status = Invoice.StatusCodes.Processing;
@@ -199,6 +210,7 @@ namespace Payments.Core.Jobs
                                 KfsTrackingNumber = transaction.KfsTrackingNumber,
                                 TransactionDate = DateTime.UtcNow,
                                 Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
+                                Metadata = meta,
                                 Transfers = new List<CreateTransfer>()
                             {
                                 aeDebitHolding,
