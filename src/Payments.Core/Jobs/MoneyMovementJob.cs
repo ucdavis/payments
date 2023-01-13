@@ -84,17 +84,6 @@ namespace Payments.Core.Jobs
                             }
                         }
 
-                        var meta = new Dictionary<string, string>();
-                        try
-                        {
-                            meta.Add("Team Name", team.Name);
-                            meta.Add("Team Slug", team.Slug);
-                        }
-                        catch
-                        {
-                            log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
-                        }
-
                         // transaction found, bank reconcile was successful
                         invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
                         invoice.Status = Invoice.StatusCodes.Processing;
@@ -202,7 +191,7 @@ namespace Payments.Core.Jobs
                         }
                         else
                         {
-                            response = await _slothService.CreateTransaction(new CreateTransaction()
+                            var slothTransaction = new CreateTransaction()
                             {
                                 AutoApprove = true,
                                 MerchantTrackingNumber = transaction.MerchantTrackingNumber,
@@ -210,16 +199,28 @@ namespace Payments.Core.Jobs
                                 KfsTrackingNumber = transaction.KfsTrackingNumber,
                                 TransactionDate = DateTime.UtcNow,
                                 Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
-                                Metadata = meta,
                                 Transfers = new List<CreateTransfer>()
-                            {
-                                aeDebitHolding,
-                                aeFeeCredit,
-                                aeIncomeCredit,
-                            },
+                                {
+                                    aeDebitHolding,
+                                    aeFeeCredit,
+                                    aeIncomeCredit,
+                                },
                                 Source = "Payments",
                                 SourceType = "CyberSource",
-                            });
+                            };
+                            try
+                            {
+                                slothTransaction.AddMetadata("Team Name", team.Name);
+                                slothTransaction.AddMetadata("Team Slug", team.Slug);
+                            }
+                            catch
+                            {
+                                log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
+                            }
+
+                            response = await _slothService.CreateTransaction(slothTransaction);
+
+
                         }
 
                         //TODO: If there was a problem with the response, set the status back to paid?
