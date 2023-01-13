@@ -191,7 +191,7 @@ namespace Payments.Core.Jobs
                         }
                         else
                         {
-                            response = await _slothService.CreateTransaction(new CreateTransaction()
+                            var slothTransaction = new CreateTransaction()
                             {
                                 AutoApprove = true,
                                 MerchantTrackingNumber = transaction.MerchantTrackingNumber,
@@ -200,14 +200,27 @@ namespace Payments.Core.Jobs
                                 TransactionDate = DateTime.UtcNow,
                                 Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
                                 Transfers = new List<CreateTransfer>()
-                            {
-                                aeDebitHolding,
-                                aeFeeCredit,
-                                aeIncomeCredit,
-                            },
+                                {
+                                    aeDebitHolding,
+                                    aeFeeCredit,
+                                    aeIncomeCredit,
+                                },
                                 Source = "Payments",
                                 SourceType = "CyberSource",
-                            });
+                            };
+                            try
+                            {
+                                slothTransaction.AddMetadata("Team Name", team.Name);
+                                slothTransaction.AddMetadata("Team Slug", team.Slug);
+                            }
+                            catch
+                            {
+                                log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
+                            }
+
+                            response = await _slothService.CreateTransaction(slothTransaction);
+
+
                         }
 
                         //TODO: If there was a problem with the response, set the status back to paid?
