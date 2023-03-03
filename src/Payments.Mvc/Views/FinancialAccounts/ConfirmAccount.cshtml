@@ -34,7 +34,7 @@
                         @Html.DisplayFor(model => model.FinancialSegmentString)
                     </dd>
                 }
-                @if (!Model.UseCoa || !string.IsNullOrWhiteSpace(Model.Account))
+                @if (!Model.UseCoa || !string.IsNullOrWhiteSpace(Model.Account)) //Show historical KFS info if available
                 {
                     <dt>
                         @Html.DisplayNameFor(model => model.Chart)
@@ -68,14 +68,48 @@
                     @Html.DisplayFor(model => model.IsDefault)
                 </dd>
             </dl>
-            @if (!Model.UseCoa)
-            {
                 <div class="card">
                     <div class="card-header">
                         <h4>Account Details</h4>
                     </div>
                     <div class="card-body">
                         <dl class="dl-horizontal">
+                        @if (Model.ShowCoa && !string.IsNullOrWhiteSpace(Model.FinancialSegmentString))
+                        {
+                            <dt>COA Type</dt>
+                            <dd>@Model.AeValidationModel.CoaChartType</dd>
+                            <hr />
+                            @foreach (var detail in Model.AeValidationModel.Details)
+                            {
+                                <dt>@detail.Key</dt>
+                                <dd>@detail.Value</dd>
+                            }
+                            @if(Model.AeValidationModel.CoaChartType == AggieEnterpriseApi.Validation.FinancialChartStringType.Ppm)
+                            {
+                                <dt>Account Manager</dt>
+                                <dd>@Model.AeValidationModel.AccountManager (@Model.AeValidationModel.AccountManagerEmail)</dd>
+                            }
+                            @if (Model.AeValidationModel.Warnings.Any())
+                            {
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 style="color: red">Warnings</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <dl class="dl-horizontal">
+                                            @foreach (var warn in Model.AeValidationModel.Warnings)
+                                            {
+                                                <dt>@warn.Key</dt>
+                                                <dd>@warn.Value</dd>
+                                            }
+                                        </dl>
+                                    </div>
+                                </div>                                                               
+                            }
+
+                        }
+                        @if (!Model.UseCoa) //Stop showing KFS account details after switch.
+                        {
                             <dt>Account Name</dt>
                             <dd>@Html.DisplayFor(model => model.KfsAccount.accountName)</dd>
 
@@ -101,11 +135,12 @@
                             <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
                             <dt>Sub Fund Group Name</dt>
                             <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
-                        </dl>
-                    </div>
+                            
+                        }
+                    </dl>
+                </div>
                 </div>
 
-            }
             <input type="hidden" asp-for="Chart" />
             <input type="hidden" asp-for="Account" />
             <input type="hidden" asp-for="SubAccount" />
