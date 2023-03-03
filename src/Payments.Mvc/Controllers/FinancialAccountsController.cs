@@ -120,14 +120,16 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmAccount(FinancialAccountModel financialAccount)
         {
-            financialAccount.UseCoa = _financeSettings.UseCoa;
-            financialAccount.ShowCoa = _financeSettings.ShowCoa;
+
 
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
             }
+            financialAccount.Team = team;
+            financialAccount.UseCoa = _financeSettings.UseCoa;
+            financialAccount.ShowCoa = _financeSettings.ShowCoa;
 
             if (!_financeSettings.UseCoa)
             {
@@ -141,7 +143,6 @@ namespace Payments.Mvc.Controllers
                 }
                 if (!ModelState.IsValid)
                 {
-                    financialAccount.Team = team;
                     return View("CreateAccount", financialAccount);
                 }
                 
@@ -181,10 +182,10 @@ namespace Payments.Mvc.Controllers
             }
             if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString) )
             {
-                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
-                if (!validationResult.IsValid)
+                financialAccount.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                if (!financialAccount.AeValidationModel.IsValid)
                 {
-                    ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {validationResult.Message}");
+                    ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {financialAccount.AeValidationModel.Message}");
                 }
             }
 
@@ -205,11 +206,9 @@ namespace Payments.Mvc.Controllers
                     }
 
                 }
-                financialAccount.Team = team;
                 return View(financialAccount);
             }
 
-            financialAccount.Team = team;
             return View("CreateAccount", financialAccount);
         }
 

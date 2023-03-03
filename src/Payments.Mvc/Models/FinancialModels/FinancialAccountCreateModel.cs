@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Payments.Core.Domain;
+using Payments.Core.Models.Validation;
 
 namespace Payments.Mvc.Models.FinancialModels
 {
@@ -42,6 +43,8 @@ namespace Payments.Mvc.Models.FinancialModels
         [StringLength(128)]
         [Display(Name = "AE Financial Segment String (COA)")]
         public string FinancialSegmentString { get; set; }
+
+        public AccountValidationModel AeValidationModel { get; set; } //Has details to display to user
 
         public bool ShowCoa { get; set; }
         public bool UseCoa { get; set; }
