@@ -61,6 +61,8 @@ namespace Payments.Core.Models.Sloth
 
         public string Description { get; set; }
 
+        public bool ValidateFinancialSegmentStrings { get; set; } = false; //Don't have sloth reject if the COA isn't valid.
+
         public IList<MetadataEntry> Metadata { get; set; } = new List<MetadataEntry>();
 
         public void AddMetadata(string name, string value)

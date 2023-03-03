@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Payments.Core.Helpers;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Sloth;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Payments.Core.Services
 {
@@ -74,7 +73,7 @@ namespace Payments.Core.Services
             {                
                 BaseAddress = new Uri(_settings.BaseUrl),
             };
-            if(!_financeSettings.RequireKfsAccount)
+            if(_financeSettings.UseCoa)
             {
                 client.BaseAddress = new Uri(_settings.BaseUrlV2);
             }

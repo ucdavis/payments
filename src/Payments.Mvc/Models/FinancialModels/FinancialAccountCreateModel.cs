@@ -42,5 +42,8 @@ namespace Payments.Mvc.Models.FinancialModels
         [StringLength(128)]
         [Display(Name = "AE Financial Segment String (COA)")]
         public string FinancialSegmentString { get; set; }
+
+        public bool ShowCoa { get; set; }
+        public bool UseCoa { get; set; }
     }
 }

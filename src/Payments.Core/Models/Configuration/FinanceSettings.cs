@@ -10,7 +10,10 @@ namespace Payments.Core.Models.Configuration
         public string ClearingAccount { get; set; }
         public string FeeChart { get; set; }
         public string FeeAccount { get; set; }
-        public bool RequireKfsAccount { get; set; } = true; //We can turn this off and or remove when we switch over to AE
+        
+        public bool UseCoa { get; set; } = false;
+        //If UseCoa is turned on, ShowCoa should be as well.
+        public bool ShowCoa { get; set; } = false;
 
         public string ClearingFinancialSegmentString { get; set; }
         public string FeeFinancialSegmentString { get; set; }

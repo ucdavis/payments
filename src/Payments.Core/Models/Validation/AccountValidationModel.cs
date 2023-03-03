@@ -1,3 +1,5 @@
+using AggieEnterpriseApi.Types;
+using AggieEnterpriseApi.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +12,16 @@ namespace Payments.Core.Models.Validation
     {
         public bool IsValid { get; set; } = true;
 
-        //Have warnings?
-        
+        public FinancialChartStringType CoaChartType { get; set; }
+        public GlSegments GlSegments { get; set; }
+        public PpmSegments PpmSegments { get; set; }
+
+        public string AccountManager { get; set; }
+        public string AccountManagerEmail { get; set; }
+
+        public List<KeyValuePair<string, string>> Details { get; set; } = new List<KeyValuePair<string, string>>();
+        public List<KeyValuePair<string, string>> Warnings { get; set; } = new List<KeyValuePair<string, string>>();
+
         public string Message
         {
             get

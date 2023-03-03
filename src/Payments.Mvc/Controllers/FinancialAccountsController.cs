@@ -102,7 +102,13 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new FinancialAccountModel {Team = team};
+            var model = new FinancialAccountModel
+            {
+                Team = team,
+                UseCoa = _financeSettings.UseCoa,
+                ShowCoa = _financeSettings.ShowCoa,
+            };
+
             return View(model);
         }
 
@@ -114,13 +120,16 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmAccount(FinancialAccountModel financialAccount)
         {
+            financialAccount.UseCoa = _financeSettings.UseCoa;
+            financialAccount.ShowCoa = _financeSettings.ShowCoa;
+
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
                 return NotFound();
             }
 
-            if (_financeSettings.RequireKfsAccount)
+            if (!_financeSettings.UseCoa)
             {
                 if (String.IsNullOrEmpty(financialAccount.Account))
                 {
@@ -183,7 +192,7 @@ namespace Payments.Mvc.Controllers
 
             if (ModelState.IsValid)
             {
-                if (_financeSettings.RequireKfsAccount)
+                if (!_financeSettings.UseCoa)
                 {
                     if (!string.IsNullOrWhiteSpace(financialAccount.Project))
                     {
@@ -234,7 +243,7 @@ namespace Payments.Mvc.Controllers
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
             financialAccount.Project = financialAccount.Project.SafeToUpper();
 
-            if (_financeSettings.RequireKfsAccount)
+            if (!_financeSettings.UseCoa)
             {
                 if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
                 {
@@ -432,7 +441,7 @@ namespace Payments.Mvc.Controllers
 
             var model = new FinancialAccountDetailsModel {FinancialAccount = financialAccount};
 
-            if(_financeSettings.RequireKfsAccount)
+            if(!_financeSettings.UseCoa)
             {
                 // fetch kfs details
                 model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);

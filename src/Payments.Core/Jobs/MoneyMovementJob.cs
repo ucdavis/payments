@@ -75,7 +75,7 @@ namespace Payments.Core.Jobs
                             log.Warning("Team {team} has no default account for payments", team.Name);
                             continue;
                         }
-                        if (!_financeSettings.RequireKfsAccount)
+                        if (_financeSettings.UseCoa)
                         {
                             if (String.IsNullOrWhiteSpace(team.DefaultAccount.FinancialSegmentString))
                             {
@@ -169,7 +169,7 @@ namespace Payments.Core.Jobs
                         // setup transaction
                         var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
                         CreateSlothTransactionResponse response = null;
-                        if (_financeSettings.RequireKfsAccount)
+                        if (!_financeSettings.UseCoa)
                         {
                             response = await _slothService.CreateTransaction(new CreateTransaction()
                             {
