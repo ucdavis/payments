@@ -39,6 +39,19 @@
                 }
             </dd>
             <dt class="col-md-4">
+                @Html.DisplayNameFor(model => model.FinancialAccount.IsActive)
+            </dt>
+            <dd class="col-md-8">
+                @if (Model.FinancialAccount.IsActive)
+                {
+                    <i class="far fa-check-square"></i>
+                }
+                else
+                {
+                    <i class="far fa-square"></i>
+                }
+            </dd>
+            <dt class="col-md-4">
                 @Html.DisplayNameFor(model => model.FinancialAccount.Team)
             </dt>
             <dd class="col-md-8">
