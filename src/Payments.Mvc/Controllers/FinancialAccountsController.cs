@@ -71,6 +71,14 @@ namespace Payments.Mvc.Controllers
                 Message = "Warning! There are multiple active default accounts. Please set only one as your default.";
             }
 
+            if (_financeSettings.UseCoa)
+            {
+                if(team.Accounts.Any(a => a.IsActive && string.IsNullOrWhiteSpace(a.FinancialSegmentString)))
+                {
+                    Message = $"Warning!!!! Update all accounts to have a COA!!! {Message}";
+                }
+            }
+
             var user = await _userManager.GetUserAsync(User);
             var userCanEdit = User.IsInRole(ApplicationRoleCodes.Admin)
                               || user.TeamPermissions.Any(a => a.TeamId == team.Id && a.Role.Name == TeamRole.Codes.Admin);
@@ -84,7 +92,8 @@ namespace Payments.Mvc.Controllers
                 ContactPhoneNumber = team.ContactPhoneNumber,
                 IsActive           = team.IsActive,
                 Accounts           = team.Accounts,
-                UserCanEdit        = userCanEdit
+                UserCanEdit        = userCanEdit,
+                ShowCoa            = _financeSettings.ShowCoa,
             };
 
             return View(model);
@@ -222,6 +231,10 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
+            financialAccountModel.Team = team;
+            financialAccountModel.UseCoa = _financeSettings.UseCoa;
+            financialAccountModel.ShowCoa = _financeSettings.ShowCoa;
+
             var financialAccount = new FinancialAccount
             {
                 Name = financialAccountModel.Name,
@@ -234,7 +247,6 @@ namespace Payments.Mvc.Controllers
                 FinancialSegmentString = financialAccountModel.FinancialSegmentString,
                 TeamId = team.Id
             };
-
 
 
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();

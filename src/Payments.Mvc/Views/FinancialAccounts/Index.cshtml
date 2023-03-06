@@ -21,9 +21,12 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Accounts[0].Name)
                     </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Accounts[0].FinancialSegmentString)
-                    </th>
+                    @if (Model.ShowCoa)
+                    {
+                        <th>
+                            @Html.DisplayNameFor(model => model.Accounts[0].FinancialSegmentString)
+                        </th>
+                    }
                     <th>
                         @Html.DisplayNameFor(model => model.Accounts[0].Account)
                     </th>
@@ -46,9 +49,12 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Name)
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.FinancialSegmentString)
-                        </td>
+                        @if (Model.ShowCoa)
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FinancialSegmentString)
+                            </td>
+                        }
                         <td>
                             @item.GetAccountString()
                         </td>
