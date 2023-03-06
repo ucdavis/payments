@@ -51,8 +51,8 @@
                 @Html.DisplayFor(model => model.FinancialAccount.FinancialSegmentString)
                 @if (!Model.IsAeAccountValid)
                 {
-                    <div style="color: red"> ** Account is Invalid</div>
-                    <div style="color: red"> @Model.AeValidationMessage</div>
+                    <div class="red-text"> ** Account is Invalid</div>
+                    <div class="red-text"> @Model.AeValidationMessage</div>
                 }
             </dd>
             @if (Model.ShowKfsAccount)
@@ -70,11 +70,11 @@
                     @Html.DisplayFor(model => model.FinancialAccount.Account)
                     @if (!Model.IsAccountValid)
                     {
-                        <span style="color: red"> ** Account is Invalid</span>
+                        <span class="red-text"> ** Account is Invalid</span>
                     }
                     else if (!Model.KfsAccount.IsValidIncomeAccount)
                     {
-                        <span style="color: red"> ** Not An Income Account</span>
+                        <span class="red-text"> ** Not An Income Account</span>
                     }
                     else
                     {
@@ -98,7 +98,7 @@
                     @Html.DisplayFor(model => model.FinancialAccount.Project)
                     @if (Model.IsProjectValid.HasValue && !Model.IsProjectValid.Value)
                     {
-                        <span style="color: red"> ** Project is Invalid</span>
+                        <span class="red-text"> ** Project is Invalid</span>
                     }
                     else if (Model.IsProjectValid.HasValue && Model.IsProjectValid.Value)
                     {
@@ -121,3 +121,11 @@
 <div>
     <a asp-action="Index"><i class="fas fa-chevron-left mr-3"></i> Back to Accounts</a>
 </div>
+
+@section AdditionalStyles {
+    <style asp-add-nonce="true">
+        .red-text {
+            color: red;
+        }
+    </style>
+}

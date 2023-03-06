@@ -68,12 +68,12 @@
                     @Html.DisplayFor(model => model.IsDefault)
                 </dd>
             </dl>
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Account Details</h4>
-                    </div>
-                    <div class="card-body">
-                        <dl class="dl-horizontal">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Account Details</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="dl-horizontal">
                         @if (Model.ShowCoa && !string.IsNullOrWhiteSpace(Model.FinancialSegmentString))
                         {
                             <dt>COA Type</dt>
@@ -84,7 +84,7 @@
                                 <dt>@detail.Key</dt>
                                 <dd>@detail.Value</dd>
                             }
-                            @if(Model.AeValidationModel.CoaChartType == AggieEnterpriseApi.Validation.FinancialChartStringType.Ppm)
+                            @if (Model.AeValidationModel.CoaChartType == AggieEnterpriseApi.Validation.FinancialChartStringType.Ppm)
                             {
                                 <dt>Account Manager</dt>
                                 <dd>@Model.AeValidationModel.AccountManager (@Model.AeValidationModel.AccountManagerEmail)</dd>
@@ -93,7 +93,7 @@
                             {
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 style="color: red">Warnings</h4>
+                                        <h4 class="red-text">Warnings</h4>
                                     </div>
                                     <div class="card-body">
                                         <dl class="dl-horizontal">
@@ -104,7 +104,7 @@
                                             }
                                         </dl>
                                     </div>
-                                </div>                                                               
+                                </div>
                             }
 
                         }
@@ -135,11 +135,11 @@
                             <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
                             <dt>Sub Fund Group Name</dt>
                             <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
-                            
+
                         }
                     </dl>
                 </div>
-                </div>
+            </div>
 
             <input type="hidden" asp-for="Chart" />
             <input type="hidden" asp-for="Account" />
@@ -172,4 +172,12 @@
 
 
     </script>
+}
+
+@section AdditionalStyles {
+    <style asp-add-nonce="true">
+        .red-text {
+            color: red;
+        }
+    </style>
 }
