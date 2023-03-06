@@ -350,7 +350,10 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            return View(financialAccount);
+            var model = new FinancialAccountEditModel { FinancialAccount = financialAccount, ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
+            model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+
+            return View(model);
         }
 
         /// <summary>
