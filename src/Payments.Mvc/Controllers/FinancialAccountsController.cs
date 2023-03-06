@@ -129,8 +129,6 @@ namespace Payments.Mvc.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmAccount(FinancialAccountModel financialAccount)
         {
-
-
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
             if (team == null)
             {
@@ -450,10 +448,24 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new FinancialAccountDetailsModel {FinancialAccount = financialAccount};
+            var model = new FinancialAccountDetailsModel
+            {
+                FinancialAccount = financialAccount,
+                ShowCoa = _financeSettings.ShowCoa, 
+            };
 
+
+            if (_financeSettings.UseCoa || _financeSettings.ShowCoa)
+            {
+                model.KfsAccount = new KfsAccount();
+                model.ShowKfsAccount = false;
+                model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                model.IsAeAccountValid = model.AeValidationModel.IsValid;
+                model.AeValidationMessage = model.AeValidationModel.Message;
+            }
             if(!_financeSettings.UseCoa)
             {
+                model.ShowKfsAccount = true;
                 // fetch kfs details
                 model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
                 if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
@@ -471,18 +483,7 @@ namespace Payments.Mvc.Controllers
                     model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
                 }
             }
-            else
-            {
-                model.KfsAccount = new KfsAccount();
-                model.ShowKfsAccount = false;
-            }
-            if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
-            {
-                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
-                model.IsAeAccountValid = validationResult.IsValid;
-                model.AeValidationMessage = validationResult.Message;
 
-            }
 
             return View(model);
         }

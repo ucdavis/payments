@@ -29,6 +29,13 @@ namespace Payments.Core.Services
         public async Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true)
         {
             var rtValue = new AccountValidationModel();
+            if (string.IsNullOrWhiteSpace(financialSegmentString))
+            {
+                rtValue.IsValid = false;
+                rtValue.Messages.Add("Invalid Financial Chart String format");
+                rtValue.CoaChartType = FinancialChartStringType.Invalid;
+                return rtValue;
+            }
 
             var segmentStringType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
 
@@ -90,6 +97,13 @@ namespace Payments.Core.Services
                         }
                     }
                 }
+#if DEBUG
+                //Just for testing
+                //rtValue.Warnings.Add(new KeyValuePair<string, string>("Fund", "Fund is not valid. Must roll up to 1200C, 1300C, or 5000C"));
+                //rtValue.Warnings.Add(new KeyValuePair<string, string>("asdfasd", "Fund is not valid. Must roll up to 1200C, 1300C, or 5000C"));
+                //rtValue.Warnings.Add(new KeyValuePair<string, string>("Fusadfsadfnd", "Fund is not valid. Must roll up to 1200C, 1300C, or 5000C"));
+#endif
+                
                 if (rtValue.IsValid)
                 {
                     //Does Natural Account roll up to 41000D or 44000D? (It can't be either of those values)
