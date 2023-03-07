@@ -469,21 +469,29 @@ namespace Payments.Mvc.Controllers
             if(!_financeSettings.UseCoa)
             {
                 model.ShowKfsAccount = true;
-                // fetch kfs details
-                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
-                if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+                if (string.IsNullOrWhiteSpace( financialAccount.Account))
                 {
-                    //Populate subaccount info
-                    model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                    model.IsAccountValid = false;
+                    model.KfsAccount = new KfsAccount();
                 }
-
-                // check if account is valid
-                model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
-
-                // check if project is valid
-                if (!string.IsNullOrWhiteSpace(financialAccount.Project))
+                else
                 {
-                    model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
+                    // fetch kfs details
+                    model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                    if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+                    {
+                        //Populate subaccount info
+                        model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                    }
+
+                    // check if account is valid
+                    model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+
+                    // check if project is valid
+                    if (!string.IsNullOrWhiteSpace(financialAccount.Project))
+                    {
+                        model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
+                    }
                 }
             }
 
