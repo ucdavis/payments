@@ -537,8 +537,8 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-
-            return View(financialAccount);
+            var model = new FinancialAccountEditModel { FinancialAccount = financialAccount, ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
+            return View(model);
         }
 
         /// <summary>

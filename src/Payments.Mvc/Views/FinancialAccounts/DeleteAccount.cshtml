@@ -1,4 +1,4 @@
-@model Payments.Core.Domain.FinancialAccount
+@model Payments.Mvc.Models.FinancialModels.FinancialAccountEditModel
 
 @{
     ViewData["Title"] = "Delete Account?";
@@ -8,7 +8,7 @@
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
         <span>
-            <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.Id">Back</a>
+            <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id">Back</a>
         </span>
     </div>
 
@@ -17,68 +17,74 @@
         <div>
             <dl class="dl-horizontal">
                 <dt>
-                    @Html.DisplayNameFor(model => model.Name)
+                    @Html.DisplayNameFor(model => model.FinancialAccount.Name)
                 </dt>
                 <dd>
-                    @Html.DisplayFor(model => model.Name)
+                    @Html.DisplayFor(model => model.FinancialAccount.Name)
                 </dd>
                 <dt>
-                    @Html.DisplayNameFor(model => model.Description)
+                    @Html.DisplayNameFor(model => model.FinancialAccount.Description)
                 </dt>
                 <dd>
-                    @Html.DisplayFor(model => model.Description)
+                    @Html.DisplayFor(model => model.FinancialAccount.Description)
+                </dd>
+                @if (Model.ShowCoa || Model.UseCoa)
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.FinancialAccount.FinancialSegmentString)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.FinancialAccount.FinancialSegmentString)
+                    </dd>
+                }
+                @if (!Model.UseCoa)
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.FinancialAccount.Chart)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.FinancialAccount.Chart)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.FinancialAccount.Account)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.FinancialAccount.Account)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.FinancialAccount.SubAccount)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.FinancialAccount.SubAccount)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.FinancialAccount.Project)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.FinancialAccount.Project)
+                    </dd>
+                }
+                <dt>
+                    @Html.DisplayNameFor(model => model.FinancialAccount.IsDefault)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.FinancialAccount.IsDefault)
                 </dd>
                 <dt>
-                    @Html.DisplayNameFor(model => model.FinancialSegmentString)
+                    @Html.DisplayNameFor(model => model.FinancialAccount.Team)
                 </dt>
                 <dd>
-                    @Html.DisplayFor(model => model.FinancialSegmentString)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Chart)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Chart)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Account)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Account)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.SubAccount)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.SubAccount)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Project)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Project)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.IsDefault)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.IsDefault)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Team)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Team.Name)
+                    @Html.DisplayFor(model => model.FinancialAccount.Team.Name)
                 </dd>
             </dl>
 
             <form asp-action="DeleteAccount">
-                @Html.HiddenFor(a => a.TeamId)
-                <input type="submit" value="Delete" class="btn"/>
+                <input type="hidden" asp-for="FinancialAccount.TeamId" name="teamId" />
+                <input type="submit" value="Delete" class="btn" />
             </form>
         </div>
     </div>
 </div>
 <div>
-    <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.Id"><i class="fas fa-chevron-left mr-3"></i>Back</a>
+    <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id"><i class="fas fa-chevron-left mr-3"></i>Back</a>
 </div>
