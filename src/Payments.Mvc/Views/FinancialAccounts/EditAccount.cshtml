@@ -44,17 +44,17 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     
-    <script type="text/javascript" asp-add-nonce="true">
+@*    <script type="text/javascript" asp-add-nonce="true">
         $(function () {
-            var fssVal = $("#FinancialSegmentString").val();
+            var fssVal = $("#FinancialAccount_FinancialSegmentString").val();
             if (fssVal === "") {
-                $("#FinancialSegmentString").prop("disabled", false);
+                $("#FinancialAccount_FinancialSegmentString").prop("disabled", false);
                 $("#ccoa-picker").prop("disabled", false);
             }
 
         });
 
-    </script>
+    </script>*@
 
     <script src="https://finjector.ucdavis.edu/finjector.js?v=3" type="text/javascript" asp-add-nonce="true"></script>
 
@@ -65,7 +65,7 @@
             async function () {
                 const chart = await window.Finjector.findChartSegmentString();
                 if (chart && chart.status === "success") {
-                    $("#FinancialSegmentString").val(chart.data);
+                    $("#FinancialAccount_FinancialSegmentString").val(chart.data);
                 }
                 else {
                     alert("Something went wrong with the CCOA picker")

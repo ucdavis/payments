@@ -16,16 +16,35 @@
     <input asp-for="FinancialAccount.Description" class="form-control" />
     <span asp-validation-for="FinancialAccount.Description" class="text-danger"></span>
 </div>
-<div class="form-group">
-    <label asp-for="FinancialAccount.FinancialSegmentString" class="control-label"></label>
-    <div class="input-group">
-        <input asp-for="FinancialAccount.FinancialSegmentString" disabled class="form-control force-upper" />
-        <div class="input-group-append">
-            <button id="ccoa-picker" class="btn btn-primary" type="button" disabled>CCOA Picker</button>
+
+@if (Model.ShowCoa || Model.UseCoa)
+{
+    @if (Model.AllowCoaEdit)
+    {
+        <div class="form-group">
+            <label asp-for="FinancialAccount.FinancialSegmentString" class="control-label"></label> 
+            <div> <strong> NOTE!</strong> You will only be able to edit this value once while it is empty.</div>
+            <div class="input-group">
+                <input asp-for="FinancialAccount.FinancialSegmentString" class="form-control force-upper" />
+                <div class="input-group-append">
+                    <button id="ccoa-picker" class="btn btn-primary" type="button" >CCOA Picker</button>
+                </div>
+            </div>
+            <span asp-validation-for="FinancialAccount.FinancialSegmentString" class="text-danger"></span>
         </div>
-    </div>
-    <span asp-validation-for="FinancialAccount.FinancialSegmentString" class="text-danger"></span>
-</div>
+    }
+    else
+    {
+        <div class="form-group">
+            <label asp-for="FinancialAccount.FinancialSegmentString" class="control-label"></label>
+            <div class="input-group">
+                <input asp-for="FinancialAccount.FinancialSegmentString" disabled class="form-control force-upper" />
+            </div>
+            <span asp-validation-for="FinancialAccount.FinancialSegmentString" class="text-danger"></span>
+        </div>
+    }
+}
+
 <div class="form-group">
     <label asp-for="FinancialAccount.Chart" class="control-label"></label>
     <input asp-for="FinancialAccount.Chart" disabled class="form-control force-upper" />

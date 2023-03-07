@@ -10,5 +10,6 @@ namespace Payments.Mvc.Models.FinancialModels
 
         public bool ShowCoa { get; set; }
         public bool UseCoa { get; set; }
+        public bool AllowCoaEdit { get; set; } = false;
     }
 }

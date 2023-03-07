@@ -352,6 +352,7 @@ namespace Payments.Mvc.Controllers
 
             var model = new FinancialAccountEditModel { FinancialAccount = financialAccount, ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
             model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+            model.AllowCoaEdit = string.IsNullOrWhiteSpace( financialAccount.FinancialSegmentString);
 
             return View(model);
         }
@@ -386,17 +387,28 @@ namespace Payments.Mvc.Controllers
             financialAccountToUpdate.Description = financialAccount.Description;
             financialAccountToUpdate.IsDefault = financialAccount.IsDefault;
             financialAccountToUpdate.IsActive = financialAccount.IsActive;
+
+            var model = new FinancialAccountEditModel { ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
+            model.AllowCoaEdit = string.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString);
+
             ModelState.Clear();
-            if (String.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString))
+            if (String.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString)) //If the original is empty
             {
-                financialAccountToUpdate.FinancialSegmentString = financialAccount.FinancialSegmentString; //Only allow it to be updated once if it is empty.
-                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
-                if (!validationResult.IsValid)
+                if (!_financeSettings.UseCoa && string.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
                 {
-                    ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {validationResult.Message}");
+                    //Allow an empty string to be saved if the COA is not being used.
+                }
+                else
+                {
+                    financialAccountToUpdate.FinancialSegmentString = financialAccount.FinancialSegmentString; //Only allow it to be updated once if it is empty.
+                    model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                    if (!model.AeValidationModel.IsValid)
+                    {
+                        ModelState.AddModelError("FinancialAccount.FinancialSegmentString", $"Financial Segment String is not valid. {model.AeValidationModel.Message}");
+                    }
                 }
             }
-            
+
             TryValidateModel(financialAccountToUpdate);
 
             if (ModelState.IsValid)
@@ -419,8 +431,9 @@ namespace Payments.Mvc.Controllers
                 }
                 return RedirectToAction("Index", "FinancialAccounts", new { id = teamId });
             }
+            model.FinancialAccount = financialAccountToUpdate;
 
-            return View(financialAccountToUpdate);
+            return View(model);
         }
 
         /// <summary>
