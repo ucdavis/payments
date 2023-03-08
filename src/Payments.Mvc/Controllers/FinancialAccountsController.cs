@@ -60,6 +60,7 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
+            
 
             var defaultCount = team.Accounts.Count(a => a.IsActive && a.IsDefault);
             if (defaultCount == 0)
@@ -94,7 +95,11 @@ namespace Payments.Mvc.Controllers
                 Accounts           = team.Accounts,
                 UserCanEdit        = userCanEdit,
                 ShowCoa            = _financeSettings.ShowCoa,
+                UseCoa             = _financeSettings.UseCoa,
             };
+
+            model.WarningMessage = Message;
+            Message = null;
 
             return View(model);
         }

@@ -34,5 +34,8 @@ namespace Payments.Mvc.Models.TeamViewModels
         public bool UserCanEdit { get; set; }
 
         public bool ShowCoa { get; set; }
+        public bool UseCoa { get; set; }
+
+        public string WarningMessage { get; set; } //Because the temp data isn't showing this right.
     }
 }
