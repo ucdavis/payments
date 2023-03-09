@@ -17,5 +17,7 @@ namespace Payments.Core.Models.Configuration
 
         public string ClearingFinancialSegmentString { get; set; }
         public string FeeFinancialSegmentString { get; set; }
+
+        public bool ValidateFinancialSegmentString { get; set; } = false;
     }
 }

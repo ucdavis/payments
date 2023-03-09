@@ -168,7 +168,7 @@ namespace Payments.Core.Jobs
                         var slothTransaction = new CreateTransaction()
                         {
                             AutoApprove = true,
-                            ValidateFinancialSegmentStrings = false,
+                            ValidateFinancialSegmentStrings = _financeSettings.ValidateFinancialSegmentString,
                             MerchantTrackingNumber = transaction.MerchantTrackingNumber,
                             MerchantTrackingUrl = merchantUrl,
                             KfsTrackingNumber = transaction.KfsTrackingNumber,
