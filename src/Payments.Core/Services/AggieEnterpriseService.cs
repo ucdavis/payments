@@ -17,11 +17,15 @@ namespace Payments.Core.Services
     }
     public class AggieEnterpriseService : IAggieEnterpriseService
     {
-        private readonly IAggieEnterpriseClient _aggieClient;
+        private readonly AggieEnterpriseOptions _aeSettings;
+        private IAggieEnterpriseClient _aggieClient;
 
-        public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> options)
+        public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> aeSettings)
         {
-            _aggieClient = GraphQlClient.Get(options.Value.GraphQlUrl, options.Value.Token);
+            _aeSettings = aeSettings.Value;
+            //_aggieClient = GraphQlClient.Get(options.Value.GraphQlUrl, options.Value.Token);
+            _aggieClient = GraphQlClient.Get(_aeSettings.GraphQlUrl, _aeSettings.TokenEndpoint, _aeSettings.ConsumerKey, _aeSettings.ConsumerSecret, $"{_aeSettings.ScopeApp}-{_aeSettings.ScopeEnv}");
+            
         }
 
         //TODO: Change this to return invalid reasons
