@@ -214,7 +214,7 @@ namespace Payments.Mvc
             services.AddSingleton<IDataSigningService, DataSigningService>();
             services.AddSingleton<IDirectorySearchService, IetWsSearchService>();
             services.AddSingleton<IFinancialService, FinancialService>();
-            services.AddSingleton<IAggieEnterpriseService, AggieEnterpriseService>();
+            services.AddTransient<IAggieEnterpriseService, AggieEnterpriseService>();
             services.AddSingleton<ISlothService, SlothService>();
             services.AddSingleton<IStorageService, StorageService>();
 

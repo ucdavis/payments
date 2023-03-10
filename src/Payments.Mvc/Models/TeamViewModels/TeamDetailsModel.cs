@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Payments.Core.Domain;
 
@@ -32,5 +32,10 @@ namespace Payments.Mvc.Models.TeamViewModels
         public IList<TeamPermission> Permissions { get; set; }
 
         public bool UserCanEdit { get; set; }
+
+        public bool ShowCoa { get; set; }
+        public bool UseCoa { get; set; }
+
+        public string WarningMessage { get; set; } //Because the temp data isn't showing this right.
     }
 }

@@ -5,6 +5,7 @@ using AggieEnterpriseApi.Validation;
 using Microsoft.Extensions.Options;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Validation;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
@@ -16,11 +17,15 @@ namespace Payments.Core.Services
     }
     public class AggieEnterpriseService : IAggieEnterpriseService
     {
-        private readonly IAggieEnterpriseClient _aggieClient;
+        private readonly AggieEnterpriseOptions _aeSettings;
+        private IAggieEnterpriseClient _aggieClient;
 
-        public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> options)
+        public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> aeSettings)
         {
-            _aggieClient = GraphQlClient.Get(options.Value.GraphQlUrl, options.Value.Token);
+            _aeSettings = aeSettings.Value;
+            //_aggieClient = GraphQlClient.Get(options.Value.GraphQlUrl, options.Value.Token);
+            _aggieClient = GraphQlClient.Get(_aeSettings.GraphQlUrl, _aeSettings.TokenEndpoint, _aeSettings.ConsumerKey, _aeSettings.ConsumerSecret, $"{_aeSettings.ScopeApp}-{_aeSettings.ScopeEnv}");
+            
         }
 
         //TODO: Change this to return invalid reasons
@@ -28,6 +33,13 @@ namespace Payments.Core.Services
         public async Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true)
         {
             var rtValue = new AccountValidationModel();
+            if (string.IsNullOrWhiteSpace(financialSegmentString))
+            {
+                rtValue.IsValid = false;
+                rtValue.Messages.Add("Invalid Financial Chart String format");
+                rtValue.CoaChartType = FinancialChartStringType.Invalid;
+                return rtValue;
+            }
 
             var segmentStringType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
 
@@ -45,6 +57,24 @@ namespace Payments.Core.Services
                         rtValue.Messages.Add(err);
                     }
                 }
+                rtValue.Details.Add(new KeyValuePair<string, string>("Entity", $"{data.GlValidateChartstring.SegmentNames.EntityName} ({data.GlValidateChartstring.Segments.Entity})"));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Fund", $"{data.GlValidateChartstring.SegmentNames.FundName} ({data.GlValidateChartstring.Segments.Fund})"));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Department", $"{data.GlValidateChartstring.SegmentNames.DepartmentName} ({data.GlValidateChartstring.Segments.Department})"));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Account", $"{data.GlValidateChartstring.SegmentNames.AccountName} ({data.GlValidateChartstring.Segments.Account})"));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Purpose", $"{data.GlValidateChartstring.SegmentNames.PurposeName} ({data.GlValidateChartstring.Segments.Purpose})"));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Project", $"{data.GlValidateChartstring.SegmentNames.ProjectName} ({data.GlValidateChartstring.Segments.Project})"));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Program", $"{data.GlValidateChartstring.SegmentNames.ProgramName} ({data.GlValidateChartstring.Segments.Program})"));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Activity", $"{data.GlValidateChartstring.SegmentNames.ActivityName} ({data.GlValidateChartstring.Segments.Activity})"));
+
+                if (data.GlValidateChartstring.Warnings != null)
+                {
+                    foreach (var warn in data.GlValidateChartstring.Warnings)
+                    {
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>(warn.SegmentName, warn.Warning));
+                    }
+                }
+
+                rtValue.GlSegments = FinancialChartValidation.GetGlSegments(financialSegmentString);
 
                 if (rtValue.IsValid)
                 {
@@ -71,6 +101,13 @@ namespace Payments.Core.Services
                         }
                     }
                 }
+#if DEBUG
+                //Just for testing
+                //rtValue.Warnings.Add(new KeyValuePair<string, string>("Fund", "Fund is not valid. Must roll up to 1200C, 1300C, or 5000C"));
+                //rtValue.Warnings.Add(new KeyValuePair<string, string>("asdfasd", "Fund is not valid. Must roll up to 1200C, 1300C, or 5000C"));
+                //rtValue.Warnings.Add(new KeyValuePair<string, string>("Fusadfsadfnd", "Fund is not valid. Must roll up to 1200C, 1300C, or 5000C"));
+#endif
+                
                 if (rtValue.IsValid)
                 {
                     //Does Natural Account roll up to 41000D or 44000D? (It can't be either of those values)
@@ -105,6 +142,25 @@ namespace Payments.Core.Services
                         rtValue.Messages.Add(err);
                     }
                 }
+
+                rtValue.Details.Add(new KeyValuePair<string, string>("Project", data.PpmStringSegmentsValidate.Segments.Project));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Task", data.PpmStringSegmentsValidate.Segments.Task));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Organization", data.PpmStringSegmentsValidate.Segments.Organization));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Expenditure Type", data.PpmStringSegmentsValidate.Segments.ExpenditureType));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Award", data.PpmStringSegmentsValidate.Segments.Award));
+                rtValue.Details.Add(new KeyValuePair<string, string>("Funding Source", data.PpmStringSegmentsValidate.Segments.FundingSource));
+
+                if (data.PpmStringSegmentsValidate.Warnings != null)
+                {
+                    foreach (var warn in data.PpmStringSegmentsValidate.Warnings)
+                    {
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>(warn.SegmentName, warn.Warning));
+                    }
+                }
+
+                rtValue.PpmSegments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
+
+                await GetPpmAccountManager(rtValue);
 
                 if (rtValue.IsValid)
                 {
@@ -196,6 +252,20 @@ namespace Payments.Core.Services
                 ExpenditureType = segments.ExpenditureType,
                 FundingSource = segments.FundingSource,
             };
+        }
+
+        private async Task GetPpmAccountManager(AccountValidationModel rtValue)
+        {
+            var result = await _aggieClient.PpmProjectManager.ExecuteAsync(rtValue.PpmSegments.Project);
+
+            var data = result.ReadData();
+
+            if (data.PpmProjectByNumber?.ProjectNumber == rtValue.PpmSegments.Project)
+            {
+                rtValue.AccountManager = data.PpmProjectByNumber.PrimaryProjectManagerName;
+                rtValue.AccountManagerEmail = data.PpmProjectByNumber.PrimaryProjectManagerEmail;
+            }
+            return;
         }
     }
 }

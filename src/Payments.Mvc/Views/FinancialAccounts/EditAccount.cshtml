@@ -1,4 +1,5 @@
-@model FinancialAccount
+@using Payments.Mvc.Models.FinancialModels
+@model FinancialAccountEditModel
 
 @{
     ViewData["Title"] = "Edit Financial Account";
@@ -8,7 +9,7 @@
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
         <span>
-            <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.Id">Back</a>
+            <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id">Back</a>
         </span>
     </div>
 
@@ -18,7 +19,7 @@
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                        <input asp-for="FinancialAccount.IsActive" /> @Html.DisplayNameFor(model => model.FinancialAccount.IsActive)
                     </label>
                 </div>
             </div>
@@ -29,7 +30,7 @@
     </div>
 </div>
 <div>
-    <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.Id"><i class="fas fa-chevron-left mr-3"></i>Back</a>
+    <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id"><i class="fas fa-chevron-left mr-3"></i>Back</a>
 </div>
 
 @section AdditionalStyles {
@@ -43,17 +44,17 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     
-    <script type="text/javascript" asp-add-nonce="true">
+@*    <script type="text/javascript" asp-add-nonce="true">
         $(function () {
-            var fssVal = $("#FinancialSegmentString").val();
+            var fssVal = $("#FinancialAccount_FinancialSegmentString").val();
             if (fssVal === "") {
-                $("#FinancialSegmentString").prop("disabled", false);
+                $("#FinancialAccount_FinancialSegmentString").prop("disabled", false);
                 $("#ccoa-picker").prop("disabled", false);
             }
 
         });
 
-    </script>
+    </script>*@
 
     <script src="https://finjector.ucdavis.edu/finjector.js?v=3" type="text/javascript" asp-add-nonce="true"></script>
 
@@ -64,7 +65,7 @@
             async function () {
                 const chart = await window.Finjector.findChartSegmentString();
                 if (chart && chart.status === "success") {
-                    $("#FinancialSegmentString").val(chart.data);
+                    $("#FinancialAccount_FinancialSegmentString").val(chart.data);
                 }
                 else {
                     alert("Something went wrong with the CCOA picker")

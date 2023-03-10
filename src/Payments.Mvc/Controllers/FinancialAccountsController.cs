@@ -60,6 +60,7 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
+            
 
             var defaultCount = team.Accounts.Count(a => a.IsActive && a.IsDefault);
             if (defaultCount == 0)
@@ -69,6 +70,14 @@ namespace Payments.Mvc.Controllers
             else if (defaultCount > 1)
             {
                 Message = "Warning! There are multiple active default accounts. Please set only one as your default.";
+            }
+
+            if (_financeSettings.UseCoa)
+            {
+                if(team.Accounts.Any(a => a.IsActive && string.IsNullOrWhiteSpace(a.FinancialSegmentString)))
+                {
+                    Message = $"Warning!!!! Update all accounts to have a COA!!! {Message}";
+                }
             }
 
             var user = await _userManager.GetUserAsync(User);
@@ -84,8 +93,13 @@ namespace Payments.Mvc.Controllers
                 ContactPhoneNumber = team.ContactPhoneNumber,
                 IsActive           = team.IsActive,
                 Accounts           = team.Accounts,
-                UserCanEdit        = userCanEdit
+                UserCanEdit        = userCanEdit,
+                ShowCoa            = _financeSettings.ShowCoa,
+                UseCoa             = _financeSettings.UseCoa,
             };
+
+            model.WarningMessage = Message;
+            Message = null;
 
             return View(model);
         }
@@ -102,7 +116,13 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new FinancialAccountModel {Team = team};
+            var model = new FinancialAccountModel
+            {
+                Team = team,
+                UseCoa = _financeSettings.UseCoa,
+                ShowCoa = _financeSettings.ShowCoa,
+            };
+
             return View(model);
         }
 
@@ -119,8 +139,11 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
+            financialAccount.Team = team;
+            financialAccount.UseCoa = _financeSettings.UseCoa;
+            financialAccount.ShowCoa = _financeSettings.ShowCoa;
 
-            if (_financeSettings.RequireKfsAccount)
+            if (!_financeSettings.UseCoa)
             {
                 if (String.IsNullOrEmpty(financialAccount.Account))
                 {
@@ -132,7 +155,6 @@ namespace Payments.Mvc.Controllers
                 }
                 if (!ModelState.IsValid)
                 {
-                    financialAccount.Team = team;
                     return View("CreateAccount", financialAccount);
                 }
                 
@@ -172,10 +194,10 @@ namespace Payments.Mvc.Controllers
             }
             if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString) )
             {
-                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
-                if (!validationResult.IsValid)
+                financialAccount.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                if (!financialAccount.AeValidationModel.IsValid)
                 {
-                    ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {validationResult.Message}");
+                    ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {financialAccount.AeValidationModel.Message}");
                 }
             }
 
@@ -183,7 +205,7 @@ namespace Payments.Mvc.Controllers
 
             if (ModelState.IsValid)
             {
-                if (_financeSettings.RequireKfsAccount)
+                if (!_financeSettings.UseCoa)
                 {
                     if (!string.IsNullOrWhiteSpace(financialAccount.Project))
                     {
@@ -196,11 +218,9 @@ namespace Payments.Mvc.Controllers
                     }
 
                 }
-                financialAccount.Team = team;
                 return View(financialAccount);
             }
 
-            financialAccount.Team = team;
             return View("CreateAccount", financialAccount);
         }
 
@@ -213,6 +233,10 @@ namespace Payments.Mvc.Controllers
             {
                 return NotFound();
             }
+
+            financialAccountModel.Team = team;
+            financialAccountModel.UseCoa = _financeSettings.UseCoa;
+            financialAccountModel.ShowCoa = _financeSettings.ShowCoa;
 
             var financialAccount = new FinancialAccount
             {
@@ -228,13 +252,12 @@ namespace Payments.Mvc.Controllers
             };
 
 
-
             financialAccount.Chart = financialAccount.Chart.SafeToUpper();
             financialAccount.Account = financialAccount.Account.SafeToUpper();
             financialAccount.SubAccount = financialAccount.SubAccount.SafeToUpper();
             financialAccount.Project = financialAccount.Project.SafeToUpper();
 
-            if (_financeSettings.RequireKfsAccount)
+            if (!_financeSettings.UseCoa)
             {
                 if (!await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount))
                 {
@@ -332,7 +355,11 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            return View(financialAccount);
+            var model = new FinancialAccountEditModel { FinancialAccount = financialAccount, ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
+            model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+            model.AllowCoaEdit = string.IsNullOrWhiteSpace( financialAccount.FinancialSegmentString);
+
+            return View(model);
         }
 
         /// <summary>
@@ -365,17 +392,28 @@ namespace Payments.Mvc.Controllers
             financialAccountToUpdate.Description = financialAccount.Description;
             financialAccountToUpdate.IsDefault = financialAccount.IsDefault;
             financialAccountToUpdate.IsActive = financialAccount.IsActive;
+
+            var model = new FinancialAccountEditModel { ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
+            model.AllowCoaEdit = string.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString);
+
             ModelState.Clear();
-            if (String.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString))
+            if (String.IsNullOrWhiteSpace(financialAccountToUpdate.FinancialSegmentString)) //If the original is empty
             {
-                financialAccountToUpdate.FinancialSegmentString = financialAccount.FinancialSegmentString; //Only allow it to be updated once if it is empty.
-                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
-                if (!validationResult.IsValid)
+                if (!_financeSettings.UseCoa && string.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
                 {
-                    ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {validationResult.Message}");
+                    //Allow an empty string to be saved if the COA is not being used.
+                }
+                else
+                {
+                    financialAccountToUpdate.FinancialSegmentString = financialAccount.FinancialSegmentString; //Only allow it to be updated once if it is empty.
+                    model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                    if (!model.AeValidationModel.IsValid)
+                    {
+                        ModelState.AddModelError("FinancialAccount.FinancialSegmentString", $"Financial Segment String is not valid. {model.AeValidationModel.Message}");
+                    }
                 }
             }
-            
+
             TryValidateModel(financialAccountToUpdate);
 
             if (ModelState.IsValid)
@@ -398,8 +436,9 @@ namespace Payments.Mvc.Controllers
                 }
                 return RedirectToAction("Index", "FinancialAccounts", new { id = teamId });
             }
+            model.FinancialAccount = financialAccountToUpdate;
 
-            return View(financialAccountToUpdate);
+            return View(model);
         }
 
         /// <summary>
@@ -430,39 +469,50 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var model = new FinancialAccountDetailsModel {FinancialAccount = financialAccount};
-
-            if(_financeSettings.RequireKfsAccount)
+            var model = new FinancialAccountDetailsModel
             {
-                // fetch kfs details
-                model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
-                if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
-                {
-                    //Populate subaccount info
-                    model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
-                }
+                FinancialAccount = financialAccount,
+                ShowCoa = _financeSettings.ShowCoa, 
+            };
 
-                // check if account is valid
-                model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
 
-                // check if project is valid
-                if (!string.IsNullOrWhiteSpace(financialAccount.Project))
-                {
-                    model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
-                }
-            }
-            else
+            if (_financeSettings.UseCoa || _financeSettings.ShowCoa)
             {
                 model.KfsAccount = new KfsAccount();
                 model.ShowKfsAccount = false;
+                model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                model.IsAeAccountValid = model.AeValidationModel.IsValid;
+                model.AeValidationMessage = model.AeValidationModel.Message;
             }
-            if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
+            if(!_financeSettings.UseCoa)
             {
-                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
-                model.IsAeAccountValid = validationResult.IsValid;
-                model.AeValidationMessage = validationResult.Message;
+                model.ShowKfsAccount = true;
+                if (string.IsNullOrWhiteSpace( financialAccount.Account))
+                {
+                    model.IsAccountValid = false;
+                    model.KfsAccount = new KfsAccount();
+                }
+                else
+                {
+                    // fetch kfs details
+                    model.KfsAccount = await _financialService.GetAccount(financialAccount.Chart, financialAccount.Account);
+                    if (!string.IsNullOrWhiteSpace(financialAccount.SubAccount))
+                    {
+                        //Populate subaccount info
+                        model.KfsAccount.SubAccountName = await _financialService.GetSubAccountName(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+                    }
 
+                    // check if account is valid
+                    model.IsAccountValid = await _financialService.IsAccountValid(financialAccount.Chart, financialAccount.Account, financialAccount.SubAccount);
+
+                    // check if project is valid
+                    if (!string.IsNullOrWhiteSpace(financialAccount.Project))
+                    {
+                        model.IsProjectValid = await _financialService.IsProjectValid(financialAccount.Project);
+                    }
+                }
             }
+
 
             return View(model);
         }
@@ -492,8 +542,8 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-
-            return View(financialAccount);
+            var model = new FinancialAccountEditModel { FinancialAccount = financialAccount, ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
+            return View(model);
         }
 
         /// <summary>

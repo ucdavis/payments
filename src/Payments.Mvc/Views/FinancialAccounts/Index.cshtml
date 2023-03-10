@@ -3,7 +3,13 @@
 @{
     ViewData["Title"] = "Accounts";
 }
-
+@if (!string.IsNullOrWhiteSpace(Model.WarningMessage))
+{
+    <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        @Model.WarningMessage
+    </div>
+}
 <div class="card">
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
@@ -21,15 +27,21 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Accounts[0].Name)
                     </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Accounts[0].FinancialSegmentString)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Accounts[0].Account)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Accounts[0].Project)
-                    </th>
+                    @if (Model.ShowCoa)
+                    {
+                        <th>
+                            @Html.DisplayNameFor(model => model.Accounts[0].FinancialSegmentString)
+                        </th>
+                    }
+                    @if (!Model.UseCoa)
+                    {
+                        <th>
+                            @Html.DisplayNameFor(model => model.Accounts[0].Account)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Accounts[0].Project)
+                        </th>
+                    }
                     <th>
                         @Html.DisplayNameFor(model => model.Accounts[0].IsDefault)
                     </th>
@@ -46,15 +58,21 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Name)
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.FinancialSegmentString)
-                        </td>
-                        <td>
-                            @item.GetAccountString()
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Project)
-                        </td>
+                        @if (Model.ShowCoa)
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FinancialSegmentString)
+                            </td>
+                        }
+                        @if (!Model.UseCoa)
+                        {
+                            <td>
+                                @item.GetAccountString()
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Project)
+                            </td>
+                        }
                         <td class="text-center">
                             @if (item.IsDefault)
                             {

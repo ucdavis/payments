@@ -1,52 +1,74 @@
-@model Payments.Core.Domain.FinancialAccount
+@using Payments.Mvc.Models.FinancialModels
+@model FinancialAccountEditModel
+
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-<input type="hidden" asp-for="Id" />
-<input type="hidden" asp-for="TeamId"/>
+<input type="hidden" asp-for="FinancialAccount.Id" />
+<input type="hidden" asp-for="FinancialAccount.TeamId">
+<input type="hidden" asp-for="FinancialAccount.TeamId" name="teamId" />
 <div class="form-group">
-    <label asp-for="Name" class="control-label"></label>
-    <input asp-for="Name" class="form-control" />
-    <span asp-validation-for="Name" class="text-danger"></span>
+    <label asp-for="FinancialAccount.Name" class="control-label"></label>
+    <input asp-for="FinancialAccount.Name" class="form-control" />
+    <span asp-validation-for="FinancialAccount.Name" class="text-danger"></span>
 </div>
 <div class="form-group">
-    <label asp-for="Description" class="control-label"></label>
-    <input asp-for="Description" class="form-control" />
-    <span asp-validation-for="Description" class="text-danger"></span>
+    <label asp-for="FinancialAccount.Description" class="control-label"></label>
+    <input asp-for="FinancialAccount.Description" class="form-control" />
+    <span asp-validation-for="FinancialAccount.Description" class="text-danger"></span>
 </div>
-<div class="form-group">
-    <label asp-for="FinancialSegmentString" class="control-label"></label>
-    <div class="input-group">
-        <input asp-for="FinancialSegmentString" disabled class="form-control force-upper" />
-        <div class="input-group-append">
-            <button id="ccoa-picker" class="btn btn-primary" type="button" disabled>CCOA Picker</button>
+
+@if (Model.ShowCoa || Model.UseCoa)
+{
+    @if (Model.AllowCoaEdit)
+    {
+        <div class="form-group">
+            <label asp-for="FinancialAccount.FinancialSegmentString" class="control-label"></label> 
+            <div> <strong> NOTE!</strong> You will only be able to edit this value once while it is empty.</div>
+            <div class="input-group">
+                <input asp-for="FinancialAccount.FinancialSegmentString" class="form-control force-upper" />
+                <div class="input-group-append">
+                    <button id="ccoa-picker" class="btn btn-primary" type="button" >CCOA Picker</button>
+                </div>
+            </div>
+            <span asp-validation-for="FinancialAccount.FinancialSegmentString" class="text-danger"></span>
         </div>
-    </div>
-    <span asp-validation-for="FinancialSegmentString" class="text-danger"></span>
+    }
+    else
+    {
+        <div class="form-group">
+            <label asp-for="FinancialAccount.FinancialSegmentString" class="control-label"></label>
+            <div class="input-group">
+                <input asp-for="FinancialAccount.FinancialSegmentString" disabled class="form-control force-upper" />
+            </div>
+            <span asp-validation-for="FinancialAccount.FinancialSegmentString" class="text-danger"></span>
+        </div>
+    }
+}
+
+<div class="form-group">
+    <label asp-for="FinancialAccount.Chart" class="control-label"></label>
+    <input asp-for="FinancialAccount.Chart" disabled class="form-control force-upper" />
+    <span asp-validation-for="FinancialAccount.Chart" class="text-danger"></span>
 </div>
 <div class="form-group">
-    <label asp-for="Chart" class="control-label"></label>
-    <input asp-for="Chart" disabled class="form-control force-upper" />
-    <span asp-validation-for="Chart" class="text-danger"></span>
+    <label asp-for="FinancialAccount.Account" class="control-label"></label>
+    <input asp-for="FinancialAccount.Account" disabled class="form-control force-upper" />
+    <span asp-validation-for="FinancialAccount.Account" class="text-danger"></span>
 </div>
 <div class="form-group">
-    <label asp-for="Account" class="control-label"></label>
-    <input asp-for="Account" disabled class="form-control force-upper" />
-    <span asp-validation-for="Account" class="text-danger"></span>
+    <label asp-for="FinancialAccount.SubAccount" class="control-label"></label>
+    <input asp-for="FinancialAccount.SubAccount" disabled class="form-control force-upper" placeholder="-----" />
+    <span asp-validation-for="FinancialAccount.SubAccount" class="text-danger"></span>
 </div>
 <div class="form-group">
-    <label asp-for="SubAccount" class="control-label"></label>
-    <input asp-for="SubAccount" disabled class="form-control force-upper" placeholder="-----" />
-    <span asp-validation-for="SubAccount" class="text-danger"></span>
-</div>
-<div class="form-group">
-    <label asp-for="Project" class="control-label"></label>
-    <input asp-for="Project" disabled class="form-control force-upper" placeholder="---------" />
-    <span asp-validation-for="Project" class="text-danger"></span>
+    <label asp-for="FinancialAccount.Project" class="control-label"></label>
+    <input asp-for="FinancialAccount.Project" disabled class="form-control force-upper" placeholder="---------" />
+    <span asp-validation-for="FinancialAccount.Project" class="text-danger"></span>
 </div>
 <div class="form-group">
     <div class="checkbox">
         <label>
-            <input asp-for="IsDefault" /> @Html.DisplayNameFor(model => model.IsDefault)
+            <input asp-for="FinancialAccount.IsDefault" /> @Html.DisplayNameFor(model => model.FinancialAccount.IsDefault)
         </label>
     </div>
 </div>

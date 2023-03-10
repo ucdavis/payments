@@ -10,102 +10,150 @@
         <a asp-action="Index">Back</a>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-4">
-                <form id="confirm-create" asp-action="CreateAccount">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Description" class="control-label"></label>
-                        <input asp-for="Description" class="form-control" />
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
-                    <dl class="dl-horizontal">
-                        <dt>
-                            @Html.DisplayNameFor(model => model.FinancialSegmentString)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.FinancialSegmentString)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.Chart)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.Chart)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.Account)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.Account)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.SubAccount)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.SubAccount)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.Project)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.Project)
-                        </dd>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.IsDefault)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.IsDefault)
-                        </dd>
-                    </dl>
-                    <dl class="dl-horizontal">
-                        <dt>Account Name</dt>
-                        <dd>@Html.DisplayFor(model => model.KfsAccount.accountName)</dd>
 
-                        @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubAccountName))
-                        {
-                            <dt>Sub Account Name</dt>
-                            <dd>@Html.DisplayFor(model => model.KfsAccount.SubAccountName)</dd>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.ProjectName))
-                        {
-                            <dt>Project Name</dt>
-                            <dd>@Html.DisplayFor(model => model.KfsAccount.ProjectName)</dd>
-                        }
-
-                        @if (Model.KfsAccount.accountExpirationDate.HasValue)
-                        {
-                            <dt>Account Expiration Date</dt>
-                            <dd>@Html.DisplayFor(model => model.KfsAccount.accountExpirationDate)</dd>
-                        }
-                        
-                        <dt>Sub Fund Group Type Code</dt>
-                        <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
-                        <dt>Sub Fund Group Name</dt>
-                        <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
-                    </dl>
-
-                    <input type="hidden" asp-for="Chart" />
-                    <input type="hidden" asp-for="Account" />
-                    <input type="hidden" asp-for="SubAccount" />
-                    <input type="hidden" asp-for="Project" />
-                    <input type="hidden" asp-for="IsDefault" />
-                    <input type="hidden" asp-for="FinancialSegmentString" />
-
-                    <input type="hidden" id="confirm" name="confirm" value="true" />
-                    <div class="form-group">
-                        <input type="submit" value="Confirm" class="btn" />
-                        <a class="btn-inverse" id="edit">Edit</a>
-                    </div>
-                </form>
+        <form id="confirm-create" asp-action="CreateAccount">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-        </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <dl class="dl-horizontal">
+                @if (Model.ShowCoa)
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.FinancialSegmentString)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.FinancialSegmentString)
+                    </dd>
+                }
+                @if (!Model.UseCoa || !string.IsNullOrWhiteSpace(Model.Account)) //Show historical KFS info if available
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Chart)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Chart)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Account)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Account)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.SubAccount)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.SubAccount)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Project)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Project)
+                    </dd>
+                }
+                <dt>
+                    @Html.DisplayNameFor(model => model.IsDefault)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.IsDefault)
+                </dd>
+            </dl>
+            <div class="card">
+                <div class="card-header">
+                    <h4>Account Details</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="dl-horizontal">
+                        @if (Model.ShowCoa && !string.IsNullOrWhiteSpace(Model.FinancialSegmentString))
+                        {
+                            <dt>COA Type</dt>
+                            <dd>@Model.AeValidationModel.CoaChartType</dd>
+                            <hr />
+                            @foreach (var detail in Model.AeValidationModel.Details)
+                            {
+                                <dt>@detail.Key</dt>
+                                <dd>@detail.Value</dd>
+                            }
+                            @if (Model.AeValidationModel.CoaChartType == AggieEnterpriseApi.Validation.FinancialChartStringType.Ppm)
+                            {
+                                <dt>Account Manager</dt>
+                                <dd>@Model.AeValidationModel.AccountManager (@Model.AeValidationModel.AccountManagerEmail)</dd>
+                            }
+                            @if (Model.AeValidationModel.Warnings.Any())
+                            {
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="red-text">Warnings</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <dl class="dl-horizontal">
+                                            @foreach (var warn in Model.AeValidationModel.Warnings)
+                                            {
+                                                <dt>@warn.Key</dt>
+                                                <dd>@warn.Value</dd>
+                                            }
+                                        </dl>
+                                    </div>
+                                </div>
+                            }
+
+                        }
+                        @if (!Model.UseCoa) //Stop showing KFS account details after switch.
+                        {
+                            <dt>Account Name</dt>
+                            <dd>@Html.DisplayFor(model => model.KfsAccount.accountName)</dd>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.SubAccountName))
+                            {
+                                <dt>Sub Account Name</dt>
+                                <dd>@Html.DisplayFor(model => model.KfsAccount.SubAccountName)</dd>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.KfsAccount.ProjectName))
+                            {
+                                <dt>Project Name</dt>
+                                <dd>@Html.DisplayFor(model => model.KfsAccount.ProjectName)</dd>
+                            }
+
+                            @if (Model.KfsAccount.accountExpirationDate.HasValue)
+                            {
+                                <dt>Account Expiration Date</dt>
+                                <dd>@Html.DisplayFor(model => model.KfsAccount.accountExpirationDate)</dd>
+                            }
+
+                            <dt>Sub Fund Group Type Code</dt>
+                            <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupTypeCode)</dd>
+                            <dt>Sub Fund Group Name</dt>
+                            <dd>@Html.DisplayFor(model => model.KfsAccount.subFundGroupName)</dd>
+
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <input type="hidden" asp-for="Chart" />
+            <input type="hidden" asp-for="Account" />
+            <input type="hidden" asp-for="SubAccount" />
+            <input type="hidden" asp-for="Project" />
+            <input type="hidden" asp-for="IsDefault" />
+            <input type="hidden" asp-for="FinancialSegmentString" />
+
+            <input type="hidden" id="confirm" name="confirm" value="true" />
+            <div class="form-group">
+                <input type="submit" value="Confirm" class="btn" />
+                <a class="btn-inverse" id="edit">Edit</a>
+            </div>
+        </form>
     </div>
 </div>
 <div>
@@ -124,4 +172,12 @@
 
 
     </script>
+}
+
+@section AdditionalStyles {
+    <style asp-add-nonce="true">
+        .red-text {
+            color: red;
+        }
+    </style>
 }
