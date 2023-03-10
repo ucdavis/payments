@@ -53,13 +53,14 @@ namespace Payments.Core.Jobs
 
                     foreach (var invoice in invoices)
                     {
+                        //Eventually, this call may be changed to return a list of transactions
                         var transaction = await _slothService.GetTransactionsByProcessorId(invoice.PaymentProcessorId);
                         if (transaction == null)
                         {
                             log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
                             continue;
                         }
-                        if(transaction.Status != "Completed")
+                        if (transaction.Status != "Completed")
                         {
                             log.Warning("No completed reconciliation found for invoice id: {id} Paid Date: {PaidAt} Status: {status}", invoice.Id, invoice.PaidAt, transaction.Status);
                             continue;
@@ -92,136 +93,109 @@ namespace Payments.Core.Jobs
                         var feeAmount = Math.Round(invoice.CalculatedTotal * FeeSchedule.StandardRate, 2);
                         var incomeAmount = invoice.CalculatedTotal - feeAmount;
 
-                        var incomeAccountChart = team.DefaultAccount.Chart;
-                        var incomeAccount = team.DefaultAccount.Account;
-                        var incomeSubAccount = team.DefaultAccount.SubAccount;
-
-                        var incomeAeAccount = team.DefaultAccount.FinancialSegmentString;
-
-                        if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.Account) && invoice.Account.IsActive) {
-                            // the invoice has a specified account, use it instead of the team's default
-                            incomeAccountChart = invoice.Account.Chart;
-                            incomeAccount = invoice.Account.Account;
-                            incomeSubAccount = invoice.Account.SubAccount;
-                        }
-
-                        if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
-                        {
-                            //Validate? here and if invalid use the team default?                            
-                            // the invoice has a specified account, use it instead of the team's default
-                            incomeAeAccount = invoice.Account.FinancialSegmentString; 
-                        }
-
-
-                        // create transfers
+                        //Setup transfers with base values
                         var debitHolding = new CreateTransfer()
-                        {
-                            Amount      = invoice.CalculatedTotal,
-                            Direction   = Transfer.CreditDebit.Debit,
-                            Chart       = _financeSettings.ClearingChart,
-                            Account     = _financeSettings.ClearingAccount,
-                            ObjectCode  = ObjectCodes.Income,
-                            Description = $"Funds Distribution INV {invoice.GetFormattedId()}".SafeTruncate(40)
-                        };
-                        var aeDebitHolding = new CreateTransfer()
                         {
                             Amount = invoice.CalculatedTotal,
                             Direction = Transfer.CreditDebit.Debit,
-                            FinancialSegmentString = _financeSettings.ClearingFinancialSegmentString,
-                            Description = "Funds Distribution"
+                            Description = "Funds Distribution",
                         };
-
                         var feeCredit = new CreateTransfer()
-                        {
-                            Amount      = feeAmount,
-                            Direction   = Transfer.CreditDebit.Credit,
-                            Chart       = _financeSettings.FeeChart,
-                            Account     = _financeSettings.FeeAccount,
-                            ObjectCode  = ObjectCodes.Income,
-                            Description = $"Processing Fee INV {invoice.GetFormattedId()}".SafeTruncate(40)
-                        };
-                        var aeFeeCredit = new CreateTransfer()
                         {
                             Amount = feeAmount,
                             Direction = Transfer.CreditDebit.Credit,
-                            FinancialSegmentString = _financeSettings.FeeFinancialSegmentString,
                             Description = "Processing Fee"
-                        };  
-
-                        var incomeCredit = new CreateTransfer()
-                        {
-                            Amount      = incomeAmount,
-                            Direction   = Transfer.CreditDebit.Credit,
-                            Chart       = incomeAccountChart,
-                            Account     = incomeAccount,
-                            SubAccount  = incomeSubAccount,
-                            ObjectCode  = ObjectCodes.Income,
-                            Description = $"Funds Distribution INV {invoice.GetFormattedId()}".SafeTruncate(40)
                         };
-                        var aeIncomeCredit = new CreateTransfer()
+                        var incomeCredit = new CreateTransfer()
                         {
                             Amount = incomeAmount,
                             Direction = Transfer.CreditDebit.Credit,
-                            FinancialSegmentString = incomeAeAccount,
                             Description = "Funds Distribution"
                         };
 
+                        if (_financeSettings.UseCoa)
+                        {
+                            var incomeAeAccount = team.DefaultAccount.FinancialSegmentString;
+
+                            if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
+                            {
+                                //Validate? here and if invalid use the team default?                            
+                                // the invoice has a specified account, use it instead of the team's default
+                                incomeAeAccount = invoice.Account.FinancialSegmentString;
+                            }
+
+                            // Populate transfers with financial segment strings
+                            debitHolding.FinancialSegmentString = _financeSettings.ClearingFinancialSegmentString;
+                            feeCredit.FinancialSegmentString = _financeSettings.FeeFinancialSegmentString;
+                            incomeCredit.FinancialSegmentString = incomeAeAccount;
+                        }
+                        else
+                        {
+
+                            var incomeAccountChart = team.DefaultAccount.Chart;
+                            var incomeAccount = team.DefaultAccount.Account;
+                            var incomeSubAccount = team.DefaultAccount.SubAccount;
+
+                            if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.Account) && invoice.Account.IsActive)
+                            {
+                                // the invoice has a specified account, use it instead of the team's default
+                                incomeAccountChart = invoice.Account.Chart;
+                                incomeAccount = invoice.Account.Account;
+                                incomeSubAccount = invoice.Account.SubAccount;
+                            }
+
+                            // populate transfers with KFS values
+                            debitHolding.Chart = _financeSettings.ClearingChart;
+                            debitHolding.Account = _financeSettings.ClearingAccount;
+                            debitHolding.ObjectCode = ObjectCodes.Income;
+
+                            feeCredit.Chart = _financeSettings.FeeChart;
+                            feeCredit.Account = _financeSettings.FeeAccount;
+                            feeCredit.ObjectCode = ObjectCodes.Income;
+
+                            incomeCredit.Chart = incomeAccountChart;
+                            incomeCredit.Account = incomeAccount;
+                            incomeCredit.SubAccount = incomeSubAccount;
+                            incomeCredit.ObjectCode = ObjectCodes.Income;
+                            //Guess we never did project code... No sense messing with it now.
+                        }
+
+
+
                         // setup transaction
                         var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
-                        CreateSlothTransactionResponse response = null;
-                        if (!_financeSettings.UseCoa)
+
+                        var slothTransaction = new CreateTransaction()
                         {
-                            response = await _slothService.CreateTransaction(new CreateTransaction()
-                            {
-                                AutoApprove = true,
-                                MerchantTrackingNumber = transaction.MerchantTrackingNumber,
-                                MerchantTrackingUrl = merchantUrl,
-                                KfsTrackingNumber = transaction.KfsTrackingNumber,
-                                TransactionDate = DateTime.UtcNow,
-                                Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
-                                Transfers = new List<CreateTransfer>()
+                            AutoApprove = true,
+                            ValidateFinancialSegmentStrings = _financeSettings.ValidateFinancialSegmentString,
+                            MerchantTrackingNumber = transaction.MerchantTrackingNumber,
+                            MerchantTrackingUrl = merchantUrl,
+                            KfsTrackingNumber = transaction.KfsTrackingNumber,
+                            TransactionDate = DateTime.UtcNow,
+                            Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
+                            Transfers = new List<CreateTransfer>()
                             {
                                 debitHolding,
                                 feeCredit,
                                 incomeCredit,
                             },
-                                Source = "Payments",
-                                SourceType = "CyberSource",
-                            });
-                        }
-                        else
+                            Source = "Payments",
+                            SourceType = "CyberSource",
+                        };
+                        try
                         {
-                            var slothTransaction = new CreateTransaction()
-                            {
-                                AutoApprove = true,
-                                MerchantTrackingNumber = transaction.MerchantTrackingNumber,
-                                MerchantTrackingUrl = merchantUrl,
-                                KfsTrackingNumber = transaction.KfsTrackingNumber,
-                                TransactionDate = DateTime.UtcNow,
-                                Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
-                                Transfers = new List<CreateTransfer>()
-                                {
-                                    aeDebitHolding,
-                                    aeFeeCredit,
-                                    aeIncomeCredit,
-                                },
-                                Source = "Payments",
-                                SourceType = "CyberSource",
-                            };
-                            try
-                            {
-                                slothTransaction.AddMetadata("Team Name", team.Name);
-                                slothTransaction.AddMetadata("Team Slug", team.Slug);
-                            }
-                            catch
-                            {
-                                log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
-                            }
-
-                            response = await _slothService.CreateTransaction(slothTransaction);
-
-
+                            slothTransaction.AddMetadata("Team Name", team.Name);
+                            slothTransaction.AddMetadata("Team Slug", team.Slug);
+                            slothTransaction.AddMetadata("Invoice", invoice.GetFormattedId());
                         }
+                        catch
+                        {
+                            log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
+                        }
+
+                        var response = await _slothService.CreateTransaction(slothTransaction);
+
 
                         //TODO: If there was a problem with the response, set the status back to paid?
                         log.Information("Transaction created with ID: {id}", response.Id);

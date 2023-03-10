@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using Payments.Core.Helpers;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Sloth;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -69,13 +70,20 @@ namespace Payments.Core.Services
 
         private HttpClient GetHttpClient()
         {
+            if (_settings.BaseUrl.EndsWith("v1/", StringComparison.OrdinalIgnoreCase) ||
+                _settings.BaseUrl.EndsWith("v2/", StringComparison.OrdinalIgnoreCase))
+            {
+                Log.Error("Sloth BaseUrl should not end with version");
+                //Replace the end of the string
+                _settings.BaseUrl = _settings.BaseUrl.Substring(0, _settings.BaseUrl.Length - 3);
+            }
             var client = new HttpClient()
             {                
-                BaseAddress = new Uri(_settings.BaseUrl),
+                BaseAddress = new Uri($"{_settings.BaseUrl}v1/"),
             };
             if(_financeSettings.UseCoa)
             {
-                client.BaseAddress = new Uri(_settings.BaseUrlV2);
+                client.BaseAddress = new Uri($"{_settings.BaseUrl}v2/");
             }
             client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.ApiKey);
 
