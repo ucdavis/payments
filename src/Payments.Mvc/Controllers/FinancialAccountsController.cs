@@ -25,7 +25,7 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IFinancialService _financialService;
         private readonly ApplicationUserManager _userManager;
-        private readonly IAggieEnterpriseService _aggieEnterpriseService;
+        private IAggieEnterpriseService _aggieEnterpriseService;
         private readonly FinanceSettings _financeSettings;
 
         public FinancialAccountsController(ApplicationDbContext context, IFinancialService financialService, ApplicationUserManager userManager, IOptions<FinanceSettings> financeSettings, IAggieEnterpriseService aggieEnterpriseService)
