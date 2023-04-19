@@ -82,7 +82,7 @@ namespace Payments.Mvc.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             var userCanEdit = User.IsInRole(ApplicationRoleCodes.Admin)
-                              || user.TeamPermissions.Any(a => a.TeamId == team.Id && a.Role.Name == TeamRole.Codes.Admin);
+                              || user.TeamPermissions.Any(a => a.TeamId == team.Id && (a.Role.Name == TeamRole.Codes.Admin || a.Role.Name == TeamRole.Codes.FinanceOfficer));
 
             var model = new TeamDetailsModel
             {
@@ -108,6 +108,7 @@ namespace Payments.Mvc.Controllers
         /// GET: FinancialAccounts/Create
         /// </summary>
         /// <returns></returns>
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> CreateAccount()
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
@@ -132,6 +133,7 @@ namespace Payments.Mvc.Controllers
         /// <param name="financialAccount"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> ConfirmAccount(FinancialAccountModel financialAccount)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
@@ -226,6 +228,7 @@ namespace Payments.Mvc.Controllers
 
 
         [HttpPost]
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> CreateAccount(FinancialAccountModel financialAccountModel, bool confirm)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
@@ -336,6 +339,7 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">FinancialAccount Id</param>
         /// <returns></returns>
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> EditAccount(int? id)
         {
             if (id == null)
@@ -371,6 +375,7 @@ namespace Payments.Mvc.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> EditAccount(int id, int teamId, FinancialAccount financialAccount)
         {
             if (id != financialAccount.Id || teamId != financialAccount.TeamId)
@@ -522,6 +527,7 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <param name="id">FinancialAccount Id</param>
         /// <returns></returns>
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> DeleteAccount(int? id)
         {
             var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
@@ -554,6 +560,7 @@ namespace Payments.Mvc.Controllers
         /// <returns></returns>
         [HttpPost, ActionName("DeleteAccount")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
         public async Task<IActionResult> DeleteAccountConfirmed(int id, int teamId)
         {
             var financialAccount = await _context.FinancialAccounts.SingleOrDefaultAsync(m => m.Id == id && m.TeamId == teamId);
