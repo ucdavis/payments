@@ -268,9 +268,9 @@ export default class CreateInvoiceContainer extends React.Component<
   }
 
   private updateProperty = (name: any, value: any) => {
-    this.setState({
+    this.setState(({
       [name]: value
-    } as unknown as IState);
+    } as unknown) as IState);
   };
 
   private onCancel = () => {
