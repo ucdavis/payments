@@ -27,6 +27,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using MvcReact;
 using Mjml.AspNetCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
@@ -206,6 +207,9 @@ namespace Payments.Mvc
                 });
             });
 
+            // add hybrid mvc/react support
+            services.AddMvcReact();
+
             // email services
             services.AddMjmlServices();
             services.AddSingleton<IEmailService, SparkpostEmailService>();
@@ -238,7 +242,7 @@ namespace Payments.Mvc
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<MvcReactOptions> mvcReactOptions)
         {
             app.UseMiddleware<CorrelationIdMiddleware>();
 
@@ -254,22 +258,7 @@ namespace Payments.Mvc
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSpaStaticFiles(new StaticFileOptions()
-            {
-                OnPrepareResponse = (context) =>
-                {
-                    // cache our static assest, i.e. CSS and JS, for a long time
-                    if (context.Context.Request.Path.Value.StartsWith("/static"))
-                    {
-                        var headers = context.Context.Response.GetTypedHeaders();
-                        headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
-                        {
-                            Public = true,
-                            MaxAge = TimeSpan.FromDays(365)
-                        };
-                    }
-                }
-            });
+            app.UseMvcReactStaticFiles();
             app.UseSerilogRequestLogging();
 
             // various security middlewares
@@ -321,10 +310,6 @@ namespace Payments.Mvc
                     c.AllowScripts
                         .AllowUnsafeInline()
                         .AllowUnsafeEval();
-
-                    // allow stackify prefix
-                    c.AllowScripts
-                        .From("http://127.0.0.1:2012/scripts/stckjs.min.js");
 
                     // allow HMR connections
                     c.AllowConnections
@@ -452,9 +437,6 @@ namespace Payments.Mvc
                 // TODO: likely will need to add some team routes here
                 if (env.IsDevelopment())
                 {
-                    // Specific route for HMR websocket.
-                    var spaHmrSocketRegex = "^(?!sockjs-node).*$";
-
                     // team level routes
                     endpoints.MapControllerRoute(
                         name: "team-index",
@@ -465,7 +447,7 @@ namespace Payments.Mvc
                             team = new CompositeRouteConstraint(new IRouteConstraint[]{
                                 new RegexInlineRouteConstraint(Team.SlugRegex),
                                 new NotConstraint("(reports|support)"),
-                                new RegexInlineRouteConstraint("^(?!sockjs-node).*$")
+                                new RegexInlineRouteConstraint(mvcReactOptions.Value.ExcludeHmrPathsRegex)
                             })
                         });
 
@@ -478,14 +460,14 @@ namespace Payments.Mvc
                             team = new CompositeRouteConstraint(new IRouteConstraint[]{
                                 new RegexInlineRouteConstraint(Team.SlugRegex),
                                 new NotConstraint("(reports|support)"),
-                                new RegexInlineRouteConstraint("^(?!sockjs-node).*$")
+                                new RegexInlineRouteConstraint(mvcReactOptions.Value.ExcludeHmrPathsRegex)
                             })
                         });
 
                     endpoints.MapControllerRoute(
                         name: "default",
                         pattern: "{controller=Home}/{action=Index}/{id?}",
-                        constraints: new { controller = spaHmrSocketRegex });
+                        constraints: new { controller = mvcReactOptions.Value.ExcludeHmrPathsRegex });
                 }
                 else
                 {
@@ -499,7 +481,8 @@ namespace Payments.Mvc
                         {
                             team = new CompositeRouteConstraint(new IRouteConstraint[]{
                                 new RegexInlineRouteConstraint(Team.SlugRegex),
-                                new NotConstraint("(reports|support)")
+                                new NotConstraint("(reports|support)"),
+                                new RegexInlineRouteConstraint(mvcReactOptions.Value.ExcludeHmrPathsRegex)
                             })
                         });
 
@@ -511,24 +494,19 @@ namespace Payments.Mvc
                         {
                             team = new CompositeRouteConstraint(new IRouteConstraint[]{
                                 new RegexInlineRouteConstraint(Team.SlugRegex),
-                                new NotConstraint("(reports|support)")
+                                new NotConstraint("(reports|support)"),
+                                new RegexInlineRouteConstraint(mvcReactOptions.Value.ExcludeHmrPathsRegex)
                             })
                         });
                     endpoints.MapControllerRoute(
                         name: "default",
-                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                        pattern: "{controller=Home}/{action=Index}/{id?}",
+                        constraints: new { controller = mvcReactOptions.Value.ExcludeHmrPathsRegex });
                 }
             });
 
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
-            });
+            // During development, SPA will kick in for all remaining paths
+            app.UseMvcReact();
         }
     }
 }
