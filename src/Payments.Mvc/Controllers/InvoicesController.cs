@@ -53,7 +53,7 @@ namespace Payments.Mvc.Controllers
             // hide deleted unless explicitly asked to show
             if (!filter.ShowDeleted)
             {
-                query = query.Where(i => !i.Deleted);                
+                query = query.Where(i => !i.Deleted);
             }
 
             if (filter.Statuses.Any())
@@ -161,6 +161,7 @@ namespace Payments.Mvc.Controllers
                     a.Account,
                     a.SubAccount,
                     a.Project,
+                    a.FinancialSegmentString,
                 });
 
             ViewBag.Coupons = team.Coupons
@@ -215,6 +216,7 @@ namespace Payments.Mvc.Controllers
                     a.Account,
                     a.SubAccount,
                     a.Project,
+                    a.FinancialSegmentString,
                 });
 
             // include all active coupons, and the currently selected coupon
@@ -235,33 +237,33 @@ namespace Payments.Mvc.Controllers
             // build model for view
             var model = new EditInvoiceModel()
             {
-                AccountId        = invoice.Account?.Id ?? 0,
-                CouponId         = invoice.Coupon?.Id ?? 0,
-                ManualDiscount   = invoice.ManualDiscount,
-                DueDate          = invoice.DueDate,
-                TaxPercent       = invoice.TaxPercent,
-                Memo             = invoice.Memo,
-                Customer         = new EditInvoiceCustomerModel()
+                AccountId = invoice.Account?.Id ?? 0,
+                CouponId = invoice.Coupon?.Id ?? 0,
+                ManualDiscount = invoice.ManualDiscount,
+                DueDate = invoice.DueDate,
+                TaxPercent = invoice.TaxPercent,
+                Memo = invoice.Memo,
+                Customer = new EditInvoiceCustomerModel()
                 {
-                    Name    = invoice.CustomerName,
+                    Name = invoice.CustomerName,
                     Address = invoice.CustomerAddress,
-                    Email   = invoice.CustomerEmail,
+                    Email = invoice.CustomerEmail,
                     Company = invoice.CustomerCompany,
                 },
                 Items = invoice.Items.Select(i => new EditInvoiceItemModel()
                 {
-                    Amount      = i.Amount,
+                    Amount = i.Amount,
                     Description = i.Description,
-                    Quantity    = i.Quantity,
-                    TaxExempt   = i.TaxExempt,
-                    Total       = i.Amount * i.Quantity,
+                    Quantity = i.Quantity,
+                    TaxExempt = i.TaxExempt,
+                    Total = i.Amount * i.Quantity,
                 }).ToList(),
                 Attachments = invoice.Attachments.Select(a => new EditInvoiceAttachmentModel()
                 {
-                    Identifier   = a.Identifier,
-                    FileName     = a.FileName,
-                    ContentType  = a.ContentType,
-                    Size         = a.Size,
+                    Identifier = a.Identifier,
+                    FileName = a.FileName,
+                    ContentType = a.ContentType,
+                    Size = a.Size,
                 }).ToList()
             };
 
@@ -327,7 +329,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [FromBody]EditInvoiceModel model)
+        public async Task<IActionResult> Edit(int id, [FromBody] EditInvoiceModel model)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -389,7 +391,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Send(int id, [FromBody]SendInvoiceModel model)
+        public async Task<IActionResult> Send(int id, [FromBody] SendInvoiceModel model)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -408,7 +410,7 @@ namespace Payments.Mvc.Controllers
                 });
             }
 
-            if(model == null)
+            if (model == null)
             {
                 model = new SendInvoiceModel();
             }
@@ -468,7 +470,7 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return RedirectToAction("Edit", "Invoices", new {id});
+            return RedirectToAction("Edit", "Invoices", new { id });
         }
 
         [HttpPost]
@@ -534,7 +536,7 @@ namespace Payments.Mvc.Controllers
                 return BadRequest();
             }
 
-            if(invoice.PaidAt >= DateTime.UtcNow.AddDays(-5))
+            if (invoice.PaidAt >= DateTime.UtcNow.AddDays(-5))
             {
                 return BadRequest();
             }
@@ -641,7 +643,7 @@ namespace Payments.Mvc.Controllers
             await _invoiceService.RefundInvoice(invoice, payment, refundReason, user);
 
             // record user action
-            
+
             var action = new History()
             {
                 Type = HistoryActionTypes.RefundRequested.TypeCode,
@@ -683,8 +685,8 @@ namespace Payments.Mvc.Controllers
             var user = await _userManager.GetUserAsync(User);
             var action = new History()
             {
-                Type           = HistoryActionTypes.PaymentRefunded.TypeCode,
-                Actor          = user.Name,
+                Type = HistoryActionTypes.PaymentRefunded.TypeCode,
+                Actor = user.Name,
                 ActionDateTime = DateTime.UtcNow,
             };
             invoice.History.Add(action);
