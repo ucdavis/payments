@@ -45,6 +45,7 @@ namespace Payments.Core.Services
 
             if (segmentStringType == FinancialChartStringType.Gl)
             {
+                rtValue.CoaChartType = FinancialChartStringType.Gl;
                 var result = await _aggieClient.GlValidateChartstring.ExecuteAsync(financialSegmentString, validateCVRs);
 
                 var data = result.ReadData();
@@ -130,6 +131,7 @@ namespace Payments.Core.Services
 
             if (segmentStringType == FinancialChartStringType.Ppm)
             {
+                rtValue.CoaChartType = FinancialChartStringType.Ppm;
                 var result = await _aggieClient.PpmSegmentStringValidate.ExecuteAsync(financialSegmentString);
 
                 var data = result.ReadData();
@@ -232,6 +234,7 @@ namespace Payments.Core.Services
 
             if (segmentStringType == FinancialChartStringType.Invalid)
             {
+                rtValue.CoaChartType = FinancialChartStringType.Invalid;
                 rtValue.IsValid = false;
                 rtValue.Messages.Add("Invalid Financial Chart String format");
                 return rtValue;
