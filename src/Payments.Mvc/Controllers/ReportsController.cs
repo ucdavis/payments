@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Payments.Mvc.Models.Roles;
 using static Payments.Core.Domain.Invoice;
 using System.Threading.Tasks;
-using Payments.Core.Models.Report;
 using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
@@ -170,7 +169,7 @@ namespace Payments.Mvc.Controllers
                 }
             }
 
-            return View(usersWithTeams.OrderBy(a => a.IsActive).ThenBy(a => a.Kerb));
+            return View(usersWithTeams.OrderBy(a => a.IsActive).ThenBy(a => a.Kerb).ToArray());
             //https://payments-test.ucdavis.edu/adventure-works/Settings/DeletePermission/36
         }
 
