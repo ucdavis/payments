@@ -169,8 +169,7 @@ namespace Payments.Mvc.Controllers
                 }
             }
 
-            return View(usersWithTeams.OrderBy(a => a.IsActive).ThenBy(a => a.Kerb).ToArray());
-            //https://payments-test.ucdavis.edu/adventure-works/Settings/DeletePermission/36
+            return View(usersWithTeams.OrderBy(a => a.IsActive).ThenBy(a => a.Kerb).ThenBy(a => a.TeamName).ThenBy(a => a.RoleName).ToArray());
         }
 
         #endregion
