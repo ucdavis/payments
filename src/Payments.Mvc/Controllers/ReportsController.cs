@@ -9,16 +9,20 @@ using Microsoft.AspNetCore.Authorization;
 using Payments.Mvc.Models.Roles;
 using static Payments.Core.Domain.Invoice;
 using System.Threading.Tasks;
+using Payments.Core.Models.Report;
+using Payments.Mvc.Services;
 
 namespace Payments.Mvc.Controllers
 {
     public class ReportsController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IDirectorySearchService _directorySearchService;
 
-        public ReportsController(ApplicationDbContext dbContext)
+        public ReportsController(ApplicationDbContext dbContext, IDirectorySearchService directorySearchService)
         {
             _dbContext = dbContext;
+            _directorySearchService = directorySearchService;
         }
 
         public IActionResult Index()
@@ -144,6 +148,30 @@ namespace Payments.Mvc.Controllers
                 .ToListAsync();
 
             return View(invoices);
+        }
+
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> InactiveUsers()
+        {
+            var usersWithTeams = await _dbContext.TeamPermissions.Include(a => a.Team).Include(a => a.User).Include(a => a.Role).AsNoTracking().Select(TeamUsersReportModel.Projection()).ToListAsync();
+
+            var kerbs = usersWithTeams.Select(a => a.Kerb).Distinct().ToArray();
+
+            foreach (var kerb in kerbs)
+            {
+                var info = await _directorySearchService.GetByKerberos(kerb);
+                if (info == null || info.IsInvalid)
+                {
+                    //set usersWithTeams IsActive to false where kerb matches
+                    foreach (var userTeam in usersWithTeams.Where(a => a.Kerb == kerb))
+                    {
+                        userTeam.IsActive = false;
+                    }
+                }
+            }
+
+            return View(usersWithTeams.OrderBy(a => a.IsActive).ThenBy(a => a.Kerb));
+            //https://payments-test.ucdavis.edu/adventure-works/Settings/DeletePermission/36
         }
 
         #endregion
