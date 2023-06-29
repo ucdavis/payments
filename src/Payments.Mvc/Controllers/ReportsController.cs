@@ -152,7 +152,7 @@ namespace Payments.Mvc.Controllers
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> InactiveUsers()
         {
-            var usersWithTeams = await _dbContext.TeamPermissions.Include(a => a.Team).Include(a => a.User).Include(a => a.Role).AsNoTracking().Select(TeamUsersReportModel.Projection()).ToListAsync();
+            var usersWithTeams = await _dbContext.TeamPermissions.AsNoTracking().Select(TeamUsersReportModel.Projection()).ToListAsync();
 
             var kerbs = usersWithTeams.Select(a => a.Kerb).Distinct().ToArray();
 
