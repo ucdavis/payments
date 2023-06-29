@@ -1,0 +1,63 @@
+@using Payments.Core.Extensions
+@using Payments.Mvc.Models.ReportViewModels
+
+@model TeamUsersReportModel[]
+@{
+    ViewBag.Title = "User Permissions Report";
+}
+
+<div class="card">
+    <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
+        <h1>@ViewBag.Title</h1>
+
+
+    </div>
+
+    <div class="card-body table-responsive">
+        <table id="permissions" class="table">
+            <thead>
+                <tr>
+                    <th>Is Active</th>
+                    <th>Team</th>
+                    <th>Kerb</th>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th></th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.IsActive</td>
+                        <td>@item.TeamName</td>
+                        <td>@item.Kerb</td>
+                        <td>@item.UserEmail</td>
+                        <td>@item.UserName</td>
+                        <td>@item.RoleName</td>
+                        <td class="text-center">
+                            <a asp-controller="Settings" asp-action="DeletePermission" asp-route-id="@item.Id" asp-route-team="@item.TeamSlug" target="_blank">Revoke</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts
+    {
+    <script type="text/javascript" asp-add-nonce="true">
+        $(function () {
+            // setup table
+            $("#permissions").DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel'
+                ]
+            });
+        });
+    </script>
+}
