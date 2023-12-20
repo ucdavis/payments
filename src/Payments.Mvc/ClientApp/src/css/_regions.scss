@@ -330,7 +330,13 @@ table#Invoices {
     border-top: 1px solid $borders;
   }
 }
-
+#accountsTable {
+  tr {
+    td:nth-child(2) {
+      word-wrap: anywhere;
+    }
+  }
+}
 .send-invoice-modal {
   .modal-content {
     transition: height 1s ease;
