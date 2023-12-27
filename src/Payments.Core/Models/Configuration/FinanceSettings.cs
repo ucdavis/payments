@@ -19,5 +19,8 @@ namespace Payments.Core.Models.Configuration
         public string FeeFinancialSegmentString { get; set; }
 
         public bool ValidateFinancialSegmentString { get; set; } = false;
+
+        public bool DisableJob { get; set; } = false;
+        public bool AutoApprove { get; set; } = true;
     }
 }
