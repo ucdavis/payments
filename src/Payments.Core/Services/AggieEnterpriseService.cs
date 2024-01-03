@@ -122,7 +122,7 @@ namespace Payments.Core.Services
                     else
                     {
                         rtValue.IsValid = false;
-                        rtValue.Messages.Add("Natural Account is not valid. Must roll up to 41000D or 44000D");
+                        rtValue.Messages.Add("Natural Account is not valid. Must roll up to 41000D or 44000D. For example, use 410000 for sales of rate based goods and services.");
                     }
                 }
 
@@ -222,7 +222,7 @@ namespace Payments.Core.Services
                         else
                         {
                             rtValue.IsValid = false;
-                            rtValue.Messages.Add("ExpenditureType (Natural Account) is not valid. Must roll up to 41000D or 44000D");
+                            rtValue.Messages.Add("ExpenditureType (Natural Account) is not valid. Must roll up to 41000D or 44000D. For example, use 410000 for sales of rate based goods and services.");
                         }
 
 
