@@ -190,7 +190,7 @@ namespace Payments.Mvc
                     },
                     Type = SecuritySchemeType.ApiKey,
                     Description = "API Key Authentication",
-                    Name = "X-Auth-Token", //ApiKeyMiddleware.HeaderKey,
+                    Name = ApiKeyMiddleware.HeaderKey,
                     In = ParameterLocation.Header,
                     Scheme = "ApiKey"
                 };
