@@ -212,7 +212,8 @@ namespace Payments.Mvc
 
             // email services
             services.AddMjmlServices();
-            services.AddSingleton<IEmailService, SparkpostEmailService>();
+            // email service must be transient because smtpClient can't handle concurrent connections
+            services.AddTransient<IEmailService, SparkpostEmailService>();
 
             // infrastructure services
             services.AddSingleton<IDataSigningService, DataSigningService>();
