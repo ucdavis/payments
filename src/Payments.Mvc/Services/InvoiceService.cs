@@ -93,6 +93,12 @@ namespace Payments.Mvc.Services
 
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
+
+                if (invoice.CalculatedTotal <= 0)
+                {
+                    throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
+                }
+
                 _dbContext.Invoices.Add(invoice);
 
                 invoices.Add(invoice);
@@ -175,6 +181,12 @@ namespace Payments.Mvc.Services
             }
 
             invoice.UpdateCalculatedValues();
+
+            if (invoice.CalculatedTotal <= 0)
+            {
+                throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
+            }
+            
             return invoice;
         }
 

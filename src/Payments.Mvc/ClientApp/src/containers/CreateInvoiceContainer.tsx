@@ -44,6 +44,7 @@ interface IState {
   items: InvoiceItem[];
   loading: boolean;
   errorMessage: string;
+  modelErrors: string[];
   validate: boolean;
 
   isSendModalOpen: boolean;
@@ -90,6 +91,7 @@ export default class CreateInvoiceContainer extends React.Component<
       taxPercent: 0,
 
       errorMessage: '',
+      modelErrors: [],
       loading: false,
       isSendModalOpen: false,
       validate: false
@@ -251,7 +253,7 @@ export default class CreateInvoiceContainer extends React.Component<
   }
 
   private renderError() {
-    const { errorMessage } = this.state;
+    const { errorMessage, modelErrors } = this.state;
     if (!errorMessage) {
       return null;
     }
@@ -263,6 +265,9 @@ export default class CreateInvoiceContainer extends React.Component<
       >
         <strong className='mr-3'>Error!</strong>
         <span>{errorMessage}</span>
+        {modelErrors.map((e, i) => (
+          <p key={i}>{e}</p>
+        ))}
       </Alert>
     );
   }
@@ -335,7 +340,8 @@ export default class CreateInvoiceContainer extends React.Component<
     }
 
     this.setState({
-      errorMessage: result.errorMessage
+      errorMessage: result.errorMessage,
+      modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
     });
     return false;
   };
@@ -345,7 +351,8 @@ export default class CreateInvoiceContainer extends React.Component<
     const { ids } = this.state;
     if (ids === undefined) {
       this.setState({
-        errorMessage: 'Could not send email. Try to Save and Close instead.'
+        errorMessage: 'Could not send email. Try to Save and Close instead.',
+        modelErrors: []
       });
       return false;
     }
@@ -379,7 +386,8 @@ export default class CreateInvoiceContainer extends React.Component<
       const result = await response.json();
       if (!result.success) {
         this.setState({
-          errorMessage: result.errorMessage
+          errorMessage: result.errorMessage,
+          modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
         });
         return false;
       }
@@ -435,6 +443,6 @@ export default class CreateInvoiceContainer extends React.Component<
   };
 
   private dismissErrorMessage = () => {
-    this.setState({ errorMessage: '' });
+    this.setState({ errorMessage: '', modelErrors: [] });
   };
 }
