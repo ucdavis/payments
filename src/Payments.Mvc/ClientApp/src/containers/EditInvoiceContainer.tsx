@@ -47,6 +47,7 @@ interface IState {
   items: InvoiceItem[];
   loading: boolean;
   errorMessage: string;
+  modelErrors: string[];
   isSendModalOpen: boolean;
   validate: boolean;
 }
@@ -95,6 +96,7 @@ export default class EditInvoiceContainer extends React.Component<
       taxPercent: invoice.taxPercent || 0,
 
       errorMessage: '',
+      modelErrors: [],
       loading: false,
       isSendModalOpen: false,
       validate: false
@@ -246,7 +248,7 @@ export default class EditInvoiceContainer extends React.Component<
   }
 
   private renderError() {
-    const { errorMessage } = this.state;
+    const { errorMessage, modelErrors } = this.state;
     if (!errorMessage) {
       return null;
     }
@@ -258,14 +260,17 @@ export default class EditInvoiceContainer extends React.Component<
       >
         <strong className='mr-3'>Error!</strong>
         <span>{errorMessage}</span>
+        {modelErrors.map((e, i) => (
+          <p key={i}>{e}</p>
+        ))}
       </Alert>
     );
   }
 
   private updateProperty = (name: any, value: any) => {
-    this.setState({
+    this.setState(({
       [name]: value
-    } as unknown as IState);
+    } as unknown) as IState);
   };
 
   private onCancel = () => {
@@ -330,7 +335,8 @@ export default class EditInvoiceContainer extends React.Component<
     }
 
     this.setState({
-      errorMessage: result.errorMessage
+      errorMessage: result.errorMessage,
+      modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
     });
     return false;
   };
@@ -362,7 +368,8 @@ export default class EditInvoiceContainer extends React.Component<
     }
 
     this.setState({
-      errorMessage: result.errorMessage
+      errorMessage: result.errorMessage,
+      modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
     });
     return false;
   };
@@ -410,6 +417,6 @@ export default class EditInvoiceContainer extends React.Component<
   };
 
   private dismissErrorMessage = () => {
-    this.setState({ errorMessage: '' });
+    this.setState({ errorMessage: '', modelErrors: [] });
   };
 }
