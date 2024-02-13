@@ -9,5 +9,7 @@ namespace Payments.Core.Resources
         public static string CreditCard = "Credit Card";
 
         public static string Manual = "Manual";
+
+        public static string Coupon = "Coupon";
     }
 }
