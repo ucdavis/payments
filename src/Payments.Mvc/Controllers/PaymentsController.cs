@@ -24,6 +24,7 @@ using Payments.Mvc.Models.PaymentViewModels;
 using Payments.Mvc.Services;
 using Serilog;
 using System.Text.Json;
+using Payments.Mvc.Identity;
 
 namespace Payments.Mvc.Controllers
 {
@@ -34,16 +35,19 @@ namespace Payments.Mvc.Controllers
         private readonly INotificationService _notificationService;
         private readonly IStorageService _storageService;
         private readonly IEmailService _emailService;
+        private readonly ApplicationUserManager _userManager;
 
         private readonly CyberSourceSettings _cyberSourceSettings;
 
-        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService, IStorageService storageService, IOptions<CyberSourceSettings> cyberSourceSettings, IEmailService emailService)
+        public PaymentsController(ApplicationDbContext dbContext, IDataSigningService dataSigningService, INotificationService notificationService,
+            IStorageService storageService, IOptions<CyberSourceSettings> cyberSourceSettings, IEmailService emailService, ApplicationUserManager userManager)
         {
             _dbContext = dbContext;
             _dataSigningService = dataSigningService;
             _notificationService = notificationService;
             _storageService = storageService;
             _emailService = emailService;
+            _userManager = userManager;
 
             _cyberSourceSettings = cyberSourceSettings.Value;
         }
@@ -244,16 +248,60 @@ namespace Payments.Mvc.Controllers
             Message = "Coupon added.";
 
             // record event
+            var user = await _userManager.GetUserAsync(User);
             var action = new History()
             {
                 Type = HistoryActionTypes.CouponAddedByCustomer.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
             };
             invoice.History.Add(action);
 
             // update totals
             invoice.UpdateCalculatedValues();
-            await _dbContext.SaveChangesAsync();
+
+            if (invoice.CalculatedTotal <= 0)
+            {
+                // invoice zeroed out by coupon, automatically mark it as Paid/Complete
+
+                // once Paid is true, future calculations of discount are pulled from ManualDiscount instead of Coupon
+                invoice.ManualDiscount = invoice.GetDiscountAmount();
+                invoice.Status = Invoice.StatusCodes.Completed;
+                invoice.Paid = true;
+                invoice.PaidAt = DateTime.UtcNow;
+                invoice.PaymentType = PaymentTypes.Coupon;
+
+                // record action
+                var action2 = new History()
+                {
+                    Type = HistoryActionTypes.MarkPaid.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = user.Name,
+                    Data = "Invoice zeroed out by coupon and marked as Paid/Complete",
+                };
+                invoice.History.Add(action2);
+
+                Message = "Invoice zeroed out by coupon and marked as Paid/Complete.";
+
+                // save changes before processing paid notifications
+                await _dbContext.SaveChangesAsync();
+
+                try
+                {
+                    await _notificationService.SendPaidNotification(new PaidNotification()
+                    {
+                        InvoiceId = invoice.Id
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error while sending notification.");
+                }
+            }
+            else
+            {
+                await _dbContext.SaveChangesAsync();
+            }
 
             // return to pay page
             return RedirectToAction("Pay", new { id });
@@ -540,7 +588,7 @@ namespace Payments.Mvc.Controllers
                 invoice.PaidAt = response.AuthorizationDateTime;
                 invoice.PaymentType = PaymentTypes.CreditCard;
                 invoice.PaymentProcessorId = response.Transaction_Id;
-                
+
                 invoice.UpdateCalculatedValues(); //Need to do after it is paid because they may not have got an expired discount?
 
                 // record action

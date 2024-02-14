@@ -205,7 +205,7 @@ namespace Payments.Core.Domain
 
             CalculatedTaxAmount = GetTaxAmount();
 
-            CalculatedTotal = CalculatedSubtotal - CalculatedDiscount + CalculatedTaxAmount;
+            CalculatedTotal = Math.Max(CalculatedSubtotal - CalculatedDiscount + CalculatedTaxAmount, 0);
         }
 
         protected internal static void OnModelCreating(ModelBuilder builder)
