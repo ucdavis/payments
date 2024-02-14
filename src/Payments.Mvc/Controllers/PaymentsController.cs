@@ -263,6 +263,9 @@ namespace Payments.Mvc.Controllers
             if (invoice.CalculatedTotal <= 0)
             {
                 // invoice zeroed out by coupon, automatically mark it as Paid/Complete
+
+                // once Paid is true, future calculations of discount are pulled from ManualDiscount instead of Coupon
+                invoice.ManualDiscount = invoice.GetDiscountAmount();
                 invoice.Status = Invoice.StatusCodes.Completed;
                 invoice.Paid = true;
                 invoice.PaidAt = DateTime.UtcNow;
