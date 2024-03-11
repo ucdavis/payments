@@ -183,6 +183,17 @@ namespace Payments.Core.Jobs
                             Source = "Payments",
                             SourceType = "CyberSource",
                         };
+
+                        if(feeCredit.Amount <= 0)
+                        {
+                            slothTransaction.Transfers = new List<CreateTransfer>()
+                            {
+                                debitHolding,
+                                incomeCredit,
+                            };
+                            log.Warning("Invoice {id} Fee amount is less than or equal to 0. Removing fee transfer from transaction.", invoice.Id);
+                        }
+
                         try
                         {
                             slothTransaction.AddMetadata("Team Name", team.Name);
