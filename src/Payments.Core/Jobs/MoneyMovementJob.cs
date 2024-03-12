@@ -257,7 +257,7 @@ namespace Payments.Core.Jobs
                     {
                         if (string.IsNullOrWhiteSpace(invoice.KfsTrackingNumber))
                         {
-                            log.Warning("Invoice {id} has no kfs tarcking number.", invoice.Id);
+                            log.Warning("Invoice {id} has no kfs tracking number.", invoice.Id);
                             continue;
                         }
 
@@ -268,6 +268,15 @@ namespace Payments.Core.Jobs
                         var distribution = transactions?.FirstOrDefault(t =>
                             string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
                             && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount) || string.Equals(r.FinancialSegmentString, _financeSettings.FeeFinancialSegmentString)));
+
+                        if(distribution == null && invoice.CalculatedTotal <= 0.10m)
+                        {
+                            //Ok, these are a special circumstance. If the invoice is less than 10 cents, we don't expect a fee.
+                            //The ClearingFinancialSegmentString should have a purpose code of 00 where the CyberSource txns should have a value of 45 so they should be different.
+                            distribution = transactions?.FirstOrDefault(t =>
+                              string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
+                              && t.Transfers.Any(r => string.Equals(r.FinancialSegmentString, _financeSettings.ClearingFinancialSegmentString)));
+                        }
 
                         if (distribution == null)
                         {
