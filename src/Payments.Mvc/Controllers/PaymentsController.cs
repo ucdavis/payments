@@ -253,7 +253,7 @@ namespace Payments.Mvc.Controllers
             {
                 Type = HistoryActionTypes.CouponAddedByCustomer.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
-                Actor = user.Name,
+                Actor = user?.Name,
             };
             invoice.History.Add(action);
 
@@ -276,7 +276,7 @@ namespace Payments.Mvc.Controllers
                 {
                     Type = HistoryActionTypes.MarkPaid.TypeCode,
                     ActionDateTime = DateTime.UtcNow,
-                    Actor = user.Name,
+                    Actor = user?.Name,
                     Data = "Invoice zeroed out by coupon and marked as Paid/Complete",
                 };
                 invoice.History.Add(action2);
