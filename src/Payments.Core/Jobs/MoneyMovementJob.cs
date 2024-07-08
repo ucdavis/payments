@@ -37,6 +37,12 @@ namespace Payments.Core.Jobs
 
         public async Task FindBankReconcileTransactions(ILogger log)
         {
+            if(_financeSettings.DisableJob)
+            {
+                log.Information("Money Movement Job Disabled");
+                return;
+            }
+
             using (var ts = _dbContext.Database.BeginTransaction())
             {
                 try
@@ -167,7 +173,7 @@ namespace Payments.Core.Jobs
 
                         var slothTransaction = new CreateTransaction()
                         {
-                            AutoApprove = true,
+                            AutoApprove = _financeSettings.AutoApprove,
                             ValidateFinancialSegmentStrings = _financeSettings.ValidateFinancialSegmentString,
                             MerchantTrackingNumber = transaction.MerchantTrackingNumber,
                             MerchantTrackingUrl = merchantUrl,
