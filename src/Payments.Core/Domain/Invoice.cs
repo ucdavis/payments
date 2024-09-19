@@ -17,6 +17,7 @@ namespace Payments.Core.Domain
             Attachments = new List<InvoiceAttachment>();
             Items = new List<LineItem>();
             History = new List<History>();
+            InvoiceRecharges = new List<InvoiceRecharge>();
 
             DraftCount = 0;
             CreatedAt = DateTime.UtcNow;
@@ -108,6 +109,11 @@ namespace Payments.Core.Domain
 
         [DisplayName("Deleted On")]
         public DateTime? DeletedAt { get; set; }
+
+        public bool IsRecharge { get; set; } = false;
+
+        [JsonIgnore]
+        public IList<InvoiceRecharge> InvoiceRecharges { get; set; }
 
         [JsonIgnore]
         public IList<History> History { get; set; }

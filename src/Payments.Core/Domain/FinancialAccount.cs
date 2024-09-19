@@ -50,7 +50,9 @@ namespace Payments.Core.Domain
 
         [DisplayName("Active")]
         public bool IsActive { get; set; } = true;
-        
+
+        public bool IsRecharge { get; set; } = false;
+
         [Required]
         [JsonIgnore]
         public Team Team { get; set; }
