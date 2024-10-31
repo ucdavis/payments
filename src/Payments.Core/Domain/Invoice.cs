@@ -258,7 +258,7 @@ namespace Payments.Core.Domain
             dictionary.Add("line_item_count", Items.Count.ToString("D"));
             for (var i = 0; i < Items.Count; i++)
             {
-                dictionary.Add($"item_{i}_name", Items[i].Description);
+                dictionary.Add($"item_{i}_name", Items[i].Description.SafeTruncate(255)); //Note, looking at CS documentation, this is _productName ? but it seems to work.
                 //dictionary.Add($"item_{i}_quantity", Items[i].Quantity.ToString());
                 dictionary.Add($"item_{i}_unit_price", Items[i].Total.ToString("F2"));
             }
