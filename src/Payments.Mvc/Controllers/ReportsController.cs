@@ -10,6 +10,8 @@ using Payments.Mvc.Models.Roles;
 using static Payments.Core.Domain.Invoice;
 using System.Threading.Tasks;
 using Payments.Mvc.Services;
+using Payments.Core.Domain;
+using Payments.Core.Models.History;
 
 namespace Payments.Mvc.Controllers
 {
@@ -32,8 +34,10 @@ namespace Payments.Mvc.Controllers
         #region team reports
         public IActionResult Activity(string team, int? year = null)
         {
+            //If we wanted to include other hitory actions, we could add them to the where clause
             var invoiceQuery = _dbContext.Invoices
                 .Include(i => i.Account)
+                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.PaymentCompleted.TypeCode))
                 .Where(i => i.Team.Slug == TeamSlug);
             if (year.HasValue)
             {

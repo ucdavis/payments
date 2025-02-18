@@ -60,6 +60,7 @@
                     <th>Sent At</th>
                     <th>Created</th>
                     <th>Due Date</th>
+                    <th>Paid Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -78,6 +79,7 @@
                         <td>@(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
                         <td>@(invoice.DueDate.HasValue ? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@invoice.History?.FirstOrDefault()?.ActionDateTime.ToPacificTime().ToString("d")</td>
                     </tr>
                 }
             </tbody>
