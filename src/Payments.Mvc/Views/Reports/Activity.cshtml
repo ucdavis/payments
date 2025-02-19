@@ -1,4 +1,5 @@
 @using Payments.Core.Extensions
+@using Payments.Core.Models.History
 
 @model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
 @{
@@ -79,7 +80,7 @@
                         <td>@(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
                         <td>@(invoice.DueDate.HasValue ? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
-                        <td>@invoice.History?.FirstOrDefault()?.ActionDateTime.ToPacificTime().ToString("d")</td>
+                        <td>@invoice.History?.FirstOrDefault(a => a.Type == HistoryActionTypes.PaymentCompleted.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")</td>
                     </tr>
                 }
             </tbody>
