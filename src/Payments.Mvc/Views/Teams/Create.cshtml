@@ -42,6 +42,12 @@
                         <span asp-validation-for="ContactPhoneNumber" class="text-danger"></span>
                     </div>
                     <div class="form-group">
+                        <label asp-for="WebHookApiKey" class="control-label"></label>
+                        <input asp-for="WebHookApiKey" class="form-control" />
+                        <span asp-validation-for="WebHookApiKey" class="text-danger"></span>
+                        <span class="text-muted">Leave blank if you don't want to pass authorization to your webhook URL</span>
+                    </div>
+                    <div class="form-group">
                         <input type="submit" value="Create" class="btn" />
                     </div>
                 </form>

@@ -37,6 +37,19 @@
                     <dd>
                         @Html.DisplayFor(model => model.ApiKey)
                     </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.WebHookApiKey)
+                    </dt>
+                    <dd>
+                        @if(!string.IsNullOrWhiteSpace(Model.WebHookApiKey))
+                        {
+                            @Html.DisplayFor(model => model.WebHookApiKey)
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not Set</span>
+                        }
+                    </dd>
                 }
             </dl>
             <dl class="dl-horizontal col-lg">

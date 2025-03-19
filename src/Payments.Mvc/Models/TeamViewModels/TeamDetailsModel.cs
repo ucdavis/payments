@@ -24,6 +24,9 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "ApiKey")]
         public string ApiKey { get; set; }
 
+        [Display(Name = "WebHook API Key")]
+        public string WebHookApiKey { get; set; }
+
         [Display(Name = "Active?")]
         public bool IsActive { get; set; }
 
