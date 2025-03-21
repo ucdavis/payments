@@ -78,8 +78,8 @@ namespace Payments.Mvc.Controllers
             //var count = query.Count();
 
             var invoices = query
-                .Take(MaxRows)
                 .OrderByDescending(i => i.Id)
+                .Take(MaxRows)
                 .ToList();
 
             var model = new InvoiceListViewModel()
