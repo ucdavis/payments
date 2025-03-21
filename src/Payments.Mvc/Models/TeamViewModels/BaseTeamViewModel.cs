@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Payments.Mvc.Models.TeamViewModels
@@ -33,5 +33,10 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "Contact Phone Number")]
         [Required]
         public string ContactPhoneNumber { get; set; }
+
+        [StringLength(128)]
+        [Display(Name = "WebHook API Key")]
+        [RegularExpression(@"^[a-zA-Z0-9\-._~]*$", ErrorMessage = "WebHook API Key may only contain URL-safe characters. (a-z A-Z 0-9 - . _ ~)")]
+        public string WebHookApiKey { get; set; }
     }
 }

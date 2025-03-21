@@ -70,7 +70,8 @@ namespace Payments.Mvc.Controllers
                 ContactPhoneNumber = team.ContactPhoneNumber,
                 ApiKey             = userCanEdit ? team.ApiKey : "",
                 IsActive           = team.IsActive,
-                UserCanEdit        = userCanEdit
+                UserCanEdit        = userCanEdit,
+                WebHookApiKey      = team.WebHookApiKey
             };
 
             return View(model);
@@ -96,6 +97,7 @@ namespace Payments.Mvc.Controllers
                 ContactEmail       = team.ContactEmail,
                 ContactPhoneNumber = team.ContactPhoneNumber,
                 IsActive           = team.IsActive,
+                WebHookApiKey      = team.WebHookApiKey
             };
 
             return View(model);
@@ -129,6 +131,7 @@ namespace Payments.Mvc.Controllers
             team.ContactName        = model.ContactName;
             team.ContactEmail       = model.ContactEmail;
             team.ContactPhoneNumber = model.ContactPhoneNumber;
+            team.WebHookApiKey      = model.WebHookApiKey;
 
             // only admins can change active
             if (User.IsInRole(ApplicationRoleCodes.Admin))
@@ -513,14 +516,14 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            var webHook = await _context.WebHooks
+            var webHook = await _context.WebHooks.Include(a => a.Team)
                 .SingleOrDefaultAsync(m => m.Id == id && m.TeamId == team.Id);
             if (webHook == null)
             {
                 return NotFound();
             }
 
-            await _notificationService.TestWebHook(webHook);
+            await _notificationService.TestWebHook(webHook, webHook.Team.WebHookApiKey);
 
             Message = "Test Notification Sent";
 

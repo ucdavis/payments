@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Payments.Core.Domain;
 using Shouldly;
 using TestHelpers.Helpers;
@@ -71,6 +71,11 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.RegularExpressionAttribute(\"^([a-z0-9]+[a-z0-9\\-]?)+[a-z0-9]$\", ErrorMessage = \"Slug may only contain lowercase alphanumeric characters or single hyphens, and cannot begin or end with a hyphen\")]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)40, MinimumLength = 3, ErrorMessage = \"Slug must be between 3 and 40 characters\")]",
+            }));
+            expectedFields.Add(new NameAndType("WebHookApiKey", "System.String", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
             }));
             expectedFields.Add(new NameAndType("WebHooks", "System.Collections.Generic.IList`1[Payments.Core.Domain.WebHook]", new List<string>
             {

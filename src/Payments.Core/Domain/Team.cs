@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -65,7 +65,11 @@ namespace Payments.Core.Domain
 
         [JsonIgnore]
         public string ApiKey { get; set; }
-        
+
+        [JsonIgnore]
+        [StringLength(128)]
+        public string WebHookApiKey { get; set; }
+
         [NotMapped]
         public FinancialAccount DefaultAccount {
             get {

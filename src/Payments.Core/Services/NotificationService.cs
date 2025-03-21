@@ -20,7 +20,7 @@ namespace Payments.Core.Services
 
         Task SendReconcileNotification(ReconcileNotification notification);
 
-        Task TestWebHook(WebHook webHook);
+        Task TestWebHook(WebHook webHook, string webHookApiKey);
     }
 
     public class NotificationService : INotificationService
@@ -54,7 +54,7 @@ namespace Payments.Core.Services
             };
             foreach (var webHook in hooks)
             {
-                await SendWebHookPayload(webHook, payload);
+                await SendWebHookPayload(webHook, payload, invoice.Team.WebHookApiKey);
             }
         }
 
@@ -62,6 +62,8 @@ namespace Payments.Core.Services
         {
             // find invoice
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Team)
+                    .ThenInclude(t => t.WebHooks)
                 .FirstOrDefaultAsync(i => i.Id == notification.InvoiceId);
 
             if (invoice == null)
@@ -77,21 +79,21 @@ namespace Payments.Core.Services
             };
             foreach (var webHook in hooks)
             {
-                await SendWebHookPayload(webHook, payload);
+                await SendWebHookPayload(webHook, payload, invoice.Team.WebHookApiKey);
             }
         }
 
-        public async Task TestWebHook(WebHook webHook)
+        public async Task TestWebHook(WebHook webHook, string webHookApiKey)
         {
             var payload = new TestPayload()
             {
                 HookId = webHook.Id,
                 HookActive = webHook.IsActive,
             };
-            await SendWebHookPayload(webHook, payload);
+            await SendWebHookPayload(webHook, payload, webHookApiKey);
         }
 
-        private async Task SendWebHookPayload(WebHook webHook, WebhookPayload payload)
+        private async Task SendWebHookPayload(WebHook webHook, WebhookPayload payload, string webhookApiKey)
         {
             using (var client = new HttpClient())
             {
@@ -99,6 +101,11 @@ namespace Payments.Core.Services
 
                 using (var body = new StringContent(data, Encoding.UTF8, "application/json"))
                 {
+                    if (!string.IsNullOrEmpty(webhookApiKey))
+                    {
+                        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("ApiKey", webhookApiKey);
+                    }
+
                     var response = await client.PostAsync(webHook.Url, body);
 
                     Log.ForContext("webhook", webHook, true)
