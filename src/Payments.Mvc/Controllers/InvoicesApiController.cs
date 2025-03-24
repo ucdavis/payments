@@ -51,7 +51,70 @@ namespace Payments.Mvc.Controllers
 
             return invoice;
         }
-        
+
+
+        /// <summary>
+        /// Mark Invoice as Deleted.
+        /// Invoice must be in the drafted state or not paid or refunded
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Invoice</returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(Invoice), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<Invoice>> Delete(int id)
+        {
+            var team = await GetAuthorizedTeam();
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Attachments)
+                .Include(i => i.Team)
+                .Where(i => i.Team.Id == team.Id)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            if (invoice.Deleted || invoice.Status == Invoice.StatusCodes.Deleted)
+            {
+                return BadRequest(new { errorMessage = "Invoice already deleted." });
+            }
+
+            if (invoice.Status != Invoice.StatusCodes.Draft)
+            {
+                if (invoice.Paid || invoice.Refunded)
+                {
+                    return BadRequest(new { errorMessage = "Invoice not in a state that can be deleted." });
+                }
+            }
+
+            // mark as deleted
+            invoice.Status = Invoice.StatusCodes.Deleted;
+            invoice.Deleted = true;
+            invoice.DeletedAt = DateTime.UtcNow;
+
+            // remove links
+            invoice.Sent = false;
+            invoice.SentAt = null;
+            invoice.LinkId = null;
+
+            //record action
+            var action = new History()
+            {
+                Type = HistoryActionTypes.InvoiceDeleted.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = "API",
+            };
+            invoice.History.Add(action);
+
+            await _dbContext.SaveChangesAsync();
+
+            return invoice;
+        }
+
         /// <summary>
         /// Create invoice
         /// </summary>
@@ -286,5 +349,8 @@ namespace Payments.Mvc.Controllers
                 identifier,
             });
         }
+
+       
+
     }
 }
