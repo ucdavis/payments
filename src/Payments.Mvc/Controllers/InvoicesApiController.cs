@@ -60,16 +60,13 @@ namespace Payments.Mvc.Controllers
         /// <param name="id"></param>
         /// <returns>Invoice</returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(Invoice), 200)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<Invoice>> Delete(int id)
         {
             var team = await GetAuthorizedTeam();
             var invoice = await _dbContext.Invoices
-                .Include(i => i.Items)
-                .Include(i => i.Attachments)
-                .Include(i => i.Team)
                 .Where(i => i.Team.Id == team.Id)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -112,7 +109,7 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return invoice;
+            return Ok();
         }
 
         /// <summary>
