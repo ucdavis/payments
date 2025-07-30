@@ -272,6 +272,7 @@ namespace Payments.Mvc
                 c.AllowScripts
                     .FromSelf()
                     .From("https://cdnjs.cloudflare.com")
+                    .From("https://speedcf.cloudflareaccess.com")
                     .From("https://cdn.jsdelivr.net")
                     .From("https://cdn.datatables.net")
                     .From("https://code.jquery.com")
@@ -298,6 +299,7 @@ namespace Payments.Mvc
                     .From("https://use.fontawesome.com")
                     .From("https://cdn.datatables.net")
                     .From("https://cdnjs.cloudflare.com")
+                    .From("https://speedcf.cloudflareaccess.com")
                     .From("https://cdn.jsdelivr.net");
                 
 
