@@ -312,9 +312,10 @@ namespace Payments.Mvc
                         .AllowUnsafeInline()
                         .AllowUnsafeEval();
 
-                    // allow HMR connections
+                    // allow HMR connections and Browser Link
                     c.AllowConnections
-                        .To("wss://localhost:*");
+                        .To("wss://localhost:*")
+                        .To("http://localhost:*"); // Allow Visual Studio Browser Link
                 }
                 else
                 {
