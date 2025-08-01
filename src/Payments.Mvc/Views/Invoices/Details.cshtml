@@ -48,14 +48,14 @@
 
         @if (Model.Status == Invoice.StatusCodes.Draft)
         {
-            <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">
+            <button class="btn-plain" data-bs-toggle="modal" data-target="#deleteDraftModal">
                 <i class="far fa-trash-alt text-danger"></i>
                 Delete draft
             </button>
         }
         else if (!Model.Paid && !Model.Refunded)
         {
-            <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">
+            <button class="btn-plain" data-bs-toggle="modal" data-target="#deleteDraftModal">
                 <i class="far fa-trash-alt text-danger"></i>
                 Delete
             </button>
@@ -77,14 +77,14 @@
 
             if (!Model.Sent)
             {
-                <a href="#" id="sendInvoiceButton" class="btn" data-toggle="modal" data-target="#sendInvoiceModal" data-action="send">
+                <a href="#" id="sendInvoiceButton" class="btn" data-bs-toggle="modal" data-target="#sendInvoiceModal" data-action="send">
                     <i class="far fa-envelope mr-3"></i>
                     Send
                 </a>
             }
             else
             {
-                <a href="#" id="sendInvoiceButton" class="btn" data-toggle="modal" data-target="#sendInvoiceModal" data-action="resend">
+                <a href="#" id="sendInvoiceButton" class="btn" data-bs-toggle="modal" data-target="#sendInvoiceModal" data-action="resend">
                     <i class="far fa-envelope mr-3"></i>
                     Resend
                 </a>
@@ -98,7 +98,7 @@
                 ? "#markPaidModal"
                 : "#markPaidNoPermissionModal";
 
-            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+            <button class="btn" data-bs-toggle="modal" data-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Mark as paid
             </button>
@@ -109,7 +109,7 @@
                 ? "#setBackPaidModal"
                 : "#setBackPaidNoPermissionModal";
 
-            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+            <button class="btn" data-bs-toggle="modal" data-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Set Back to Paid
             </button>
@@ -120,7 +120,7 @@
                 ? "#cancelRefundRequestModal"
                 : "#cancelRefundRequestNoPermissionModal";
 
-            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+            <button class="btn" data-bs-toggle="modal" data-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Cancel Refund Request
             </button>
@@ -187,7 +187,7 @@
                 }
                 else
                 {
-                    <button class="btn" data-toggle="modal" data-target="#editLockedInvoiceModal">
+                    <button class="btn" data-bs-toggle="modal" data-target="#editLockedInvoiceModal">
                         <i class="far fa-edit mr-3"></i>
                         Edit
                     </button>
@@ -469,7 +469,7 @@
             else if (!Model.Refunded)
             {
                 <div>
-                    <button class="btn" data-toggle="modal" data-target="#refundModal">
+                    <button class="btn" data-bs-toggle="modal" data-target="#refundModal">
                         <i class="fas fa-hand-holding-usd mr-3"></i>
                         Request Refund
                     </button>
