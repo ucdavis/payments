@@ -13,7 +13,7 @@ body {
 
 a {
   color: $a-link;
-
+  text-decoration: none;
   &:hover {
     color: $primary-color;
   }
@@ -91,7 +91,7 @@ div {
   }
 
   footer & {
-    color: rgba(255, 255, 255, .95);
+    color: rgba(255, 255, 255, 0.95);
     font-size: 0.8rem;
     font-family: $sans-bold;
   }
@@ -112,7 +112,6 @@ div {
     text-align: center;
     margin: 5px 10px;
   }
-
 }
 
 h1,

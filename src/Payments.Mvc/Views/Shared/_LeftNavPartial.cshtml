@@ -87,8 +87,11 @@
             if (string.Equals("invoices", controller, StringComparison.OrdinalIgnoreCase)
                 || string.Equals("coupons", controller, StringComparison.OrdinalIgnoreCase))
             {
-                <a class="" asp-controller="Coupons" asp-action="Index">
+                <a class="nav-coupons" asp-controller="Coupons" asp-action="Index">
                     <div class="nav-item subnav">
+                        <div class="svgwrapper">
+                            @Html.InlineSvg("/wwwroot/media/navicons/coupons.svg")
+                        </div>
                         <span class="nav-text">Coupons</span>
                     </div>
                 </a>

@@ -1,50 +1,49 @@
 ul.main-nav {
   list-style: none;
   font-family: $sans-bold;
-  margin-left:0px;
-  padding-left:0px;
+  margin-left: 0px;
+  padding-left: 0px;
   li {
-    padding:2px 0px;
+    padding: 2px 0px;
     a {
-      font-size:1.1rem;
-      color:$primary-font;
+      font-size: 1.1rem;
+      color: $primary-font;
       img {
-        margin-right:12px;
-        margin-bottom:3px;
+        margin-right: 12px;
+        margin-bottom: 3px;
       }
       &:hover {
-        color:$primary-color;
+        color: $primary-color;
         @include fader;
       }
     }
   }
-
 }
 nav {
   margin-top: 1rem;
-  margin-bottom:0.5rem;
+  margin-bottom: 0.5rem;
   display: flex;
   flex-direction: row;
   justify-content: start;
 
   .nav-item {
-    padding:8px 0px;
+    padding: 8px 0px;
     display: flex;
     justify-content: start;
   }
 
   .nav-text {
-    color:$secondary-font;
+    color: $secondary-font;
     font-size: 1.1rem;
     font-family: $sans-bold;
 
     &:hover {
-      color:$primary-font;
+      color: $primary-font;
     }
   }
-  
+
   .svgwrapper {
-    margin-right:18px;
+    margin-right: 18px;
     width: 40px;
     display: flex;
     justify-content: center;
@@ -52,28 +51,14 @@ nav {
 
   .subnav {
     // svg size and margin
-    margin-left: 40px  + 18px;
-  
+    margin-left: 16px;
+
     .nav-text {
       font-size: 1rem;
     }
   }
 }
-// g#home-secondary, g#settings-primary {
-//   fill:$bg-color;
-// }
-// g#home-primary, g#support-primary, g#settings-secondary, g#logout-primary {
-//   // fill:lighten( $tertiary-color,25% );
-//   fill:#A0A1A2;
-// }
-// g#invoices-secondary, g#support-secondary, g#logout-secondary {
-//   // fill:lighten( $tertiary-color,15% );
-//   fill:#A0A1A2;
-// }
-//  g#invoices-tertiary, g#support-tertiary, g#settings-tertiary, g#logout-tertiary {
-//   // fill:lighten( $tertiary-color,5% );
-//   fill:#A0A1A2;
-// }
+
 g#home-tertiary,
 g#invoices-secondary,
 g#invoices-tertiary,
@@ -85,7 +70,7 @@ g#system-secondary,
 g#system-tertiary,
 g#logout-secondary,
 g#logout-tertiary {
-  fill:#BBBBBB;
+  fill: #bbbbbb;
 }
 g#home-primary,
 g#invoices-primary,
@@ -95,66 +80,54 @@ g#settings-secondary,
 g#settings-primary,
 g#system-primary,
 g#logout-primary {
- fill:#979797;
+  fill: #979797;
 }
 g#settings-secondary {
-  fill:$bg-color;
+  fill: $bg-color;
 }
 a.nav-home:hover {
   g#home-primary {
-    fill:$primary-color;
+    fill: $primary-color;
   }
-  // g#house-secondary {
-  //   fill:$tertiary-font;
-  // }
 }
 a.nav-invoices:hover {
   g#invoices-primary {
-    fill:$primary-color;
+    fill: $primary-color;
   }
-  // g#invoices-secondary {
-  //   fill:$tertiary-font;
-  // }
 }
 
 a.nav-reports:hover {
   g#reports-primary {
-    fill:$primary-color;
+    fill: $primary-color;
   }
-  // g#invoices-secondary {
-  //   fill:$tertiary-font;
-  // }
 }
 
 a.nav-support:hover {
   g#support-primary {
-    fill:$primary-color;
+    fill: $primary-color;
   }
-  // g#support-secondary {
-  //   fill:$tertiary-font;
-  // }
+}
+
+.nav-coupons:hover {
+  #coupons-primary {
+    fill: $primary-color;
+  }
 }
 
 a.nav-settings:hover {
   g#settings-primary {
-    fill:$primary-color;
+    fill: $primary-color;
   }
-  // g#settings-secondary {
-  //   fill:$tertiary-font;
-  // }
 }
 
 a.nav-system:hover {
   g#system-primary {
-    fill:$primary-color;
+    fill: $primary-color;
   }
 }
 
 button.nav-logout:hover {
   g#logout-primary {
-    fill:$primary-color;
+    fill: $primary-color;
   }
-  // g#nuke-secondary {
-  //   fill:$tertiary-font;
-  // }
 }
