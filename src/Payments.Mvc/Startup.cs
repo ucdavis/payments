@@ -272,6 +272,7 @@ namespace Payments.Mvc
                 c.AllowScripts
                     .FromSelf()
                     .From("https://cdnjs.cloudflare.com")
+                    .From("https://speedcf.cloudflareaccess.com")
                     .From("https://cdn.jsdelivr.net")
                     .From("https://cdn.datatables.net")
                     .From("https://code.jquery.com")
@@ -298,6 +299,7 @@ namespace Payments.Mvc
                     .From("https://use.fontawesome.com")
                     .From("https://cdn.datatables.net")
                     .From("https://cdnjs.cloudflare.com")
+                    .From("https://speedcf.cloudflareaccess.com")
                     .From("https://cdn.jsdelivr.net");
                 
 
@@ -312,9 +314,10 @@ namespace Payments.Mvc
                         .AllowUnsafeInline()
                         .AllowUnsafeEval();
 
-                    // allow HMR connections
+                    // allow HMR connections and Browser Link
                     c.AllowConnections
-                        .To("wss://localhost:*");
+                        .To("wss://localhost:*")
+                        .To("http://localhost:*"); // Allow Visual Studio Browser Link
                 }
                 else
                 {
