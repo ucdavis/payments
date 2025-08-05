@@ -21,10 +21,10 @@
         <div class="card-header-primary card-bot-border">
             <div class="card-header">
                 <div class="search-header d-flex justify-content-start align-items-center">
-                    <div class="svgwrapper mr-3">
+                    <div class="svgwrapper me-3">
                         @Html.InlineSvg("/wwwroot/media/navicons/invoices.svg")
                     </div>
-                    <h3 class="mr-3">Invoices</h3>
+                    <h3 class="me-3">Invoices</h3>
                     <span class="count">@Model.Invoices.Count</span>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                                 </div>
                             </a>
                         </td>
-                        <td class="text-center invoices-status-col">
+                        <td class="invoices-status-col">
                             <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
                                 <div>
                                     <span class="badge @Invoice.StatusCodes.GetBadgeClass(invoice.Status)" data-level="@invoice.Status">@invoice.Status</span>
@@ -90,7 +90,7 @@
                         </td>
                         <td class="invoices-edit-btn-col text-center">
                             <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id" class="btn">
-                                <div>View <i class="fas fa-external-link-alt ml-3"></i></div>
+                                <div>View</div>
                             </a>
                         </td>
                     </tr>

@@ -11,7 +11,7 @@
 <div class="card">
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
-        <a asp-action="Create" class="btn"><i class="far fa-plus-square mr-3"></i> Create New Invoice</a>
+        <a asp-action="Create" class="btn"><i class="far fa-plus-square me-3"></i> Create New Invoice</a>
     </div>
 
     <div class="card-body card-bot-border">
@@ -50,7 +50,7 @@
                                 </div>
                             </a>
                         </td>
-                        <td class="text-center invoices-status-col">
+                        <td class="invoices-status-col">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
                                     <span class="badge @Invoice.StatusCodes.GetBadgeClass(invoice.Status)" data-level="@invoice.Status">@invoice.Status</span>
@@ -87,7 +87,7 @@
                         </td>
                         <td class="invoices-edit-btn-col text-center">
                             <a asp-action="Details" asp-route-id="@invoice.Id" class="btn">
-                                <div>View <i class="fas fa-external-link-alt ml-3"></i></div>
+                                <div>View</div>
                             </a>
                         </td>
                     </tr>

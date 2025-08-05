@@ -85,7 +85,7 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
       <div className='text-right'>
         <strong>{coupon.name}</strong>
         <br />
-        {expired && <span className='badge text-bg-info mr-3'>Expired</span>}
+        {expired && <span className='badge text-bg-info me-3'>Expired</span>}
         {!!coupon.discountAmount && <small>${coupon.discountAmount} off</small>}
         {!!coupon.discountPercent && (
           <small>{coupon.discountPercent * 100}% off</small>

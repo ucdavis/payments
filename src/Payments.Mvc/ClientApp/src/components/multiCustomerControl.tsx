@@ -5,8 +5,7 @@ import * as ArrayUtils from '../utils/array';
 import CustomerControl from './customerControl';
 import EditCustomerModal from './editCustomerModal';
 
-const emailRegex =
-  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 const outlookRegex = /(?:"?([^"]*)"?\s)?(?:<?(.+@[^>]+)>?)/;
 
@@ -60,8 +59,8 @@ export default class MultiCustomerControl extends React.Component<
           type='button'
           onClick={this.enableMultiCustomer}
         >
-          <i className='fas fa-plus mr-3' />
-          <i className='fas fa-users mr-3' />
+          <i className='fas fa-plus me-3' />
+          <i className='fas fa-users me-3' />
           Bill Multiple Customers
         </button>
       );
@@ -192,9 +191,9 @@ export default class MultiCustomerControl extends React.Component<
   };
 
   private updateProperty = (name: any, value: any) => {
-    this.setState({
+    this.setState(({
       [name]: value
-    } as unknown as IState);
+    } as unknown) as IState);
   };
 
   private updateCustomerList = (value: string) => {
