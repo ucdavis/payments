@@ -7,119 +7,111 @@ import { InvoiceDiscount } from '../models/InvoiceDiscount';
 
 import CouponSelectControl from './couponSelectControl';
 import CurrencyControl from './currencyControl';
- 
+
 interface IProps {
-    coupons: Coupon[];
-    discount: InvoiceDiscount;
-    onChange: (value: InvoiceDiscount) => void;
+  coupons: Coupon[];
+  discount: InvoiceDiscount;
+  onChange: (value: InvoiceDiscount) => void;
 }
 
 interface IState {
-    isModalOpen: boolean
+  isModalOpen: boolean;
 }
 
 export default class DiscountInput extends React.PureComponent<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
 
-    constructor(props: IProps) {
-        super(props);
+    this.state = {
+      isModalOpen: false
+    };
+  }
 
-        this.state = {
-            isModalOpen: false,
-        };
+  public render() {
+    const { coupons, discount } = this.props;
+    const { isModalOpen } = this.state;
+
+    return (
+      <div>
+        {this.renderControl()}
+        <CouponSelectControl
+          isModalOpen={isModalOpen}
+          onClose={this.closeModal}
+          onChange={this.onChange}
+          coupons={coupons}
+          value={discount}
+        />
+      </div>
+    );
+  }
+
+  private renderControl() {
+    const { coupons, discount } = this.props;
+
+    if (!discount.hasDiscount) {
+      return (
+        <button className='btn-plain primary-color' onClick={this.openModal}>
+          <i className='fas fa-plus mr-2' /> Add coupon
+        </button>
+      );
     }
 
-    public render() {
-        const { coupons, discount } = this.props;
-        const { isModalOpen } = this.state;
-
-        return (
-            <div>
-                { this.renderControl() }
-                <CouponSelectControl
-                    isModalOpen={isModalOpen}
-                    onClose={this.closeModal}
-                    onChange={this.onChange}
-                    coupons={coupons}
-                    value={discount}
-                />
-            </div>
-
-        )
+    // not using a coupon
+    if (!discount.couponId) {
+      return (
+        <div className='input-group'>
+          <div className='input-group-prepend'>
+            <span className='input-group-text'>
+              <i className='fas fa-dollar-sign' />
+            </span>
+          </div>
+          <CurrencyControl
+            value={discount.maunalAmount}
+            onChange={this.onManualAmountChange}
+          />
+        </div>
+      );
     }
 
-    private renderControl() {
-        const { coupons, discount } = this.props;
-
-        if (!discount.hasDiscount) {
-            return (
-                <button className="btn-plain primary-color" onClick={this.openModal}>
-                    <i className="fas fa-plus mr-2" /> Add coupon
-                </button>
-            );
-        }
-
-        // not using a coupon
-        if (!discount.couponId) {
-            return (
-                <div className="input-group">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">
-                            <i className="fas fa-dollar-sign" />
-                        </span>
-                    </div>
-                    <CurrencyControl
-                        value={discount.maunalAmount}
-                        onChange={this.onManualAmountChange}
-                    />
-                </div>
-            );
-        }
-
-        // find coupon
-        const coupon = coupons.find(c => c.id === discount.couponId);
-        if (!coupon) {
-            return null;
-        }
-
-        const expired = !!coupon.expiresAt && isAfter(new Date(), coupon.expiresAt)
-
-        return (
-            <div className="text-right">
-                <strong>{coupon.name}</strong><br />
-                {
-                    (expired) &&
-                    <span className="badge badge-info mr-3">Expired</span>
-                }
-                { 
-                    (!!coupon.discountAmount) &&
-                    <small>${coupon.discountAmount} off</small>
-                }
-                { 
-                    (!!coupon.discountPercent) && 
-                    <small>{coupon.discountPercent * 100}% off</small>
-                }
-            </div>
-        )
+    // find coupon
+    const coupon = coupons.find(c => c.id === discount.couponId);
+    if (!coupon) {
+      return null;
     }
 
-    private openModal = () => {
-        this.setState({ isModalOpen: true });
-    }
+    const expired = !!coupon.expiresAt && isAfter(new Date(), coupon.expiresAt);
 
-    private closeModal = () => {
-        this.setState({ isModalOpen: false });
-    }
+    return (
+      <div className='text-right'>
+        <strong>{coupon.name}</strong>
+        <br />
+        {expired && <span className='badge text-bg-info mr-3'>Expired</span>}
+        {!!coupon.discountAmount && <small>${coupon.discountAmount} off</small>}
+        {!!coupon.discountPercent && (
+          <small>{coupon.discountPercent * 100}% off</small>
+        )}
+      </div>
+    );
+  }
 
-    private onChange = (value: InvoiceDiscount) => {
-        this.props.onChange(value);
-    }
+  private openModal = () => {
+    this.setState({ isModalOpen: true });
+  };
 
-    private onManualAmountChange = (value: number) => {
-        this.onChange({
-            coupon: null,
-            couponId: null,
-            hasDiscount: true,
-            maunalAmount: value,
-        })
-    }
+  private closeModal = () => {
+    this.setState({ isModalOpen: false });
+  };
+
+  private onChange = (value: InvoiceDiscount) => {
+    this.props.onChange(value);
+  };
+
+  private onManualAmountChange = (value: number) => {
+    this.onChange({
+      coupon: null,
+      couponId: null,
+      hasDiscount: true,
+      maunalAmount: value
+    });
+  };
 }

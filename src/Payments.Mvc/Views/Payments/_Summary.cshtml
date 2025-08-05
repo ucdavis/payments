@@ -47,7 +47,7 @@
                     <td>
                         @if (Model.Coupon != null)
                         {
-                            <small class="badge badge-secondary text-mono">@Model.Coupon.Code</small><br />
+                            <small class="badge text-bg-secondary text-mono">@Model.Coupon.Code</small><br />
                             if (Model.Coupon.DiscountAmount.HasValue)
                             {
                                 <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>

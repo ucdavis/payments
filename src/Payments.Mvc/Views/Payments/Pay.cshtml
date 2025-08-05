@@ -97,7 +97,7 @@
                         </div>
                         <div class="modal-body d-flex flex-column justify-content-center">
                             <span>@Model.Coupon.Name</span><br />
-                            <small class="badge badge-secondary text-mono">@Model.Coupon.Code</small><br />
+                            <small class="badge text-bg-secondary text-mono">@Model.Coupon.Code</small><br />
                             @if (Model.Coupon.DiscountAmount.HasValue)
                             {
                             <small>@Model.Coupon.DiscountAmount.Value.ToString("C") off</small>
