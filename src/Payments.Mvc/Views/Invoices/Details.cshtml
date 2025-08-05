@@ -43,7 +43,7 @@
     <div class="card-header card-header-yellow d-flex justify-content-between">
         <div class="d-flex align-items-center">
             <h2 class="m0">@ViewBag.Title for @Model.CalculatedTotal.ToString("C")</h2>
-            <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
+            <span class="ms-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
         </div>
 
         @if (Model.Status == Invoice.StatusCodes.Draft)
@@ -442,7 +442,7 @@
                     @{
                         var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
                     }
-                    <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ml-3"></i></a>
+                    <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
                 </dd>
             </dl>
         }

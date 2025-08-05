@@ -103,7 +103,7 @@ export default class CouponSelectControl extends React.Component<
                 type='button'
                 onClick={this.modalSetAmount}
               >
-                Set Discount Amount <i className='fas fa-fw fa-check ml-3' />
+                Set Discount Amount <i className='fas fa-fw fa-check ms-3' />
               </button>
             </div>
           </div>
