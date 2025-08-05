@@ -194,7 +194,7 @@ export default class CreateInvoiceContainer extends React.Component<
                 Save and close
               </button>
               <button className='btn' onClick={this.openSendModal}>
-                Send ...
+                Send
               </button>
               {this.renderSendModal()}
             </div>

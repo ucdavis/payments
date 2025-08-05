@@ -88,16 +88,14 @@ export default class CouponSelectControl extends React.Component<
         <div className='modal-body'>
           <label>Or manually set a discount:</label>
           <div className='input-group'>
-            <div className='input-group-prepend'>
-              <span className='input-group-text'>
-                <i className='fas fa-dollar-sign' />
-              </span>
+            <div className='input-group-text'>
+              <i className='fas fa-dollar-sign' />
             </div>
             <CurrencyControl
               value={manualAmount}
               onChange={this.onAmountChange}
             />
-            <div className='input-group-append'>
+            <div className='input-group-text'>
               <button
                 className='btn'
                 type='button'

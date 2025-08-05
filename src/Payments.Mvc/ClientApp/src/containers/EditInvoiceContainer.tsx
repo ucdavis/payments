@@ -204,7 +204,7 @@ export default class EditInvoiceContainer extends React.Component<
               </button>
               {!sent && (
                 <button className='btn' onClick={this.openSendModal}>
-                  Send ...
+                  Send
                 </button>
               )}
               {!sent && this.renderSendModal()}

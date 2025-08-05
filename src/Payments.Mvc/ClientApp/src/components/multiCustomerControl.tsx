@@ -137,7 +137,7 @@ export default class MultiCustomerControl extends React.Component<
           value={text}
           readOnly={true}
         />
-        <div className='input-group-append'>
+        <div className='input-group-text'>
           <button className='btn' onClick={() => this.editCustomer(customer)}>
             <i className='far fa-fw fa-edit' />
           </button>
