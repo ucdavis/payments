@@ -12,34 +12,24 @@ body {
 
 #logoContainer svg,
 #logoContainer img {
-    height: 32px;
-    fill: #dbbc5b;
+  height: 32px;
+  fill: #dbbc5b;
 }
 
 .container {
-    padding: 0;
-    width: 98%;
+  padding: 16px;
+  width: 98%;
+  max-width: 1440px;
+
+  @include breakpoint(md) {
+    width: 94%;
     max-width: 1440px;
+  }
 
-    @include breakpoint (sm) {
-        width: 96%;
-        max-width: 1440px;
-    }
-
-    @include breakpoint (md) {
-        width: 92%;
-        max-width: 1440px;
-    }
-
-    @include breakpoint(lg) {
-        width: 90%;
-        max-width: 1440px;
-    }
-
-    @include breakpoint(xl) {
-        width: 80%;
-        max-width: 1440px;
-    }    
+  @include breakpoint(lg) {
+    width: 92%;
+    max-width: 1440px;
+  }
 }
 
 .logo {
@@ -64,7 +54,7 @@ body {
 
   button {
     border: none;
-    background-color: rgba(255, 255, 255, .001);
+    background-color: rgba(255, 255, 255, 0.001);
   }
 }
 
@@ -120,15 +110,33 @@ body {
   margin-bottom: 1.6rem;
 
   .card-gradient-header {
-    background: url("/media/gradient-header.svg") center top/cover no-repeat;
+    background: url('/media/gradient-header.svg') center top/cover no-repeat;
     height: 6px;
   }
 
   .card-gradient-header-bleed {
     background: #1e3a5b;
-    background: -moz-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
-    background: -webkit-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
-    background: linear-gradient(to right, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+    background: -moz-linear-gradient(
+      left,
+      #1e3a5b 0%,
+      #1e3a5b 44%,
+      #dbbc5b 57%,
+      #dbbc5b 100%
+    );
+    background: -webkit-linear-gradient(
+      left,
+      #1e3a5b 0%,
+      #1e3a5b 44%,
+      #dbbc5b 57%,
+      #dbbc5b 100%
+    );
+    background: linear-gradient(
+      to right,
+      #1e3a5b 0%,
+      #1e3a5b 44%,
+      #dbbc5b 57%,
+      #dbbc5b 100%
+    );
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one', endColorstr='$gradient-two', GradientType=1);
   }
 
@@ -142,7 +150,7 @@ body {
 
   .card-header {
     background-color: #ffffff;
-
+    border-radius: 0;
     h2 {
       font-size: 1.6rem;
       margin-bottom: 0;
@@ -168,7 +176,6 @@ body {
     // }
 
     & > table {
-
     }
   }
 
@@ -187,14 +194,32 @@ footer {
 
 .footer_bleed {
   background: #1e3a5b;
-  background: -moz-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
-  background: -webkit-linear-gradient(left, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
-  background: linear-gradient(to right, #1e3a5b 0%, #1e3a5b 44%, #dbbc5b 57%, #dbbc5b 100%);
+  background: -moz-linear-gradient(
+    left,
+    #1e3a5b 0%,
+    #1e3a5b 44%,
+    #dbbc5b 57%,
+    #dbbc5b 100%
+  );
+  background: -webkit-linear-gradient(
+    left,
+    #1e3a5b 0%,
+    #1e3a5b 44%,
+    #dbbc5b 57%,
+    #dbbc5b 100%
+  );
+  background: linear-gradient(
+    to right,
+    #1e3a5b 0%,
+    #1e3a5b 44%,
+    #dbbc5b 57%,
+    #dbbc5b 100%
+  );
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one', endColorstr='$gradient-two', GradientType=1);
 }
 
 .footer_divider {
-  background: url("/media/gunrock_banner_final.svg") center top/cover no-repeat;
+  background: url('/media/gunrock_banner_final.svg') center top/cover no-repeat;
   height: 44px;
   padding-top: 10px;
 }

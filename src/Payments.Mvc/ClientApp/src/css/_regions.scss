@@ -4,7 +4,6 @@
   flex-direction: row;
   align-items: center;
   padding: 0.5rem 1rem;
-
   h2 {
     font-size: 1.5rem;
   }
@@ -15,6 +14,9 @@
 
     width: 40px;
   }
+  &:hover {
+    background-color: transparentize($primary-color, 0.99);
+  }
 }
 
 table.table {
@@ -22,7 +24,7 @@ table.table {
     vertical-align: inherit;
   }
 
-  tbody+tbody {
+  tbody + tbody {
     border: none;
   }
 }
@@ -38,7 +40,6 @@ table.invoice-table {
 
   thead {
     th {
-
       border: none;
       padding: 0px;
       padding-top: 8px;
@@ -233,7 +234,6 @@ table.invoice-details-table {
   tbody.invoice-details-table-subtotals {
     tr {
       td {
-
         &:nth-child(3),
         &:nth-child(5) {
           color: $primary-font;
@@ -258,12 +258,11 @@ table.invoice-details-table {
     }
 
     tr:last-child {
-      td {}
+      td {
+      }
     }
   }
 }
-
-
 
 // invoice table
 table#Invoices {
@@ -304,7 +303,6 @@ table#Invoices {
 }
 
 .account-details-modal {
-
   .modal-header {
     background-color: $bg-color;
 
@@ -317,16 +315,18 @@ table#Invoices {
   .modal-body {
     background-color: $bg-color;
 
-    .account-name {}
+    .account-name {
+    }
 
-    .account-description {}
+    .account-description {
+    }
 
     &:hover {
       background-color: darken($bg-color, 5%);
     }
   }
 
-  .modal-body+.modal-body {
+  .modal-body + .modal-body {
     border-top: 1px solid $borders;
   }
 }
@@ -342,7 +342,7 @@ table#Invoices {
     transition: height 1s ease;
   }
 
-  .modal-body+.modal-body {
+  .modal-body + .modal-body {
     border-top: 1px solid $borders;
   }
 }
@@ -355,19 +355,19 @@ table#Invoices {
 }
 
 .invoice-attachments {
-  .invoice-attachment {}
+  .invoice-attachment {
+  }
 }
 
 // invoice details page
 .history-timeline {
-
   padding: 0;
 
   .history-item {
     padding: 0.75rem 0.5rem;
   }
 
-  .history-item+.history-item {
+  .history-item + .history-item {
     border-top: 1px solid $borders;
   }
 
@@ -377,7 +377,6 @@ table#Invoices {
 }
 
 .search-results {
-
   .search-header {
     .svgwrapper svg {
       width: 20px;
@@ -397,7 +396,6 @@ table#Invoices {
     padding: 0;
 
     table {
-
       th:first-child,
       td:first-child {
         padding-left: 1.5rem;
@@ -421,6 +419,5 @@ table#Invoices {
   }
 
   .card-body {
-
   }
 }
