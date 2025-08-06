@@ -1,48 +1,48 @@
 // fonts
 @font-face {
-    font-family: 'proxima-nova-r';
-    src: url('../media/fonts/proximanova-regular-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'proxima-nova-r';
+  src: url('../media/fonts/proximanova-regular-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 @font-face {
-    font-family: 'proxima-nova-i';
-    src: url('../media/fonts/proximanova-regularit-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'proxima-nova-i';
+  src: url('../media/fonts/proximanova-regularit-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 @font-face {
-    font-family: 'proxima-nova-b';
-    src: url('../media/fonts/proximanova-bold-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'proxima-nova-b';
+  src: url('../media/fonts/proximanova-bold-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
-$sans-italic:   "proxima-nova-i",serif;
-$sans-bold:     "proxima-nova-b",serif;
-$sans-reg:      "proxima-nova-r",serif;
+$sans-italic: 'proxima-nova-i', serif;
+$sans-bold: 'proxima-nova-b', serif;
+$sans-reg: 'proxima-nova-r', serif;
 
-$primary-color:     #1D4A83;
-$secondary-color:   #DAAA00;
-$tertiary-color:    #009493;
+$primary-color: #1d4a83;
+$secondary-color: #daaa00;
+$tertiary-color: #009493;
 
-$gold:              #DAAA00;
-$blue:              #004987;
+$gold: #daaa00;
+$blue: #004987;
 
-$a-link:            transparentize($primary-color, .2);
+$a-link: transparentize($primary-color, 0.2);
 
-$primary-font: rgba(31,31,31,.99); //
-$secondary-font: rgba(31,31,31,.75); //
-$tertiary-font: rgba(31,31,31,.40); //
+$primary-font: rgba(31, 31, 31, 0.99); //
+$secondary-font: rgba(31, 31, 31, 0.75); //
+$tertiary-font: rgba(31, 31, 31, 0.4); //
 
-$box-shadow: 0 0 0 1px rgba(49,49,93,.03), 0 2px 5px 0 rgba(49,49,93,.1), 0 1px 2px 0 rgba(0,0,0,.08);
+$box-shadow: 0 0 0 1px rgba(49, 49, 93, 0.03), 0 2px 5px 0 rgba(49, 49, 93, 0.1),
+  0 1px 2px 0 rgba(0, 0, 0, 0.08);
 
-$bg-color: #F8F9FB; // background
-$borders: #E8E9ED; // border color
+$bg-color: #f8f9fb; // background
+$borders: #e8e9ed; // border color
 
 $nav-active: #fff;
 $nav-secondary: $secondary-font;
-
 
 // UC Davis Colors
 // Supplemental bright color palette for UC Davis
@@ -71,50 +71,48 @@ $card-padding: 1.25rem;
 $card-thick-padding: 2rem;
 
 @mixin breakpoint($point) {
-    @if $point==sm {
-        @media (min-width: 576px) {
-            @content ;
-        }
+  @if $point==sm {
+    @media (min-width: 576px) {
+      @content;
     }
-    @if $point==md {
-        @media (min-width: 768px) {
-            @content ;
-        }
+  }
+  @if $point==md {
+    @media (min-width: 768px) {
+      @content;
     }
-    @if $point==lg {
-        @media (min-width: 992px) {
-            @content ;
-        }
+  }
+  @if $point==lg {
+    @media (min-width: 992px) {
+      @content;
     }
-    @if $point==xl {
-        @media (min-width: 1200px) {
-            @content ;
-        }
+  }
+  @if $point==xl {
+    @media (min-width: 1200px) {
+      @content;
     }
+  }
 }
 
-
-
 @mixin fader {
-  -o-transition:.25s;
-  -ms-transition:.25s;
-  -moz-transition:.25s;
-  -webkit-transition:.25s;
+  -o-transition: 0.25s;
+  -ms-transition: 0.25s;
+  -moz-transition: 0.25s;
+  -webkit-transition: 0.25s;
   /* ...and now for the proper property */
-  transition:.25s;
+  transition: 0.25s;
 }
 
 @mixin main-btn {
   white-space: nowrap;
-//   display: inline-block;
-//   height: 40px;
-//   line-height: 40px;
-//   padding: 0 20px;
-  box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 1px 3px rgba(0,0,0,.08);
+  //   display: inline-block;
+  //   height: 40px;
+  //   line-height: 40px;
+  //   padding: 0 20px;
+  box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 1px 3px rgba(0, 0, 0, 0.08);
   background: $primary-color;
   border-radius: 2px;
-//   font-size: 1rem;
-//   letter-spacing: 0.025em;
+  //   font-size: 1rem;
+  //   letter-spacing: 0.025em;
   color: #fff !important;
   text-decoration: none;
   transition: all 0.15s ease;
@@ -127,7 +125,8 @@ $card-thick-padding: 2rem;
   &:hover {
     color: #fff !important;
     transform: translateY(-1px);
-    box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 3px 6px rgba(0,0,0,.08);
+    box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset,
+      0 3px 6px rgba(0, 0, 0, 0.08);
     background-color: lighten($primary-color, 5);
   }
 }

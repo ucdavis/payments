@@ -301,22 +301,22 @@ namespace Payments.Core.Domain
                 {
                     case Draft:
                     case Refunding:
-                        return "badge-warning";
+                        return "text-bg-warning";
 
                     case Processing:
                     case Sent:
-                        return "badge-info";
+                        return "text-bg-info";
 
                     case Completed:
                     case Paid:
-                        return "badge-success";
+                        return "text-bg-success";
 
                     case Cancelled:
-                        return "badge-danger";
+                        return "text-bg-danger";
 
                     case Refunded:
                     default:
-                        return "badge-secondary";
+                        return "text-bg-secondary";
                 }
             }
         }

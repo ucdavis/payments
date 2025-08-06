@@ -43,19 +43,19 @@
     <div class="card-header card-header-yellow d-flex justify-content-between">
         <div class="d-flex align-items-center">
             <h2 class="m0">@ViewBag.Title for @Model.CalculatedTotal.ToString("C")</h2>
-            <span class="ml-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
+            <span class="ms-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
         </div>
 
         @if (Model.Status == Invoice.StatusCodes.Draft)
         {
-            <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">
+            <button class="btn-plain" data-bs-toggle="modal" data-bs-target="#deleteDraftModal">
                 <i class="far fa-trash-alt text-danger"></i>
                 Delete draft
             </button>
         }
         else if (!Model.Paid && !Model.Refunded)
         {
-            <button class="btn-plain" data-toggle="modal" data-target="#deleteDraftModal">
+            <button class="btn-plain" data-bs-toggle="modal" data-bs-target="#deleteDraftModal">
                 <i class="far fa-trash-alt text-danger"></i>
                 Delete
             </button>
@@ -71,21 +71,21 @@
         @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
         {
             <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
-                <i class="fas fa-search mr-3"></i>
+                <i class="fas fa-search me-3"></i>
                 Preview
             </a>
 
             if (!Model.Sent)
             {
-                <a href="#" id="sendInvoiceButton" class="btn" data-toggle="modal" data-target="#sendInvoiceModal" data-action="send">
-                    <i class="far fa-envelope mr-3"></i>
+                <a href="#" id="sendInvoiceButton" class="btn" data-bs-toggle="modal" data-bs-target="#sendInvoiceModal" data-action="send">
+                    <i class="far fa-envelope me-3"></i>
                     Send
                 </a>
             }
             else
             {
-                <a href="#" id="sendInvoiceButton" class="btn" data-toggle="modal" data-target="#sendInvoiceModal" data-action="resend">
-                    <i class="far fa-envelope mr-3"></i>
+                <a href="#" id="sendInvoiceButton" class="btn" data-bs-toggle="modal" data-bs-target="#sendInvoiceModal" data-action="resend">
+                    <i class="far fa-envelope me-3"></i>
                     Resend
                 </a>
             }
@@ -98,7 +98,7 @@
                 ? "#markPaidModal"
                 : "#markPaidNoPermissionModal";
 
-            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+            <button class="btn" data-bs-toggle="modal" data-bs-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Mark as paid
             </button>
@@ -109,7 +109,7 @@
                 ? "#setBackPaidModal"
                 : "#setBackPaidNoPermissionModal";
 
-            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+            <button class="btn" data-bs-toggle="modal" data-bs-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Set Back to Paid
             </button>
@@ -120,7 +120,7 @@
                 ? "#cancelRefundRequestModal"
                 : "#cancelRefundRequestNoPermissionModal";
 
-            <button class="btn" data-toggle="modal" data-target="@modalTarget">
+            <button class="btn" data-bs-toggle="modal" data-bs-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Cancel Refund Request
             </button>
@@ -163,7 +163,7 @@
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
             {
                 <a asp-controller="Pdf" asp-action="Invoice" asp-route-id="@Model.LinkId" class="btn" download>
-                    <i class="fas fa-download mr-3"></i>
+                    <i class="fas fa-download me-3"></i>
                     Invoice
                 </a>
             }
@@ -171,7 +171,7 @@
             @if (Model.Paid)
             {
                 <a asp-controller="Pdf" asp-action="Receipt" asp-route-id="@Model.LinkId" class="btn" download>
-                    <i class="fas fa-download mr-3"></i>
+                    <i class="fas fa-download me-3"></i>
                     Receipt
                 </a>
             }
@@ -181,14 +181,14 @@
                 if (!Model.Sent)
                 {
                     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn">
-                        <i class="far fa-edit mr-3"></i>
+                        <i class="far fa-edit me-3"></i>
                         Edit
                     </a>
                 }
                 else
                 {
-                    <button class="btn" data-toggle="modal" data-target="#editLockedInvoiceModal">
-                        <i class="far fa-edit mr-3"></i>
+                    <button class="btn" data-bs-toggle="modal" data-bs-target="#editLockedInvoiceModal">
+                        <i class="far fa-edit me-3"></i>
                         Edit
                     </button>
                 }
@@ -442,7 +442,7 @@
                     @{
                         var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
                     }
-                    <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ml-3"></i></a>
+                    <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
                 </dd>
             </dl>
         }
@@ -460,7 +460,7 @@
                 <div>
                     <form asp-controller="Invoices" asp-action="Refund" asp-route-id="@Model.Id">
                         <button class="btn">
-                            <i class="fas fa-hand-holding-usd mr-3"></i>
+                            <i class="fas fa-hand-holding-usd me-3"></i>
                             Mark Refunded
                         </button>
                     </form>
@@ -469,8 +469,8 @@
             else if (!Model.Refunded)
             {
                 <div>
-                    <button class="btn" data-toggle="modal" data-target="#refundModal">
-                        <i class="fas fa-hand-holding-usd mr-3"></i>
+                    <button class="btn" data-bs-toggle="modal" data-bs-target="#refundModal">
+                        <i class="fas fa-hand-holding-usd me-3"></i>
                         Request Refund
                     </button>
                 </div>
@@ -613,7 +613,7 @@
 </div>
 
 <div>
-    <a asp-action="Index"><i class="fas fa-chevron-left mr-3"></i> Back</a>
+    <a asp-action="Index"><i class="fas fa-chevron-left me-3"></i> Back</a>
 </div>
 
 <div class="modal fade" id="sendInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="sendInvoiceModalLabel" aria-hidden="true">
