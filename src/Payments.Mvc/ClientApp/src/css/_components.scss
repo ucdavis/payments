@@ -70,6 +70,9 @@ p a.action-btn {
   &:hover {
     text-decoration: underline;
   }
+  .options-navbar &:hover {
+    text-decoration: none;
+  }
 }
 .btn {
   @include main-btn;
