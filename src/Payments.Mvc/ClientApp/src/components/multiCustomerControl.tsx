@@ -68,7 +68,7 @@ export default class MultiCustomerControl extends React.Component<
 
     return (
       <button className='btn' type='button' onClick={this.disableMultiCustomer}>
-        <i className='fas fa-user mr-2' />
+        <i className='fas fa-user me-2' />
         Bill Single Customer
       </button>
     );
