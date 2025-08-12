@@ -45,7 +45,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
         className='invoice-attachment row justify-content-between align-items-center mb-3'
       >
         <div className='col-9 d-flex align-items-center'>
-          <i className={`fa-2x mr-4 ${fileTypeIcon}`} />
+          <i className={`fa-2x me-4 ${fileTypeIcon}`} />
           <div className='input-group'>
             <input
               className='form-control'
