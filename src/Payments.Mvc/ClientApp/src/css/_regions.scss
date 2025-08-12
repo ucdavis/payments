@@ -23,7 +23,9 @@ table.table {
   td {
     vertical-align: inherit;
   }
-
+  tr {
+    vertical-align: middle;
+  }
   tbody + tbody {
     border: none;
   }
