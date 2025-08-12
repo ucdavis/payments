@@ -88,7 +88,7 @@
             @Html.InlineSvg("/wwwroot/media/logo.svg")
         </div>
         <div class="col">
-            <h1 id="invoiceNumber" class="font-weight-bold text-blue text-right">
+            <h1 id="invoiceNumber" class="font-weight-bold text-blue text-end">
                 Invoice #@Model.GetFormattedId()
             </h1>
         </div>
@@ -110,18 +110,18 @@
             {
                 <div class="row">
                     <span class="col text-label">Date Paid</span><br />
-                    <span class="col font-weight-bold text-right">@Model.PaidAt.Value.ToPacificTime().ToString("MMM dd, yyyy")</span>
+                    <span class="col font-weight-bold text-end">@Model.PaidAt.Value.ToPacificTime().ToString("MMM dd, yyyy")</span>
                 </div>
             }
             <div class="row">
                 <span class="col text-label">Total Paid</span>
-                <span class="col text-right font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
+                <span class="col text-end font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
             </div>
             @if (successfulPayment != null)
             {
                 <div class="row">
                     <span class="col text-label">Card</span>
-                    <span class="col text-right font-weight-bold text-blue">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
+                    <span class="col text-end font-weight-bold text-blue">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
                 </div>
             }
         </div>
@@ -166,9 +166,9 @@
     <tr>
         <th class="">#</th>
         <th class="">Description</th>
-        <th class="text-right">Qty</th>
-        <th class="text-right">Unit Price</th>
-        <th class="text-right">Amount</th>
+        <th class="text-end">Qty</th>
+        <th class="text-end">Unit Price</th>
+        <th class="text-end">Amount</th>
     </tr>
     </thead>
     <tbody>
@@ -178,9 +178,9 @@
         <tr class="item">
             <td>@(i + 1)</td>
             <td>@item.Description</td>
-            <td class="text-right">@item.Quantity</td>
-            <td class="text-right">$@item.Amount.ToString("F2")</td>
-            <td class="text-right">$@item.Total.ToString("F2")</td>
+            <td class="text-end">@item.Quantity</td>
+            <td class="text-end">$@item.Amount.ToString("F2")</td>
+            <td class="text-end">$@item.Total.ToString("F2")</td>
         </tr>
     }
     </tbody>
@@ -189,13 +189,13 @@
     {
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Subtotal</td>
-            <td class="text-right">$@Model.CalculatedSubtotal.ToString("F2")</td>
+            <td class="text-end text-label">Subtotal</td>
+            <td class="text-end">$@Model.CalculatedSubtotal.ToString("F2")</td>
         </tr>
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Discount (@Model.Coupon.Name)</td>
-            <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
+            <td class="text-end text-label">Discount (@Model.Coupon.Name)</td>
+            <td class="text-end">-$@Model.CalculatedDiscount.ToString("F2")</td>
         </tr>
     }
 
@@ -207,16 +207,16 @@
 
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Tax (@rateText)</td>
-            <td class="text-right">$@Model.CalculatedTaxAmount.ToString("F2")</td>
+            <td class="text-end text-label">Tax (@rateText)</td>
+            <td class="text-end">$@Model.CalculatedTaxAmount.ToString("F2")</td>
         </tr>
     }
     </tbody>
     <tbody>
     <tr class="total">
         <td class="border-0" colspan="3"></td>
-        <td class="text-right text-label border-top">Amount Paid</td>
-        <td class="text-right text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
+        <td class="text-end text-label border-top">Amount Paid</td>
+        <td class="text-end text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
     </tr>
     </tbody>
 </table>

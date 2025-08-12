@@ -64,7 +64,7 @@
                                 </div>
                             </a>
                         </td>
-                        <td class="text-right" data-sort="@invoice.CalculatedTotal">
+                        <td class="text-end" data-sort="@invoice.CalculatedTotal">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
                                     $@invoice.CalculatedTotal.ToString("F2")

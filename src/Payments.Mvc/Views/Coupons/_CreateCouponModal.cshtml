@@ -6,8 +6,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="createCouponModalLabel">Create Coupon</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -23,19 +23,19 @@
                     </div>
                     <div class="form-group">
                         <label>Discount</label>
-                        <div class="row justify-content-between align-items-baseline">
-                            <div class="input-group col-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="input-group">
                                 <div class="input-group-text">
                                     
                                         <i class="fas fa-fw fa-dollar-sign"></i>
                                    
                                 </div>
-                                <input class="form-control text-right" type="number" step="0.01" placeholder="0.00" asp-for="DiscountAmount" />
+                                <input class="form-control text-end" type="number" step="0.01" placeholder="0.00" asp-for="DiscountAmount" />
                                 <div class="invalid-feedback">Just one discount type required</div>
                             </div>
-                            <span class=""> - OR - </span>
-                            <div class="input-group col-5">
-                                <input class="form-control text-right" type="number" step="0.001" placeholder="0.00" asp-for="DiscountPercent" />
+                            <span class="mx-3">OR</span>
+                            <div class="input-group">
+                                <input class="form-control text-end" type="number" step="0.001" placeholder="0.00" asp-for="DiscountPercent" />
                                 <div class="input-group-text">
                                     
                                         <i class="fas fa-fw fa-percent"></i>

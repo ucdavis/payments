@@ -80,7 +80,7 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
     const expired = !!coupon.expiresAt && isAfter(new Date(), coupon.expiresAt);
 
     return (
-      <div className='text-right'>
+      <div className='text-end'>
         <strong>{coupon.name}</strong>
         <br />
         {expired && <span className='badge text-bg-info me-3'>Expired</span>}

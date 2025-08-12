@@ -429,7 +429,7 @@
     </div>
     <div class="card-body invoice-details">
         <dl class="row">
-            <dt class="col-2 text-right">Created</dt>
+            <dt class="col-2 text-end">Created</dt>
             <dd class="col-10">
                 @Model.CreatedAt.ToPacificTime().ToString("g")
             </dd>
@@ -437,7 +437,7 @@
         @if (Model.Sent)
         {
             <dl class="row">
-                <dt class="col-2 text-right">Payment page</dt>
+                <dt class="col-2 text-end">Payment page</dt>
                 <dd class="col-10">
                     @{
                         var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
@@ -478,7 +478,7 @@
         </div>
         <div class="card-body card-bot-border invoice-payment-details">
             <dl class="row">
-                <dt class="col-3 text-right">Amount</dt>
+                <dt class="col-3 text-end">Amount</dt>
                 <dd class="col-9">
                     @if (successfulPayment != null)
                     {
@@ -490,7 +490,7 @@
                     }
                 </dd>
 
-                <dt class="col-3 text-right">Paid on</dt>
+                <dt class="col-3 text-end">Paid on</dt>
                 <dd class="col-9">
                     @Model.PaidAt.ToPacificTime()?.ToString("g")
                 </dd>
@@ -503,7 +503,7 @@
                     
                     @if (!string.IsNullOrWhiteSpace(successfulPayment.CardNumber))
                     {
-                        <dt class="col-3 text-right">Card Details</dt>
+                        <dt class="col-3 text-end">Card Details</dt>
                         <dd class="col-9">
                             <span class="text-monospace">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
                             <i class="@cardClass"></i>
@@ -514,57 +514,57 @@
                         </dd>
                     }
 @*
-                    <dt class="col-3 text-right">Billing Name</dt>
+                    <dt class="col-3 text-end">Billing Name</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingFirstName @successfulPayment.BillingLastName
                     </dd>*@
 
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
+                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingEmail
                     </dd>
                     
                     @*@if (!string.IsNullOrWhiteSpace(successfulPayment.BillingPhone))
                     {
-                        <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
+                        <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
                         <dd class="col-9">
                             @successfulPayment.BillingPhone
                         </dd>
                     }
 
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet1)</dt>
+                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet1)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingStreet1
                     </dd>
 
                     @if (!string.IsNullOrWhiteSpace(successfulPayment.BillingStreet2))
                     {
-                        <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet2)</dt>
+                        <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet2)</dt>
                         <dd class="col-9">
                             @successfulPayment.BillingStreet2
                         </dd>
                     }
                     
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCity)</dt>
+                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCity)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingCity
                     </dd>
 
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingState)</dt>
+                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingState)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingState
                     </dd>
 
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCountry)</dt>
+                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCountry)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingCountry
                     </dd>
 
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
+                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingPostalCode
                     </dd>*@
-                    <dt class="col-3 text-right">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
+                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
                     <dd class="col-9">
                         @successfulPayment.ProcessorId
                     </dd>
@@ -586,24 +586,24 @@
     </div>
     <div class="card-body invoice-details">
         <dl class="row">
-            <dt class="col-2 text-right">Name</dt>
+            <dt class="col-2 text-end">Name</dt>
             <dd class="col-10">
                 @Model.Account.Name
             </dd>
-            <dt class="col-2 text-right">Description</dt>
+            <dt class="col-2 text-end">Description</dt>
             <dd class="col-10">
                 @Model.Account.Description
             </dd>
             @if (!string.IsNullOrWhiteSpace(Model.Account.Account))
             {
-                <dt class="col-2 text-right">Account</dt>
+                <dt class="col-2 text-end">Account</dt>
                 <dd class="col-10">
                     @Model.Account.GetAccountString()
                 </dd>
             }
             @if (!string.IsNullOrWhiteSpace(Model.Account.FinancialSegmentString))
             {
-                <dt class="col-2 text-right">Financial Segment String</dt>
+                <dt class="col-2 text-end">Financial Segment String</dt>
                 <dd class="col-10">
                     @Model.Account.FinancialSegmentString
                 </dd>
@@ -623,7 +623,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="sendInvoiceModalLabel">Send Invoice?</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
 
@@ -647,13 +647,13 @@
                     </div>
                     
                     <div class="form-group row">
-                        <label for="sendEmail" class="col-3 col-form-label text-right">Send to</label>
+                        <label for="sendEmail" class="col-3 col-form-label text-end">Send to</label>
                         <div class="col-8">
                             <input type="text" class="form-control" name="sendEmail" readOnly value="@Model.CustomerEmail" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="cc" class="col-3 col-form-label text-right">Cc</label>
+                        <label for="cc" class="col-3 col-form-label text-end">Cc</label>
                         <div class="col-8">
                             <input id="sendInvoiceFormCc" type="text" class="form-control" name="ccEmails" />
                         </div>
@@ -696,8 +696,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -722,8 +722,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="getShareLinkModalLabel">Share Invoice</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
                 </button>
             </div>
             <div class="modal-body">
@@ -743,8 +743,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="markPaidModalLabel">Mark Invoice Paid?</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -774,8 +774,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="setBackPaidModalLabel">Set back to paid?</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -803,8 +803,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="cancelRefundRequestModalLabel">Set to completed?</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -835,8 +835,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="markPaidModalLabel">Request Refund?</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -866,8 +866,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="markPaidModalLabel">Mark Invoice Paid?</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
                 </button>
             </div>
             <div class="modal-body">
@@ -887,8 +887,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="markCompletedModalLabel">Mark Invoice Completed?</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
                 </button>
             </div>
             <div class="modal-body">
@@ -909,8 +909,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteDraftModalLabel">Delete Invoice?</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="modal-body">

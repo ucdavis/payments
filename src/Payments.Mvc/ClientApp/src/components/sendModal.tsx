@@ -152,10 +152,7 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
     return (
       <div className='modal-body send-invoice-modal-body'>
         <div className='form-group row'>
-          <label
-            htmlFor='sendEmail'
-            className='col-3 col-form-label text-right'
-          >
+          <label htmlFor='sendEmail' className='col-3 col-form-label text-end'>
             Send to
           </label>
           <div className='col-8'>
@@ -169,7 +166,7 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
           </div>
         </div>
         <div className='form-group row'>
-          <label htmlFor='cc' className='col-3 col-form-label text-right'>
+          <label htmlFor='cc' className='col-3 col-form-label text-end'>
             Cc
           </label>
           <div className='col-8'>
