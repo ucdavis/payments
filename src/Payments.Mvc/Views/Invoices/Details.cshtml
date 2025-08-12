@@ -622,7 +622,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="sendInvoiceModalLabel">Send Invoice?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -682,7 +682,7 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn-inverse" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn-inverse" data-bs-dismiss="modal">Close</button>
                     <button type="button" id="sendInvoiceFormSubmit" class="btn">Send Invoice</button>
                 </div>
             </div>
@@ -696,7 +696,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editLockedInvoiceModalLabel">Edit Invoice?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -709,7 +709,7 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="unlockInvoiceFormSubmit" class="btn">Unlock Invoice</button>
                 </div>
             </div>
@@ -722,7 +722,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="getShareLinkModalLabel">Share Invoice</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -731,7 +731,7 @@
                 <input type="text" id="shareLinkModalInput" class="form-control" readonly />
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-inverse" data-dismiss="modal">Close</button>
+                <button type="button" class="btn-inverse" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -743,7 +743,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="markPaidModalLabel">Mark Invoice Paid?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -760,7 +760,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="markPaidFormSubmit" class="btn">Mark as paid</button>
                 </div>
             </div>
@@ -774,7 +774,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="setBackPaidModalLabel">Set back to paid?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -789,7 +789,7 @@
                     <p>This will set the invoice back to paid and the next time the money movement job runs it will create the disbursements. After a few days, if this isn't in completed contact help.</p>                    
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="setBackPaidFormSubmit" class="btn">Set To Paid</button>
                 </div>
             </div>
@@ -803,7 +803,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="cancelRefundRequestModalLabel">Set to completed?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -821,7 +821,7 @@
                     </div>                  
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="cancelRefundRequestFormSubmit" class="btn">Set To Completed</button>
                 </div>
             </div>
@@ -835,7 +835,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="markPaidModalLabel">Request Refund?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -853,7 +853,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="markPaidFormSubmit" class="btn" @(successfulPayment == null ? "disabled=\"disabled\"":string.Empty)>Refund</button>
                 </div>
             </div>
@@ -866,7 +866,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="markPaidModalLabel">Mark Invoice Paid?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -876,7 +876,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -887,7 +887,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="markCompletedModalLabel">Mark Invoice Completed?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -897,7 +897,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -909,7 +909,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteDraftModalLabel">Delete Invoice?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -922,7 +922,7 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-inverse" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="deleteDraftFormSubmit" class="btn">Delete</button>
                 </div>
             </div>

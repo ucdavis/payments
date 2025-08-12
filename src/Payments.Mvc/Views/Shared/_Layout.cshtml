@@ -44,30 +44,30 @@
 
                 @if (!string.IsNullOrWhiteSpace(TempData["ErrorMessage"] as string))
                 {
-                    <div class="alert alert-danger">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         @TempData["ErrorMessage"]
                     </div>
                 }
 
                 @if (!string.IsNullOrWhiteSpace(TempData["Message"] as string))
                 {
-                    <div class="alert alert-info">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
+                    <div class="alert alert-info alert-dismissible">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         @TempData["Message"]
                     </div>
                 }
                 @if (ViewBag != null && !string.IsNullOrWhiteSpace(ViewBag.Message as string))
                 {
-                    <div class="alert alert-info">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
+                    <div class="alert alert-info alert-dismissible">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         @ViewBag.Message
                     </div>
                 }
                 @if (ViewBag != null && !string.IsNullOrWhiteSpace(ViewBag.ErrorMessage as string))
                 {
-                    <div class="alert alert-danger">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         @ViewBag.ErrorMessage
                     </div>
                 }

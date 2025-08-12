@@ -1,44 +1,44 @@
 button {
-  cursor:pointer;
+  cursor: pointer;
 }
 img.img-fluid {
   width: 100%;
 }
 .alert {
-  padding:$card-padding;
+  padding: $card-padding;
   p {
-    margin-bottom:0px;
-    color:$secondary-font;
+    margin-bottom: 0px;
+    color: $secondary-font;
   }
   @include fader;
-  box-shadow:$box-shadow;
+  box-shadow: $box-shadow;
   &:hover {
     transform: translateY(-1px);
   }
 }
 .alert-red {
-  background-color:transparentize($unitrans-red,0.35);
+  background-color: transparentize($unitrans-red, 0.35);
   &:hover {
-    background-color:transparentize($unitrans-red,0.15);
-}
+    background-color: transparentize($unitrans-red, 0.15);
+  }
 }
 .alert-yellow {
-  background-color: transparentize($golden-lupine,0.35);
+  background-color: transparentize($golden-lupine, 0.35);
   &:hover {
-    background-color:transparentize($golden-lupine,.15);
-}
+    background-color: transparentize($golden-lupine, 0.15);
+  }
 }
 .alert-green {
-  background-color: transparentize($sunny-grass,0.35);
+  background-color: transparentize($sunny-grass, 0.35);
   &:hover {
-    background-color:transparentize($sunny-grass,.15);
-}
+    background-color: transparentize($sunny-grass, 0.15);
+  }
 }
 .alert-blue {
-  background-color: transparentize($sky-blue,0.35);
+  background-color: transparentize($sky-blue, 0.35);
   &:hover {
-    background-color:transparentize($sky-blue,.15);
-}
+    background-color: transparentize($sky-blue, 0.15);
+  }
 }
 
 .action-btn {
@@ -64,9 +64,9 @@ p a.action-btn {
 .btn-plain {
   font-size: 1rem;
   font-family: $sans-bold;
-  color:$secondary-font;
-  background-color:rgba(255,255,255,.0001);
-  border:none;
+  color: $secondary-font;
+  background-color: rgba(255, 255, 255, 0.0001);
+  border: none;
   &:hover {
     text-decoration: underline;
   }
@@ -74,7 +74,8 @@ p a.action-btn {
 .btn {
   @include main-btn;
 
-  *, *:hover {
+  *,
+  *:hover {
     color: #fff !important;
   }
 }
@@ -97,26 +98,26 @@ p a.action-btn {
 }
 
 .btn-invoice-delete {
-  border:none;
-  color:$unitrans-red;
+  border: none;
+  color: $unitrans-red;
 }
 .btn-inverse {
   @include inverse-btn;
 }
 .btn-inverse-gold {
   @include inverse-btn;
-  color:$gold;
+  color: $gold;
 }
 .btn-border {
   border: 2px solid $borders;
   font-size: 1rem;
   padding: 8px 16px;
   font-family: $sans-bold;
-  background-color: rgba(255,255,255,.66);
+  background-color: rgba(255, 255, 255, 0.66);
   @include fader;
 
   &:hover {
-    background-color: rgba(255,255,255,.90);
+    background-color: rgba(255, 255, 255, 0.9);
   }
 }
 .btn-discreet {
@@ -152,7 +153,8 @@ p a.action-btn {
     margin-right: 20px;
   }
 
-  .media-body {}
+  .media-body {
+  }
 }
 
 ol.breadcrumb {
@@ -187,9 +189,9 @@ ol.breadcrumb {
     color: $secondary-font;
   }
 
-  > li+li:before {
+  > li + li:before {
     color: $tertiary-font;
-    content: "/";
+    content: '/';
   }
 }
 
@@ -215,7 +217,7 @@ ol.breadcrumb {
 //database
 
 .border-top {
-  border-top: 2px solid rgba(255,255,255,0.95);
+  border-top: 2px solid rgba(255, 255, 255, 0.95);
 }
 
 .border-blue-top {
@@ -310,7 +312,7 @@ ol.breadcrumb {
   color: $a-link;
 }
 .primary-color {
-  color:$primary-color;
+  color: $primary-color;
 }
 .sans-bold {
   font-family: $sans-bold;
@@ -327,7 +329,6 @@ ol.breadcrumb {
   color: $tertiary-font;
 }
 
-
 .twopointoh {
   font-size: 2rem;
 }
@@ -336,4 +337,10 @@ ol.breadcrumb {
 }
 .card-bot-border {
   border-bottom: 1px solid $borders;
+}
+dd {
+  margin-bottom: 1rem;
+}
+.form-group {
+  margin-bottom: 1rem;
 }
