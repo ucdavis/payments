@@ -23,9 +23,7 @@ export default class Alert extends React.Component<IProps, {}> {
           className='btn-close'
           aria-label='Close'
           onClick={onDismiss}
-        >
-          <i className='fas fa-times' />
-        </button>
+        ></button>
       </div>
     );
   }

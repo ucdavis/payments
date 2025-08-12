@@ -65,10 +65,12 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
               <h3 className='modal-title'>Send Invoice</h3>
             </div>
             <div className='col-md-3 d-flex justify-content-end align-items-center'>
-              <button type='button' className='close m-1' onClick={onCancel}>
-                <span aria-hidden='true'>
-                  <i className='fas fa-times' />
-                </span>
+              <button
+                type='button'
+                className='btn-close m-1'
+                onClick={onCancel}
+              >
+                <span aria-hidden='true'></span>
               </button>
             </div>
           </div>

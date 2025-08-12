@@ -74,12 +74,10 @@ export default class CouponSelectControl extends React.Component<
             <div className='col-md-3 d-flex justify-content-end align-items-center'>
               <button
                 type='button'
-                className='close m-1'
+                className='btn-close m-1'
                 onClick={this.closeModal}
               >
-                <span aria-hidden='true'>
-                  <i className='fas fa-times' />
-                </span>
+                <span aria-hidden='true'></span>
               </button>
             </div>
           </div>
