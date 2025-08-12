@@ -92,7 +92,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
               <th>
                 {!!taxPercent && (
                   <div>
-                    <span className='mr-2'>Tax Exempt</span>
+                    <span className='me-2'>Tax Exempt</span>
                     <span>
                       <i className='fas fa-info-circle' />
                     </span>
@@ -115,7 +115,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                   className='btn-plain primary-color'
                   onClick={this.createNewItem}
                 >
-                  <i className='fas fa-plus mr-2' /> Add another item
+                  <i className='fas fa-plus me-2' /> Add another item
                 </button>
               </td>
               <td />
@@ -156,7 +156,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
               <td />
               <td>
                 <span>Tax</span>
-                <span className='ml-2'>
+                <span className='ms-2'>
                   <a
                     href='https://www.taxjar.com/sales-tax-calculator/'
                     target='_blank'
@@ -253,7 +253,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                 this.updateItemProperty(id, 'amount', v);
               }}
             />
-            <div className='invalid-feedback text-center ml-4'>
+            <div className='invalid-feedback text-center ms-4'>
               Price required
             </div>
           </div>

@@ -25,7 +25,7 @@ export default class TaxInput extends React.Component<IProps, IState> {
     if (!this.state.hasTax) {
       return (
         <button className='btn-plain primary-color' onClick={this.addTax}>
-          <i className='fas fa-plus mr-2' /> Add tax
+          <i className='fas fa-plus me-2' /> Add tax
         </button>
       );
     }
