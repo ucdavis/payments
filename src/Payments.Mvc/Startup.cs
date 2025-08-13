@@ -350,7 +350,8 @@ namespace Payments.Mvc
                 c.AllowFonts
                     .FromSelf()
                     .From("data:")
-                    .From("https://use.fontawesome.com");
+                    .From("https://use.fontawesome.com")
+                    .From("https://cdnjs.cloudflare.com");
 
                 c.OnSendingHeader = context =>
                 {
