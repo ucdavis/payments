@@ -5,8 +5,8 @@
 }
 @if (!string.IsNullOrWhiteSpace(Model.WarningMessage))
 {
-    <div class="alert alert-info">
-        <button type="button" class="close" data-dismiss="alert">×</button>
+    <div class="alert alert-info alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         @Model.WarningMessage
     </div>
 }
@@ -16,7 +16,7 @@
 
         @if (Model.UserCanEdit)
         {
-            <a asp-action="CreateAccount" asp-controller="FinancialAccounts" class="btn"><i class="far fa-plus-square mr-3"></i>Create New Account</a>
+            <a asp-action="CreateAccount" asp-controller="FinancialAccounts" class="btn"><i class="far fa-plus-square me-3"></i>Create New Account</a>
         }
     </div>
 
@@ -97,7 +97,7 @@
     </div>
 </div>
 <div>
-    <a asp-controller="Settings" asp-action="Index"><i class="fas fa-chevron-left mr-3"></i> Back to Team</a>
+    <a asp-controller="Settings" asp-action="Index"><i class="fas fa-chevron-left me-3"></i> Back to Team</a>
 </div>
 
 @section scripts {

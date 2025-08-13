@@ -7,7 +7,7 @@
 <div class="card">
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
-        <a class="btn" data-toggle="modal" data-target="#createCouponModal"><i class="far fa-plus-square mr-3"></i> Create New Coupon</a>
+        <a class="btn" data-bs-toggle="modal" data-bs-target="#createCouponModal"><i class="far fa-plus-square me-3"></i> Create New Coupon</a>
     </div>
 
     <div class="card-body table-responsive">
@@ -40,7 +40,7 @@
                                 </div>
                             </a>
                         </td>
-                        <td class="text-right coupon-percentage-col">
+                        <td class="text-end coupon-percentage-col">
                             <a asp-action="Details" asp-route-id="@coupon.Id">
                                 @if (coupon.DiscountPercent.HasValue)
                                 {
@@ -50,7 +50,7 @@
                                 }
                             </a>
                         </td>
-                        <td class="text-right coupon-amount-col">
+                        <td class="text-end coupon-amount-col">
                             <a asp-action="Details" asp-route-id="@coupon.Id">
                                 @if (coupon.DiscountAmount.HasValue)
                                 {
@@ -72,7 +72,7 @@
                         </td>
                         <td class="invoices-edit-btn-col text-center">
                             <a asp-action="Details" asp-route-id="@coupon.Id" class="btn">
-                                <div>View <i class="fas fa-external-link-alt ml-3"></i></div>
+                                <div>View</div>
                             </a>
                         </td>
                     </tr>

@@ -65,7 +65,7 @@ export default class AccountSelectControl extends React.Component<
             </option>
           ))}
         </select>
-        <div className='input-group-append'>
+        <div className='input-group-text'>
           <button className='btn' type='button' onClick={this.openModal}>
             <i className='fas fa-fw fa-info-circle' />
           </button>
@@ -97,12 +97,10 @@ export default class AccountSelectControl extends React.Component<
             <div className='col-md-3 d-flex justify-content-end align-items-center'>
               <button
                 type='button'
-                className='close m-1'
+                className='btn-close m-1'
                 onClick={this.closeModal}
               >
-                <span aria-hidden='true'>
-                  <i className='fas fa-times' />
-                </span>
+                <span aria-hidden='true'></span>
               </button>
             </div>
           </div>
@@ -161,9 +159,9 @@ export default class AccountSelectControl extends React.Component<
           )}
           {!chart && <div className='col-md-4 d-flex flex-column'> </div>}
           <div className='col-md-3 d-flex flex-column justify-content-around align-items-center'>
-            {isDefault && <span className='badge badge-info'>default</span>}
+            {isDefault && <span className='badge text-bg-info'>default</span>}
             {selectedValue === id && (
-              <span className='badge badge-success'>selected</span>
+              <span className='badge text-bg-success'>selected</span>
             )}
           </div>
           <div className='col-md-1 d-flex justify-content-end align-items-center'>

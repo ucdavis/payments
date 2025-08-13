@@ -13,7 +13,7 @@
     <title>@ViewData["Title"]</title>
     <base href="~/" />
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" />
     @Html.EmbedCss("/wwwroot/css/pdf.css")
 
@@ -85,7 +85,7 @@
             @Html.InlineSvg("/wwwroot/media/logo.svg")
         </div>
         <div class="col">
-            <h1 id="invoiceNumber" class="font-weight-bold text-blue text-right">
+            <h1 id="invoiceNumber" class="font-weight-bold text-blue text-end">
                 Invoice #@Model.GetFormattedId()
             </h1>
         </div>
@@ -105,19 +105,19 @@
         <div class="col-3">
             <div class="row">
                 <span class="col text-label">Date of issue</span><br />
-                <span class="col font-weight-bold text-right">@Model.SentAt.Value.ToPacificTime().ToString("MMM dd, yyyy")</span>
+                <span class="col font-weight-bold text-end">@Model.SentAt.Value.ToPacificTime().ToString("MMM dd, yyyy")</span>
             </div>
 
             @if (Model.DueDate.HasValue)
             {
                 <div class="row">
                     <span class="col text-label">Date due</span><br />
-                    <span class="col font-weight-bold text-right">@Model.DueDate.Value.ToString("MMM dd, yyyy")</span>
+                    <span class="col font-weight-bold text-end">@Model.DueDate.Value.ToString("MMM dd, yyyy")</span>
                 </div>
             }
             <div class="row">
                 <span class="col text-label">Total Due</span>
-                <span class="col text-right font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
+                <span class="col text-end font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
             </div>
         </div>
     </div>
@@ -161,9 +161,9 @@
     <tr>
         <th class="">#</th>
         <th class="">Description</th>
-        <th class="text-right">Qty</th>
-        <th class="text-right">Unit Price</th>
-        <th class="text-right">Amount</th>
+        <th class="text-end">Qty</th>
+        <th class="text-end">Unit Price</th>
+        <th class="text-end">Amount</th>
     </tr>
     </thead>
     <tbody>
@@ -173,9 +173,9 @@
         <tr class="item">
             <td>@(i + 1)</td>
             <td>@item.Description</td>
-            <td class="text-right">@item.Quantity</td>
-            <td class="text-right">$@item.Amount.ToString("F2")</td>
-            <td class="text-right">$@item.Total.ToString("F2")</td>
+            <td class="text-end">@item.Quantity</td>
+            <td class="text-end">$@item.Amount.ToString("F2")</td>
+            <td class="text-end">$@item.Total.ToString("F2")</td>
         </tr>
     }
     </tbody>
@@ -185,8 +185,8 @@
         var extra = string.Empty;
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Subtotal</td>
-            <td class="text-right">$@Model.CalculatedSubtotal.ToString("F2")</td>
+            <td class="text-end text-label">Subtotal</td>
+            <td class="text-end">$@Model.CalculatedSubtotal.ToString("F2")</td>
         </tr>
         if (Model.Coupon != null && Model.Coupon.ExpiresAt.HasValue)
         {
@@ -195,8 +195,8 @@
 
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Discount @extra</td>
-            <td class="text-right">-$@Model.CalculatedDiscount.ToString("F2")</td>
+            <td class="text-end text-label">Discount @extra</td>
+            <td class="text-end">-$@Model.CalculatedDiscount.ToString("F2")</td>
         </tr>
     }
 
@@ -208,16 +208,16 @@
 
         <tr class="summary">
             <td colspan="3"></td>
-            <td class="text-right text-label">Tax (@rateText)</td>
-            <td class="text-right">$@Model.CalculatedTaxAmount.ToString("F2")</td>
+            <td class="text-end text-label">Tax (@rateText)</td>
+            <td class="text-end">$@Model.CalculatedTaxAmount.ToString("F2")</td>
         </tr>
     }
     </tbody>
     <tbody>
     <tr class="total">
         <td class="border-0" colspan="3"></td>
-        <td class="text-right text-label border-top">Total</td>
-        <td class="text-right text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
+        <td class="text-end text-label border-top">Total</td>
+        <td class="text-end text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
     </tr>
     </tbody>
 </table>

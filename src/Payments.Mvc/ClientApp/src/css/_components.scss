@@ -1,44 +1,44 @@
 button {
-  cursor:pointer;
+  cursor: pointer;
 }
 img.img-fluid {
   width: 100%;
 }
 .alert {
-  padding:$card-padding;
+  padding: $card-padding;
   p {
-    margin-bottom:0px;
-    color:$secondary-font;
+    margin-bottom: 0px;
+    color: $secondary-font;
   }
   @include fader;
-  box-shadow:$box-shadow;
+  box-shadow: $box-shadow;
   &:hover {
     transform: translateY(-1px);
   }
 }
 .alert-red {
-  background-color:transparentize($unitrans-red,0.35);
+  background-color: transparentize($unitrans-red, 0.35);
   &:hover {
-    background-color:transparentize($unitrans-red,0.15);
-}
+    background-color: transparentize($unitrans-red, 0.15);
+  }
 }
 .alert-yellow {
-  background-color: transparentize($golden-lupine,0.35);
+  background-color: transparentize($golden-lupine, 0.35);
   &:hover {
-    background-color:transparentize($golden-lupine,.15);
-}
+    background-color: transparentize($golden-lupine, 0.15);
+  }
 }
 .alert-green {
-  background-color: transparentize($sunny-grass,0.35);
+  background-color: transparentize($sunny-grass, 0.35);
   &:hover {
-    background-color:transparentize($sunny-grass,.15);
-}
+    background-color: transparentize($sunny-grass, 0.15);
+  }
 }
 .alert-blue {
-  background-color: transparentize($sky-blue,0.35);
+  background-color: transparentize($sky-blue, 0.35);
   &:hover {
-    background-color:transparentize($sky-blue,.15);
-}
+    background-color: transparentize($sky-blue, 0.15);
+  }
 }
 
 .action-btn {
@@ -64,17 +64,21 @@ p a.action-btn {
 .btn-plain {
   font-size: 1rem;
   font-family: $sans-bold;
-  color:$secondary-font;
-  background-color:rgba(255,255,255,.0001);
-  border:none;
+  color: $secondary-font;
+  background-color: rgba(255, 255, 255, 0.0001);
+  border: none;
   &:hover {
     text-decoration: underline;
+  }
+  .options-navbar &:hover {
+    text-decoration: none;
   }
 }
 .btn {
   @include main-btn;
 
-  *, *:hover {
+  *,
+  *:hover {
     color: #fff !important;
   }
 }
@@ -97,26 +101,26 @@ p a.action-btn {
 }
 
 .btn-invoice-delete {
-  border:none;
-  color:$unitrans-red;
+  border: none;
+  color: $unitrans-red;
 }
 .btn-inverse {
   @include inverse-btn;
 }
 .btn-inverse-gold {
   @include inverse-btn;
-  color:$gold;
+  color: $gold;
 }
 .btn-border {
   border: 2px solid $borders;
   font-size: 1rem;
   padding: 8px 16px;
   font-family: $sans-bold;
-  background-color: rgba(255,255,255,.66);
+  background-color: rgba(255, 255, 255, 0.66);
   @include fader;
 
   &:hover {
-    background-color: rgba(255,255,255,.90);
+    background-color: rgba(255, 255, 255, 0.9);
   }
 }
 .btn-discreet {
@@ -152,7 +156,8 @@ p a.action-btn {
     margin-right: 20px;
   }
 
-  .media-body {}
+  .media-body {
+  }
 }
 
 ol.breadcrumb {
@@ -187,9 +192,9 @@ ol.breadcrumb {
     color: $secondary-font;
   }
 
-  > li+li:before {
+  > li + li:before {
     color: $tertiary-font;
-    content: "/";
+    content: '/';
   }
 }
 
@@ -215,7 +220,7 @@ ol.breadcrumb {
 //database
 
 .border-top {
-  border-top: 2px solid rgba(255,255,255,0.95);
+  border-top: 2px solid rgba(255, 255, 255, 0.95);
 }
 
 .border-blue-top {
@@ -310,7 +315,7 @@ ol.breadcrumb {
   color: $a-link;
 }
 .primary-color {
-  color:$primary-color;
+  color: $primary-color;
 }
 .sans-bold {
   font-family: $sans-bold;
@@ -327,7 +332,6 @@ ol.breadcrumb {
   color: $tertiary-font;
 }
 
-
 .twopointoh {
   font-size: 2rem;
 }
@@ -336,4 +340,157 @@ ol.breadcrumb {
 }
 .card-bot-border {
   border-bottom: 1px solid $borders;
+}
+dd {
+  margin-bottom: 1rem;
+}
+.form-group {
+  margin-bottom: 1rem;
+}
+.buttons-html5 {
+  margin-right: 8px;
+}
+
+/* PrismJS 1.15.0
+https://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript+json */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*='language-'],
+pre[class*='language-'] {
+  color: black;
+  background: none;
+  text-shadow: 0 1px white;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+pre[class*='language-']::-moz-selection,
+pre[class*='language-'] ::-moz-selection,
+code[class*='language-']::-moz-selection,
+code[class*='language-'] ::-moz-selection {
+  text-shadow: none;
+  background: #b3d4fc;
+}
+
+pre[class*='language-']::selection,
+pre[class*='language-'] ::selection,
+code[class*='language-']::selection,
+code[class*='language-'] ::selection {
+  text-shadow: none;
+  background: #b3d4fc;
+}
+
+@media print {
+  code[class*='language-'],
+  pre[class*='language-'] {
+    text-shadow: none;
+  }
+}
+
+/* Code blocks */
+pre[class*='language-'] {
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+}
+
+:not(pre) > code[class*='language-'],
+pre[class*='language-'] {
+  background: #f5f2f0;
+}
+
+/* Inline code */
+:not(pre) > code[class*='language-'] {
+  padding: 0.1em;
+  border-radius: 0.3em;
+  white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: slategray;
+}
+
+.token.punctuation {
+  color: #999;
+}
+
+.namespace {
+  opacity: 0.7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+  background: hsla(0, 0%, 100%, 0.5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #07a;
+}
+
+.token.function,
+.token.class-name {
+  color: #dd4a68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #e90;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
 }

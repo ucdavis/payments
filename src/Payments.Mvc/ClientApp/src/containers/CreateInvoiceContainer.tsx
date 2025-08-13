@@ -190,11 +190,11 @@ export default class CreateInvoiceContainer extends React.Component<
               {this.renderError()}
             </div>
             <div className='col d-flex justify-content-end align-items-baseline'>
-              <button className='btn-plain mr-3' onClick={this.onSubmit}>
+              <button className='btn-plain me-3' onClick={this.onSubmit}>
                 Save and close
               </button>
               <button className='btn' onClick={this.openSendModal}>
-                Send ...
+                Send
               </button>
               {this.renderSendModal()}
             </div>
@@ -263,7 +263,7 @@ export default class CreateInvoiceContainer extends React.Component<
         className='flex-grow-1 alert-danger'
         onDismiss={this.dismissErrorMessage}
       >
-        <strong className='mr-3'>Error!</strong>
+        <strong className='me-3'>Error!</strong>
         <span>{errorMessage}</span>
         {modelErrors.map((e, i) => (
           <p key={i}>{e}</p>

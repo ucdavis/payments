@@ -19,11 +19,11 @@
     <form asp-controller="Home" asp-action="SetActiveTeam" method="post" id="TeamSelectForm">
         <input id="teamSelectFormTeamId" name="teamId" type="hidden" />
 
-        <button type="button" class="btn dropdown-toggle btn-primary team-select-control" data-toggle="dropdown" role="button" title="Select your team">
+        <button type="button" class="btn dropdown-toggle btn-primary team-select-control" data-bs-toggle="dropdown" role="button" title="Select your team">
             <div class="title">
                 <div class="title-inner">
                     <div class="title-inner-inner">
-                        <i class="fas fa-users mr-2"></i>
+                        <i class="fas fa-users me-2"></i>
                         @if (currentTeam == null)
                         {
                             <span>Select your team</span>
@@ -59,7 +59,7 @@
     <a class="mobile_logo_navbar" id="logoContainer" href="/">
         @Html.InlineSvg("/wwwroot/media/logo.svg")
     </a>
-    <button class="navbar-toggler mobile_button_toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler mobile_button_toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -87,8 +87,11 @@
             if (string.Equals("invoices", controller, StringComparison.OrdinalIgnoreCase)
                 || string.Equals("coupons", controller, StringComparison.OrdinalIgnoreCase))
             {
-                <a class="" asp-controller="Coupons" asp-action="Index">
+                <a class="nav-coupons" asp-controller="Coupons" asp-action="Index">
                     <div class="nav-item subnav">
+                        <div class="svgwrapper">
+                            @Html.InlineSvg("/wwwroot/media/navicons/coupons.svg")
+                        </div>
                         <span class="nav-text">Coupons</span>
                     </div>
                 </a>
