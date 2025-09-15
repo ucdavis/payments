@@ -115,6 +115,8 @@ namespace Payments.Core.Domain
         [JsonIgnore]
         public IList<PaymentEvent> PaymentEvents { get; set; }
 
+        public string Type { get; set; } = Team.InvoiceTypes.CreditCard; // CC or Recharge
+
         // ----------------------
         // Calculated Values
         // ----------------------
@@ -234,6 +236,13 @@ namespace Payments.Core.Domain
             builder.Entity<Invoice>()
                 .Property(i => i.CalculatedTotal)
                 .HasColumnType("decimal(18,2)");
+
+            // Set default value for Type column
+            builder.Entity<Invoice>()
+                .Property(i => i.Type)
+                .HasDefaultValue("CC");
+
+            builder.Entity<Invoice>().HasIndex(a => a.Type);
         }
 
         public Dictionary<string, string> GetPaymentDictionary()
@@ -319,6 +328,12 @@ namespace Payments.Core.Domain
                         return "text-bg-secondary";
                 }
             }
+        }
+
+        public static class InvoiceTypes
+        {
+            public const string CreditCard = "CC";
+            public const string Recharge = "Recharge";
         }
     }
 }
