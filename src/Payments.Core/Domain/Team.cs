@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
+    //TODO: Add flag for recharges
     public class Team
     {
         public Team()
