@@ -12,8 +12,8 @@ using Payments.Core.Data;
 namespace Payments.Core.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250915194445_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250915195504_BaselineMigration")]
+    partial class BaselineMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
