@@ -71,7 +71,7 @@ namespace Payments.Core.Domain
         [StringLength(128)]
         public string WebHookApiKey { get; set; }
 
-        public string AllowedInvoiceType { get; set; } = InvoiceTypes.CreditCard;
+        public string AllowedInvoiceType { get; set; } = AllowedInvoiceTypes.CreditCard;
 
         [NotMapped]
         public FinancialAccount DefaultAccount {
@@ -94,6 +94,10 @@ namespace Payments.Core.Domain
             return permission;
         }
 
+        /// <summary>
+        /// These are a superset of the Invoice.Types
+        /// (Adds Both value)
+        /// </summary>
         public static class AllowedInvoiceTypes
         {
             public const string CreditCard = "CreditCard";

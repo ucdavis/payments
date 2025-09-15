@@ -115,7 +115,7 @@ namespace Payments.Core.Domain
         [JsonIgnore]
         public IList<PaymentEvent> PaymentEvents { get; set; }
 
-        public string Type { get; set; } = Team.InvoiceTypes.CreditCard; // CC or Recharge
+        public string Type { get; set; } = InvoiceTypes.CreditCard; // CC or Recharge
 
         // ----------------------
         // Calculated Values
