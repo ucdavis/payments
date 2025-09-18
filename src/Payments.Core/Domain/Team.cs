@@ -71,6 +71,8 @@ namespace Payments.Core.Domain
         [StringLength(128)]
         public string WebHookApiKey { get; set; }
 
+        [Required]
+        [StringLength(10)]
         public string AllowedInvoiceType { get; set; } = AllowedInvoiceTypes.CreditCard;
 
         [NotMapped]
@@ -100,7 +102,7 @@ namespace Payments.Core.Domain
         /// </summary>
         public static class AllowedInvoiceTypes
         {
-            public const string CreditCard = "CreditCard";
+            public const string CreditCard = "CC";
             public const string Recharge = "Recharge";
             public const string Both = "Both";
         }
