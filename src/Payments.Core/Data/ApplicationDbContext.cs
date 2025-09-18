@@ -58,6 +58,7 @@ namespace Payments.Core.Data
             LogMessage.OnModelCreating(builder);
             MoneyMovementJobRecord.OnModelCreating(builder);
             TaxReportJobRecord.OnModelCreating(builder);
+            Team.OnModelCreating(builder);
         }
     }
 }

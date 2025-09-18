@@ -242,7 +242,7 @@ namespace Payments.Core.Domain
             // Set default value for Type column
             builder.Entity<Invoice>()
                 .Property(i => i.Type)
-                .HasDefaultValue("CC");
+                .HasDefaultValue(InvoiceTypes.CreditCard);
 
             builder.Entity<Invoice>().HasIndex(a => a.Type);
         }

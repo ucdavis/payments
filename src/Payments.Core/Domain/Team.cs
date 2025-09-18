@@ -1,9 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -94,6 +95,14 @@ namespace Payments.Core.Domain
             Permissions.Add(permission);
 
             return permission;
+        }
+
+        protected internal static void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Team>()
+                .Property(t => t.AllowedInvoiceType)
+                .HasMaxLength(10)
+                .HasDefaultValue(AllowedInvoiceTypes.CreditCard);
         }
 
         /// <summary>
