@@ -52,17 +52,18 @@
                     <div class="form-group">
                         <label asp-for="AllowedInvoiceType" class="control-label"></label>
                         <div class="ms-3">
-                            <div class="form-check d-flex align-items-center">
+                            <div class="form-check d-flex">
                                 <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
                                     value="@Team.AllowedInvoiceTypes.CreditCard" checked />
-                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Credit Card Only</label>
+                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Credit Card
+                                    Only</label>
                             </div>
-                            <div class="form-check d-flex align-items-center">
+                            <div class="form-check d-flex">
                                 <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
                                     value="@Team.AllowedInvoiceTypes.Recharge" />
                                 <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Recharge Only</label>
                             </div>
-                            <div class="form-check d-flex align-items-center">
+                            <div class="form-check d-flex">
                                 <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
                                     value="@Team.AllowedInvoiceTypes.Both" />
                                 <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Both</label>
