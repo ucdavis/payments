@@ -71,7 +71,8 @@ namespace Payments.Mvc.Controllers
                 ApiKey = userCanEdit ? team.ApiKey : "",
                 IsActive = team.IsActive,
                 UserCanEdit = userCanEdit,
-                WebHookApiKey = team.WebHookApiKey
+                WebHookApiKey = team.WebHookApiKey,
+                AllowedInvoiceType = team.AllowedInvoiceType
             };
 
             return View(model);
