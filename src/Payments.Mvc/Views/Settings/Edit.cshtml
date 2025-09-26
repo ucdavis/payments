@@ -50,37 +50,69 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="AllowedInvoiceType" class="control-label"></label>
-                        <div class="ms-3">
-                            <div class="form-check d-flex">
-                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
-                                    value="@Team.AllowedInvoiceTypes.CreditCard" />
-                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Credit Card
-                                    Only</label>
-                            </div>
-                            <div class="form-check d-flex">
-                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
-                                    value="@Team.AllowedInvoiceTypes.Recharge" />
-                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Recharge Only</label>
-                            </div>
-                            <div class="form-check d-flex">
-                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
-                                    value="@Team.AllowedInvoiceTypes.Both" />
-                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Both</label>
-                            </div>
-                        </div>
-                        <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
-                    </div>
+
 
                     @if (User.IsInRole(ApplicationRoleCodes.Admin))
                     {
+                        <div class="form-group">
+                            <label asp-for="AllowedInvoiceType" class="control-label"></label>
+                            <div class="ms-3">
+                                <div class="form-check d-flex">
+                                    <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                        value="@Team.AllowedInvoiceTypes.CreditCard" />
+                                    <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">
+                                        Credit Card
+                                        Only
+                                    </label>
+                                </div>
+                                <div class="form-check d-flex">
+                                    <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                        value="@Team.AllowedInvoiceTypes.Recharge" />
+                                    <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Recharge Only</label>
+                                </div>
+                                <div class="form-check d-flex">
+                                    <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                        value="@Team.AllowedInvoiceTypes.Both" />
+                                    <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Both</label>
+                                </div>
+                            </div>
+                            <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
+                        </div>
+
+
                         <div class="form-group">
                             <div class="checkbox">
                                 <label>
                                     <input asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
                                 </label>
                             </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label asp-for="AllowedInvoiceType" class="control-label"></label>
+                            <div class="ms-3">
+                                <div class="form-check d-flex">
+                                    <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                        value="@Team.AllowedInvoiceTypes.CreditCard" disabled />
+                                    <label class="form-check-label ms-2 text-muted">
+                                        Credit Card Only
+                                    </label>
+                                </div>
+                                <div class="form-check d-flex">
+                                    <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                        value="@Team.AllowedInvoiceTypes.Recharge" disabled />
+                                    <label class="form-check-label ms-2 text-muted">Recharge Only</label>
+                                </div>
+                                <div class="form-check d-flex">
+                                    <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                        value="@Team.AllowedInvoiceTypes.Both" disabled />
+                                    <label class="form-check-label ms-2 text-muted">Both</label>
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-1">If you need to change the allowed invoice type, please submit
+                                a help ticket.</div>
                         </div>
                     }
 

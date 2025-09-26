@@ -134,12 +134,13 @@ namespace Payments.Mvc.Controllers
             team.ContactEmail = model.ContactEmail;
             team.ContactPhoneNumber = model.ContactPhoneNumber;
             team.WebHookApiKey = model.WebHookApiKey;
-            team.AllowedInvoiceType = model.AllowedInvoiceType;
+            
 
             // only admins can change active
             if (User.IsInRole(ApplicationRoleCodes.Admin))
             {
                 team.IsActive = model.IsActive;
+                team.AllowedInvoiceType = model.AllowedInvoiceType;
             }
 
             await _context.SaveChangesAsync();
