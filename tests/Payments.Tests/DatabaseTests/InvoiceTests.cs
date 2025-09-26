@@ -132,6 +132,11 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("Type", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)10)]",
+            }));
 
 
 

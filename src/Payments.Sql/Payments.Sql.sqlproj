@@ -91,6 +91,7 @@
     <Build Include="Security\report_reader.sql" />
     <Build Include="Security\RoleMemberships.sql" />
     <Build Include="Logins\report_reader.sql" />
+    <Build Include="dbo\Tables\__EFMigrationsHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Compare\SqlSchemaCompare_localhost.scmp" />

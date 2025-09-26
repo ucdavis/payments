@@ -18,6 +18,11 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("AllowedInvoiceType", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)10)]",
+            }));
             expectedFields.Add(new NameAndType("ApiKey", "System.String", new List<string>
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",

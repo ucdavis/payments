@@ -1,9 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -71,6 +72,10 @@ namespace Payments.Core.Domain
         [StringLength(128)]
         public string WebHookApiKey { get; set; }
 
+        [Required]
+        [StringLength(10)]
+        public string AllowedInvoiceType { get; set; } = AllowedInvoiceTypes.CreditCard;
+
         [NotMapped]
         public FinancialAccount DefaultAccount {
             get {
@@ -90,6 +95,25 @@ namespace Payments.Core.Domain
             Permissions.Add(permission);
 
             return permission;
+        }
+
+        protected internal static void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Team>()
+                .Property(t => t.AllowedInvoiceType)
+                .HasMaxLength(10)
+                .HasDefaultValue(AllowedInvoiceTypes.CreditCard);
+        }
+
+        /// <summary>
+        /// These are a superset of the Invoice.Types
+        /// (Adds Both value)
+        /// </summary>
+        public static class AllowedInvoiceTypes
+        {
+            public const string CreditCard = "CC";
+            public const string Recharge = "Recharge";
+            public const string Both = "Both";
         }
     }
 }

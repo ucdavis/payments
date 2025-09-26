@@ -31,6 +31,7 @@ CREATE TABLE [dbo].[Invoices] (
     [KfsTrackingNumber]			NVARCHAR(20)	NULL, 
     [Refunded]					BIT				NOT NULL DEFAULT 0, 
     [RefundedAt]				DATETIME2		NULL, 
+    [Type] NVARCHAR(10) NOT NULL DEFAULT 'CreditCard', 
     CONSTRAINT [PK_Invoices] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_Invoices_Coupons_CouponId] FOREIGN KEY ([CouponId]) REFERENCES [dbo].[Coupons] ([Id]),
     CONSTRAINT [FK_Invoices_FinancialAccounts_AccountId] FOREIGN KEY ([AccountId]) REFERENCES [dbo].[FinancialAccounts] ([Id]),
@@ -46,4 +47,8 @@ CREATE NONCLUSTERED INDEX [IX_Invoices_TeamId]
 GO
 CREATE NONCLUSTERED INDEX [IX_Invoices_AccountId]
     ON [dbo].[Invoices]([AccountId] ASC);
+
+Go 
+CREATE NONCLUSTERED INDEX [IX_Invoices_Type]
+	ON [dbo].[Invoices]([Type] ASC);
 
