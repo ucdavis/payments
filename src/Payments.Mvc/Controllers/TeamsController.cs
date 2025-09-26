@@ -65,18 +65,19 @@ namespace Payments.Mvc.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
-            }            
+            }
 
             var team = new Team()
             {
-                Name               = model.Name,
-                Slug               = model.Slug,
-                ContactName        = model.ContactName,
-                ContactEmail       = model.ContactEmail,
+                Name = model.Name,
+                Slug = model.Slug,
+                ContactName = model.ContactName,
+                ContactEmail = model.ContactEmail,
                 ContactPhoneNumber = model.ContactPhoneNumber,
-                IsActive           = true,
-                ApiKey             = Guid.NewGuid().ToString("N").ToUpper(),
-                WebHookApiKey      = model.WebHookApiKey,
+                IsActive = true,
+                ApiKey = Guid.NewGuid().ToString("N").ToUpper(),
+                WebHookApiKey = model.WebHookApiKey,
+                AllowedInvoiceType = model.AllowedInvoiceType,
             };
 
             // add user to team
