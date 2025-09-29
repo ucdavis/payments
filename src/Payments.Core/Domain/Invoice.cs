@@ -17,6 +17,7 @@ namespace Payments.Core.Domain
             Attachments = new List<InvoiceAttachment>();
             Items = new List<LineItem>();
             History = new List<History>();
+            RechargeAccounts = new List<RechargeAccount>();
 
             DraftCount = 0;
             CreatedAt = DateTime.UtcNow;
