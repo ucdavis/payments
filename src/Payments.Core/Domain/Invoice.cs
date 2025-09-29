@@ -115,6 +115,8 @@ namespace Payments.Core.Domain
         [JsonIgnore]
         public IList<PaymentEvent> PaymentEvents { get; set; }
 
+        public IList<RechargeAccount> RechargeAccounts { get; set; }
+
         [Required]
         [StringLength(10)]
         public string Type { get; set; } = InvoiceTypes.CreditCard; // CC or Recharge
@@ -245,6 +247,7 @@ namespace Payments.Core.Domain
                 .HasDefaultValue(InvoiceTypes.CreditCard);
 
             builder.Entity<Invoice>().HasIndex(a => a.Type);
+
         }
 
         public Dictionary<string, string> GetPaymentDictionary()
