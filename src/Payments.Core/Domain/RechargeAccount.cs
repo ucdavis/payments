@@ -25,6 +25,13 @@ namespace Payments.Core.Domain
 
         public decimal Percentage { get; set; }
 
+        [StringLength(128)]
+        public string EnteredBy { get; set; } // Kerb, Email, IAM, Nmae?
+
+        [StringLength(128)]
+        public string ApprovedBy { get; set; } // Kerb, Email, IAM, Name?
+
+
 
         public enum CreditDebit
         {
