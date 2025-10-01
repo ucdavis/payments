@@ -403,9 +403,27 @@ export default class CreateInvoiceContainer extends React.Component<
       return true;
     }
 
+    // Extract model errors from ModelState
+    let modelErrors: string[] = [];
+    if (result.modelState) {
+      // ModelState is an object where keys are property names and values are arrays of error messages
+      Object.keys(result.modelState).forEach(key => {
+        const errors = result.modelState[key];
+        if (Array.isArray(errors)) {
+          errors.forEach(error => {
+            if (typeof error === 'string') {
+              modelErrors.push(error);
+            } else if (error && error.errorMessage) {
+              modelErrors.push(error.errorMessage);
+            }
+          });
+        }
+      });
+    }
+
     this.setState({
       errorMessage: result.errorMessage,
-      modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
+      modelErrors: modelErrors
     });
     return false;
   };
@@ -449,9 +467,27 @@ export default class CreateInvoiceContainer extends React.Component<
 
       const result = await response.json();
       if (!result.success) {
+        // Extract model errors from ModelState
+        let modelErrors: string[] = [];
+        if (result.modelState) {
+          // ModelState is an object where keys are property names and values are arrays of error messages
+          Object.keys(result.modelState).forEach(key => {
+            const errors = result.modelState[key];
+            if (Array.isArray(errors)) {
+              errors.forEach(error => {
+                if (typeof error === 'string') {
+                  modelErrors.push(error);
+                } else if (error && error.errorMessage) {
+                  modelErrors.push(error.errorMessage);
+                }
+              });
+            }
+          });
+        }
+
         this.setState({
           errorMessage: result.errorMessage,
-          modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
+          modelErrors: modelErrors
         });
         return false;
       }
