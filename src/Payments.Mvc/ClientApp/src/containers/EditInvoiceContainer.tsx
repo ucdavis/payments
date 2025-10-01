@@ -45,6 +45,7 @@ interface IState {
   taxPercent: number;
   memo: string;
   items: InvoiceItem[];
+  type: string;
   loading: boolean;
   errorMessage: string;
   modelErrors: string[];
@@ -94,6 +95,7 @@ export default class EditInvoiceContainer extends React.Component<
       items,
       memo: invoice.memo,
       taxPercent: invoice.taxPercent || 0,
+      type: invoice.type,
 
       errorMessage: '',
       modelErrors: [],
@@ -114,6 +116,7 @@ export default class EditInvoiceContainer extends React.Component<
       items,
       taxPercent,
       memo,
+      type,
       loading,
       validate
     } = this.state;
@@ -127,7 +130,8 @@ export default class EditInvoiceContainer extends React.Component<
         <LoadingModal loading={loading} />
         <div className='card-header card-header-yellow'>
           <h1>
-            Edit Invoice #{id} for {team.name}{' '}
+            Edit {type === 'CC' ? 'Credit Card' : type} Invoice #{id} for{' '}
+            {team.name}{' '}
           </h1>
         </div>
         <div className='card-body invoice-customer'>
@@ -146,6 +150,7 @@ export default class EditInvoiceContainer extends React.Component<
             coupons={coupons}
             discount={discount}
             taxPercent={taxPercent}
+            invoiceType={type}
             onItemsChange={v => this.updateProperty('items', v)}
             onDiscountChange={v => this.updateProperty('discount', v)}
             onTaxPercentChange={v => this.updateProperty('taxPercent', v)}
@@ -297,7 +302,8 @@ export default class EditInvoiceContainer extends React.Component<
       dueDate,
       taxPercent,
       items,
-      memo
+      memo,
+      type
     } = this.state;
 
     const calculatedDiscount = calculateDiscount(items, discount);
@@ -312,7 +318,8 @@ export default class EditInvoiceContainer extends React.Component<
       items,
       manualDiscount: calculatedDiscount,
       memo,
-      taxPercent
+      taxPercent,
+      type
     };
 
     // create save url
