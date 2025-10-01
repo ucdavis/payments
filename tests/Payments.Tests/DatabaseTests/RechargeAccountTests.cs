@@ -19,7 +19,23 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.RangeAttribute((Double)0.01, (Double)1000000)]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("ApprovedByKerb", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)20)]",
+            }));
+            expectedFields.Add(new NameAndType("ApprovedByName", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
+            }));
             expectedFields.Add(new NameAndType("Direction", "Payments.Core.Domain.RechargeAccount+CreditDebit", new List<string>()));
+            expectedFields.Add(new NameAndType("EnteredByKerb", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)20)]",
+            }));
+            expectedFields.Add(new NameAndType("EnteredByName", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
+            }));
             expectedFields.Add(new NameAndType("FinancialSegmentString", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
@@ -33,6 +49,10 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("InvoiceId", "System.Int32", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+            }));
+            expectedFields.Add(new NameAndType("Notes", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)400)]",
             }));
             expectedFields.Add(new NameAndType("Percentage", "System.Decimal", new List<string>()));
             #endregion Arrange
