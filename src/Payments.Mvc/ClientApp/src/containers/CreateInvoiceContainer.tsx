@@ -230,27 +230,36 @@ export default class CreateInvoiceContainer extends React.Component<
       <div className='card-body invoice-type'>
         <h2>Invoice Type</h2>
         <div className='form-group'>
-          <div className='btn-group' role='group' aria-label='Invoice Type'>
-            <button
-              type='button'
-              className={`btn ${
-                invoiceType === 'CC' ? 'btn-primary' : 'btn-outline-primary'
-              }`}
-              onClick={() => this.updateProperty('invoiceType', 'CC')}
+          <div className='invoice-type-toggle-container'>
+            <div
+              className='invoice-type-toggle'
+              onClick={() =>
+                this.updateProperty(
+                  'invoiceType',
+                  invoiceType === 'CC' ? 'Recharge' : 'CC'
+                )
+              }
             >
-              Credit Card
-            </button>
-            <button
-              type='button'
-              className={`btn ${
-                invoiceType === 'Recharge'
-                  ? 'btn-primary'
-                  : 'btn-outline-primary'
-              }`}
-              onClick={() => this.updateProperty('invoiceType', 'Recharge')}
-            >
-              Recharge
-            </button>
+              <div
+                className={`invoice-type-toggle-option ${
+                  invoiceType === 'CC' ? 'active' : ''
+                }`}
+              >
+                <span>Credit Card</span>
+              </div>
+              <div
+                className={`invoice-type-toggle-option ${
+                  invoiceType === 'Recharge' ? 'active' : ''
+                }`}
+              >
+                <span>Recharge</span>
+              </div>
+              <div
+                className={`invoice-type-toggle-slider ${
+                  invoiceType === 'Recharge' ? 'slide-right' : 'slide-left'
+                }`}
+              ></div>
+            </div>
           </div>
         </div>
       </div>

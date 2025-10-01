@@ -494,3 +494,73 @@ pre[class*='language-'] {
 .token.entity {
   cursor: help;
 }
+
+// Invoice Type Toggle Styles
+.invoice-type-toggle-container {
+  display: flex;
+  justify-content: flex-start;
+  margin: 10px 0;
+}
+
+.invoice-type-toggle {
+  position: relative;
+  display: flex;
+  background-color: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 25px;
+  cursor: pointer;
+  width: 280px;
+  height: 50px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  &:hover {
+    border-color: $primary-color;
+  }
+}
+
+.invoice-type-toggle-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+  font-weight: 500;
+  color: #6c757d;
+
+  span {
+    color: #6c757d;
+    transition: color 0.3s ease;
+  }
+
+  &.active {
+    color: white !important;
+    
+    span {
+      color: white !important;
+    }
+  }
+}
+
+.invoice-type-toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: $primary-color;
+  border-radius: 23px;
+  transition: transform 0.3s ease;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(29, 74, 131, 0.3);
+
+  &.slide-right {
+    transform: translateX(100%);
+  }
+
+  &.slide-left {
+    transform: translateX(0%);
+  }
+}
