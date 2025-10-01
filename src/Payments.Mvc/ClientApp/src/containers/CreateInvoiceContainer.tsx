@@ -46,6 +46,7 @@ interface IState {
   errorMessage: string;
   modelErrors: string[];
   validate: boolean;
+  invoiceType: string;
 
   isSendModalOpen: boolean;
 }
@@ -60,6 +61,16 @@ export default class CreateInvoiceContainer extends React.Component<
     super(props);
 
     const defaultAccount = props.accounts.find(a => a.isDefault);
+
+    // Determine initial invoice type based on team's allowed invoice type
+    let initialInvoiceType = 'CC'; // default
+    if (props.team.allowedInvoiceType === 'CC') {
+      initialInvoiceType = 'CC';
+    } else if (props.team.allowedInvoiceType === 'Recharge') {
+      initialInvoiceType = 'Recharge';
+    } else if (props.team.allowedInvoiceType === 'Both') {
+      initialInvoiceType = 'CC'; // default to CC for Both
+    }
 
     this.state = {
       accountId: defaultAccount ? defaultAccount.id : 0,
@@ -89,6 +100,7 @@ export default class CreateInvoiceContainer extends React.Component<
       ],
       memo: '',
       taxPercent: 0,
+      invoiceType: initialInvoiceType,
 
       errorMessage: '',
       modelErrors: [],
@@ -123,7 +135,7 @@ export default class CreateInvoiceContainer extends React.Component<
         <div className='card-header card-header-yellow'>
           <h1>Create Invoice for {team.name}</h1>
         </div>
-        <div>Allowed Invoice Type: {team.allowedInvoiceType}</div>
+        {this.renderInvoiceTypeToggle()}
         <div className='card-body invoice-customer'>
           <MultiCustomerControl
             customers={customers}
@@ -202,6 +214,46 @@ export default class CreateInvoiceContainer extends React.Component<
           </div>
         </div>
       </InvoiceForm>
+    );
+  }
+
+  private renderInvoiceTypeToggle() {
+    const { team } = this.props;
+    const { invoiceType } = this.state;
+
+    // Only show toggle if team allows both invoice types
+    if (team.allowedInvoiceType !== 'Both') {
+      return null;
+    }
+
+    return (
+      <div className='card-body invoice-type'>
+        <h2>Invoice Type</h2>
+        <div className='form-group'>
+          <div className='btn-group' role='group' aria-label='Invoice Type'>
+            <button
+              type='button'
+              className={`btn ${
+                invoiceType === 'CC' ? 'btn-primary' : 'btn-outline-primary'
+              }`}
+              onClick={() => this.updateProperty('invoiceType', 'CC')}
+            >
+              Credit Card
+            </button>
+            <button
+              type='button'
+              className={`btn ${
+                invoiceType === 'Recharge'
+                  ? 'btn-primary'
+                  : 'btn-outline-primary'
+              }`}
+              onClick={() => this.updateProperty('invoiceType', 'Recharge')}
+            >
+              Recharge
+            </button>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -302,7 +354,8 @@ export default class CreateInvoiceContainer extends React.Component<
       customers,
       taxPercent,
       items,
-      memo
+      memo,
+      invoiceType
     } = this.state;
 
     const calculatedDiscount = calculateDiscount(items, discount);
@@ -317,7 +370,8 @@ export default class CreateInvoiceContainer extends React.Component<
       items,
       manualDiscount: calculatedDiscount,
       memo,
-      taxPercent
+      taxPercent,
+      type: invoiceType
     };
 
     // create url
