@@ -123,6 +123,7 @@ export default class CreateInvoiceContainer extends React.Component<
         <div className='card-header card-header-yellow'>
           <h1>Create Invoice for {team.name}</h1>
         </div>
+        <div>Allowed Invoice Type: {team.allowedInvoiceType}</div>
         <div className='card-body invoice-customer'>
           <MultiCustomerControl
             customers={customers}
