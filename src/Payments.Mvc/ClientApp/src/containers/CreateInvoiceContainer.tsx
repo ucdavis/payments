@@ -122,7 +122,8 @@ export default class CreateInvoiceContainer extends React.Component<
       customers,
       memo,
       loading,
-      validate
+      validate,
+      invoiceType
     } = this.state;
 
     return (
@@ -150,6 +151,7 @@ export default class CreateInvoiceContainer extends React.Component<
             coupons={coupons}
             discount={discount}
             taxPercent={taxPercent}
+            invoiceType={invoiceType}
             onItemsChange={v => this.updateProperty('items', v)}
             onDiscountChange={v => this.updateProperty('discount', v)}
             onTaxPercentChange={v => this.updateProperty('taxPercent', v)}
