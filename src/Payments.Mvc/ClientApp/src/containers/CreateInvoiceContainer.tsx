@@ -226,31 +226,89 @@ export default class CreateInvoiceContainer extends React.Component<
       return null;
     }
 
+    const toggleContainerStyle: React.CSSProperties = {
+      display: 'flex',
+      justifyContent: 'flex-start',
+      margin: '10px 0'
+    };
+
+    const toggleStyle: React.CSSProperties = {
+      position: 'relative',
+      display: 'flex',
+      backgroundColor: '#f8f9fa',
+      border: '2px solid #dee2e6',
+      borderRadius: '25px',
+      cursor: 'pointer',
+      width: '280px',
+      height: '50px',
+      transition: 'all 0.3s ease',
+      overflow: 'hidden'
+    };
+
+    const toggleOptionStyle: React.CSSProperties = {
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+      zIndex: 2,
+      transition: 'color 0.3s ease',
+      fontWeight: 500,
+      color: '#6c757d'
+    };
+
+    const activeOptionStyle: React.CSSProperties = {
+      ...toggleOptionStyle,
+      color: 'white'
+    };
+
+    const sliderStyle: React.CSSProperties = {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '50%',
+      height: '100%',
+      background: 'linear-gradient(135deg, #007bff, #0056b3)',
+      borderRadius: '23px',
+      transition: 'transform 0.3s ease',
+      zIndex: 1,
+      boxShadow: '0 2px 4px rgba(0,123,255,0.3)',
+      transform:
+        invoiceType === 'Recharge' ? 'translateX(100%)' : 'translateX(0%)'
+    };
+
     return (
       <div className='card-body invoice-type'>
         <h2>Invoice Type</h2>
         <div className='form-group'>
-          <div className='btn-group' role='group' aria-label='Invoice Type'>
-            <button
-              type='button'
-              className={`btn ${
-                invoiceType === 'CC' ? 'btn-primary' : 'btn-outline-primary'
-              }`}
-              onClick={() => this.updateProperty('invoiceType', 'CC')}
+          <div style={toggleContainerStyle}>
+            <div
+              style={toggleStyle}
+              onClick={() =>
+                this.updateProperty(
+                  'invoiceType',
+                  invoiceType === 'CC' ? 'Recharge' : 'CC'
+                )
+              }
             >
-              Credit Card
-            </button>
-            <button
-              type='button'
-              className={`btn ${
-                invoiceType === 'Recharge'
-                  ? 'btn-primary'
-                  : 'btn-outline-primary'
-              }`}
-              onClick={() => this.updateProperty('invoiceType', 'Recharge')}
-            >
-              Recharge
-            </button>
+              <div
+                style={
+                  invoiceType === 'CC' ? activeOptionStyle : toggleOptionStyle
+                }
+              >
+                <span>Credit Card</span>
+              </div>
+              <div
+                style={
+                  invoiceType === 'Recharge'
+                    ? activeOptionStyle
+                    : toggleOptionStyle
+                }
+              >
+                <span>Recharge</span>
+              </div>
+              <div style={sliderStyle}></div>
+            </div>
           </div>
         </div>
       </div>
