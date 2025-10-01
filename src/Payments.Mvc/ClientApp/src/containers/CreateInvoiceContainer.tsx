@@ -226,64 +226,13 @@ export default class CreateInvoiceContainer extends React.Component<
       return null;
     }
 
-    const toggleContainerStyle: React.CSSProperties = {
-      display: 'flex',
-      justifyContent: 'flex-start',
-      margin: '10px 0'
-    };
-
-    const toggleStyle: React.CSSProperties = {
-      position: 'relative',
-      display: 'flex',
-      backgroundColor: '#f8f9fa',
-      border: '2px solid #dee2e6',
-      borderRadius: '25px',
-      cursor: 'pointer',
-      width: '280px',
-      height: '50px',
-      transition: 'all 0.3s ease',
-      overflow: 'hidden'
-    };
-
-    const toggleOptionStyle: React.CSSProperties = {
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
-      zIndex: 2,
-      transition: 'color 0.3s ease',
-      fontWeight: 500,
-      color: '#6c757d'
-    };
-
-    const activeOptionStyle: React.CSSProperties = {
-      ...toggleOptionStyle,
-      color: 'white !important' as any
-    };
-
-    const sliderStyle: React.CSSProperties = {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '50%',
-      height: '100%',
-      background: '#1d4a83',
-      borderRadius: '23px',
-      transition: 'transform 0.3s ease',
-      zIndex: 1,
-      boxShadow: '0 2px 4px rgba(29,74,131,0.3)',
-      transform:
-        invoiceType === 'Recharge' ? 'translateX(100%)' : 'translateX(0%)'
-    };
-
     return (
       <div className='card-body invoice-type'>
         <h2>Invoice Type</h2>
         <div className='form-group'>
-          <div style={toggleContainerStyle}>
+          <div className='invoice-type-toggle-container'>
             <div
-              style={toggleStyle}
+              className='invoice-type-toggle'
               onClick={() =>
                 this.updateProperty(
                   'invoiceType',
@@ -292,32 +241,24 @@ export default class CreateInvoiceContainer extends React.Component<
               }
             >
               <div
-                style={
-                  invoiceType === 'CC' ? activeOptionStyle : toggleOptionStyle
-                }
+                className={`invoice-type-toggle-option ${
+                  invoiceType === 'CC' ? 'active' : ''
+                }`}
               >
-                <span
-                  style={{ color: invoiceType === 'CC' ? 'white' : '#6c757d' }}
-                >
-                  Credit Card
-                </span>
+                <span>Credit Card</span>
               </div>
               <div
-                style={
-                  invoiceType === 'Recharge'
-                    ? activeOptionStyle
-                    : toggleOptionStyle
-                }
+                className={`invoice-type-toggle-option ${
+                  invoiceType === 'Recharge' ? 'active' : ''
+                }`}
               >
-                <span
-                  style={{
-                    color: invoiceType === 'Recharge' ? 'white' : '#6c757d'
-                  }}
-                >
-                  Recharge
-                </span>
+                <span>Recharge</span>
               </div>
-              <div style={sliderStyle}></div>
+              <div
+                className={`invoice-type-toggle-slider ${
+                  invoiceType === 'Recharge' ? 'slide-right' : 'slide-left'
+                }`}
+              ></div>
             </div>
           </div>
         </div>
