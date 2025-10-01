@@ -30,6 +30,8 @@ namespace Payments.Core.Models.Invoice
 
         public IList<RechargeAccount> RechargeAccounts { get; set; } = new List<RechargeAccount>();
 
+        public string Type { get; set; }
+
         public DateTime? DueDate { get; set; }
     }
 

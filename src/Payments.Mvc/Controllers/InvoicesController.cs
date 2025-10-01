@@ -268,6 +268,7 @@ namespace Payments.Mvc.Controllers
                     Size = a.Size,
                 }).ToList(),
                 RechargeAccounts = invoice.RechargeAccounts?.ToList() ?? new List<RechargeAccount>(),
+                Type = invoice.Type,
             };
 
             // add other relevant data

@@ -5,12 +5,15 @@
 @using Payments.Mvc.Models.CyberSource
 @using Payments.Mvc.Identity
 @using Payments.Mvc.Models.Roles
+@using static Payments.Core.Domain.Invoice
 @model Invoice
 @inject IHttpContextAccessor _httpContextAccessor
 @inject ApplicationUserManager _applicationUserManager
 
 @{
-    ViewBag.Title = $"Invoice #{Model.GetFormattedId()}";
+    var InvoiceType = Model.Type == InvoiceTypes.CreditCard ? "Credit Card" : "Recharge";
+
+    ViewBag.Title = $"{InvoiceType} Invoice #{Model.GetFormattedId()}";
     Layout = "_Layout";
 
     var teamSlug = _httpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
