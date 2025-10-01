@@ -17,6 +17,7 @@ namespace Payments.Core.Domain
             Attachments = new List<InvoiceAttachment>();
             Items = new List<LineItem>();
             History = new List<History>();
+            RechargeAccounts = new List<RechargeAccount>();
 
             DraftCount = 0;
             CreatedAt = DateTime.UtcNow;
@@ -114,6 +115,8 @@ namespace Payments.Core.Domain
 
         [JsonIgnore]
         public IList<PaymentEvent> PaymentEvents { get; set; }
+
+        public IList<RechargeAccount> RechargeAccounts { get; set; }
 
         [Required]
         [StringLength(10)]
@@ -245,6 +248,7 @@ namespace Payments.Core.Domain
                 .HasDefaultValue(InvoiceTypes.CreditCard);
 
             builder.Entity<Invoice>().HasIndex(a => a.Type);
+
         }
 
         public Dictionary<string, string> GetPaymentDictionary()

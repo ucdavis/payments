@@ -110,6 +110,7 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("PaymentProcessorId", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("PaymentType", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("RechargeAccounts", "System.Collections.Generic.IList`1[Payments.Core.Domain.RechargeAccount]", new List<string>()));
             expectedFields.Add(new NameAndType("Refunded", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("RefundedAt", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("Sent", "System.Boolean", new List<string>()));

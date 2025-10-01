@@ -123,6 +123,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.History)
                 .Include(i => i.PaymentEvents)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -147,7 +148,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -188,6 +189,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.Attachments)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -202,7 +204,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -264,7 +266,9 @@ namespace Payments.Mvc.Controllers
                     FileName = a.FileName,
                     ContentType = a.ContentType,
                     Size = a.Size,
-                }).ToList()
+                }).ToList(),
+                RechargeAccounts = invoice.RechargeAccounts?.ToList() ?? new List<RechargeAccount>(),
+                Type = invoice.Type,
             };
 
             // add other relevant data

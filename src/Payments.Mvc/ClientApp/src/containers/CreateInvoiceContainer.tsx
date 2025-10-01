@@ -46,6 +46,7 @@ interface IState {
   errorMessage: string;
   modelErrors: string[];
   validate: boolean;
+  invoiceType: string;
 
   isSendModalOpen: boolean;
 }
@@ -60,6 +61,16 @@ export default class CreateInvoiceContainer extends React.Component<
     super(props);
 
     const defaultAccount = props.accounts.find(a => a.isDefault);
+
+    // Determine initial invoice type based on team's allowed invoice type
+    let initialInvoiceType = 'CC'; // default
+    if (props.team.allowedInvoiceType === 'CC') {
+      initialInvoiceType = 'CC';
+    } else if (props.team.allowedInvoiceType === 'Recharge') {
+      initialInvoiceType = 'Recharge';
+    } else if (props.team.allowedInvoiceType === 'Both') {
+      initialInvoiceType = 'CC'; // default to CC for Both
+    }
 
     this.state = {
       accountId: defaultAccount ? defaultAccount.id : 0,
@@ -89,6 +100,7 @@ export default class CreateInvoiceContainer extends React.Component<
       ],
       memo: '',
       taxPercent: 0,
+      invoiceType: initialInvoiceType,
 
       errorMessage: '',
       modelErrors: [],
@@ -110,7 +122,8 @@ export default class CreateInvoiceContainer extends React.Component<
       customers,
       memo,
       loading,
-      validate
+      validate,
+      invoiceType
     } = this.state;
 
     return (
@@ -123,6 +136,7 @@ export default class CreateInvoiceContainer extends React.Component<
         <div className='card-header card-header-yellow'>
           <h1>Create Invoice for {team.name}</h1>
         </div>
+        {this.renderInvoiceTypeToggle()}
         <div className='card-body invoice-customer'>
           <MultiCustomerControl
             customers={customers}
@@ -137,6 +151,7 @@ export default class CreateInvoiceContainer extends React.Component<
             coupons={coupons}
             discount={discount}
             taxPercent={taxPercent}
+            invoiceType={invoiceType}
             onItemsChange={v => this.updateProperty('items', v)}
             onDiscountChange={v => this.updateProperty('discount', v)}
             onTaxPercentChange={v => this.updateProperty('taxPercent', v)}
@@ -201,6 +216,55 @@ export default class CreateInvoiceContainer extends React.Component<
           </div>
         </div>
       </InvoiceForm>
+    );
+  }
+
+  private renderInvoiceTypeToggle() {
+    const { team } = this.props;
+    const { invoiceType } = this.state;
+
+    // Only show toggle if team allows both invoice types
+    if (team.allowedInvoiceType !== 'Both') {
+      return null;
+    }
+
+    return (
+      <div className='card-body invoice-type'>
+        <h2>Invoice Type</h2>
+        <div className='form-group'>
+          <div className='invoice-type-toggle-container'>
+            <div
+              className='invoice-type-toggle'
+              onClick={() =>
+                this.updateProperty(
+                  'invoiceType',
+                  invoiceType === 'CC' ? 'Recharge' : 'CC'
+                )
+              }
+            >
+              <div
+                className={`invoice-type-toggle-option ${
+                  invoiceType === 'CC' ? 'active' : ''
+                }`}
+              >
+                <span>Credit Card</span>
+              </div>
+              <div
+                className={`invoice-type-toggle-option ${
+                  invoiceType === 'Recharge' ? 'active' : ''
+                }`}
+              >
+                <span>Recharge</span>
+              </div>
+              <div
+                className={`invoice-type-toggle-slider ${
+                  invoiceType === 'Recharge' ? 'slide-right' : 'slide-left'
+                }`}
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -301,7 +365,8 @@ export default class CreateInvoiceContainer extends React.Component<
       customers,
       taxPercent,
       items,
-      memo
+      memo,
+      invoiceType
     } = this.state;
 
     const calculatedDiscount = calculateDiscount(items, discount);
@@ -316,7 +381,8 @@ export default class CreateInvoiceContainer extends React.Component<
       items,
       manualDiscount: calculatedDiscount,
       memo,
-      taxPercent
+      taxPercent,
+      type: invoiceType
     };
 
     // create url
@@ -339,9 +405,27 @@ export default class CreateInvoiceContainer extends React.Component<
       return true;
     }
 
+    // Extract model errors from ModelState
+    let modelErrors: string[] = [];
+    if (result.modelState) {
+      // ModelState is an object where keys are property names and values are arrays of error messages
+      Object.keys(result.modelState).forEach(key => {
+        const errors = result.modelState[key];
+        if (Array.isArray(errors)) {
+          errors.forEach(error => {
+            if (typeof error === 'string') {
+              modelErrors.push(error);
+            } else if (error && error.errorMessage) {
+              modelErrors.push(error.errorMessage);
+            }
+          });
+        }
+      });
+    }
+
     this.setState({
       errorMessage: result.errorMessage,
-      modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
+      modelErrors: modelErrors
     });
     return false;
   };
@@ -385,9 +469,27 @@ export default class CreateInvoiceContainer extends React.Component<
 
       const result = await response.json();
       if (!result.success) {
+        // Extract model errors from ModelState
+        let modelErrors: string[] = [];
+        if (result.modelState) {
+          // ModelState is an object where keys are property names and values are arrays of error messages
+          Object.keys(result.modelState).forEach(key => {
+            const errors = result.modelState[key];
+            if (Array.isArray(errors)) {
+              errors.forEach(error => {
+                if (typeof error === 'string') {
+                  modelErrors.push(error);
+                } else if (error && error.errorMessage) {
+                  modelErrors.push(error.errorMessage);
+                }
+              });
+            }
+          });
+        }
+
         this.setState({
           errorMessage: result.errorMessage,
-          modelErrors: result.modelState.model.errors.map(e => e.errorMessage)
+          modelErrors: modelErrors
         });
         return false;
       }
