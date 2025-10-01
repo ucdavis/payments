@@ -68,6 +68,7 @@ namespace Payments.Mvc.Services
                     Memo            = model.Memo,
                     Status          = Invoice.StatusCodes.Draft,
                     Sent            = false,
+                    Type            = model.Type,
                 };
 
                 // add line items

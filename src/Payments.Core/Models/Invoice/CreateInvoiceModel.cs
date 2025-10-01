@@ -1,3 +1,5 @@
+using Payments.Core.Domain;
+using Payments.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -44,6 +46,15 @@ namespace Payments.Core.Models.Invoice
         /// Attachments for invoice. Pre upload and specify returned identifiers 
         /// </summary>
         public IList<CreateInvoiceAttachmentModel> Attachments { get; set; }
+
+        public IList<RechargeAccount> RechargeAccounts { get; set; } = new List<RechargeAccount>();
+
+        /// <summary>
+        /// Invoice type - must be either "CC" (Credit Card) or "Recharge"
+        /// </summary>
+        [Required]
+        [ValidInvoiceType]
+        public string Type { get; set; } //New invoice type
 
         /// <summary>
         /// Optional due date for invoice
