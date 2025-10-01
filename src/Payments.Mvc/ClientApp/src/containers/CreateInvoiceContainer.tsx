@@ -259,7 +259,7 @@ export default class CreateInvoiceContainer extends React.Component<
 
     const activeOptionStyle: React.CSSProperties = {
       ...toggleOptionStyle,
-      color: 'white'
+      color: 'white !important' as any
     };
 
     const sliderStyle: React.CSSProperties = {
@@ -268,11 +268,11 @@ export default class CreateInvoiceContainer extends React.Component<
       left: 0,
       width: '50%',
       height: '100%',
-      background: 'linear-gradient(135deg, #007bff, #0056b3)',
+      background: '#1d4a83',
       borderRadius: '23px',
       transition: 'transform 0.3s ease',
       zIndex: 1,
-      boxShadow: '0 2px 4px rgba(0,123,255,0.3)',
+      boxShadow: '0 2px 4px rgba(29,74,131,0.3)',
       transform:
         invoiceType === 'Recharge' ? 'translateX(100%)' : 'translateX(0%)'
     };
@@ -296,7 +296,11 @@ export default class CreateInvoiceContainer extends React.Component<
                   invoiceType === 'CC' ? activeOptionStyle : toggleOptionStyle
                 }
               >
-                <span>Credit Card</span>
+                <span
+                  style={{ color: invoiceType === 'CC' ? 'white' : '#6c757d' }}
+                >
+                  Credit Card
+                </span>
               </div>
               <div
                 style={
@@ -305,7 +309,13 @@ export default class CreateInvoiceContainer extends React.Component<
                     : toggleOptionStyle
                 }
               >
-                <span>Recharge</span>
+                <span
+                  style={{
+                    color: invoiceType === 'Recharge' ? 'white' : '#6c757d'
+                  }}
+                >
+                  Recharge
+                </span>
               </div>
               <div style={sliderStyle}></div>
             </div>
