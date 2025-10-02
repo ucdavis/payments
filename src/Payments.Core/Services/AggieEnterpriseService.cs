@@ -276,9 +276,63 @@ namespace Payments.Core.Services
             return rtValue;
         }
 
-        public Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, bool validateCVRs = true)
+        public async Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, bool validateCVRs = true)
         {
-            throw new System.NotImplementedException();
+            var rtValue = new AccountValidationModel();
+
+            rtValue = await CommonAccountValidation(rtValue, financialSegmentString, validateCVRs);
+
+            
+            if(!rtValue.IsValid) 
+            {
+                //early return if the account is not valid in general
+                return rtValue;
+            }
+
+            if (direction == CreditDebit.Credit)
+            {
+                //TODO: We probably want to validate some of the other checks from IsAccountValid, at least for credit entries.
+                //The big unknown for now if the rollup stuff/parentstuff.
+
+
+                if (rtValue.CoaChartType == FinancialChartStringType.Gl)
+                {
+                    if(!rtValue.GlSegments.Account.StartsWith("775"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Credit entries, the Natural Account must start with 775 (e.g. 775000)");
+                    }
+                }
+                if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
+                {
+                    if (!rtValue.PpmSegments.ExpenditureType.StartsWith("775"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Credit entries, the Expenditure Type must start with 775 (e.g. 775000)");
+                    }
+                }
+            }
+            if(direction  == CreditDebit.Debit) 
+            {
+                if(rtValue.CoaChartType == FinancialChartStringType.Gl)
+                {
+                    if (!rtValue.GlSegments.Account.StartsWith("770"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Debit entries, the Natural Account must start with 770 (e.g. 770000)");
+                    }
+                }   
+                if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
+                {
+                    if (!rtValue.PpmSegments.ExpenditureType.StartsWith("770"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Debit entries, the Expenditure Type must start with 770 (e.g. 770000)");
+                    }
+                }
+            }
+
+            return rtValue;
         }
 
         private PpmSegmentInput ConvertToPpmSegmentInput(PpmSegments segments)
