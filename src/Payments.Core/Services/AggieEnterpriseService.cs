@@ -7,6 +7,7 @@ using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Validation;
 using Serilog;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static Payments.Core.Domain.RechargeAccount;
 
@@ -23,6 +24,7 @@ namespace Payments.Core.Services
     {
         private readonly AggieEnterpriseOptions _aeSettings;
         private IAggieEnterpriseClient _aggieClient;
+        private const string FiscalOfficer = "Fiscal Officer Approver";
 
         public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> aeSettings)
         {
@@ -336,7 +338,26 @@ namespace Payments.Core.Services
                         rtValue.Messages.Add("For Recharge Credit entries, the Expenditure Type must start with 775 (e.g. 775000)");
                     }
                 }
-
+                if (rtValue.IsValid)
+                {
+                    var result = await _aggieClient.ErpDepartmentApprovers.ExecuteAsync(rtValue.GlSegments.Department);
+                    var data = result.ReadData();
+                    if (data != null)
+                    {
+                        if (data.ErpFinancialDepartment != null && data.ErpFinancialDepartment.Approvers != null)
+                        {
+                            foreach (var approver in data.ErpFinancialDepartment.Approvers.Where(a => a.ApproverType == FiscalOfficer))
+                            {
+                                rtValue.Approvers.Add(new Approver
+                                {
+                                    FirstName = approver.FirstName,
+                                    LastName = approver.LastName,
+                                    Email = approver.EmailAddress,
+                                });
+                            }
+                        }
+                    }
+                }
 
             }
             if(direction  == CreditDebit.Debit) 
@@ -358,6 +379,8 @@ namespace Payments.Core.Services
                     }
                 }
             }
+
+
 
             return rtValue;
         }
