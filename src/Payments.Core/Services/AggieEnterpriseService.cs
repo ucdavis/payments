@@ -138,6 +138,78 @@ namespace Payments.Core.Services
             return accountValidationModel;
         }
 
+        private async Task<AccountValidationModel> CommonGlFundChecks(AccountValidationModel accountValidationModel)
+        {
+            var fund = accountValidationModel.GlSegments.Fund;
+            if ("13U00,13U01,13U02".Contains(fund))//TODO: Make a configurable list of valid funds
+            {
+                //These three are excluded
+                accountValidationModel.IsValid = false;
+                accountValidationModel.Messages.Add("Fund is not valid. Can't be one of 13U00,13U01,13U02");
+            }
+            else
+            {
+                var funds = await _aggieClient.FundParents.ExecuteAsync(fund);
+                var dataFunds = funds.ReadData();
+                if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
+                {
+                    //isValid = true; //Avoid setting to true if it might be false
+                }
+                else
+                {
+                    accountValidationModel.IsValid = false;
+                    accountValidationModel.Messages.Add("Fund is not valid. Must roll up to 1200C, 1300C, or 5000C");
+                }
+            }
+
+            return accountValidationModel;
+        }
+
+        private async Task<AccountValidationModel> CommonPpmFundChecks(AccountValidationModel accountValidationModel)
+        {
+            var ppmSegments = accountValidationModel.PpmSegments;
+            var checkFundCode = await _aggieClient.PpmTaskByProjectNumberAndTaskNumber.ExecuteAsync(ppmSegments.Project, ppmSegments.Task);
+            var checkFundCodeData = checkFundCode.ReadData();
+            if (checkFundCodeData == null)
+            {
+                accountValidationModel.IsValid = false;
+                accountValidationModel.Messages.Add("Unable to check Task's funding code.");
+            }
+            else
+            {
+                var fundCode = checkFundCodeData.PpmTaskByProjectNumberAndTaskNumber.GlPostingFundCode;
+                if (fundCode == null)
+                {
+                    accountValidationModel.IsValid = false;
+                    accountValidationModel.Messages.Add("GlPostingFundCode is null for this Task.");
+                }
+                else
+                {
+                    if ("13U00,13U01,13U02".Contains(fundCode))//TODO: Make a configurable list of valid funds
+                    {
+                        //These three are excluded
+                        accountValidationModel.IsValid = false;
+                        accountValidationModel.Messages.Add("GlPostingFundCode is not valid. Can't be one of 13U00,13U01,13U02");
+                    }
+                    else
+                    {
+                        var funds = await _aggieClient.FundParents.ExecuteAsync(fundCode);
+                        var dataFunds = funds.ReadData();
+                        if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
+                        {
+                            //isValid = true; //Avoid setting to true if it might be false
+                        }
+                        else
+                        {
+                            accountValidationModel.IsValid = false;
+                            accountValidationModel.Messages.Add("GlPostingFundCode is not valid. Must roll up to 1200C, 1300C, or 5000C");
+                        }
+                    }
+                }
+            }
+            return accountValidationModel;
+        }
+
         public async Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true)
         {
             var rtValue = new AccountValidationModel();
@@ -150,27 +222,7 @@ namespace Payments.Core.Services
                 if (rtValue.IsValid)
                 {
                     //Is fund valid?
-                    var fund = rtValue.GlSegments.Fund;
-                    if ("13U00,13U01,13U02".Contains(fund) )//TODO: Make a configurable list of valid funds
-                    {
-                        //These three are excluded
-                        rtValue.IsValid = false;
-                        rtValue.Messages.Add("Fund is not valid. Can't be one of 13U00,13U01,13U02");
-                    }
-                    else 
-                    {
-                        var funds = await _aggieClient.FundParents.ExecuteAsync(fund);
-                        var dataFunds = funds.ReadData();
-                        if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
-                        {
-                            //isValid = true; //Avoid setting to true if it might be false
-                        }
-                        else
-                        {
-                            rtValue.IsValid = false;
-                            rtValue.Messages.Add("Fund is not valid. Must roll up to 1200C, 1300C, or 5000C");
-                        }
-                    }
+                    rtValue = await CommonGlFundChecks(rtValue);
                 }
 
                 
@@ -218,37 +270,7 @@ namespace Payments.Core.Services
                     }
                     else
                     {
-                        var fundCode = checkFundCodeData.PpmTaskByProjectNumberAndTaskNumber.GlPostingFundCode;
-
-                        if (fundCode == null)
-                        {
-                            rtValue.IsValid = false;
-                            rtValue.Messages.Add("GlPostingFundCode is null for this Task.");
-                        }
-                        else
-                        {
-
-                            if ("13U00,13U01,13U02".Contains(fundCode))//TODO: Make a configurable list of valid funds
-                            {
-                                //These three are excluded
-                                rtValue.IsValid = false;
-                                rtValue.Messages.Add("GlPostingFundCode is not valid. Can't be one of 13U00,13U01,13U02");
-                            }
-                            else
-                            {
-                                var funds = await _aggieClient.FundParents.ExecuteAsync(fundCode);
-                                var dataFunds = funds.ReadData();
-                                if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
-                                {
-                                    //isValid = true; //Avoid setting to true if it might be false
-                                }
-                                else
-                                {
-                                    rtValue.IsValid = false;
-                                    rtValue.Messages.Add("GlPostingFundCode is not valid. Must roll up to 1200C, 1300C, or 5000C");
-                                }
-                            }
-                        }
+                        rtValue = await CommonPpmFundChecks(rtValue);
 
                         var ppmNaturalAccount = ppmSegments.ExpenditureType;
 
@@ -291,13 +313,14 @@ namespace Payments.Core.Services
 
             if (direction == CreditDebit.Credit)
             {
-                //TODO: We probably want to validate some of the other checks from IsAccountValid, at least for credit entries.
-                //The big unknown for now if the rollup stuff/parentstuff.
 
+                //The big unknown for now if the rollup stuff/parent stuff.                               
 
                 if (rtValue.CoaChartType == FinancialChartStringType.Gl)
                 {
-                    if(!rtValue.GlSegments.Account.StartsWith("775"))
+                    //Is fund valid?
+                    rtValue = await CommonGlFundChecks(rtValue);
+                    if (!rtValue.GlSegments.Account.StartsWith("775"))
                     {
                         rtValue.IsValid = false;
                         rtValue.Messages.Add("For Recharge Credit entries, the Natural Account must start with 775 (e.g. 775000)");
@@ -305,12 +328,16 @@ namespace Payments.Core.Services
                 }
                 if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
                 {
+                    rtValue = await CommonPpmFundChecks(rtValue);
+
                     if (!rtValue.PpmSegments.ExpenditureType.StartsWith("775"))
                     {
                         rtValue.IsValid = false;
                         rtValue.Messages.Add("For Recharge Credit entries, the Expenditure Type must start with 775 (e.g. 775000)");
                     }
                 }
+
+
             }
             if(direction  == CreditDebit.Debit) 
             {
