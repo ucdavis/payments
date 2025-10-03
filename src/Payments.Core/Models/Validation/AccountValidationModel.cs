@@ -12,6 +12,8 @@ namespace Payments.Core.Models.Validation
     {
         public bool IsValid { get; set; } = true;
 
+        public string ChartString { get; set; }
+
         public FinancialChartStringType CoaChartType { get; set; }
         public GlSegments GlSegments { get; set; }
         public PpmSegments PpmSegments { get; set; }

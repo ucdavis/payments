@@ -46,6 +46,7 @@ namespace Payments.Core.Services
                 return accountValidationModel;
             }
             accountValidationModel.CoaChartType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
+            accountValidationModel.ChartString = financialSegmentString; //We may replace natural account later.
 
             if (accountValidationModel.CoaChartType == FinancialChartStringType.Invalid)
             {
@@ -103,6 +104,8 @@ namespace Payments.Core.Services
             if (accountValidationModel.CoaChartType == FinancialChartStringType.Ppm)
             {
                 accountValidationModel.CoaChartType = FinancialChartStringType.Ppm;
+                accountValidationModel.PpmSegments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
+
                 var result = await _aggieClient.PpmSegmentStringValidate.ExecuteAsync(financialSegmentString);
 
                 var data = result.ReadData();
@@ -131,7 +134,7 @@ namespace Payments.Core.Services
                     }
                 }
 
-                accountValidationModel.PpmSegments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
+                
 
                 await GetPpmAccountManager(accountValidationModel);
             }
@@ -304,12 +307,21 @@ namespace Payments.Core.Services
         {
             var rtValue = new AccountValidationModel();
 
+            var newChartString = ReplaceNaturalAccount(financialSegmentString, direction == CreditDebit.Credit ? "775000" : "770006");
+            var chartStringUpdated = newChartString != financialSegmentString;
+            financialSegmentString = newChartString;
+
             rtValue = await CommonAccountValidation(rtValue, financialSegmentString, validateCVRs);
 
             
             if(!rtValue.IsValid) 
             {
                 //early return if the account is not valid in general
+                if(chartStringUpdated)
+                {
+                    //Add a warning that we changed the natural account for them. Otherwise, they may not notice if it would have been valid except for the change
+                    rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", direction == CreditDebit.Credit ? "The Natural Account/Expenditure Type segment has been changed to 775000." : "The Natural Account/Expenditure Type segment has been changed to 770006."));
+                }
                 return rtValue;
             }
 
@@ -327,6 +339,31 @@ namespace Payments.Core.Services
                         rtValue.IsValid = false;
                         rtValue.Messages.Add("For Recharge Credit entries, the Natural Account must start with 775 (e.g. 775000)");
                     }
+                    if(chartStringUpdated)
+                    {
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", "The Natural Account segment has been changed to 775000."));
+                    }
+                    if (rtValue.IsValid)
+                    {
+                        var result = await _aggieClient.ErpDepartmentApprovers.ExecuteAsync(rtValue.GlSegments.Department);
+                        var data = result.ReadData();
+                        if (data != null)
+                        {
+                            if (data.ErpFinancialDepartment != null && data.ErpFinancialDepartment.Approvers != null)
+                            {
+                                foreach (var approver in data.ErpFinancialDepartment.Approvers.Where(a => a.ApproverType == FiscalOfficer))
+                                {
+                                    rtValue.Approvers.Add(new Approver
+                                    {
+                                        FirstName = approver.FirstName,
+                                        LastName = approver.LastName,
+                                        Email = approver.EmailAddress,
+                                    });
+                                }
+                            }
+                        }
+                    }
                 }
                 if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
                 {
@@ -337,28 +374,12 @@ namespace Payments.Core.Services
                         rtValue.IsValid = false;
                         rtValue.Messages.Add("For Recharge Credit entries, the Expenditure Type must start with 775 (e.g. 775000)");
                     }
-                }
-                if (rtValue.IsValid)
-                {
-                    var result = await _aggieClient.ErpDepartmentApprovers.ExecuteAsync(rtValue.GlSegments.Department);
-                    var data = result.ReadData();
-                    if (data != null)
+                    if (chartStringUpdated)
                     {
-                        if (data.ErpFinancialDepartment != null && data.ErpFinancialDepartment.Approvers != null)
-                        {
-                            foreach (var approver in data.ErpFinancialDepartment.Approvers.Where(a => a.ApproverType == FiscalOfficer))
-                            {
-                                rtValue.Approvers.Add(new Approver
-                                {
-                                    FirstName = approver.FirstName,
-                                    LastName = approver.LastName,
-                                    Email = approver.EmailAddress,
-                                });
-                            }
-                        }
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Expenditure Type", "The Expenditure Type segment has been changed to 775000."));
                     }
                 }
-
             }
             if(direction  == CreditDebit.Debit) 
             {
@@ -369,6 +390,11 @@ namespace Payments.Core.Services
                         rtValue.IsValid = false;
                         rtValue.Messages.Add("For Recharge Debit entries, the Natural Account must start with 770 (e.g. 770000)");
                     }
+                    if(chartStringUpdated)
+                    {
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", "The Natural Account segment has been changed to 770006."));
+                    }
                 }   
                 if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
                 {
@@ -376,6 +402,11 @@ namespace Payments.Core.Services
                     {
                         rtValue.IsValid = false;
                         rtValue.Messages.Add("For Recharge Debit entries, the Expenditure Type must start with 770 (e.g. 770000)");
+                    }
+                    if (chartStringUpdated)
+                    {
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Expenditure Type", "The Expenditure Type segment has been changed to 770006."));
                     }
                 }
             }
@@ -396,6 +427,37 @@ namespace Payments.Core.Services
                 ExpenditureType = segments.ExpenditureType,
                 FundingSource = segments.FundingSource,
             };
+        }
+
+
+        private string ReplaceNaturalAccount(string financialSegmentString, string naturalAccountToUse)
+        {
+            if(string.IsNullOrWhiteSpace(naturalAccountToUse))
+            {
+                return financialSegmentString;
+            }
+            var chartType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
+            if (chartType == FinancialChartStringType.Gl)
+            {
+                var segments = FinancialChartValidation.GetGlSegments(financialSegmentString);
+                if (segments == null)
+                {
+                    throw new System.Exception("Internal error: GlSegments is null");
+                }
+                segments.Account = naturalAccountToUse;
+                return segments.ToSegmentString(); 
+            }
+            if(chartType == FinancialChartStringType.Ppm)
+            {
+                var segments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
+                if (segments == null)
+                {
+                    throw new System.Exception("Internal error: PpmSegments is null");
+                }
+                segments.ExpenditureType = naturalAccountToUse;
+                return segments.ToSegmentString();
+            }
+            return financialSegmentString; //Invalid...
         }
 
         private async Task GetPpmAccountManager(AccountValidationModel rtValue)
