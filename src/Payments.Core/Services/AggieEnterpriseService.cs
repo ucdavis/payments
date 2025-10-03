@@ -327,7 +327,6 @@ namespace Payments.Core.Services
 
             if (direction == CreditDebit.Credit)
             {
-
                 //The big unknown for now if the rollup stuff/parent stuff.                               
 
                 if (rtValue.CoaChartType == FinancialChartStringType.Gl)
@@ -343,26 +342,6 @@ namespace Payments.Core.Services
                     {
                         //Add a warning that we changed the natural account for them.
                         rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", "The Natural Account segment has been changed to 775000."));
-                    }
-                    if (rtValue.IsValid)
-                    {
-                        var result = await _aggieClient.ErpDepartmentApprovers.ExecuteAsync(rtValue.GlSegments.Department);
-                        var data = result.ReadData();
-                        if (data != null)
-                        {
-                            if (data.ErpFinancialDepartment != null && data.ErpFinancialDepartment.Approvers != null)
-                            {
-                                foreach (var approver in data.ErpFinancialDepartment.Approvers.Where(a => a.ApproverType == FiscalOfficer))
-                                {
-                                    rtValue.Approvers.Add(new Approver
-                                    {
-                                        FirstName = approver.FirstName,
-                                        LastName = approver.LastName,
-                                        Email = approver.EmailAddress,
-                                    });
-                                }
-                            }
-                        }
                     }
                 }
                 if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
@@ -394,6 +373,26 @@ namespace Payments.Core.Services
                     {
                         //Add a warning that we changed the natural account for them.
                         rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", "The Natural Account segment has been changed to 770006."));
+                    }
+                    if (rtValue.IsValid)
+                    {
+                        var result = await _aggieClient.ErpDepartmentApprovers.ExecuteAsync(rtValue.GlSegments.Department);
+                        var data = result.ReadData();
+                        if (data != null)
+                        {
+                            if (data.ErpFinancialDepartment != null && data.ErpFinancialDepartment.Approvers != null)
+                            {
+                                foreach (var approver in data.ErpFinancialDepartment.Approvers.Where(a => a.ApproverType == FiscalOfficer))
+                                {
+                                    rtValue.Approvers.Add(new Approver
+                                    {
+                                        FirstName = approver.FirstName,
+                                        LastName = approver.LastName,
+                                        Email = approver.EmailAddress,
+                                    });
+                                }
+                            }
+                        }
                     }
                 }   
                 if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
@@ -470,6 +469,31 @@ namespace Payments.Core.Services
             {
                 rtValue.AccountManager = data.PpmProjectByNumber.PrimaryProjectManagerName;
                 rtValue.AccountManagerEmail = data.PpmProjectByNumber.PrimaryProjectManagerEmail;
+
+                //Ok, we also want to push this person into the approvers list.
+                //the format is lastName, firstname
+                if (!string.IsNullOrWhiteSpace(rtValue.AccountManagerEmail))
+                {
+                    var names = rtValue.AccountManager.Split(',');
+                    var firstName = string.Empty;
+                    var lastName = string.Empty;
+                    if (names.Length == 2)
+                    {
+                        lastName = names[0].Trim();
+                        firstName = names[1].Trim();
+                    }
+                    else
+                    {
+                        lastName = rtValue.AccountManager;
+                    }
+                    rtValue.Approvers.Add(new Approver
+                    {
+                        FirstName = firstName,
+                        LastName = lastName,
+                        Email = rtValue.AccountManagerEmail,
+                        FullName = rtValue.AccountManager
+                    });
+                }
             }
             return;
         }
