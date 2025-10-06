@@ -180,6 +180,34 @@ export default class RechargeAccountsControl extends React.Component<
     return accounts.reduce((sum, account) => sum + account.amount, 0);
   };
 
+  private handleFinancialSegmentPicker = async (
+    index: number,
+    direction: 'Credit' | 'Debit'
+  ) => {
+    try {
+      // Check if window.Finjector is available
+      if (typeof window !== 'undefined' && (window as any).Finjector) {
+        const chart = await (window as any).Finjector.findChartSegmentString();
+        if (chart && chart.status === 'success') {
+          const updateAccount =
+            direction === 'Credit'
+              ? this.updateCreditAccount
+              : this.updateDebitAccount;
+          updateAccount(index, 'financialSegmentString', chart.data);
+        } else {
+          alert('Something went wrong with the CCOA picker');
+        }
+      } else {
+        alert(
+          'CCOA picker service is not available. Please ensure the page has loaded completely.'
+        );
+      }
+    } catch (error) {
+      console.error('Error with CCOA picker:', error);
+      alert('An error occurred while using the CCOA picker');
+    }
+  };
+
   private renderAccountRow = (
     account: InvoiceRechargeItem,
     index: number,
@@ -200,17 +228,29 @@ export default class RechargeAccountsControl extends React.Component<
       <React.Fragment key={account.id}>
         <tr>
           <td style={{ width: '60%' }}>
-            <input
-              type='text'
-              className='form-control'
-              placeholder='Financial Segment String'
-              value={account.financialSegmentString}
-              onChange={e =>
-                updateAccount(index, 'financialSegmentString', e.target.value)
-              }
-              maxLength={70}
-              required
-            />
+            <div className='input-group'>
+              <input
+                type='text'
+                className='form-control'
+                placeholder='Financial Segment String'
+                value={account.financialSegmentString}
+                onChange={e =>
+                  updateAccount(index, 'financialSegmentString', e.target.value)
+                }
+                maxLength={70}
+                required
+              />
+              <button
+                type='button'
+                className='btn btn-outline-secondary'
+                title='CCOA Picker'
+                onClick={() =>
+                  this.handleFinancialSegmentPicker(index, direction)
+                }
+              >
+                <i className='fas fa-search'></i>
+              </button>
+            </div>
           </td>
           <td style={{ width: '10%' }}>
             <CurrencyControl
