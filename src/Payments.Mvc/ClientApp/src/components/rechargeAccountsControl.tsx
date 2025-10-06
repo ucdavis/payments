@@ -195,56 +195,61 @@ export default class RechargeAccountsControl extends React.Component<
     const canRemove = isCredit ? this.state.creditAccounts.length > 1 : true;
 
     return (
-      <tr key={account.id}>
-        <td>
-          <input
-            type='text'
-            className='form-control'
-            placeholder='Financial Segment String'
-            value={account.financialSegmentString}
-            onChange={e =>
-              updateAccount(index, 'financialSegmentString', e.target.value)
-            }
-            required
-          />
-        </td>
-        <td>
-          <CurrencyControl
-            value={account.amount}
-            onChange={value => updateAccount(index, 'amount', value)}
-          />
-        </td>
-        <td>
-          <NumberControl
-            value={account.percentage}
-            onChange={value => updateAccount(index, 'percentage', value)}
-            min={0}
-            max={100}
-            step={0.01}
-            placeholder='0.00'
-          />
-        </td>
-        <td>
-          <input
-            type='text'
-            className='form-control'
-            placeholder='Notes (optional)'
-            value={account.notes}
-            onChange={e => updateAccount(index, 'notes', e.target.value)}
-          />
-        </td>
-        <td>
-          {canRemove && (
-            <button
-              type='button'
-              className='btn btn-sm btn-outline-danger'
-              onClick={() => removeAccount(index)}
-            >
-              Remove
-            </button>
-          )}
-        </td>
-      </tr>
+      <React.Fragment key={account.id}>
+        <tr>
+          <td style={{ width: '60%' }}>
+            <input
+              type='text'
+              className='form-control'
+              placeholder='Financial Segment String'
+              value={account.financialSegmentString}
+              onChange={e =>
+                updateAccount(index, 'financialSegmentString', e.target.value)
+              }
+              maxLength={70}
+              required
+            />
+          </td>
+          <td style={{ width: '10%' }}>
+            <CurrencyControl
+              value={account.amount}
+              onChange={value => updateAccount(index, 'amount', value)}
+            />
+          </td>
+          <td style={{ width: '10%' }}>
+            <NumberControl
+              value={account.percentage}
+              onChange={value => updateAccount(index, 'percentage', value)}
+              min={0}
+              max={100}
+              step={0.01}
+              placeholder='0.00'
+            />
+          </td>
+          <td style={{ width: '20%' }}>
+            {canRemove && (
+              <button
+                type='button'
+                className='btn btn-sm btn-outline-danger'
+                onClick={() => removeAccount(index)}
+              >
+                Remove
+              </button>
+            )}
+          </td>
+        </tr>
+        <tr>
+          <td colSpan={4}>
+            <input
+              type='text'
+              className='form-control'
+              placeholder='Notes (optional)'
+              value={account.notes}
+              onChange={e => updateAccount(index, 'notes', e.target.value)}
+            />
+          </td>
+        </tr>
+      </React.Fragment>
     );
   };
 
@@ -269,11 +274,10 @@ export default class RechargeAccountsControl extends React.Component<
           <table className='table table-sm'>
             <thead>
               <tr>
-                <th>Financial Segment String *</th>
-                <th>Amount *</th>
-                <th>Percentage</th>
-                <th>Notes</th>
-                <th>Actions</th>
+                <th style={{ width: '50%' }}>Financial Segment String *</th>
+                <th style={{ width: '15%' }}>Amount *</th>
+                <th style={{ width: '15%' }}>Percentage</th>
+                <th style={{ width: '20%' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
