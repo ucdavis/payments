@@ -227,7 +227,7 @@ export default class RechargeAccountsControl extends React.Component<
     return (
       <React.Fragment key={account.id}>
         <tr>
-          <td style={{ width: '60%' }}>
+          <td style={{ width: '55%', paddingRight: '8px' }}>
             <div className='input-group'>
               <input
                 type='text'
@@ -252,13 +252,13 @@ export default class RechargeAccountsControl extends React.Component<
               </button>
             </div>
           </td>
-          <td style={{ width: '10%' }}>
+          <td style={{ width: '12%', paddingLeft: '4px', paddingRight: '4px' }}>
             <CurrencyControl
               value={account.amount}
               onChange={value => updateAccount(index, 'amount', value)}
             />
           </td>
-          <td style={{ width: '10%' }}>
+          <td style={{ width: '12%', paddingLeft: '4px', paddingRight: '4px' }}>
             <NumberControl
               value={account.percentage}
               onChange={value => updateAccount(index, 'percentage', value)}
@@ -268,7 +268,7 @@ export default class RechargeAccountsControl extends React.Component<
               placeholder='0.00'
             />
           </td>
-          <td style={{ width: '5%', textAlign: 'right' }}>
+          <td style={{ width: '6%', textAlign: 'right', paddingLeft: '8px' }}>
             {canRemove && (
               <button
                 className='btn-link btn-invoice-delete'
@@ -327,10 +327,10 @@ export default class RechargeAccountsControl extends React.Component<
           <table className='table table-sm invoice-table'>
             <thead>
               <tr>
-                <th style={{ width: '60%' }}>Financial Segment String *</th>
-                <th style={{ width: '10%' }}>Amount *</th>
-                <th style={{ width: '10%' }}>Percentage</th>
-                <th style={{ width: '5%' }}></th>
+                <th style={{ width: '55%' }}>Financial Segment String *</th>
+                <th style={{ width: '12%' }}>Amount *</th>
+                <th style={{ width: '12%' }}>Percentage</th>
+                <th style={{ width: '6%' }}></th>
               </tr>
             </thead>
             <tbody>
