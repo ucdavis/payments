@@ -256,6 +256,7 @@ export default class RechargeAccountsControl extends React.Component<
             <CurrencyControl
               value={account.amount}
               onChange={value => updateAccount(index, 'amount', value)}
+              isInvalid={account.amount <= 0}
             />
           </td>
           <td style={{ width: '12%', paddingLeft: '4px', paddingRight: '4px' }}>
@@ -313,12 +314,15 @@ export default class RechargeAccountsControl extends React.Component<
     onAdd: () => void
   ) => {
     const total = this.calculateTotal(accounts);
-    const isValid =
+    const hasInvalidAmounts = accounts.some(account => account.amount <= 0);
+    const isTotalValid =
       direction === 'Credit'
         ? accounts.length > 0 &&
           Math.abs(total - this.props.invoiceTotal) < 0.01
         : accounts.length === 0 ||
           Math.abs(total - this.props.invoiceTotal) < 0.01;
+
+    const isValid = isTotalValid && !hasInvalidAmounts;
 
     return (
       <div className='mb-4'>
@@ -354,14 +358,19 @@ export default class RechargeAccountsControl extends React.Component<
             className={`text-end ${isValid ? 'text-success' : 'text-danger'}`}
           >
             <strong>Total: ${total.toFixed(2)}</strong>
-            {direction === 'Credit' && !isValid && (
+            {direction === 'Credit' && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
               </div>
             )}
-            {direction === 'Debit' && accounts.length > 0 && !isValid && (
+            {direction === 'Debit' && accounts.length > 0 && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
+              </div>
+            )}
+            {hasInvalidAmounts && (
+              <div className='small text-danger'>
+                All amounts must be greater than zero
               </div>
             )}
           </div>
@@ -393,8 +402,9 @@ export default class RechargeAccountsControl extends React.Component<
 
         <div className='alert alert-info'>
           <strong>Note:</strong> Credit accounts are required and must total the
-          invoice amount. Debit accounts are optional, but if entered, must also
-          total the invoice amount.
+          invoice amount. All amounts must be greater than zero. Debit accounts
+          are optional, but if entered, must also total the invoice amount and
+          have amounts greater than zero.
         </div>
       </div>
     );
