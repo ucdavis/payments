@@ -95,7 +95,7 @@ export default class RechargeAccountsControl extends React.Component<
     direction: 'Credit' | 'Debit',
     id: number
   ): InvoiceRechargeItem => ({
-    id,
+    id: 0,
     direction,
     financialSegmentString: '',
     amount: 0,

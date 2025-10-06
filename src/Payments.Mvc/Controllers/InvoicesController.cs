@@ -373,7 +373,7 @@ namespace Payments.Mvc.Controllers
 
             if(invoice.Type == Invoice.InvoiceTypes.Recharge)
             {
-                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id != 0))
+                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id == 0))
                 {                    
                     rechargeAcct.EnteredByKerb = user.CampusKerberos;
                     rechargeAcct.EnteredByName = user.Name;            
