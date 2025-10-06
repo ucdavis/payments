@@ -183,7 +183,8 @@ export default class RechargeAccountsControl extends React.Component<
   private renderAccountRow = (
     account: InvoiceRechargeItem,
     index: number,
-    direction: 'Credit' | 'Debit'
+    direction: 'Credit' | 'Debit',
+    accounts: InvoiceRechargeItem[]
   ) => {
     const isCredit = direction === 'Credit';
     const updateAccount = isCredit
@@ -193,6 +194,7 @@ export default class RechargeAccountsControl extends React.Component<
       ? this.removeCreditAccount
       : this.removeDebitAccount;
     const canRemove = isCredit ? this.state.creditAccounts.length > 1 : true;
+    const isLastAccount = index === accounts.length - 1;
 
     return (
       <React.Fragment key={account.id}>
@@ -226,14 +228,13 @@ export default class RechargeAccountsControl extends React.Component<
               placeholder='0.00'
             />
           </td>
-          <td style={{ width: '20%' }}>
+          <td style={{ width: '5%', textAlign: 'right' }}>
             {canRemove && (
               <button
-                type='button'
-                className='btn btn-sm btn-outline-danger'
+                className='btn-link btn-invoice-delete'
                 onClick={() => removeAccount(index)}
               >
-                Remove
+                <i className='fas fa-trash-alt' />
               </button>
             )}
           </td>
@@ -249,6 +250,18 @@ export default class RechargeAccountsControl extends React.Component<
             />
           </td>
         </tr>
+        {!isLastAccount && (
+          <tr>
+            <td
+              colSpan={4}
+              style={{
+                padding: '0',
+                height: '8px',
+                borderBottom: '2px solid #dee2e6'
+              }}
+            ></td>
+          </tr>
+        )}
       </React.Fragment>
     );
   };
@@ -271,18 +284,18 @@ export default class RechargeAccountsControl extends React.Component<
       <div className='mb-4'>
         <h4>{title}</h4>
         <div className='table-responsive'>
-          <table className='table table-sm'>
+          <table className='table table-sm invoice-table'>
             <thead>
               <tr>
-                <th style={{ width: '50%' }}>Financial Segment String *</th>
-                <th style={{ width: '15%' }}>Amount *</th>
-                <th style={{ width: '15%' }}>Percentage</th>
-                <th style={{ width: '20%' }}>Actions</th>
+                <th style={{ width: '60%' }}>Financial Segment String *</th>
+                <th style={{ width: '10%' }}>Amount *</th>
+                <th style={{ width: '10%' }}>Percentage</th>
+                <th style={{ width: '5%' }}></th>
               </tr>
             </thead>
             <tbody>
               {accounts.map((account, index) =>
-                this.renderAccountRow(account, index, direction)
+                this.renderAccountRow(account, index, direction, accounts)
               )}
             </tbody>
           </table>
