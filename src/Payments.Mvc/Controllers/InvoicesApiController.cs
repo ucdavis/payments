@@ -124,6 +124,26 @@ namespace Payments.Mvc.Controllers
         {
             var team = await GetAuthorizedTeam();
 
+            if (model.Type == Invoice.InvoiceTypes.CreditCard)
+            {
+                if (team.AllowedInvoiceType == Team.AllowedInvoiceTypes.Recharge)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create credit card invoices.");
+                }
+            }
+            if (model.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                if (team.AllowedInvoiceType == Team.AllowedInvoiceTypes.CreditCard)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create recharge invoices.");
+                }
+                foreach (var rechargeAcct in model.RechargeAccounts)
+                {
+                    rechargeAcct.EnteredByKerb = "API";
+                    rechargeAcct.EnteredByName = "API";
+                }
+            }
+
             // validate model
             if (!ModelState.IsValid)
             {

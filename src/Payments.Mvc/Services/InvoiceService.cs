@@ -25,6 +25,7 @@ namespace Payments.Mvc.Services
 
         public async Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team)
         {
+            //Account isn't really used or needed for recharge invoices, but keep doing this until we can see if it breaks anything.
             // find account
             var account = await _dbContext.FinancialAccounts
                 .FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.Id == model.AccountId);
@@ -37,6 +38,15 @@ namespace Payments.Mvc.Services
             if (!account.IsActive)
             {
                 throw new ArgumentException("Account is inactive.", nameof(model.AccountId));
+            }
+
+            if(model.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                //TODO: Server side validation.
+                //Must have at least one credit recharge account.
+                //All recharge accounts must be valid.
+                //All credit recharge account must be 100% of total.
+                //If any debit recharge accounts, they must all be 100% of total.
             }
 
             // find coupon
@@ -91,6 +101,21 @@ namespace Payments.Mvc.Services
                     Size        = a.Size,
                 });
                 invoice.Attachments = attachments.ToList();
+
+                if(model.Type == Invoice.InvoiceTypes.Recharge)
+                {
+                    var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
+                    {
+                        Direction                 = a.Direction,
+                        FinancialSegmentString    = a.FinancialSegmentString,
+                        Amount                    = a.Amount,
+                        Percentage                = a.Percentage,
+                        EnteredByKerb             = a.EnteredByKerb,
+                        EnteredByName             = a.EnteredByName,
+                        Notes                     = a.Notes,
+                        
+                    });
+                }
 
                 // start tracking for db
                 invoice.UpdateCalculatedValues();

@@ -318,6 +318,7 @@ export default class EditInvoiceContainer extends React.Component<
       items,
       manualDiscount: calculatedDiscount,
       memo,
+      rechargeAccounts: [],
       taxPercent,
       type
     };

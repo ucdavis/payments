@@ -1,6 +1,7 @@
 import { InvoiceAttachment } from './InvoiceAttachment';
 import { InvoiceCustomer } from './InvoiceCustomer';
 import { InvoiceItem } from './InvoiceItem';
+import { InvoiceRechargeItem } from './InvoiceRechargeItem';
 
 export interface CreateInvoice {
   accountId: number;
@@ -13,4 +14,5 @@ export interface CreateInvoice {
   items: InvoiceItem[];
   attachments: InvoiceAttachment[];
   type: string;
+  rechargeAccounts: InvoiceRechargeItem[];
 }
