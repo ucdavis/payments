@@ -3,7 +3,7 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import 'isomorphic-fetch';
 
-import { calculateDiscount } from '../helpers/calculations';
+import { calculateDiscount, calculateTotal } from '../helpers/calculations';
 
 import { Account } from '../models/Account';
 import { Coupon } from '../models/Coupon';
@@ -12,6 +12,7 @@ import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
+import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
@@ -23,6 +24,7 @@ import EditItemsTable from '../components/editItemsTable';
 import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
+import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import SendModal from '../components/sendModal';
 
 declare var antiForgeryToken: string;
@@ -45,6 +47,7 @@ interface IState {
   taxPercent: number;
   memo: string;
   items: InvoiceItem[];
+  rechargeAccounts: InvoiceRechargeItem[];
   type: string;
   loading: boolean;
   errorMessage: string;
@@ -94,6 +97,7 @@ export default class EditInvoiceContainer extends React.Component<
       dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
       items,
       memo: invoice.memo,
+      rechargeAccounts: invoice.rechargeAccounts || [],
       taxPercent: invoice.taxPercent || 0,
       type: invoice.type,
 
@@ -117,6 +121,7 @@ export default class EditInvoiceContainer extends React.Component<
       taxPercent,
       memo,
       type,
+      rechargeAccounts,
       loading,
       validate
     } = this.state;
@@ -165,6 +170,15 @@ export default class EditInvoiceContainer extends React.Component<
             />
           </div>
         </div>
+        {type === 'Recharge' && (
+          <div className='card-body invoice-recharge-accounts'>
+            <RechargeAccountsControl
+              rechargeAccounts={rechargeAccounts}
+              invoiceTotal={calculateTotal(items, discount, taxPercent)}
+              onChange={v => this.updateProperty('rechargeAccounts', v)}
+            />
+          </div>
+        )}
         <div className='card-body invoice-billing'>
           <h2>Billing</h2>
           <div className='form-group'>
@@ -303,7 +317,8 @@ export default class EditInvoiceContainer extends React.Component<
       taxPercent,
       items,
       memo,
-      type
+      type,
+      rechargeAccounts
     } = this.state;
 
     const calculatedDiscount = calculateDiscount(items, discount);
@@ -318,7 +333,7 @@ export default class EditInvoiceContainer extends React.Component<
       items,
       manualDiscount: calculatedDiscount,
       memo,
-      rechargeAccounts: [],
+      rechargeAccounts,
       taxPercent,
       type
     };

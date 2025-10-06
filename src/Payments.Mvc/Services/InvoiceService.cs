@@ -115,6 +115,7 @@ namespace Payments.Mvc.Services
                         Notes                     = a.Notes,
                         
                     });
+                    invoice.RechargeAccounts = rechargeAccounts.ToList();
                 }
 
                 // start tracking for db

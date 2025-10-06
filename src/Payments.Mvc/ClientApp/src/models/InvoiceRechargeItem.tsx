@@ -1,6 +1,5 @@
 export interface InvoiceRechargeItem {
   id: number;
-  invoiceId: number;
   direction: 'Credit' | 'Debit';
   financialSegmentString: string;
   amount: number;
