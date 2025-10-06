@@ -362,12 +362,22 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Attachments)
                 .Include(i => i.Team)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
             {
                 return NotFound();
+            }
+
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id != 0))
+                {                    
+                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
+                    rechargeAcct.EnteredByName = user.Name;            
+                }
             }
 
             // validate model

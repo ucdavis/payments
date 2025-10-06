@@ -21,14 +21,32 @@ export default class RechargeAccountsControl extends React.Component<
   IProps,
   IState
 > {
+  // Helper function to normalize direction values from server
+  private normalizeDirection = (direction: any): 'Credit' | 'Debit' => {
+    // Handle integer enum values: 0 = Credit, 1 = Debit
+    if (direction === 0 || direction === '0') return 'Credit';
+    if (direction === 1 || direction === '1') return 'Debit';
+    // Handle string values
+    if (typeof direction === 'string') {
+      return direction as 'Credit' | 'Debit';
+    }
+    // Default fallback
+    return 'Credit';
+  };
+
   constructor(props: IProps) {
     super(props);
 
-    // Separate credit and debit accounts
-    const creditAccounts = props.rechargeAccounts.filter(
+    // Normalize direction values and separate credit and debit accounts
+    const normalizedAccounts = props.rechargeAccounts.map(account => ({
+      ...account,
+      direction: this.normalizeDirection(account.direction)
+    }));
+
+    const creditAccounts = normalizedAccounts.filter(
       account => account.direction === 'Credit'
     );
-    const debitAccounts = props.rechargeAccounts.filter(
+    const debitAccounts = normalizedAccounts.filter(
       account => account.direction === 'Debit'
     );
 
@@ -44,6 +62,33 @@ export default class RechargeAccountsControl extends React.Component<
       debitAccounts,
       nextId
     };
+  }
+
+  componentDidUpdate(prevProps: IProps) {
+    // If the rechargeAccounts prop changes, update our state
+    if (prevProps.rechargeAccounts !== this.props.rechargeAccounts) {
+      const normalizedAccounts = this.props.rechargeAccounts.map(account => ({
+        ...account,
+        direction: this.normalizeDirection(account.direction)
+      }));
+
+      const creditAccounts = normalizedAccounts.filter(
+        account => account.direction === 'Credit'
+      );
+      const debitAccounts = normalizedAccounts.filter(
+        account => account.direction === 'Debit'
+      );
+
+      // Ensure we have at least one credit account
+      if (creditAccounts.length === 0) {
+        creditAccounts.push(this.createNewAccount('Credit', this.state.nextId));
+      }
+
+      this.setState({
+        creditAccounts,
+        debitAccounts
+      });
+    }
   }
 
   private createNewAccount = (
