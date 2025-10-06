@@ -12,6 +12,8 @@ namespace Payments.Core.Models.Validation
     {
         public bool IsValid { get; set; } = true;
 
+        public string ChartString { get; set; }
+
         public FinancialChartStringType CoaChartType { get; set; }
         public GlSegments GlSegments { get; set; }
         public PpmSegments PpmSegments { get; set; }
@@ -36,5 +38,29 @@ namespace Payments.Core.Models.Validation
         }
 
         public List<string> Messages { get; set; } = new List<string>();
+
+        // Needed for recharges.
+        public List<Approver> Approvers { get; set; } = new List<Approver>();
+    }
+
+    public class Approver
+    {
+        public string? FirstName { get; set; } = string.Empty;
+        public string? LastName { get; set; } = string.Empty;
+        public string? Email { get; set; } = string.Empty;
+
+        public string? FullName { get; set; } = string.Empty;
+        public string Name
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(FullName))
+                {
+                    return FullName;
+                }
+
+                return $"{LastName}, {FirstName}";
+            }
+        }
     }
 }

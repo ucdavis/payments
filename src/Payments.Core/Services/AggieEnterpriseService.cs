@@ -7,6 +7,7 @@ using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Validation;
 using Serilog;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static Payments.Core.Domain.RechargeAccount;
 
@@ -23,6 +24,7 @@ namespace Payments.Core.Services
     {
         private readonly AggieEnterpriseOptions _aeSettings;
         private IAggieEnterpriseClient _aggieClient;
+        private const string FiscalOfficer = "Fiscal Officer Approver";
 
         public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> aeSettings)
         {
@@ -44,6 +46,7 @@ namespace Payments.Core.Services
                 return accountValidationModel;
             }
             accountValidationModel.CoaChartType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
+            accountValidationModel.ChartString = financialSegmentString; //We may replace natural account later.
 
             if (accountValidationModel.CoaChartType == FinancialChartStringType.Invalid)
             {
@@ -101,6 +104,8 @@ namespace Payments.Core.Services
             if (accountValidationModel.CoaChartType == FinancialChartStringType.Ppm)
             {
                 accountValidationModel.CoaChartType = FinancialChartStringType.Ppm;
+                accountValidationModel.PpmSegments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
+
                 var result = await _aggieClient.PpmSegmentStringValidate.ExecuteAsync(financialSegmentString);
 
                 var data = result.ReadData();
@@ -129,12 +134,84 @@ namespace Payments.Core.Services
                     }
                 }
 
-                accountValidationModel.PpmSegments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
+                
 
                 await GetPpmAccountManager(accountValidationModel);
             }
 
 
+            return accountValidationModel;
+        }
+
+        private async Task<AccountValidationModel> CommonGlFundChecks(AccountValidationModel accountValidationModel)
+        {
+            var fund = accountValidationModel.GlSegments.Fund;
+            if ("13U00,13U01,13U02".Contains(fund))//TODO: Make a configurable list of valid funds
+            {
+                //These three are excluded
+                accountValidationModel.IsValid = false;
+                accountValidationModel.Messages.Add("Fund is not valid. Can't be one of 13U00,13U01,13U02");
+            }
+            else
+            {
+                var funds = await _aggieClient.FundParents.ExecuteAsync(fund);
+                var dataFunds = funds.ReadData();
+                if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
+                {
+                    //isValid = true; //Avoid setting to true if it might be false
+                }
+                else
+                {
+                    accountValidationModel.IsValid = false;
+                    accountValidationModel.Messages.Add("Fund is not valid. Must roll up to 1200C, 1300C, or 5000C");
+                }
+            }
+
+            return accountValidationModel;
+        }
+
+        private async Task<AccountValidationModel> CommonPpmFundChecks(AccountValidationModel accountValidationModel)
+        {
+            var ppmSegments = accountValidationModel.PpmSegments;
+            var checkFundCode = await _aggieClient.PpmTaskByProjectNumberAndTaskNumber.ExecuteAsync(ppmSegments.Project, ppmSegments.Task);
+            var checkFundCodeData = checkFundCode.ReadData();
+            if (checkFundCodeData == null)
+            {
+                accountValidationModel.IsValid = false;
+                accountValidationModel.Messages.Add("Unable to check Task's funding code.");
+            }
+            else
+            {
+                var fundCode = checkFundCodeData.PpmTaskByProjectNumberAndTaskNumber.GlPostingFundCode;
+                if (fundCode == null)
+                {
+                    accountValidationModel.IsValid = false;
+                    accountValidationModel.Messages.Add("GlPostingFundCode is null for this Task.");
+                }
+                else
+                {
+                    if ("13U00,13U01,13U02".Contains(fundCode))//TODO: Make a configurable list of valid funds
+                    {
+                        //These three are excluded
+                        accountValidationModel.IsValid = false;
+                        accountValidationModel.Messages.Add("GlPostingFundCode is not valid. Can't be one of 13U00,13U01,13U02");
+                    }
+                    else
+                    {
+                        var funds = await _aggieClient.FundParents.ExecuteAsync(fundCode);
+                        var dataFunds = funds.ReadData();
+                        if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
+                        {
+                            //isValid = true; //Avoid setting to true if it might be false
+                        }
+                        else
+                        {
+                            accountValidationModel.IsValid = false;
+                            accountValidationModel.Messages.Add("GlPostingFundCode is not valid. Must roll up to 1200C, 1300C, or 5000C");
+                        }
+                    }
+                }
+            }
             return accountValidationModel;
         }
 
@@ -150,27 +227,7 @@ namespace Payments.Core.Services
                 if (rtValue.IsValid)
                 {
                     //Is fund valid?
-                    var fund = rtValue.GlSegments.Fund;
-                    if ("13U00,13U01,13U02".Contains(fund) )//TODO: Make a configurable list of valid funds
-                    {
-                        //These three are excluded
-                        rtValue.IsValid = false;
-                        rtValue.Messages.Add("Fund is not valid. Can't be one of 13U00,13U01,13U02");
-                    }
-                    else 
-                    {
-                        var funds = await _aggieClient.FundParents.ExecuteAsync(fund);
-                        var dataFunds = funds.ReadData();
-                        if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
-                        {
-                            //isValid = true; //Avoid setting to true if it might be false
-                        }
-                        else
-                        {
-                            rtValue.IsValid = false;
-                            rtValue.Messages.Add("Fund is not valid. Must roll up to 1200C, 1300C, or 5000C");
-                        }
-                    }
+                    rtValue = await CommonGlFundChecks(rtValue);
                 }
 
                 
@@ -218,37 +275,7 @@ namespace Payments.Core.Services
                     }
                     else
                     {
-                        var fundCode = checkFundCodeData.PpmTaskByProjectNumberAndTaskNumber.GlPostingFundCode;
-
-                        if (fundCode == null)
-                        {
-                            rtValue.IsValid = false;
-                            rtValue.Messages.Add("GlPostingFundCode is null for this Task.");
-                        }
-                        else
-                        {
-
-                            if ("13U00,13U01,13U02".Contains(fundCode))//TODO: Make a configurable list of valid funds
-                            {
-                                //These three are excluded
-                                rtValue.IsValid = false;
-                                rtValue.Messages.Add("GlPostingFundCode is not valid. Can't be one of 13U00,13U01,13U02");
-                            }
-                            else
-                            {
-                                var funds = await _aggieClient.FundParents.ExecuteAsync(fundCode);
-                                var dataFunds = funds.ReadData();
-                                if (DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1200C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "1300C") || DoesFundRollUp.Fund(dataFunds.ErpFund, 2, "5000C"))
-                                {
-                                    //isValid = true; //Avoid setting to true if it might be false
-                                }
-                                else
-                                {
-                                    rtValue.IsValid = false;
-                                    rtValue.Messages.Add("GlPostingFundCode is not valid. Must roll up to 1200C, 1300C, or 5000C");
-                                }
-                            }
-                        }
+                        rtValue = await CommonPpmFundChecks(rtValue);
 
                         var ppmNaturalAccount = ppmSegments.ExpenditureType;
 
@@ -276,9 +303,116 @@ namespace Payments.Core.Services
             return rtValue;
         }
 
-        public Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, bool validateCVRs = true)
+        public async Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, bool validateCVRs = true)
         {
-            throw new System.NotImplementedException();
+            var rtValue = new AccountValidationModel();
+
+            var newChartString = ReplaceNaturalAccount(financialSegmentString, direction == CreditDebit.Credit ? "775000" : "770006");
+            var chartStringUpdated = newChartString != financialSegmentString;
+            financialSegmentString = newChartString;
+
+            rtValue = await CommonAccountValidation(rtValue, financialSegmentString, validateCVRs);
+
+            
+            if(!rtValue.IsValid) 
+            {
+                //early return if the account is not valid in general
+                if(chartStringUpdated)
+                {
+                    //Add a warning that we changed the natural account for them. Otherwise, they may not notice if it would have been valid except for the change
+                    rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", direction == CreditDebit.Credit ? "The Natural Account/Expenditure Type segment has been changed to 775000." : "The Natural Account/Expenditure Type segment has been changed to 770006."));
+                }
+                return rtValue;
+            }
+
+            if (direction == CreditDebit.Credit)
+            {
+                //The big unknown for now if the rollup stuff/parent stuff.                               
+
+                if (rtValue.CoaChartType == FinancialChartStringType.Gl)
+                {
+                    //Is fund valid?
+                    rtValue = await CommonGlFundChecks(rtValue);
+                    if (!rtValue.GlSegments.Account.StartsWith("775"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Credit entries, the Natural Account must start with 775 (e.g. 775000)");
+                    }
+                    if(chartStringUpdated)
+                    {
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", "The Natural Account segment has been changed to 775000."));
+                    }
+                }
+                if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
+                {
+                    rtValue = await CommonPpmFundChecks(rtValue);
+
+                    if (!rtValue.PpmSegments.ExpenditureType.StartsWith("775"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Credit entries, the Expenditure Type must start with 775 (e.g. 775000)");
+                    }
+                    if (chartStringUpdated)
+                    {
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Expenditure Type", "The Expenditure Type segment has been changed to 775000."));
+                    }
+                }
+            }
+            if(direction  == CreditDebit.Debit) 
+            {
+                if(rtValue.CoaChartType == FinancialChartStringType.Gl)
+                {
+                    if (!rtValue.GlSegments.Account.StartsWith("770"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Debit entries, the Natural Account must start with 770 (e.g. 770000)");
+                    }
+                    if(chartStringUpdated)
+                    {
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", "The Natural Account segment has been changed to 770006."));
+                    }
+                    if (rtValue.IsValid)
+                    {
+                        var result = await _aggieClient.ErpDepartmentApprovers.ExecuteAsync(rtValue.GlSegments.Department);
+                        var data = result.ReadData();
+                        if (data != null)
+                        {
+                            if (data.ErpFinancialDepartment != null && data.ErpFinancialDepartment.Approvers != null)
+                            {
+                                foreach (var approver in data.ErpFinancialDepartment.Approvers.Where(a => a.ApproverType == FiscalOfficer))
+                                {
+                                    rtValue.Approvers.Add(new Approver
+                                    {
+                                        FirstName = approver.FirstName,
+                                        LastName = approver.LastName,
+                                        Email = approver.EmailAddress,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }   
+                if(rtValue.CoaChartType == FinancialChartStringType.Ppm)
+                {
+                    if (!rtValue.PpmSegments.ExpenditureType.StartsWith("770"))
+                    {
+                        rtValue.IsValid = false;
+                        rtValue.Messages.Add("For Recharge Debit entries, the Expenditure Type must start with 770 (e.g. 770000)");
+                    }
+                    if (chartStringUpdated)
+                    {
+                        //Add a warning that we changed the natural account for them.
+                        rtValue.Warnings.Add(new KeyValuePair<string, string>("Expenditure Type", "The Expenditure Type segment has been changed to 770006."));
+                    }
+                }
+            }
+
+
+
+            return rtValue;
         }
 
         private PpmSegmentInput ConvertToPpmSegmentInput(PpmSegments segments)
@@ -294,6 +428,37 @@ namespace Payments.Core.Services
             };
         }
 
+
+        private string ReplaceNaturalAccount(string financialSegmentString, string naturalAccountToUse)
+        {
+            if(string.IsNullOrWhiteSpace(naturalAccountToUse))
+            {
+                return financialSegmentString;
+            }
+            var chartType = FinancialChartValidation.GetFinancialChartStringType(financialSegmentString);
+            if (chartType == FinancialChartStringType.Gl)
+            {
+                var segments = FinancialChartValidation.GetGlSegments(financialSegmentString);
+                if (segments == null)
+                {
+                    throw new System.Exception("Internal error: GlSegments is null");
+                }
+                segments.Account = naturalAccountToUse;
+                return segments.ToSegmentString(); 
+            }
+            if(chartType == FinancialChartStringType.Ppm)
+            {
+                var segments = FinancialChartValidation.GetPpmSegments(financialSegmentString);
+                if (segments == null)
+                {
+                    throw new System.Exception("Internal error: PpmSegments is null");
+                }
+                segments.ExpenditureType = naturalAccountToUse;
+                return segments.ToSegmentString();
+            }
+            return financialSegmentString; //Invalid...
+        }
+
         private async Task GetPpmAccountManager(AccountValidationModel rtValue)
         {
             var result = await _aggieClient.PpmProjectManager.ExecuteAsync(rtValue.PpmSegments.Project);
@@ -304,6 +469,31 @@ namespace Payments.Core.Services
             {
                 rtValue.AccountManager = data.PpmProjectByNumber.PrimaryProjectManagerName;
                 rtValue.AccountManagerEmail = data.PpmProjectByNumber.PrimaryProjectManagerEmail;
+
+                //Ok, we also want to push this person into the approvers list.
+                //the format is lastName, firstname
+                if (!string.IsNullOrWhiteSpace(rtValue.AccountManagerEmail))
+                {
+                    var names = rtValue.AccountManager.Split(',');
+                    var firstName = string.Empty;
+                    var lastName = string.Empty;
+                    if (names.Length == 2)
+                    {
+                        lastName = names[0].Trim();
+                        firstName = names[1].Trim();
+                    }
+                    else
+                    {
+                        lastName = rtValue.AccountManager;
+                    }
+                    rtValue.Approvers.Add(new Approver
+                    {
+                        FirstName = firstName,
+                        LastName = lastName,
+                        Email = rtValue.AccountManagerEmail,
+                        FullName = rtValue.AccountManager
+                    });
+                }
             }
             return;
         }
