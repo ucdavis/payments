@@ -554,16 +554,6 @@ export default class RechargeAccountsControl extends React.Component<
             </small>
           </div>
         )}
-        {isValid && !hasMessages && (
-          <div className='alert alert-success alert-sm mb-1 py-1 px-2'>
-            <small>
-              <i className='fas fa-check-circle me-1'></i>
-              <strong>Valid financial segment string</strong>
-              {validationResult.chartString !==
-                account.financialSegmentString && <span> (corrected)</span>}
-            </small>
-          </div>
-        )}
       </div>
     );
   };
@@ -643,9 +633,7 @@ export default class RechargeAccountsControl extends React.Component<
             <div className='input-group'>
               <input
                 type='text'
-                className={`form-control ${
-                  account.hasValidationError ? 'is-invalid' : ''
-                } ${account.isValidating ? 'is-loading' : ''}`}
+                className='form-control'
                 placeholder='Financial Segment String'
                 value={account.financialSegmentString}
                 onChange={e => {
@@ -824,6 +812,20 @@ export default class RechargeAccountsControl extends React.Component<
           </div>
         </div>
       </div>
+    );
+  };
+
+  // Public method to check if there are any chart string validation errors
+  public hasValidationErrors = (): boolean => {
+    const allAccounts = [
+      ...this.state.creditAccounts,
+      ...this.state.debitAccounts
+    ];
+
+    return allAccounts.some(
+      account =>
+        account.hasValidationError ||
+        (account.validationResult && !account.validationResult.isValid)
     );
   };
 

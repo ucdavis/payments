@@ -59,6 +59,7 @@ export default class CreateInvoiceContainer extends React.Component<
   IState
 > {
   private _formRef: HTMLFormElement;
+  private _rechargeAccountsRef: RechargeAccountsControl;
 
   constructor(props: IProps) {
     super(props);
@@ -174,6 +175,7 @@ export default class CreateInvoiceContainer extends React.Component<
         {invoiceType === 'Recharge' && (
           <div className='card-body invoice-recharge-accounts'>
             <RechargeAccountsControl
+              ref={r => (this._rechargeAccountsRef = r)}
               rechargeAccounts={rechargeAccounts}
               invoiceTotal={calculateTotal(items, discount, taxPercent)}
               onChange={v => this.updateProperty('rechargeAccounts', v)}
@@ -368,6 +370,19 @@ export default class CreateInvoiceContainer extends React.Component<
     const isValid = this._formRef.checkValidity();
     if (!isValid) {
       return false;
+    }
+
+    // check for chart string validation errors if this is a recharge invoice
+    if (this.state.invoiceType === 'Recharge' && this._rechargeAccountsRef) {
+      const hasChartStringErrors = this._rechargeAccountsRef.hasValidationErrors();
+      if (hasChartStringErrors) {
+        this.setState({
+          errorMessage:
+            'Please fix all chart string validation errors before saving.',
+          modelErrors: []
+        });
+        return false;
+      }
     }
 
     const { slug } = this.props.team;
