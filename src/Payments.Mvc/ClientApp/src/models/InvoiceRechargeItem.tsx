@@ -1,3 +1,12 @@
+// Validation models matching C# AccountValidationModel
+export interface AccountValidationModel {
+  isValid: boolean;
+  chartString: string;
+  messages: string[];
+  warnings: Array<{ key: string; value: string }>;
+  details: Array<{ key: string; value: string }>;
+}
+
 export interface InvoiceRechargeItem {
   id: number;
   direction: 'Credit' | 'Debit';
@@ -9,4 +18,9 @@ export interface InvoiceRechargeItem {
   //   approvedByKerb: string;
   //   approvedByName: string;
   notes: string;
+  // Validation state
+  validationResult?: AccountValidationModel;
+  isValidating?: boolean;
+  hasValidationError?: boolean;
+  skipNextValidation?: boolean; // Flag to prevent validation loops when updating from validation results
 }
