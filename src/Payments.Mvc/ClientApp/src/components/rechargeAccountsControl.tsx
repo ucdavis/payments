@@ -19,6 +19,7 @@ interface IState {
   debitAccounts: InvoiceRechargeItem[];
   nextId: number;
   isInternalUpdate: boolean; // Flag to track internal updates vs external prop changes
+  isCalculatingAmountPercentage: boolean; // Flag to prevent circular updates between amount and percentage
 }
 
 export default class RechargeAccountsControl extends React.Component<
@@ -76,7 +77,8 @@ export default class RechargeAccountsControl extends React.Component<
       creditAccounts,
       debitAccounts,
       nextId,
-      isInternalUpdate: false
+      isInternalUpdate: false,
+      isCalculatingAmountPercentage: false
     };
 
     // Validate existing financial segment strings after component mounts
@@ -422,17 +424,58 @@ export default class RechargeAccountsControl extends React.Component<
     field: keyof InvoiceRechargeItem,
     value: any
   ) => {
+    // Prevent circular updates between amount and percentage
+    if (this.state.isCalculatingAmountPercentage) {
+      return;
+    }
+
     const { creditAccounts } = this.state;
     const updatedAccounts = [...creditAccounts];
-    updatedAccounts[index] = { ...updatedAccounts[index], [field]: value };
+    const currentAccount = updatedAccounts[index];
 
-    this.setState(
-      {
-        creditAccounts: updatedAccounts,
-        isInternalUpdate: true
-      },
-      this.updateAccounts
-    );
+    // Update the field that was changed
+    updatedAccounts[index] = { ...currentAccount, [field]: value };
+
+    // Calculate the corresponding field if amount or percentage was changed
+    if (
+      (field === 'amount' || field === 'percentage') &&
+      this.props.invoiceTotal > 0
+    ) {
+      this.setState({ isCalculatingAmountPercentage: true }, () => {
+        if (field === 'amount' && value > 0) {
+          // Calculate percentage when amount changes
+          const percentage = (value / this.props.invoiceTotal) * 100;
+          updatedAccounts[index] = {
+            ...updatedAccounts[index],
+            percentage: parseFloat(percentage.toFixed(2))
+          };
+        } else if (field === 'percentage' && value >= 0 && value <= 100) {
+          // Calculate amount when percentage changes
+          const amount = (value / 100) * this.props.invoiceTotal;
+          updatedAccounts[index] = {
+            ...updatedAccounts[index],
+            amount: parseFloat(amount.toFixed(2))
+          };
+        }
+
+        this.setState(
+          {
+            creditAccounts: updatedAccounts,
+            isInternalUpdate: true,
+            isCalculatingAmountPercentage: false
+          },
+          this.updateAccounts
+        );
+      });
+    } else {
+      this.setState(
+        {
+          creditAccounts: updatedAccounts,
+          isInternalUpdate: true
+        },
+        this.updateAccounts
+      );
+    }
   };
 
   private updateDebitAccount = (
@@ -440,17 +483,58 @@ export default class RechargeAccountsControl extends React.Component<
     field: keyof InvoiceRechargeItem,
     value: any
   ) => {
+    // Prevent circular updates between amount and percentage
+    if (this.state.isCalculatingAmountPercentage) {
+      return;
+    }
+
     const { debitAccounts } = this.state;
     const updatedAccounts = [...debitAccounts];
-    updatedAccounts[index] = { ...updatedAccounts[index], [field]: value };
+    const currentAccount = updatedAccounts[index];
 
-    this.setState(
-      {
-        debitAccounts: updatedAccounts,
-        isInternalUpdate: true
-      },
-      this.updateAccounts
-    );
+    // Update the field that was changed
+    updatedAccounts[index] = { ...currentAccount, [field]: value };
+
+    // Calculate the corresponding field if amount or percentage was changed
+    if (
+      (field === 'amount' || field === 'percentage') &&
+      this.props.invoiceTotal > 0
+    ) {
+      this.setState({ isCalculatingAmountPercentage: true }, () => {
+        if (field === 'amount' && value > 0) {
+          // Calculate percentage when amount changes
+          const percentage = (value / this.props.invoiceTotal) * 100;
+          updatedAccounts[index] = {
+            ...updatedAccounts[index],
+            percentage: parseFloat(percentage.toFixed(2))
+          };
+        } else if (field === 'percentage' && value >= 0 && value <= 100) {
+          // Calculate amount when percentage changes
+          const amount = (value / 100) * this.props.invoiceTotal;
+          updatedAccounts[index] = {
+            ...updatedAccounts[index],
+            amount: parseFloat(amount.toFixed(2))
+          };
+        }
+
+        this.setState(
+          {
+            debitAccounts: updatedAccounts,
+            isInternalUpdate: true,
+            isCalculatingAmountPercentage: false
+          },
+          this.updateAccounts
+        );
+      });
+    } else {
+      this.setState(
+        {
+          debitAccounts: updatedAccounts,
+          isInternalUpdate: true
+        },
+        this.updateAccounts
+      );
+    }
   };
 
   private addCreditAccount = () => {
