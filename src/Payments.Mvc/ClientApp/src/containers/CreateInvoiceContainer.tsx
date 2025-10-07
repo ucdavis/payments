@@ -545,6 +545,28 @@ export default class CreateInvoiceContainer extends React.Component<
   };
 
   private openSendModal = () => {
+    // enable validation
+    this.setState({ validate: true });
+
+    // check validation
+    const isValid = this._formRef.checkValidity();
+    if (!isValid) {
+      return;
+    }
+
+    // check for chart string validation errors if this is a recharge invoice
+    if (this.state.invoiceType === 'Recharge' && this._rechargeAccountsRef) {
+      const hasChartStringErrors = this._rechargeAccountsRef.hasValidationErrors();
+      if (hasChartStringErrors) {
+        this.setState({
+          errorMessage:
+            'Please fix all chart string validation errors before sending.',
+          modelErrors: []
+        });
+        return;
+      }
+    }
+
     this.setState({
       isSendModalOpen: true
     });
