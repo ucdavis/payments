@@ -98,6 +98,17 @@ export default class RechargeAccountsControl extends React.Component<
   }
 
   componentDidUpdate(prevProps: IProps) {
+    // If the invoiceTotal changes, recalculate percentages based on current amounts
+    if (
+      prevProps.invoiceTotal !== this.props.invoiceTotal &&
+      this.props.invoiceTotal > 0
+    ) {
+      console.log(
+        `Invoice total changed from ${prevProps.invoiceTotal} to ${this.props.invoiceTotal}, recalculating percentages`
+      );
+      this.recalculatePercentagesFromAmounts();
+    }
+
     // If the rechargeAccounts prop changes, update our state
     if (prevProps.rechargeAccounts !== this.props.rechargeAccounts) {
       // If this was an internal update (we added/removed accounts), don't re-validate
@@ -419,6 +430,43 @@ export default class RechargeAccountsControl extends React.Component<
         );
       }
     }
+  };
+
+  private recalculatePercentagesFromAmounts = () => {
+    if (this.props.invoiceTotal <= 0) {
+      return;
+    }
+
+    // Recalculate percentages for credit accounts
+    const updatedCreditAccounts = this.state.creditAccounts.map(account => ({
+      ...account,
+      percentage:
+        account.amount > 0
+          ? parseFloat(
+              ((account.amount / this.props.invoiceTotal) * 100).toFixed(2)
+            )
+          : 0
+    }));
+
+    // Recalculate percentages for debit accounts
+    const updatedDebitAccounts = this.state.debitAccounts.map(account => ({
+      ...account,
+      percentage:
+        account.amount > 0
+          ? parseFloat(
+              ((account.amount / this.props.invoiceTotal) * 100).toFixed(2)
+            )
+          : 0
+    }));
+
+    this.setState(
+      {
+        creditAccounts: updatedCreditAccounts,
+        debitAccounts: updatedDebitAccounts,
+        isInternalUpdate: true
+      },
+      this.updateAccounts
+    );
   };
 
   private updateAccounts = () => {
