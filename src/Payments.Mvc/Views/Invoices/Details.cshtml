@@ -510,63 +510,15 @@
                         <dd class="col-9">
                             <span class="text-monospace">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
                             <i class="@cardClass"></i>
-@*                            @if (successfulPayment.CardExpiry.HasValue)
-                            {
-                                <span class="badge badge-primary">@successfulPayment.CardExpiry.Value.ToString("MM/yyyy")</span>
-                            }*@
                         </dd>
                     }
-@*
-                    <dt class="col-3 text-end">Billing Name</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingFirstName @successfulPayment.BillingLastName
-                    </dd>*@
 
                     <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingEmail
                     </dd>
                     
-                    @*@if (!string.IsNullOrWhiteSpace(successfulPayment.BillingPhone))
-                    {
-                        <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
-                        <dd class="col-9">
-                            @successfulPayment.BillingPhone
-                        </dd>
-                    }
 
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet1)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingStreet1
-                    </dd>
-
-                    @if (!string.IsNullOrWhiteSpace(successfulPayment.BillingStreet2))
-                    {
-                        <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet2)</dt>
-                        <dd class="col-9">
-                            @successfulPayment.BillingStreet2
-                        </dd>
-                    }
-                    
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCity)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingCity
-                    </dd>
-
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingState)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingState
-                    </dd>
-
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCountry)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingCountry
-                    </dd>
-
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingPostalCode
-                    </dd>*@
                     <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
                     <dd class="col-9">
                         @successfulPayment.ProcessorId
@@ -582,7 +534,33 @@
         </div>
     </div>
 }
-
+@if(Model.Type == InvoiceTypes.Recharge)
+{
+    <div class="card">
+        <div class="card-header">
+            <h2>Recharge Credit Accounts</h2>
+        </div>
+        <div class="card-body invoice-details">
+            @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit ))
+            {
+                <div>@acct.FinancialSegmentString</div><div>@acct.Amount</div>
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h2>Recharge Debit Accounts</h2>
+        </div>
+        <div class="card-body invoice-details">
+            @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit ))
+            {
+                <div>@acct.FinancialSegmentString</div><div>@acct.Amount</div>
+            }
+        </div>
+    </div>
+}
+else
+{
 <div class="card">
     <div class="card-header">
         <h2>Account</h2>
@@ -614,7 +592,7 @@
         </dl>
     </div>
 </div>
-
+}
 <div>
     <a asp-action="Index"><i class="fas fa-chevron-left me-3"></i> Back</a>
 </div>
