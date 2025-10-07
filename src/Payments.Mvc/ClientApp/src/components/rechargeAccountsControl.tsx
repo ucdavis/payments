@@ -259,52 +259,68 @@ export default class RechargeAccountsControl extends React.Component<
 
   // Helper method to set custom validity on amount inputs for total validation
   private setCreditTotalValidityOnLastAmount = () => {
+    this.setCreditTotalValidityOnAllAmounts();
+  };
+
+  // Helper method to set custom validity on all credit amount inputs for total validation
+  private setCreditTotalValidityOnAllAmounts = () => {
     if (this.state.creditAccounts.length === 0) {
       return;
     }
 
-    const lastIndex = this.state.creditAccounts.length - 1;
     const total = this.calculateTotal(this.state.creditAccounts);
-    const isTotalValid = Math.abs(total - this.props.invoiceTotal) < 0.01;
+    const isTotalValid = this.isTotalEqual(total, this.props.invoiceTotal);
+    const isValidOrNoTotal = isTotalValid || this.props.invoiceTotal <= 0;
 
-    const refKey = `credit-${lastIndex}-amount-ref`;
-    const inputRef = this.inputRefs[refKey] as React.RefObject<
-      HTMLInputElement
-    >;
+    // Update validation on all credit amount fields
+    for (let i = 0; i < this.state.creditAccounts.length; i++) {
+      const refKey = `credit-${i}-amount-ref`;
+      const inputRef = this.inputRefs[refKey] as React.RefObject<
+        HTMLInputElement
+      >;
 
-    if (inputRef && inputRef.current) {
-      if (isTotalValid || this.props.invoiceTotal <= 0) {
-        inputRef.current.setCustomValidity('');
-      } else {
-        inputRef.current.setCustomValidity(
-          'Credit amounts must total the invoice amount'
-        );
+      if (inputRef && inputRef.current) {
+        if (isValidOrNoTotal) {
+          inputRef.current.setCustomValidity('');
+        } else {
+          inputRef.current.setCustomValidity(
+            'Credit amounts must total the invoice amount'
+          );
+        }
       }
     }
   };
 
   // Helper method to set custom validity on debit amount inputs for total validation
   private setDebitTotalValidityOnLastAmount = () => {
+    this.setDebitTotalValidityOnAllAmounts();
+  };
+
+  // Helper method to set custom validity on all debit amount inputs for total validation
+  private setDebitTotalValidityOnAllAmounts = () => {
     if (this.state.debitAccounts.length === 0) {
       return; // No debit accounts, so no validation needed
     }
 
-    const lastIndex = this.state.debitAccounts.length - 1;
     const total = this.calculateTotal(this.state.debitAccounts);
-    const isTotalValid = Math.abs(total - this.props.invoiceTotal) < 0.01;
+    const isTotalValid = this.isTotalEqual(total, this.props.invoiceTotal);
+    const isValidOrNoTotal = isTotalValid || this.props.invoiceTotal <= 0;
 
-    const refKey = `debit-${lastIndex}-amount-ref`;
-    const inputRef = this.inputRefs[refKey] as React.RefObject<
-      HTMLInputElement
-    >;
+    // Update validation on all debit amount fields
+    for (let i = 0; i < this.state.debitAccounts.length; i++) {
+      const refKey = `debit-${i}-amount-ref`;
+      const inputRef = this.inputRefs[refKey] as React.RefObject<
+        HTMLInputElement
+      >;
 
-    if (inputRef && inputRef.current) {
-      if (isTotalValid || this.props.invoiceTotal <= 0) {
-        inputRef.current.setCustomValidity('');
-      } else {
-        inputRef.current.setCustomValidity(
-          'Debit amounts must total the invoice amount'
-        );
+      if (inputRef && inputRef.current) {
+        if (isValidOrNoTotal) {
+          inputRef.current.setCustomValidity('');
+        } else {
+          inputRef.current.setCustomValidity(
+            'Debit amounts must total the invoice amount'
+          );
+        }
       }
     }
   };
@@ -810,7 +826,17 @@ export default class RechargeAccountsControl extends React.Component<
   };
 
   private calculateTotal = (accounts: InvoiceRechargeItem[]): number => {
-    return accounts.reduce((sum, account) => sum + account.amount, 0);
+    const total = accounts.reduce((sum, account) => sum + account.amount, 0);
+    // Round to 2 decimal places to handle floating point precision issues
+    return parseFloat(total.toFixed(2));
+  };
+
+  // Helper method to compare monetary amounts with proper rounding
+  private isTotalEqual = (total: number, expected: number): boolean => {
+    // Round both values to 2 decimal places before comparison
+    const roundedTotal = parseFloat(total.toFixed(2));
+    const roundedExpected = parseFloat(expected.toFixed(2));
+    return roundedTotal === roundedExpected;
   };
 
   private renderValidationMessages = (account: InvoiceRechargeItem) => {
@@ -941,7 +967,7 @@ export default class RechargeAccountsControl extends React.Component<
     const isLastAccount = index === accounts.length - 1;
 
     return (
-      <React.Fragment key={account.id}>
+      <React.Fragment key={`${direction}-${index}`}>
         <tr>
           <td className='cell-financial-segment'>
             <div className='input-group'>
@@ -1073,9 +1099,9 @@ export default class RechargeAccountsControl extends React.Component<
     const isTotalValid =
       direction === 'Credit'
         ? accounts.length > 0 &&
-          Math.abs(total - this.props.invoiceTotal) < 0.01
+          this.isTotalEqual(total, this.props.invoiceTotal)
         : accounts.length === 0 ||
-          Math.abs(total - this.props.invoiceTotal) < 0.01;
+          this.isTotalEqual(total, this.props.invoiceTotal);
 
     const isValid = isTotalValid && !hasInvalidAmounts;
 
