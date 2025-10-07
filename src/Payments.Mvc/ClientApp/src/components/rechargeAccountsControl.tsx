@@ -629,11 +629,15 @@ export default class RechargeAccountsControl extends React.Component<
     return (
       <React.Fragment key={account.id}>
         <tr>
-          <td style={{ width: '55%', paddingRight: '8px' }}>
+          <td className='cell-financial-segment'>
             <div className='input-group'>
               <input
                 type='text'
-                className='form-control'
+                className={`form-control ${
+                  account.isValidating
+                    ? 'validation-input'
+                    : 'validation-input input-normal'
+                }`}
                 placeholder='Financial Segment String'
                 value={account.financialSegmentString}
                 onChange={e => {
@@ -652,23 +656,12 @@ export default class RechargeAccountsControl extends React.Component<
                 maxLength={70}
                 required
                 disabled={account.isValidating}
-                style={{
-                  opacity: account.isValidating ? 0.6 : 1,
-                  position: 'relative'
-                }}
               />
               {account.isValidating && (
-                <div
-                  className='input-group-text'
-                  style={{
-                    backgroundColor: '#e9ecef',
-                    border: '1px solid #ced4da'
-                  }}
-                >
+                <div className='input-group-text validation-spinner-container'>
                   <div
-                    className='spinner-border spinner-border-sm'
+                    className='spinner-border spinner-border-sm validation-spinner'
                     role='status'
-                    style={{ width: '1rem', height: '1rem' }}
                   >
                     <span className='visually-hidden'>Validating...</span>
                   </div>
@@ -687,14 +680,14 @@ export default class RechargeAccountsControl extends React.Component<
               </button>
             </div>
           </td>
-          <td style={{ width: '12%', paddingLeft: '4px', paddingRight: '4px' }}>
+          <td className='cell-amount'>
             <CurrencyControl
               value={account.amount}
               onChange={value => updateAccount(index, 'amount', value)}
               isInvalid={account.amount <= 0}
             />
           </td>
-          <td style={{ width: '12%', paddingLeft: '4px', paddingRight: '4px' }}>
+          <td className='cell-percentage'>
             <NumberControl
               value={account.percentage}
               onChange={value => updateAccount(index, 'percentage', value)}
@@ -704,7 +697,7 @@ export default class RechargeAccountsControl extends React.Component<
               placeholder='0.00'
             />
           </td>
-          <td style={{ width: '6%', textAlign: 'right', paddingLeft: '8px' }}>
+          <td className='cell-actions'>
             {canRemove && (
               <button
                 className='btn-link btn-invoice-delete'
@@ -729,14 +722,7 @@ export default class RechargeAccountsControl extends React.Component<
         </tr>
         {!isLastAccount && (
           <tr>
-            <td
-              colSpan={4}
-              style={{
-                padding: '0',
-                height: '8px',
-                borderBottom: '2px solid #dee2e6'
-              }}
-            ></td>
+            <td colSpan={4} className='row-separator'></td>
           </tr>
         )}
       </React.Fragment>
@@ -764,13 +750,15 @@ export default class RechargeAccountsControl extends React.Component<
       <div className='mb-4'>
         <h4>{title}</h4>
         <div className='table-responsive'>
-          <table className='table table-sm invoice-table'>
+          <table className='table table-sm invoice-table recharge-table'>
             <thead>
               <tr>
-                <th style={{ width: '55%' }}>Financial Segment String *</th>
-                <th style={{ width: '12%' }}>Amount *</th>
-                <th style={{ width: '12%' }}>Percentage</th>
-                <th style={{ width: '6%' }}></th>
+                <th className='col-financial-segment'>
+                  Financial Segment String *
+                </th>
+                <th className='col-amount'>Amount *</th>
+                <th className='col-percentage'>Percentage</th>
+                <th className='col-actions'></th>
               </tr>
             </thead>
             <tbody>
