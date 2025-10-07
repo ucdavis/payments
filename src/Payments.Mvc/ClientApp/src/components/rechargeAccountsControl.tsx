@@ -26,6 +26,8 @@ export default class RechargeAccountsControl extends React.Component<
   IProps,
   IState
 > {
+  private inputRefs: { [key: string]: HTMLInputElement | null } = {};
+
   // Helper function to normalize direction values from server
   private normalizeDirection = (direction: any): 'Credit' | 'Debit' => {
     // Handle integer enum values: 0 = Credit, 1 = Debit
@@ -199,6 +201,24 @@ export default class RechargeAccountsControl extends React.Component<
     skipNextValidation: false
   });
 
+  // Helper method to set custom validity on chart string inputs
+  private setChartStringCustomValidity = (
+    index: number,
+    direction: 'Credit' | 'Debit',
+    isValid: boolean
+  ) => {
+    const inputKey = `${direction.toLowerCase()}-${index}-chart`;
+    const inputElement = this.inputRefs[inputKey];
+
+    if (inputElement) {
+      if (isValid) {
+        inputElement.setCustomValidity('');
+      } else {
+        inputElement.setCustomValidity('This has errors');
+      }
+    }
+  };
+
   private validateChartString = async (
     chartString: string,
     direction: 'Credit' | 'Debit'
@@ -295,13 +315,26 @@ export default class RechargeAccountsControl extends React.Component<
           'hasValidationError',
           !validationResult.isValid
         );
+
+        // Set custom validity on the input element
+        this.setChartStringCustomValidity(
+          index,
+          direction,
+          validationResult.isValid
+        );
       } else {
         updateAccountSilent(index, 'validationResult', undefined);
         updateAccountSilent(index, 'hasValidationError', false);
+
+        // Clear custom validity for empty strings
+        this.setChartStringCustomValidity(index, direction, true);
       }
     } catch (error) {
       console.error('Validation error:', error);
       updateAccountSilent(index, 'hasValidationError', true);
+
+      // Set custom validity for validation errors
+      this.setChartStringCustomValidity(index, direction, false);
     } finally {
       updateAccountSilent(index, 'isValidating', false);
     }
@@ -341,6 +374,8 @@ export default class RechargeAccountsControl extends React.Component<
       !account.financialSegmentString ||
       !account.financialSegmentString.trim()
     ) {
+      // Clear custom validity for empty fields
+      this.setChartStringCustomValidity(index, direction, true);
       return;
     }
 
@@ -547,7 +582,17 @@ export default class RechargeAccountsControl extends React.Component<
         nextId: nextId + 1,
         isInternalUpdate: true
       },
-      this.updateAccounts
+      () => {
+        this.updateAccounts();
+        // Clear custom validity for new account
+        setTimeout(() => {
+          this.setChartStringCustomValidity(
+            creditAccounts.length,
+            'Credit',
+            true
+          );
+        }, 0);
+      }
     );
   };
 
@@ -561,7 +606,17 @@ export default class RechargeAccountsControl extends React.Component<
         nextId: nextId + 1,
         isInternalUpdate: true
       },
-      this.updateAccounts
+      () => {
+        this.updateAccounts();
+        // Clear custom validity for new account
+        setTimeout(() => {
+          this.setChartStringCustomValidity(
+            debitAccounts.length,
+            'Debit',
+            true
+          );
+        }, 0);
+      }
     );
   };
 
@@ -729,6 +784,11 @@ export default class RechargeAccountsControl extends React.Component<
           <td className='cell-financial-segment'>
             <div className='input-group'>
               <input
+                ref={el =>
+                  (this.inputRefs[
+                    `${direction.toLowerCase()}-${index}-chart`
+                  ] = el)
+                }
                 type='text'
                 className={`form-control ${
                   account.isValidating
@@ -746,6 +806,11 @@ export default class RechargeAccountsControl extends React.Component<
                     'financialSegmentString',
                     e.target.value
                   );
+
+                  // Clear custom validity when user starts typing
+                  if (e.target.value.trim() === '') {
+                    this.setChartStringCustomValidity(index, direction, true);
+                  }
                 }}
                 onBlur={() =>
                   this.handleFinancialSegmentBlur(index, direction, account)
