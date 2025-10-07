@@ -284,6 +284,26 @@ namespace Payments.Mvc.Controllers
             var user = await _userManager.GetUserAsync(User);
             var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
+            if(model.Type == Invoice.InvoiceTypes.CreditCard)
+            {
+                if(team.AllowedInvoiceType == Team.AllowedInvoiceTypes.Recharge)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create credit card invoices.");
+                }
+            }
+            if(model.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                if(team.AllowedInvoiceType == Team.AllowedInvoiceTypes.CreditCard)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create recharge invoices.");
+                }
+                foreach(var rechargeAcct in model.RechargeAccounts)
+                {
+                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
+                    rechargeAcct.EnteredByName = user.Name;
+                }
+            }
+
             // validate model
             if (!ModelState.IsValid)
             {
@@ -342,12 +362,22 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Attachments)
                 .Include(i => i.Team)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
             {
                 return NotFound();
+            }
+
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id == 0))
+                {                    
+                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
+                    rechargeAcct.EnteredByName = user.Name;            
+                }
             }
 
             // validate model

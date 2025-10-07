@@ -45,7 +45,10 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
             }));
-            expectedFields.Add(new NameAndType("Invoice", "Payments.Core.Domain.Invoice", new List<string>()));
+            expectedFields.Add(new NameAndType("Invoice", "Payments.Core.Domain.Invoice", new List<string>
+            {
+                "[Newtonsoft.Json.JsonIgnoreAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("InvoiceId", "System.Int32", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
