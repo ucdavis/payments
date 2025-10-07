@@ -4,21 +4,17 @@ import NumberControl from './numberControl';
 interface IProps {
   value: number;
   onChange: (value: number) => void;
-
+  isInvalid?: boolean;
   inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 export default class CurrencyControl extends React.PureComponent<IProps, {}> {
-  constructor(props: IProps) {
-    super(props);
-  }
-
   public render() {
-    const { value, onChange, inputRef } = this.props;
+    const { value, onChange, isInvalid, inputRef } = this.props;
 
     return (
       <NumberControl
-        className='text-end'
+        className={`text-end ${isInvalid ? 'is-invalid' : ''}`}
         min={0.01}
         step={0.01}
         placeholder='0.00'

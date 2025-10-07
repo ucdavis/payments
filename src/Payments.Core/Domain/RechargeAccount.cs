@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -11,6 +12,8 @@ namespace Payments.Core.Domain
 
         [Required]
         public int InvoiceId { get; set; }
+
+        [JsonIgnore]
         public Invoice Invoice { get; set; }
 
         public CreditDebit Direction { get; set; } = CreditDebit.Credit;
@@ -31,7 +34,7 @@ namespace Payments.Core.Domain
         public string EnteredByName { get; set; } //Probably Name (email) format
 
         [StringLength(20)]
-        public string ApprovedByKerb { get; set; } 
+        public string ApprovedByKerb { get; set; }
         [StringLength(128)]
         public string ApprovedByName { get; set; }
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import 'isomorphic-fetch';
 
-import { calculateDiscount } from '../helpers/calculations';
+import { calculateDiscount, calculateTotal } from '../helpers/calculations';
 
 import { Account } from '../models/Account';
 import { Coupon } from '../models/Coupon';
@@ -11,6 +11,7 @@ import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
+import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
@@ -22,6 +23,7 @@ import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
 import MultiCustomerControl from '../components/multiCustomerControl';
+import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import SendModal from '../components/sendModal';
 
 declare var antiForgeryToken: string;
@@ -42,6 +44,7 @@ interface IState {
   taxPercent: number;
   memo: string;
   items: InvoiceItem[];
+  rechargeAccounts: InvoiceRechargeItem[];
   loading: boolean;
   errorMessage: string;
   modelErrors: string[];
@@ -56,6 +59,7 @@ export default class CreateInvoiceContainer extends React.Component<
   IState
 > {
   private _formRef: HTMLFormElement;
+  private _rechargeAccountsRef: RechargeAccountsControl;
 
   constructor(props: IProps) {
     super(props);
@@ -101,6 +105,7 @@ export default class CreateInvoiceContainer extends React.Component<
       memo: '',
       taxPercent: 0,
       invoiceType: initialInvoiceType,
+      rechargeAccounts: [],
 
       errorMessage: '',
       modelErrors: [],
@@ -123,7 +128,8 @@ export default class CreateInvoiceContainer extends React.Component<
       memo,
       loading,
       validate,
-      invoiceType
+      invoiceType,
+      rechargeAccounts
     } = this.state;
 
     return (
@@ -166,6 +172,16 @@ export default class CreateInvoiceContainer extends React.Component<
             />
           </div>
         </div>
+        {invoiceType === 'Recharge' && (
+          <div className='card-body invoice-recharge-accounts'>
+            <RechargeAccountsControl
+              ref={r => (this._rechargeAccountsRef = r)}
+              rechargeAccounts={rechargeAccounts}
+              invoiceTotal={calculateTotal(items, discount, taxPercent)}
+              onChange={v => this.updateProperty('rechargeAccounts', v)}
+            />
+          </div>
+        )}
         <div className='card-body invoice-billing'>
           <h2>Billing</h2>
           <div className='form-group'>
@@ -356,6 +372,19 @@ export default class CreateInvoiceContainer extends React.Component<
       return false;
     }
 
+    // check for chart string validation errors if this is a recharge invoice
+    if (this.state.invoiceType === 'Recharge' && this._rechargeAccountsRef) {
+      const hasChartStringErrors = this._rechargeAccountsRef.hasValidationErrors();
+      if (hasChartStringErrors) {
+        this.setState({
+          errorMessage:
+            'Please fix all chart string validation errors before saving.',
+          modelErrors: []
+        });
+        return false;
+      }
+    }
+
     const { slug } = this.props.team;
     const {
       accountId,
@@ -366,7 +395,8 @@ export default class CreateInvoiceContainer extends React.Component<
       taxPercent,
       items,
       memo,
-      invoiceType
+      invoiceType,
+      rechargeAccounts
     } = this.state;
 
     const calculatedDiscount = calculateDiscount(items, discount);
@@ -381,7 +411,7 @@ export default class CreateInvoiceContainer extends React.Component<
       items,
       manualDiscount: calculatedDiscount,
       memo,
-      rechargeAccounts: [],
+      rechargeAccounts,
       taxPercent,
       type: invoiceType
     };
@@ -515,6 +545,28 @@ export default class CreateInvoiceContainer extends React.Component<
   };
 
   private openSendModal = () => {
+    // enable validation
+    this.setState({ validate: true });
+
+    // check validation
+    const isValid = this._formRef.checkValidity();
+    if (!isValid) {
+      return;
+    }
+
+    // check for chart string validation errors if this is a recharge invoice
+    if (this.state.invoiceType === 'Recharge' && this._rechargeAccountsRef) {
+      const hasChartStringErrors = this._rechargeAccountsRef.hasValidationErrors();
+      if (hasChartStringErrors) {
+        this.setState({
+          errorMessage:
+            'Please fix all chart string validation errors before sending.',
+          modelErrors: []
+        });
+        return;
+      }
+    }
+
     this.setState({
       isSendModalOpen: true
     });

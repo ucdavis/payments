@@ -40,7 +40,7 @@ namespace Payments.Mvc.Services
                 throw new ArgumentException("Account is inactive.", nameof(model.AccountId));
             }
 
-            if(model.Type == Invoice.InvoiceTypes.Recharge)
+            if (model.Type == Invoice.InvoiceTypes.Recharge)
             {
                 //TODO: Server side validation.
                 //Must have at least one credit recharge account.
@@ -64,57 +64,58 @@ namespace Payments.Mvc.Services
                 // create new object, track it
                 var invoice = new Invoice
                 {
-                    DraftCount      = 1,
-                    Account         = account,
-                    Coupon          = coupon,
-                    Team            = team,
-                    ManualDiscount  = model.ManualDiscount,
-                    TaxPercent      = model.TaxPercent,
-                    DueDate         = model.DueDate,
+                    DraftCount = 1,
+                    Account = account,
+                    Coupon = coupon,
+                    Team = team,
+                    ManualDiscount = model.ManualDiscount,
+                    TaxPercent = model.TaxPercent,
+                    DueDate = model.DueDate,
                     CustomerAddress = customer.Address,
-                    CustomerEmail   = customer.Email,
-                    CustomerName    = customer.Name,
+                    CustomerEmail = customer.Email,
+                    CustomerName = customer.Name,
                     CustomerCompany = customer.Company,
-                    Memo            = model.Memo,
-                    Status          = Invoice.StatusCodes.Draft,
-                    Sent            = false,
-                    Type            = model.Type,
+                    Memo = model.Memo,
+                    Status = Invoice.StatusCodes.Draft,
+                    Sent = false,
+                    Type = model.Type,
                 };
 
                 // add line items
                 var items = model.Items.Select(i => new LineItem()
                 {
-                    Amount      = i.Amount,
+                    Amount = i.Amount,
                     Description = i.Description,
-                    Quantity    = i.Quantity,
-                    TaxExempt   = i.TaxExempt,
-                    Total       = i.Quantity * i.Amount,
+                    Quantity = i.Quantity,
+                    TaxExempt = i.TaxExempt,
+                    Total = i.Quantity * i.Amount,
                 });
                 invoice.Items = items.ToList();
 
                 // add attachments
                 var attachments = model.Attachments.Where(a => !string.IsNullOrWhiteSpace(a.Identifier)).Select(a => new InvoiceAttachment()
                 {
-                    Identifier  = a.Identifier,
-                    FileName    = a.FileName,
+                    Identifier = a.Identifier,
+                    FileName = a.FileName,
                     ContentType = a.ContentType,
-                    Size        = a.Size,
+                    Size = a.Size,
                 });
                 invoice.Attachments = attachments.ToList();
 
-                if(model.Type == Invoice.InvoiceTypes.Recharge)
+                if (model.Type == Invoice.InvoiceTypes.Recharge)
                 {
                     var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
                     {
-                        Direction                 = a.Direction,
-                        FinancialSegmentString    = a.FinancialSegmentString,
-                        Amount                    = a.Amount,
-                        Percentage                = a.Percentage,
-                        EnteredByKerb             = a.EnteredByKerb,
-                        EnteredByName             = a.EnteredByName,
-                        Notes                     = a.Notes,
-                        
+                        Direction = a.Direction,
+                        FinancialSegmentString = a.FinancialSegmentString,
+                        Amount = a.Amount,
+                        Percentage = a.Percentage,
+                        EnteredByKerb = a.EnteredByKerb,
+                        EnteredByName = a.EnteredByName,
+                        Notes = a.Notes,
+
                     });
+                    invoice.RechargeAccounts = rechargeAccounts.ToList();
                 }
 
                 // start tracking for db
@@ -165,16 +166,16 @@ namespace Payments.Mvc.Services
             _dbContext.LineItems.RemoveRange(invoice.Items);
 
             // update invoice
-            invoice.Account         = account;
-            invoice.Coupon          = coupon;
+            invoice.Account = account;
+            invoice.Coupon = coupon;
             invoice.CustomerAddress = model.Customer.Address;
-            invoice.CustomerEmail   = model.Customer.Email;
-            invoice.CustomerName    = model.Customer.Name;
+            invoice.CustomerEmail = model.Customer.Email;
+            invoice.CustomerName = model.Customer.Name;
             invoice.CustomerCompany = model.Customer.Company;
-            invoice.Memo            = model.Memo;
-            invoice.ManualDiscount  = model.ManualDiscount;
-            invoice.TaxPercent      = model.TaxPercent;
-            invoice.DueDate         = model.DueDate;
+            invoice.Memo = model.Memo;
+            invoice.ManualDiscount = model.ManualDiscount;
+            invoice.TaxPercent = model.TaxPercent;
+            invoice.DueDate = model.DueDate;
 
             // increase draft count
             invoice.DraftCount++;
@@ -182,21 +183,41 @@ namespace Payments.Mvc.Services
             // add line items
             var items = model.Items.Select(i => new LineItem()
             {
-                Amount      = i.Amount,
+                Amount = i.Amount,
                 Description = i.Description,
-                Quantity    = i.Quantity,
-                TaxExempt   = i.TaxExempt,
-                Total       = i.Quantity * i.Amount,
+                Quantity = i.Quantity,
+                TaxExempt = i.TaxExempt,
+                Total = i.Quantity * i.Amount,
             });
             invoice.Items = items.ToList();
+
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                // remove old recharge accounts
+                // If we do it this way, there may be issues if an invoice is rejected, then we edit it and resend. Now all the entered by values are lost.
+                _dbContext.RechargeAccounts.RemoveRange(invoice.RechargeAccounts);
+
+                var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
+                {
+                    Direction = a.Direction,
+                    FinancialSegmentString = a.FinancialSegmentString,
+                    Amount = a.Amount,
+                    Percentage = a.Percentage,
+                    EnteredByKerb = a.EnteredByKerb,
+                    EnteredByName = a.EnteredByName,
+                    Notes = a.Notes,
+
+                });
+                invoice.RechargeAccounts = rechargeAccounts.ToList();
+            }
 
             // add attachments
             var attachments = model.Attachments.Select(a => new InvoiceAttachment()
             {
-                Identifier  = a.Identifier,
-                FileName    = a.FileName,
+                Identifier = a.Identifier,
+                FileName = a.FileName,
                 ContentType = a.ContentType,
-                Size        = a.Size,
+                Size = a.Size,
             });
             invoice.Attachments = attachments.ToList();
 
@@ -212,7 +233,7 @@ namespace Payments.Mvc.Services
             {
                 throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
             }
-            
+
             return invoice;
         }
 
