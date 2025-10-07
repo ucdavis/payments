@@ -521,7 +521,11 @@ export default class RechargeAccountsControl extends React.Component<
     const hasMessages = validationResult.messages.length > 0;
     const hasWarnings = validationResult.warnings.length > 0;
     const isValid = validationResult.isValid;
+    const hasValidSegmentString =
+      account.financialSegmentString &&
+      account.financialSegmentString.trim().length > 0;
 
+    // If no validation result to show, return null
     if (!hasMessages && !hasWarnings && !isValid) {
       return null;
     }
@@ -551,6 +555,15 @@ export default class RechargeAccountsControl extends React.Component<
                   </li>
                 ))}
               </ul>
+            </small>
+          </div>
+        )}
+        {isValid && !hasMessages && hasValidSegmentString && (
+          <div className='alert alert-success alert-sm mb-1 py-1 px-2'>
+            <small>
+              <i className='fas fa-check-circle me-1'></i>
+              <strong>Valid:</strong> Chart string validation passed
+              successfully
             </small>
           </div>
         )}
