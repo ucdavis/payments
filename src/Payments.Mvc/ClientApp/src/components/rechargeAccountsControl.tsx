@@ -26,7 +26,9 @@ export default class RechargeAccountsControl extends React.Component<
   IProps,
   IState
 > {
-  private inputRefs: { [key: string]: HTMLInputElement | null } = {};
+  private inputRefs: {
+    [key: string]: HTMLInputElement | React.RefObject<HTMLInputElement> | null;
+  } = {};
 
   // Helper function to normalize direction values from server
   private normalizeDirection = (direction: any): 'Credit' | 'Debit' => {
@@ -93,6 +95,16 @@ export default class RechargeAccountsControl extends React.Component<
     if (hasExistingData) {
       setTimeout(() => {
         this.validateExistingAccounts();
+        // Also validate credit totals after initial render
+        this.setCreditTotalValidityOnLastAmount();
+        // Also validate debit totals after initial render
+        this.setDebitTotalValidityOnLastAmount();
+      }, 100);
+    } else {
+      // Even if no existing data, validate credit totals after initial render
+      setTimeout(() => {
+        this.setCreditTotalValidityOnLastAmount();
+        this.setDebitTotalValidityOnLastAmount();
       }, 100);
     }
   }
@@ -184,6 +196,16 @@ export default class RechargeAccountsControl extends React.Component<
               );
               setTimeout(() => {
                 this.validateExistingAccounts();
+                // Also validate credit totals after structure change
+                this.setCreditTotalValidityOnLastAmount();
+                // Also validate debit totals after structure change
+                this.setDebitTotalValidityOnLastAmount();
+              }, 100);
+            } else {
+              // Even if no data to validate, update credit totals
+              setTimeout(() => {
+                this.setCreditTotalValidityOnLastAmount();
+                this.setDebitTotalValidityOnLastAmount();
               }, 100);
             }
           }
@@ -222,10 +244,67 @@ export default class RechargeAccountsControl extends React.Component<
     const inputElement = this.inputRefs[inputKey];
 
     if (inputElement) {
-      if (isValid) {
-        inputElement.setCustomValidity('');
+      // Handle both direct HTMLInputElement and RefObject<HTMLInputElement>
+      const element =
+        'current' in inputElement ? inputElement.current : inputElement;
+      if (element) {
+        if (isValid) {
+          element.setCustomValidity('');
+        } else {
+          element.setCustomValidity('This has errors');
+        }
+      }
+    }
+  };
+
+  // Helper method to set custom validity on amount inputs for total validation
+  private setCreditTotalValidityOnLastAmount = () => {
+    if (this.state.creditAccounts.length === 0) {
+      return;
+    }
+
+    const lastIndex = this.state.creditAccounts.length - 1;
+    const total = this.calculateTotal(this.state.creditAccounts);
+    const isTotalValid = Math.abs(total - this.props.invoiceTotal) < 0.01;
+
+    const refKey = `credit-${lastIndex}-amount-ref`;
+    const inputRef = this.inputRefs[refKey] as React.RefObject<
+      HTMLInputElement
+    >;
+
+    if (inputRef && inputRef.current) {
+      if (isTotalValid || this.props.invoiceTotal <= 0) {
+        inputRef.current.setCustomValidity('');
       } else {
-        inputElement.setCustomValidity('This has errors');
+        inputRef.current.setCustomValidity(
+          'Credit amounts must total the invoice amount'
+        );
+      }
+    }
+  };
+
+  // Helper method to set custom validity on debit amount inputs for total validation
+  private setDebitTotalValidityOnLastAmount = () => {
+    if (this.state.debitAccounts.length === 0) {
+      return; // No debit accounts, so no validation needed
+    }
+
+    const lastIndex = this.state.debitAccounts.length - 1;
+    const total = this.calculateTotal(this.state.debitAccounts);
+    const isTotalValid = Math.abs(total - this.props.invoiceTotal) < 0.01;
+
+    const refKey = `debit-${lastIndex}-amount-ref`;
+    const inputRef = this.inputRefs[refKey] as React.RefObject<
+      HTMLInputElement
+    >;
+
+    if (inputRef && inputRef.current) {
+      if (isTotalValid || this.props.invoiceTotal <= 0) {
+        inputRef.current.setCustomValidity('');
+      } else {
+        inputRef.current.setCustomValidity(
+          'Debit amounts must total the invoice amount'
+        );
       }
     }
   };
@@ -465,7 +544,14 @@ export default class RechargeAccountsControl extends React.Component<
         debitAccounts: updatedDebitAccounts,
         isInternalUpdate: true
       },
-      this.updateAccounts
+      () => {
+        this.updateAccounts();
+        // Update credit total validity when invoice total changes
+        setTimeout(() => {
+          this.setCreditTotalValidityOnLastAmount();
+          this.setDebitTotalValidityOnLastAmount();
+        }, 0);
+      }
     );
   };
 
@@ -547,7 +633,11 @@ export default class RechargeAccountsControl extends React.Component<
             isInternalUpdate: true,
             isCalculatingAmountPercentage: false
           },
-          this.updateAccounts
+          () => {
+            this.updateAccounts();
+            // Update credit total validity when amounts change
+            setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+          }
         );
       });
     } else {
@@ -556,7 +646,11 @@ export default class RechargeAccountsControl extends React.Component<
           creditAccounts: updatedAccounts,
           isInternalUpdate: true
         },
-        this.updateAccounts
+        () => {
+          this.updateAccounts();
+          // Update credit total validity when amounts change
+          setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+        }
       );
     }
   };
@@ -606,7 +700,11 @@ export default class RechargeAccountsControl extends React.Component<
             isInternalUpdate: true,
             isCalculatingAmountPercentage: false
           },
-          this.updateAccounts
+          () => {
+            this.updateAccounts();
+            // Update debit total validity when amounts change
+            setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+          }
         );
       });
     } else {
@@ -615,7 +713,11 @@ export default class RechargeAccountsControl extends React.Component<
           debitAccounts: updatedAccounts,
           isInternalUpdate: true
         },
-        this.updateAccounts
+        () => {
+          this.updateAccounts();
+          // Update debit total validity when amounts change
+          setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+        }
       );
     }
   };
@@ -639,6 +741,8 @@ export default class RechargeAccountsControl extends React.Component<
             'Credit',
             true
           );
+          // Update credit total validity when accounts change
+          this.setCreditTotalValidityOnLastAmount();
         }, 0);
       }
     );
@@ -663,6 +767,8 @@ export default class RechargeAccountsControl extends React.Component<
             'Debit',
             true
           );
+          // Update debit total validity when accounts change
+          this.setDebitTotalValidityOnLastAmount();
         }, 0);
       }
     );
@@ -678,7 +784,11 @@ export default class RechargeAccountsControl extends React.Component<
           creditAccounts: updatedAccounts,
           isInternalUpdate: true
         },
-        this.updateAccounts
+        () => {
+          this.updateAccounts();
+          // Update credit total validity when accounts are removed
+          setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+        }
       );
     }
   };
@@ -691,7 +801,11 @@ export default class RechargeAccountsControl extends React.Component<
         debitAccounts: updatedAccounts,
         isInternalUpdate: true
       },
-      this.updateAccounts
+      () => {
+        this.updateAccounts();
+        // Update debit total validity when accounts are removed
+        setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+      }
     );
   };
 
@@ -895,6 +1009,15 @@ export default class RechargeAccountsControl extends React.Component<
               value={account.amount}
               onChange={value => updateAccount(index, 'amount', value)}
               isInvalid={account.amount <= 0}
+              inputRef={(() => {
+                const refKey = `${direction.toLowerCase()}-${index}-amount-ref`;
+                if (!this.inputRefs[refKey]) {
+                  this.inputRefs[refKey] = React.createRef<HTMLInputElement>();
+                }
+                return this.inputRefs[refKey] as React.RefObject<
+                  HTMLInputElement
+                >;
+              })()}
             />
           </td>
           <td className='cell-percentage'>
