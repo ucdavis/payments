@@ -46,7 +46,7 @@
                         <td data-sort="@invoice.Id" class="invoices-id-col">
                             <a asp-action="Details" asp-route-id="@invoice.Id">
                                 <div>
-                                    @invoice.GetFormattedId()
+                                    @(invoice.Type == Invoice.InvoiceTypes.Recharge ? "R-" : string.Empty)@invoice.GetFormattedId()
                                 </div>
                             </a>
                         </td>

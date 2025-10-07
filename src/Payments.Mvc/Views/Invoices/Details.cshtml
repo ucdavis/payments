@@ -541,10 +541,37 @@
             <h2>Recharge Credit Accounts</h2>
         </div>
         <div class="card-body invoice-details">
-            @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit ))
-            {
-                <div>@acct.FinancialSegmentString</div><div>@acct.Amount</div>
-            }
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Financial Segment</th>
+                        <th>Notes</th>
+                        <th>Amount</th>
+                        <th>Percent</th>
+                        <th>Valid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit ))
+                {
+                    <tr data-account-id="@acct.Id" class="recharge-account-row">
+                        <td>
+                            <a href="https://finjector.ucdavis.edu/details/@acct.FinancialSegmentString" target="_blank">
+                                @acct.FinancialSegmentString
+                            </a>
+                        </td>
+                        <td>@acct.Notes</td>
+                        <td>@acct.Amount</td>
+                        <td>@acct.Percentage</td>
+                        <td>
+                            <span class="validity-status" data-account-id="@acct.Id">
+                                <i class="fas fa-spinner fa-spin text-secondary"></i>
+                            </span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="card">
@@ -552,10 +579,48 @@
             <h2>Recharge Debit Accounts</h2>
         </div>
         <div class="card-body invoice-details">
-            @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit ))
-            {
-                <div>@acct.FinancialSegmentString</div><div>@acct.Amount</div>
-            }
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Financial Segment</th>
+                        <th>Notes</th>
+                        <th>Amount</th>
+                        <th>Percent</th>
+                        <th>Approved</th>
+                        <th>Valid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit ))
+                {
+                    <tr data-account-id="@acct.Id" class="recharge-account-row">
+                        <td>
+                            <a href="https://finjector.ucdavis.edu/details/@acct.FinancialSegmentString" target="_blank">
+                                @acct.FinancialSegmentString
+                            </a>
+                        </td>
+                        <td>@acct.Notes</td>
+                        <td>@acct.Amount</td>
+                        <td>@acct.Percentage</td>
+                        <td>
+                                @if (!string.IsNullOrWhiteSpace(acct.ApprovedByName))
+                            {
+                                <span class="text-success"><i class="fas fa-check"></i></span>
+                            }
+                            else
+                            {
+                                <span class="text-danger"><i class="fas fa-times"></i></span>
+                            }
+                        </td>
+                        <td>
+                            <span class="validity-status" data-account-id="@acct.Id">
+                                <i class="fas fa-spinner fa-spin text-secondary"></i>
+                            </span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
         </div>
     </div>
 }
@@ -1001,6 +1066,87 @@ else
             .catch(function(err) {
 
             });
+        });
+
+        // Recharge account validation functions
+        function validateChartString(chartString, direction) {
+            const directionValue = direction === 'Credit' ? 0 : 1;
+            return fetch(`/api/recharge/validate?chartString=${encodeURIComponent(chartString)}&direction=${directionValue}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': window.antiForgeryToken
+                }
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            });
+        }
+
+        function displayValidationResult(accountId, validationResult) {
+            const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
+            if (!statusSpan) return;
+
+            let resultHtml = '';
+            
+            if (validationResult.isValid) {
+                resultHtml = '<i class="fas fa-check-circle text-success" title="Valid chart string"></i>';
+                
+                // Add warnings if they exist
+                if (validationResult.warnings && validationResult.warnings.length > 0) {
+                    resultHtml += ' <i class="fas fa-exclamation-triangle text-warning ms-1" title="' + 
+                        validationResult.warnings.map(w => w.key + ': ' + w.value).join('; ') + '"></i>';
+                }
+            } else {
+                const errorMessages = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
+                resultHtml = '<i class="fas fa-times-circle text-danger" title="' + errorMessages + '"></i>';
+            }
+
+            statusSpan.innerHTML = resultHtml;
+        }
+
+        function displayValidationError(accountId, errorMessage) {
+            const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
+            if (!statusSpan) return;
+
+            statusSpan.innerHTML = '<i class="fas fa-exclamation-triangle text-warning" title="' + errorMessage + '"></i>';
+        }
+
+        // Validate all recharge accounts when page loads
+        function validateRechargeAccounts() {
+            const rechargeRows = document.querySelectorAll('.recharge-account-row');
+            
+            rechargeRows.forEach(function(row) {
+                const accountId = row.getAttribute('data-account-id');
+                const financialSegmentCell = row.children[0]; // First cell contains the financial segment string
+                const financialSegmentString = financialSegmentCell.textContent.trim();
+                
+                // Determine direction based on whether this is in credit or debit table
+                const isInCreditTable = row.closest('.card').querySelector('h2').textContent.includes('Credit');
+                const direction = isInCreditTable ? 'Credit' : 'Debit';
+                
+                if (financialSegmentString) {
+                    validateChartString(financialSegmentString, direction)
+                        .then(function(validationResult) {
+                            displayValidationResult(accountId, validationResult);
+                        })
+                        .catch(function(error) {
+                            console.error('Validation error for account ' + accountId + ':', error);
+                            displayValidationError(accountId, 'Validation failed. Please try again.');
+                        });
+                }
+            });
+        }
+
+        // Initialize validation when document is ready
+        $(document).ready(function() {
+            @if(Model.Type == InvoiceTypes.Recharge)
+            {
+                <text>validateRechargeAccounts();</text>
+            }
         });
     </script>
 }
