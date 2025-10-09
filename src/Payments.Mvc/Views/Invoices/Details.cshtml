@@ -439,15 +439,30 @@
         </dl>
         @if (Model.Sent)
         {
-            <dl class="row">
-                <dt class="col-2 text-end">Payment page</dt>
-                <dd class="col-10">
-                    @{
-                        var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
-                    }
-                    <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
-                </dd>
-            </dl>
+            if (Model.Type == InvoiceTypes.Recharge)
+            {
+                <dl class="row">
+                    <dt class="col-2 text-end">Recharge Pay page</dt>
+                    <dd class="col-10">
+                        @{
+                            var paymentPageHref = Url.RouteUrl("pay-recharge-invoice", new { id = Model.LinkId }, scheme);
+                        }
+                        <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
+                    </dd>
+                </dl>
+            }
+            else 
+            { 
+                <dl class="row">
+                    <dt class="col-2 text-end">Payment page</dt>
+                    <dd class="col-10">
+                        @{
+                            var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
+                        }
+                        <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
+                    </dd>
+                </dl>
+            }
         }
     </div>
 </div>
