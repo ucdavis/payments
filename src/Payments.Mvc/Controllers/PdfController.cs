@@ -46,9 +46,12 @@ namespace Payments.Mvc.Controllers
             var file = await _storageService.DownloadFile(identifier, StorageSettings.InvoicePdfContainerName);
             if (await file.ExistsAsync())
             {
+#if !DEBUG
                 var stream = await file.OpenReadAsync();
                 return new FileStreamResult(stream, file.Properties.ContentType);
+#endif
             }
+
 
             var footer = await _jsReportMvcService.RenderViewToStringAsync(HttpContext, RouteData, "InvoiceFooter", invoice);
 

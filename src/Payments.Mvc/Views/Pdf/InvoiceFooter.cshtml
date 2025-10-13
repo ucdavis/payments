@@ -54,14 +54,28 @@
 <body>
     <div class="footer">
         <div class="row">
-            <div class="col">
-                @{
-                    var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, "https");
-                }
-                <p>
-                    <span class="text-strong">Pay with card</span><br />
-                    Visit <span class="text-strong">@(paymentPageHref)</span>
-            </div>
+            @if (Model.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                <div class="col">
+                    @{
+                        var paymentPageHref = Url.RouteUrl("pay-recharge-invoice", new { id = Model.LinkId }, "https");
+                    }
+                    <p>
+                        <span class="text-strong">Pay with recharge</span><br />
+                        Visit <span class="text-strong">@(paymentPageHref)</span>
+                </div>
+            }
+            else
+            {
+                <div class="col">
+                    @{
+                        var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, "https");
+                    }
+                    <p>
+                        <span class="text-strong">Pay with card</span><br />
+                        Visit <span class="text-strong">@(paymentPageHref)</span>
+                </div>
+            }
         </div>
         <div class="row">
             <div class="col">

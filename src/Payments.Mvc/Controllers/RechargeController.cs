@@ -24,5 +24,10 @@ namespace Payments.Mvc.Controllers
 
             return new JsonResult(result);
         }
+
+        public async Task<IActionResult> Pay(string id)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
