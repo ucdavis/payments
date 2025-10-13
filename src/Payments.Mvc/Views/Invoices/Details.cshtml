@@ -1091,17 +1091,26 @@ else
             if (!statusSpan) return;
 
             let resultHtml = '';
-            
+
             if (validationResult.isValid) {
                 resultHtml = '<i class="fas fa-check-circle text-success" title="Valid chart string"></i>';
-                
+
                 // Add warnings if they exist
                 if (validationResult.warnings && validationResult.warnings.length > 0) {
-                    resultHtml += ' <i class="fas fa-exclamation-triangle text-warning ms-1" title="' + 
-                        validationResult.warnings.map(w => w.key + ': ' + w.value).join('; ') + '"></i>';
+                    const sanitizedWarnings = validationResult.warnings.map(w => {
+                        const key = document.createTextNode(w.key).textContent;
+                        const value = document.createTextNode(w.value).textContent;
+                        return key + ': ' + value;
+                    }).join('; ');
+                    const warningTitle = document.createElement('div');
+                    warningTitle.textContent = sanitizedWarnings;
+                    resultHtml += ' <i class="fas fa-exclamation-triangle text-warning ms-1" title="' +
+                        warningTitle.textContent + '"></i>';
                 }
             } else {
-                const errorMessages = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
+                 const errorDiv = document.createElement('div');
+                 errorDiv.textContent = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
+                 const errorMessages = errorDiv.textContent;
                 resultHtml = '<i class="fas fa-times-circle text-danger" title="' + errorMessages + '"></i>';
             }
 
