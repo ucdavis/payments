@@ -285,6 +285,8 @@ namespace Payments.Core.Domain
         {
             public const string Draft = "Draft";
             public const string Sent = "Sent";
+            public const string PendingApproval = "PendingApproval"; // New Status for recharge invoices that need approval
+            public const string Rejected = "Rejected"; // New Status for recharge invoices that are rejected
             public const string Paid = "Paid";
             public const string Processing = "Processing";
             public const string Completed = "Completed";
@@ -301,6 +303,8 @@ namespace Payments.Core.Domain
                 {
                     Draft,
                     Sent,
+                    PendingApproval,
+                    Rejected,
                     Paid,
                     Processing,
                     Completed,
@@ -320,6 +324,7 @@ namespace Payments.Core.Domain
 
                     case Processing:
                     case Sent:
+                    case PendingApproval:
                         return "text-bg-info";
 
                     case Completed:
@@ -327,6 +332,7 @@ namespace Payments.Core.Domain
                         return "text-bg-success";
 
                     case Cancelled:
+                    case Rejected:
                         return "text-bg-danger";
 
                     case Refunded:
