@@ -526,6 +526,7 @@
                 </dl>
             }
         </div>
+        @* TODO: why is this like this?  *@
         @foreach (var payment in Model.PaymentEvents)
         {
         }
@@ -540,8 +541,8 @@
         <div class="card-header">
             <h2>Recharge Credit Accounts</h2>
         </div>
-        <div class="card-body invoice-details">
-            <table class="table">
+        <div class="card-body invoice-details" data-direction="Credit">
+            <table class="table" data-direction="Credit">
                 <thead>
                     <tr>
                         <th>Financial Segment</th>
@@ -578,8 +579,8 @@
         <div class="card-header">
             <h2>Recharge Debit Accounts</h2>
         </div>
-        <div class="card-body invoice-details">
-            <table class="table">
+        <div class="card-body invoice-details" data-direction="Debit">
+            <table class="table" data-direction="Debit">
                 <thead>
                     <tr>
                         <th>Financial Segment</th>
@@ -1091,17 +1092,26 @@ else
             if (!statusSpan) return;
 
             let resultHtml = '';
-            
+
             if (validationResult.isValid) {
                 resultHtml = '<i class="fas fa-check-circle text-success" title="Valid chart string"></i>';
-                
+
                 // Add warnings if they exist
                 if (validationResult.warnings && validationResult.warnings.length > 0) {
-                    resultHtml += ' <i class="fas fa-exclamation-triangle text-warning ms-1" title="' + 
-                        validationResult.warnings.map(w => w.key + ': ' + w.value).join('; ') + '"></i>';
+                    const sanitizedWarnings = validationResult.warnings.map(w => {
+                        const key = document.createTextNode(w.key).textContent;
+                        const value = document.createTextNode(w.value).textContent;
+                        return key + ': ' + value;
+                    }).join('; ');
+                    const warningTitle = document.createElement('div');
+                    warningTitle.textContent = sanitizedWarnings;
+                    resultHtml += ' <i class="fas fa-exclamation-triangle text-warning ms-1" title="' +
+                        warningTitle.textContent + '"></i>';
                 }
             } else {
-                const errorMessages = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
+                 const errorDiv = document.createElement('div');
+                 errorDiv.textContent = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
+                 const errorMessages = errorDiv.textContent;
                 resultHtml = '<i class="fas fa-times-circle text-danger" title="' + errorMessages + '"></i>';
             }
 
@@ -1123,10 +1133,9 @@ else
                 const accountId = row.getAttribute('data-account-id');
                 const financialSegmentCell = row.children[0]; // First cell contains the financial segment string
                 const financialSegmentString = financialSegmentCell.textContent.trim();
-                
-                // Determine direction based on whether this is in credit or debit table
-                const isInCreditTable = row.closest('.card').querySelector('h2').textContent.includes('Credit');
-                const direction = isInCreditTable ? 'Credit' : 'Debit';
+
+                // Get direction from data attribute
+                const direction = row.closest('[data-direction]').getAttribute('data-direction');
                 
                 if (financialSegmentString) {
                     validateChartString(financialSegmentString, direction)

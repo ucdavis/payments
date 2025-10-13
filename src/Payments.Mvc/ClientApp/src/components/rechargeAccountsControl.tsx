@@ -585,11 +585,11 @@ export default class RechargeAccountsControl extends React.Component<
     field: keyof InvoiceRechargeItem,
     value: any
   ) => {
-    const { creditAccounts } = this.state;
-    const updatedAccounts = [...creditAccounts];
-    updatedAccounts[index] = { ...updatedAccounts[index], [field]: value };
-
-    this.setState({ creditAccounts: updatedAccounts });
+    this.setState(prevState => {
+      const updated = [...prevState.creditAccounts];
+      updated[index] = { ...updated[index], [field]: value };
+      return { creditAccounts: updated };
+    });
   };
 
   private updateDebitAccountSilent = (
@@ -597,11 +597,11 @@ export default class RechargeAccountsControl extends React.Component<
     field: keyof InvoiceRechargeItem,
     value: any
   ) => {
-    const { debitAccounts } = this.state;
-    const updatedAccounts = [...debitAccounts];
-    updatedAccounts[index] = { ...updatedAccounts[index], [field]: value };
-
-    this.setState({ debitAccounts: updatedAccounts });
+    this.setState(prevState => {
+      const updated = [...prevState.debitAccounts];
+      updated[index] = { ...updated[index], [field]: value };
+      return { debitAccounts: updated };
+    });
   };
 
   private updateCreditAccount = (
