@@ -1,0 +1,21 @@
+@{
+    ViewBag.Title = $"Invoice Not Found";
+    Layout = "_PaymentsLayout";
+    var team = Model?.Team;
+}
+
+<div class="card pay-card">
+    <div class="card-gradient-header-bleed">
+        <div class="card-gradient-header">
+        </div>
+    </div>
+    <div>
+        <div class="pay-action">
+            <h1>Invoice Not Paid</h1>
+        </div>
+        @if (team != null)
+        {
+            <partial name="_Footer" model="@team" />
+        }
+    </div>
+</div>
