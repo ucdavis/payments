@@ -99,7 +99,7 @@ namespace Payments.Mvc.Controllers
             return new FileStreamResult(report.Content, report.Meta.ContentType);
         }
 
-        //The reciept page is found from both the custormer and the user email page, so if it isn't found it needs a public facing error page
+        //The receipt page is found from both the customer and the user email page, so if it isn't found it needs a public facing error page
         [HttpGet("/receipt/{id}")]
         public async Task<ActionResult> Receipt(string id)
         {
