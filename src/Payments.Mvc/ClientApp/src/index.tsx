@@ -8,6 +8,7 @@ import * as dateFns from 'date-fns';
 
 import { CreateInvoicePage } from './pages/CreateInvoice';
 import { EditInvoicePage } from './pages/EditInvoice';
+import { PayInvoicePage } from './pages/PayInvoice';
 
 declare let window: any;
 
@@ -38,7 +39,7 @@ if (rootElement) {
           {/* Match any server-side routes and send empty content to let MVC return the view details */}
           <Route path='/:team/Invoices/Create' component={CreateInvoicePage} />
           <Route path='/:team/Invoices/Edit' component={EditInvoicePage} />
-          {/* TODO: Add page here for editing invoice debits */}
+          <Route path='/Recharge/Pay' component={PayInvoicePage} />
         </Switch>
       </React.Fragment>
     </BrowserRouter>,

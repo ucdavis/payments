@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Pay Invoice";
+    Layout = "_PaymentsLayout";
 }
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
