@@ -180,18 +180,24 @@ namespace Payments.Mvc.Controllers
         }
 
         /// <summary>
-        /// override NotFound to return 
+        /// Returns a public-facing NotFound view with a 404 status code.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>NotFound view with 404 status</returns>
         public ActionResult PublicNotFound()
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
             return View("NotFound");
         }
 
+        /// <summary>
+        /// Returns a view indicating that the payment has not been completed.
+        /// </summary>
+        /// <remarks>This action sets the HTTP response status code to 400 (Bad Request) before returning
+        /// the view.</remarks>
+        /// <returns>An <see cref="ActionResult"/> that renders the "NotPaid" view.</returns>
         public ActionResult PublicNotPaid()
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             return View("NotPaid");
         }
     }
