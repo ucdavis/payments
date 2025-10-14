@@ -38,6 +38,7 @@ if (rootElement) {
           {/* Match any server-side routes and send empty content to let MVC return the view details */}
           <Route path='/:team/Invoices/Create' component={CreateInvoicePage} />
           <Route path='/:team/Invoices/Edit' component={EditInvoicePage} />
+          {/* TODO: Add page here for editing invoice debits */}
         </Switch>
       </React.Fragment>
     </BrowserRouter>,
