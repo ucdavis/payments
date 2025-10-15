@@ -178,6 +178,7 @@ export default class EditInvoiceContainer extends React.Component<
               rechargeAccounts={rechargeAccounts}
               invoiceTotal={calculateTotal(items, discount, taxPercent)}
               onChange={v => this.updateProperty('rechargeAccounts', v)}
+              showCreditAccounts={true}
             />
           </div>
         )}

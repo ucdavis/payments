@@ -139,8 +139,12 @@ namespace Payments.Mvc.Controllers
         /// <returns></returns>
         /// <exception cref="System.NotImplementedException"></exception>
         [HttpPost]
-        public async Task<IActionResult> Pay(string id, RechargeInvoiceViewModel model)
+        public async Task<IActionResult> Pay(string id, [FromBody] RechargeAccount[] model)
         {
+
+            var xxx = model;
+
+
             throw new System.NotImplementedException();
 
             //This need to update the status, validate the chartStrings, write to the history, send emails, etc. (We probably also want the invoice details page to be able to resend the email(s) for approvals

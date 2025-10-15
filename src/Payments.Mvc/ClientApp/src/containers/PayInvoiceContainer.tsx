@@ -119,12 +119,31 @@ export default class PayInvoiceContainer extends React.Component<
                   </div>
                 )}
 
+                {!isValid && !isSaving && (
+                  <div className='alert alert-warning mt-3' role='alert'>
+                    <i className='fas fa-exclamation-triangle me-2'></i>
+                    Please complete all required fields before submitting:
+                    <ul className='mb-0 mt-2'>
+                      <li>At least one valid debit chart string is required</li>
+                      <li>All chart strings must be validated successfully</li>
+                      <li>
+                        Total debit amounts must equal the invoice total ($
+                        {invoice.total.toFixed(2)})
+                      </li>
+                      <li>All amounts must be greater than zero</li>
+                    </ul>
+                  </div>
+                )}
+
                 <div style={{ alignContent: 'center' }}>
                   <button
                     type='button'
                     className='btn-gold btn-lg pay-now-button'
                     onClick={this.handleSubmit}
                     disabled={!isValid || isSaving}
+                    title={
+                      !isValid ? 'Please complete all required fields' : ''
+                    }
                   >
                     {isSaving ? (
                       <>
@@ -212,6 +231,7 @@ export default class PayInvoiceContainer extends React.Component<
                 rechargeAccounts={rechargeAccounts}
                 invoiceTotal={invoice.total}
                 onChange={this.handleRechargeAccountsChange}
+                showCreditAccounts={false}
               />
             </div>
           )}
@@ -334,23 +354,31 @@ export default class PayInvoiceContainer extends React.Component<
     const { rechargeAccounts } = this.state;
     const { invoice } = this.props;
 
-    // Check if we have at least one valid debit chart string
-    const validAccounts = rechargeAccounts.filter(
+    // Check if component has validation errors
+    if (
+      this._rechargeAccountsRef &&
+      this._rechargeAccountsRef.hasValidationErrors()
+    ) {
+      this.setState({ isValid: false });
+      return;
+    }
+
+    // Check if we have at least one debit chart string
+    const debitAccounts = rechargeAccounts.filter(
       account =>
         account.direction === 'Debit' &&
         account.financialSegmentString &&
         account.financialSegmentString.trim() !== '' &&
-        account.amount > 0 &&
-        account.validationResult?.isValid === true
+        account.amount > 0
     );
 
-    if (validAccounts.length === 0) {
+    if (debitAccounts.length === 0) {
       this.setState({ isValid: false });
       return;
     }
 
     // Check if the total matches the invoice total
-    const total = validAccounts.reduce(
+    const total = debitAccounts.reduce(
       (sum, account) => sum + account.amount,
       0
     );
@@ -374,17 +402,27 @@ export default class PayInvoiceContainer extends React.Component<
     this.setState({ isSaving: true, errorMessage: '' });
 
     try {
+      console.log(rechargeAccounts);
+
+      // Filter to only debit accounts and map to the format expected by the backend
+      const debitAccounts = rechargeAccounts
+        .filter(account => account.direction === 'Debit')
+        .map(account => ({
+          id: account.id,
+          financialSegmentString: account.financialSegmentString,
+          amount: account.amount,
+          percentage: account.percentage,
+          notes: account.notes || '',
+          direction: 1 // Debit = 1
+        }));
+      console.log(debitAccounts);
       const response = await fetch(`/recharge/pay/${invoice.linkId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           RequestVerificationToken: antiForgeryToken
         },
-        body: JSON.stringify({
-          debitRechargeAccounts: rechargeAccounts.filter(
-            account => account.direction === 'Debit'
-          )
-        })
+        body: JSON.stringify(debitAccounts)
       });
 
       if (response.ok) {

@@ -12,6 +12,7 @@ interface IProps {
   rechargeAccounts: InvoiceRechargeItem[];
   invoiceTotal: number;
   onChange: (rechargeAccounts: InvoiceRechargeItem[]) => void;
+  showCreditAccounts: boolean;
 }
 
 interface IState {
@@ -63,10 +64,19 @@ export default class RechargeAccountsControl extends React.Component<
       account => account.direction === 'Debit'
     );
 
-    // Ensure we have at least one credit account
-    if (creditAccounts.length === 0) {
+    // Ensure we have at least one account of the required type
+    if (props.showCreditAccounts && creditAccounts.length === 0) {
       const newAccount = this.createNewAccount('Credit', 1);
       creditAccounts.push({
+        ...newAccount,
+        validationResult: undefined,
+        isValidating: false,
+        hasValidationError: false,
+        skipNextValidation: false
+      });
+    } else if (!props.showCreditAccounts && debitAccounts.length === 0) {
+      const newAccount = this.createNewAccount('Debit', 1);
+      debitAccounts.push({
         ...newAccount,
         validationResult: undefined,
         isValidating: false,
@@ -165,10 +175,22 @@ export default class RechargeAccountsControl extends React.Component<
           account => account.direction === 'Debit'
         );
 
-        // Ensure we have at least one credit account
-        if (creditAccounts.length === 0) {
+        // Ensure we have at least one account of the required type
+        if (this.props.showCreditAccounts && creditAccounts.length === 0) {
           const newAccount = this.createNewAccount('Credit', this.state.nextId);
           creditAccounts.push({
+            ...newAccount,
+            validationResult: undefined,
+            isValidating: false,
+            hasValidationError: false,
+            skipNextValidation: false
+          });
+        } else if (
+          !this.props.showCreditAccounts &&
+          debitAccounts.length === 0
+        ) {
+          const newAccount = this.createNewAccount('Debit', this.state.nextId);
+          debitAccounts.push({
             ...newAccount,
             validationResult: undefined,
             isValidating: false,
@@ -792,8 +814,8 @@ export default class RechargeAccountsControl extends React.Component<
 
   private removeCreditAccount = (index: number) => {
     const { creditAccounts } = this.state;
-    if (creditAccounts.length > 1) {
-      // Must have at least one credit account
+    // Must have at least one credit account when showCreditAccounts is true
+    if (creditAccounts.length > 1 || !this.props.showCreditAccounts) {
       const updatedAccounts = creditAccounts.filter((_, i) => i !== index);
       this.setState(
         {
@@ -811,18 +833,21 @@ export default class RechargeAccountsControl extends React.Component<
 
   private removeDebitAccount = (index: number) => {
     const { debitAccounts } = this.state;
-    const updatedAccounts = debitAccounts.filter((_, i) => i !== index);
-    this.setState(
-      {
-        debitAccounts: updatedAccounts,
-        isInternalUpdate: true
-      },
-      () => {
-        this.updateAccounts();
-        // Update debit total validity when accounts are removed
-        setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
-      }
-    );
+    // Must have at least one debit account when showCreditAccounts is false
+    if (debitAccounts.length > 1 || this.props.showCreditAccounts) {
+      const updatedAccounts = debitAccounts.filter((_, i) => i !== index);
+      this.setState(
+        {
+          debitAccounts: updatedAccounts,
+          isInternalUpdate: true
+        },
+        () => {
+          this.updateAccounts();
+          // Update debit total validity when accounts are removed
+          setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+        }
+      );
+    }
   };
 
   private calculateTotal = (accounts: InvoiceRechargeItem[]): number => {
@@ -963,7 +988,12 @@ export default class RechargeAccountsControl extends React.Component<
     const removeAccount = isCredit
       ? this.removeCreditAccount
       : this.removeDebitAccount;
-    const canRemove = isCredit ? this.state.creditAccounts.length > 1 : true;
+
+    // Determine if this account can be removed based on mode and count
+    const canRemove = isCredit
+      ? this.state.creditAccounts.length > 1 || !this.props.showCreditAccounts
+      : this.state.debitAccounts.length > 1 || this.props.showCreditAccounts;
+
     const isLastAccount = index === accounts.length - 1;
 
     return (
@@ -1096,12 +1126,16 @@ export default class RechargeAccountsControl extends React.Component<
   ) => {
     const total = this.calculateTotal(accounts);
     const hasInvalidAmounts = accounts.some(account => account.amount <= 0);
-    const isTotalValid =
-      direction === 'Credit'
-        ? accounts.length > 0 &&
-          this.isTotalEqual(total, this.props.invoiceTotal)
-        : accounts.length === 0 ||
-          this.isTotalEqual(total, this.props.invoiceTotal);
+
+    // Determine if this section is required based on showCreditAccounts prop
+    const isRequired = this.props.showCreditAccounts
+      ? direction === 'Credit' // In credit mode, only credits are required
+      : direction === 'Debit'; // In debit-only mode, debits are required
+
+    const isTotalValid = isRequired
+      ? accounts.length > 0 && this.isTotalEqual(total, this.props.invoiceTotal)
+      : accounts.length === 0 ||
+        this.isTotalEqual(total, this.props.invoiceTotal);
 
     const isValid = isTotalValid && !hasInvalidAmounts;
 
@@ -1141,12 +1175,12 @@ export default class RechargeAccountsControl extends React.Component<
             className={`text-end ${isValid ? 'text-success' : 'text-danger'}`}
           >
             <strong>Total: ${total.toFixed(2)}</strong>
-            {direction === 'Credit' && !isTotalValid && (
+            {isRequired && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
               </div>
             )}
-            {direction === 'Debit' && accounts.length > 0 && !isTotalValid && (
+            {!isRequired && accounts.length > 0 && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
               </div>
@@ -1178,30 +1212,53 @@ export default class RechargeAccountsControl extends React.Component<
 
   public render() {
     const { creditAccounts, debitAccounts } = this.state;
+    const { showCreditAccounts } = this.props;
 
     return (
       <div className='recharge-accounts-control'>
         <h3>Recharge Account Information</h3>
 
-        {this.renderAccountSection(
-          'Credits',
-          creditAccounts,
-          'Credit',
-          this.addCreditAccount
-        )}
+        {showCreditAccounts &&
+          this.renderAccountSection(
+            'Credits',
+            creditAccounts,
+            'Credit',
+            this.addCreditAccount
+          )}
 
-        {this.renderAccountSection(
-          'Debits (Optional)',
-          debitAccounts,
-          'Debit',
-          this.addDebitAccount
-        )}
+        {showCreditAccounts &&
+          this.renderAccountSection(
+            'Debits (Optional)',
+            debitAccounts,
+            'Debit',
+            this.addDebitAccount
+          )}
+
+        {!showCreditAccounts &&
+          this.renderAccountSection(
+            'Debits',
+            debitAccounts,
+            'Debit',
+            this.addDebitAccount
+          )}
 
         <div className='alert alert-info'>
-          <strong>Note:</strong> Credit accounts are required and must total the
-          invoice amount. All amounts must be greater than zero. Debit accounts
-          are optional, but if entered, must also total the invoice amount and
-          have amounts greater than zero.
+          <strong>Note:</strong>
+          {showCreditAccounts ? (
+            <>
+              {' '}
+              Credit accounts are required and must total the invoice amount.
+              All amounts must be greater than zero. Debit accounts are
+              optional, but if entered, must also total the invoice amount and
+              have amounts greater than zero.
+            </>
+          ) : (
+            <>
+              {' '}
+              Debit accounts are required and must total the invoice amount. All
+              amounts must be greater than zero.
+            </>
+          )}
         </div>
       </div>
     );
