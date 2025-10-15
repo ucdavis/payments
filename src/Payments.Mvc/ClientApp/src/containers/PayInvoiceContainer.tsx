@@ -408,11 +408,7 @@ export default class PayInvoiceContainer extends React.Component<
       const debitAccounts = rechargeAccounts
         .filter(account => account.direction === 'Debit')
         .map(account => ({
-          id: account.id,
-          financialSegmentString: account.financialSegmentString,
-          amount: account.amount,
-          percentage: account.percentage,
-          notes: account.notes || '',
+          ...account,
           direction: 1 // Debit = 1
         }));
       console.log(debitAccounts);
