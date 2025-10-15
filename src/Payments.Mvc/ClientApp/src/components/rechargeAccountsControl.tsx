@@ -13,6 +13,7 @@ interface IProps {
   invoiceTotal: number;
   onChange: (rechargeAccounts: InvoiceRechargeItem[]) => void;
   showCreditAccounts: boolean;
+  onValidationComplete?: () => void;
 }
 
 interface IState {
@@ -115,6 +116,10 @@ export default class RechargeAccountsControl extends React.Component<
       setTimeout(() => {
         this.setCreditTotalValidityOnLastAmount();
         this.setDebitTotalValidityOnLastAmount();
+        // Notify parent that validation is complete (no data to validate)
+        if (this.props.onValidationComplete) {
+          this.props.onValidationComplete();
+        }
       }, 100);
     }
   }
@@ -547,6 +552,17 @@ export default class RechargeAccountsControl extends React.Component<
         );
       }
     }
+
+    // Set isInternalUpdate flag to prevent re-validation in componentDidUpdate
+    this.setState({ isInternalUpdate: true }, () => {
+      // Update parent with validated accounts
+      this.updateAccounts();
+
+      // Notify parent that validation is complete
+      if (this.props.onValidationComplete) {
+        this.props.onValidationComplete();
+      }
+    });
   };
 
   private recalculatePercentagesFromAmounts = () => {

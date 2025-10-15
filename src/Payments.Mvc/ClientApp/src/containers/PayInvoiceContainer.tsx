@@ -52,6 +52,7 @@ interface IState {
   isValid: boolean;
   isSaving: boolean;
   errorMessage: string;
+  isValidating: boolean;
 }
 
 export default class PayInvoiceContainer extends React.Component<
@@ -67,18 +68,31 @@ export default class PayInvoiceContainer extends React.Component<
       rechargeAccounts: props.invoice.debitRechargeAccounts || [],
       isValid: false,
       isSaving: false,
-      errorMessage: ''
+      errorMessage: '',
+      isValidating: true
     };
   }
 
   componentDidMount() {
-    // Validate initial state
-    this.validateForm();
+    // Validation will be triggered by the child component's onValidationComplete callback
+    // No need for setTimeout - the child will notify us when it's done
   }
+
+  private handleValidationComplete = () => {
+    console.log('Child component validation complete, validating form');
+    this.validateForm();
+    this.setState({ isValidating: false });
+  };
 
   public render() {
     const { invoice } = this.props;
-    const { rechargeAccounts, isValid, isSaving, errorMessage } = this.state;
+    const {
+      rechargeAccounts,
+      isValid,
+      isSaving,
+      errorMessage,
+      isValidating
+    } = this.state;
     const canEdit = invoice.status === 'Sent';
 
     return (
@@ -119,7 +133,14 @@ export default class PayInvoiceContainer extends React.Component<
                   </div>
                 )}
 
-                {!isValid && !isSaving && (
+                {isValidating && (
+                  <div className='alert alert-info mt-3' role='alert'>
+                    <i className='fas fa-spinner fa-spin me-2'></i>
+                    Validating form...
+                  </div>
+                )}
+
+                {!isValidating && !isValid && !isSaving && (
                   <div className='alert alert-warning mt-3' role='alert'>
                     <i className='fas fa-exclamation-triangle me-2'></i>
                     Please complete all required fields before submitting:
@@ -135,14 +156,25 @@ export default class PayInvoiceContainer extends React.Component<
                   </div>
                 )}
 
+                {!isValidating && isValid && !isSaving && (
+                  <div className='alert alert-success mt-3' role='alert'>
+                    <i className='fas fa-check-circle me-2'></i>
+                    Form is valid and ready to submit
+                  </div>
+                )}
+
                 <div style={{ alignContent: 'center' }}>
                   <button
                     type='button'
                     className='btn-gold btn-lg pay-now-button'
                     onClick={this.handleSubmit}
-                    disabled={!isValid || isSaving}
+                    disabled={!isValid || isSaving || isValidating}
                     title={
-                      !isValid ? 'Please complete all required fields' : ''
+                      isValidating
+                        ? 'Validating form...'
+                        : !isValid
+                        ? 'Please complete all required fields'
+                        : ''
                     }
                   >
                     {isSaving ? (
@@ -232,6 +264,7 @@ export default class PayInvoiceContainer extends React.Component<
                 invoiceTotal={invoice.total}
                 onChange={this.handleRechargeAccountsChange}
                 showCreditAccounts={false}
+                onValidationComplete={this.handleValidationComplete}
               />
             </div>
           )}
@@ -388,22 +421,22 @@ export default class PayInvoiceContainer extends React.Component<
   };
 
   private handleSubmit = async () => {
+    console.log('Submitting invoice payment...');
     const { invoice } = this.props;
     const { rechargeAccounts, isValid } = this.state;
 
     if (!isValid) {
+      console.log('Form is invalid');
       this.setState({
         errorMessage:
           'Please provide at least one valid debit chart string and ensure the total matches the invoice total.'
       });
       return;
     }
-
+    console.log('Form is valid');
     this.setState({ isSaving: true, errorMessage: '' });
 
     try {
-      console.log(rechargeAccounts);
-
       // Filter to only debit accounts and map to the format expected by the backend
       const debitAccounts = rechargeAccounts
         .filter(account => account.direction === 'Debit')
@@ -411,7 +444,7 @@ export default class PayInvoiceContainer extends React.Component<
           ...account,
           direction: 1 // Debit = 1
         }));
-      console.log(debitAccounts);
+
       const response = await fetch(`/recharge/pay/${invoice.linkId}`, {
         method: 'POST',
         headers: {
