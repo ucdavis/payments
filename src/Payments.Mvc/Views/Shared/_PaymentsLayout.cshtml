@@ -66,9 +66,12 @@
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK" crossorigin="anonymous"></script>
 </environment>
 
+@* Render scripts section BEFORE React loads so data is available *@
+@RenderSection("scripts", required: false)
+
     @* In a production deployment, we will use a dynamic view component to load the generated scripts *@
     <react-scripts />
 
-@RenderSection("scripts", required: false)
+
 </body>
 </html>

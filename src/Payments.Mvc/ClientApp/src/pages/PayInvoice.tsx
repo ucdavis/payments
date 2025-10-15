@@ -1,5 +1,8 @@
 import * as React from 'react';
+import PayInvoiceContainer, {
+  RechargeInvoiceModel
+} from '../containers/PayInvoiceContainer';
 
-export const PayInvoicePage = () => (
-  <div>Stub to hold a Pay Invoice Container</div>
-);
+declare var model: RechargeInvoiceModel;
+
+export const PayInvoicePage = () => <PayInvoiceContainer invoice={model} />;

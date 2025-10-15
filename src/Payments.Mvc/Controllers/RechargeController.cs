@@ -131,6 +131,13 @@ namespace Payments.Mvc.Controllers
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">Link Id</param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         [HttpPost]
         public async Task<IActionResult> Pay(string id, RechargeInvoiceViewModel model)
         {
