@@ -1075,20 +1075,23 @@ export default class RechargeAccountsControl extends React.Component<
                 <i className='fas fa-search'></i>
               </button>
               {account.financialSegmentString && (
-                <button
-                  type='button'
-                  className='btn btn-outline-secondary'
+                <a
+                  href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className={`btn btn-outline-secondary ${
+                    account.isValidating ? 'disabled' : ''
+                  }`}
                   title='View In Finjector'
-                  onClick={() =>
-                    window.open(
-                      `https://finjector.ucdavis.edu/details/${account.financialSegmentString}`,
-                      '_blank'
-                    )
-                  }
-                  disabled={account.isValidating}
+                  aria-disabled={account.isValidating}
+                  onClick={e => {
+                    if (account.isValidating) {
+                      e.preventDefault();
+                    }
+                  }}
                 >
                   <i className='fas fa-external-link-alt'></i>
-                </button>
+                </a>
               )}
             </div>
           </td>
