@@ -80,6 +80,8 @@ export default class PayInvoiceContainer extends React.Component<
 
   private handleValidationComplete = () => {
     console.log('Child component validation complete, validating form');
+    // The child component has already ensured all state updates are complete before calling this
+    // We can safely validate the form immediately
     this.validateForm();
     this.setState({ isValidating: false });
   };
@@ -388,37 +390,71 @@ export default class PayInvoiceContainer extends React.Component<
     const { rechargeAccounts } = this.state;
     const { invoice } = this.props;
 
+    // Check if any validations are in progress
+    if (this._rechargeAccountsRef && this._rechargeAccountsRef.isValidating()) {
+      console.log('Form validation pending: validation in progress');
+      this.setState({ isValid: false });
+      return;
+    }
+
     // Check if component has validation errors
     if (
       this._rechargeAccountsRef &&
       this._rechargeAccountsRef.hasValidationErrors()
     ) {
+      console.log(
+        'Form validation failed: child component has validation errors'
+      );
       this.setState({ isValid: false });
       return;
     }
 
-    // Check if we have at least one debit chart string
-    const debitAccounts = rechargeAccounts.filter(
+    // Get all debit accounts with chart strings (including those with invalid amounts)
+    const allDebitAccounts = rechargeAccounts.filter(
       account =>
         account.direction === 'Debit' &&
         account.financialSegmentString &&
-        account.financialSegmentString.trim() !== '' &&
-        account.amount > 0
+        account.financialSegmentString.trim() !== ''
     );
 
-    if (debitAccounts.length === 0) {
+    if (allDebitAccounts.length === 0) {
+      console.log('Form validation failed: no debit accounts');
+      this.setState({ isValid: false });
+      return;
+    }
+
+    // Check if any debit accounts have invalid amounts (zero or negative)
+    const hasInvalidAmounts = allDebitAccounts.some(
+      account => account.amount <= 0
+    );
+
+    if (hasInvalidAmounts) {
+      console.log(
+        'Form validation failed: one or more debit accounts have invalid amounts (must be greater than zero)'
+      );
       this.setState({ isValid: false });
       return;
     }
 
     // Check if the total matches the invoice total
-    const total = debitAccounts.reduce(
+    const total = allDebitAccounts.reduce(
       (sum, account) => sum + account.amount,
       0
     );
-    const isValid = Math.abs(total - invoice.total) < 0.01; // Allow for small floating point differences
+    const totalMatches = Math.abs(total - invoice.total) < 0.01; // Allow for small floating point differences
 
-    this.setState({ isValid });
+    if (!totalMatches) {
+      console.log(
+        `Form validation failed: total mismatch (debit total: ${total}, invoice total: ${invoice.total})`
+      );
+      this.setState({ isValid: false });
+      return;
+    }
+
+    console.log(
+      `Form validation passed: all validations successful (total: ${total}, invoice total: ${invoice.total})`
+    );
+    this.setState({ isValid: true });
   };
 
   private handleSubmit = async () => {

@@ -396,24 +396,30 @@ export default class RechargeAccountsControl extends React.Component<
     index: number,
     direction: 'Credit' | 'Debit',
     chartString: string
-  ) => {
+  ): Promise<void> => {
     console.log(
       `Starting validation for ${direction} account ${index} with chartString: ${chartString}`
     );
 
-    const updateAccountSilent =
+    const accounts =
       direction === 'Credit'
-        ? this.updateCreditAccountSilent
-        : this.updateDebitAccountSilent;
+        ? this.state.creditAccounts
+        : this.state.debitAccounts;
 
-    const updateAccount =
-      direction === 'Credit'
-        ? this.updateCreditAccount
-        : this.updateDebitAccount;
+    // Create updated account with isValidating flag
+    const updatedAccountValidating = {
+      ...accounts[index],
+      isValidating: true,
+      hasValidationError: false
+    };
 
-    // Set loading state (using silent updates to avoid triggering parent onChange)
-    updateAccountSilent(index, 'isValidating', true);
-    updateAccountSilent(index, 'hasValidationError', false);
+    // Update state to show validating and notify parent so it knows validation is in progress
+    await this.updateAccountState(
+      direction,
+      index,
+      updatedAccountValidating,
+      true
+    );
 
     let valueChanged = false;
 
@@ -423,6 +429,18 @@ export default class RechargeAccountsControl extends React.Component<
         direction
       );
 
+      // Get the latest account state after validation
+      const currentAccounts =
+        direction === 'Credit'
+          ? this.state.creditAccounts
+          : this.state.debitAccounts;
+      const currentAccount = currentAccounts[index];
+
+      let updatedAccount = {
+        ...currentAccount,
+        isValidating: false
+      };
+
       if (validationResult) {
         // Update the chart string if validation returned a corrected value
         if (validationResult.chartString !== chartString) {
@@ -430,24 +448,21 @@ export default class RechargeAccountsControl extends React.Component<
             `Validation corrected chart string from "${chartString}" to "${validationResult.chartString}"`
           );
 
-          // Set flag to skip next validation to prevent infinite loop
-          updateAccountSilent(index, 'skipNextValidation', true);
-
-          // Use normal update for the corrected financial segment string (this notifies parent)
-          updateAccount(
-            index,
-            'financialSegmentString',
-            validationResult.chartString
-          );
+          updatedAccount = {
+            ...updatedAccount,
+            financialSegmentString: validationResult.chartString,
+            skipNextValidation: true,
+            validationResult: validationResult,
+            hasValidationError: !validationResult.isValid
+          };
           valueChanged = true;
+        } else {
+          updatedAccount = {
+            ...updatedAccount,
+            validationResult: validationResult,
+            hasValidationError: !validationResult.isValid
+          };
         }
-
-        updateAccountSilent(index, 'validationResult', validationResult);
-        updateAccountSilent(
-          index,
-          'hasValidationError',
-          !validationResult.isValid
-        );
 
         // Set custom validity on the input element
         this.setChartStringCustomValidity(
@@ -456,20 +471,36 @@ export default class RechargeAccountsControl extends React.Component<
           validationResult.isValid
         );
       } else {
-        updateAccountSilent(index, 'validationResult', undefined);
-        updateAccountSilent(index, 'hasValidationError', false);
+        updatedAccount = {
+          ...updatedAccount,
+          validationResult: undefined,
+          hasValidationError: false
+        };
 
         // Clear custom validity for empty strings
         this.setChartStringCustomValidity(index, direction, true);
       }
+
+      // Update state with all changes at once and notify parent
+      await this.updateAccountState(direction, index, updatedAccount, true);
     } catch (error) {
       console.error('Validation error:', error);
-      updateAccountSilent(index, 'hasValidationError', true);
+
+      const currentAccounts =
+        direction === 'Credit'
+          ? this.state.creditAccounts
+          : this.state.debitAccounts;
+      const updatedAccount = {
+        ...currentAccounts[index],
+        isValidating: false,
+        hasValidationError: true
+      };
 
       // Set custom validity for validation errors
       this.setChartStringCustomValidity(index, direction, false);
-    } finally {
-      updateAccountSilent(index, 'isValidating', false);
+
+      // Update state and notify parent
+      await this.updateAccountState(direction, index, updatedAccount, true);
     }
 
     console.log(
@@ -530,7 +561,7 @@ export default class RechargeAccountsControl extends React.Component<
       const account = this.state.creditAccounts[i];
       if (account.financialSegmentString.trim()) {
         // Set skipNextValidation to prevent onBlur interference
-        this.updateCreditAccountSilent(i, 'skipNextValidation', true);
+        await this.updateCreditAccountSilent(i, 'skipNextValidation', true);
         await this.handleChartStringValidation(
           i,
           'Credit',
@@ -544,7 +575,7 @@ export default class RechargeAccountsControl extends React.Component<
       const account = this.state.debitAccounts[i];
       if (account.financialSegmentString.trim()) {
         // Set skipNextValidation to prevent onBlur interference
-        this.updateDebitAccountSilent(i, 'skipNextValidation', true);
+        await this.updateDebitAccountSilent(i, 'skipNextValidation', true);
         await this.handleChartStringValidation(
           i,
           'Debit',
@@ -553,15 +584,20 @@ export default class RechargeAccountsControl extends React.Component<
       }
     }
 
-    // Set isInternalUpdate flag to prevent re-validation in componentDidUpdate
-    this.setState({ isInternalUpdate: true }, () => {
-      // Update parent with validated accounts
-      this.updateAccounts();
+    // All validation is complete - now update parent and notify
+    return new Promise<void>(resolve => {
+      // Set isInternalUpdate flag to prevent re-validation in componentDidUpdate
+      this.setState({ isInternalUpdate: true }, () => {
+        // Update parent with validated accounts
+        this.updateAccounts();
 
-      // Notify parent that validation is complete
-      if (this.props.onValidationComplete) {
-        this.props.onValidationComplete();
-      }
+        // Notify parent that validation is complete
+        if (this.props.onValidationComplete) {
+          this.props.onValidationComplete();
+        }
+
+        resolve();
+      });
     });
   };
 
@@ -617,16 +653,65 @@ export default class RechargeAccountsControl extends React.Component<
     this.props.onChange(allAccounts);
   };
 
+  // Helper method to update a single account's state and optionally notify parent
+  private updateAccountState = (
+    direction: 'Credit' | 'Debit',
+    index: number,
+    updatedAccount: InvoiceRechargeItem,
+    notifyParent: boolean
+  ): Promise<void> => {
+    return new Promise(resolve => {
+      if (direction === 'Credit') {
+        this.setState(
+          prevState => {
+            const updated = [...prevState.creditAccounts];
+            updated[index] = updatedAccount;
+            return {
+              creditAccounts: updated,
+              isInternalUpdate: !notifyParent
+            };
+          },
+          () => {
+            if (notifyParent) {
+              this.updateAccounts();
+            }
+            resolve();
+          }
+        );
+      } else {
+        this.setState(
+          prevState => {
+            const updated = [...prevState.debitAccounts];
+            updated[index] = updatedAccount;
+            return {
+              debitAccounts: updated,
+              isInternalUpdate: !notifyParent
+            };
+          },
+          () => {
+            if (notifyParent) {
+              this.updateAccounts();
+            }
+            resolve();
+          }
+        );
+      }
+    });
+  };
+
   // Silent update methods that don't trigger parent onChange (for validation updates)
+  // These now return Promises to allow waiting for state updates to complete
   private updateCreditAccountSilent = (
     index: number,
     field: keyof InvoiceRechargeItem,
     value: any
-  ) => {
-    this.setState(prevState => {
-      const updated = [...prevState.creditAccounts];
-      updated[index] = { ...updated[index], [field]: value };
-      return { creditAccounts: updated };
+  ): Promise<void> => {
+    return new Promise(resolve => {
+      this.setState(prevState => {
+        const updated = [...prevState.creditAccounts];
+        updated[index] = { ...updated[index], [field]: value };
+        return { creditAccounts: updated };
+      }, resolve);
     });
   };
 
@@ -634,11 +719,13 @@ export default class RechargeAccountsControl extends React.Component<
     index: number,
     field: keyof InvoiceRechargeItem,
     value: any
-  ) => {
-    this.setState(prevState => {
-      const updated = [...prevState.debitAccounts];
-      updated[index] = { ...updated[index], [field]: value };
-      return { debitAccounts: updated };
+  ): Promise<void> => {
+    return new Promise(resolve => {
+      this.setState(prevState => {
+        const updated = [...prevState.debitAccounts];
+        updated[index] = { ...updated[index], [field]: value };
+        return { debitAccounts: updated };
+      }, resolve);
     });
   };
 
@@ -1232,6 +1319,16 @@ export default class RechargeAccountsControl extends React.Component<
         </div>
       </div>
     );
+  };
+
+  // Public method to check if any validations are currently in progress
+  public isValidating = (): boolean => {
+    const allAccounts = [
+      ...this.state.creditAccounts,
+      ...this.state.debitAccounts
+    ];
+
+    return allAccounts.some(account => account.isValidating);
   };
 
   // Public method to check if there are any chart string validation errors
