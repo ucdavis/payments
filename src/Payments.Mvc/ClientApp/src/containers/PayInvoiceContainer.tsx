@@ -96,6 +96,7 @@ export default class PayInvoiceContainer extends React.Component<
     const canEdit = invoice.status === 'Sent';
 
     return (
+      // If we want to make this wider, we need to change the pay-card CSS. But CC uses this too, so make a new class if needed.
       <div className='card pay-card'>
         <div className='card-gradient-header-bleed'>
           <div className='card-gradient-header'></div>

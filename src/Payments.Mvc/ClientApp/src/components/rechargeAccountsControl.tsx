@@ -1074,6 +1074,22 @@ export default class RechargeAccountsControl extends React.Component<
               >
                 <i className='fas fa-search'></i>
               </button>
+              {account.financialSegmentString && (
+                <button
+                  type='button'
+                  className='btn btn-outline-secondary'
+                  title='View In Finjector'
+                  onClick={() =>
+                    window.open(
+                      `https://finjector.ucdavis.edu/details/${account.financialSegmentString}`,
+                      '_blank'
+                    )
+                  }
+                  disabled={account.isValidating}
+                >
+                  <i className='fas fa-external-link-alt'></i>
+                </button>
+              )}
             </div>
           </td>
           <td className='cell-amount'>
@@ -1158,33 +1174,36 @@ export default class RechargeAccountsControl extends React.Component<
     return (
       <div className='mb-4'>
         <h4>{title}</h4>
-        <div className='table-responsive'>
-          <table className='table table-sm invoice-table recharge-table'>
-            <thead>
-              <tr>
-                <th className='col-financial-segment'>
-                  Financial Segment String *
-                </th>
-                <th className='col-amount'>Amount *</th>
-                <th className='col-percentage'>Percentage</th>
-                <th className='col-actions'></th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account, index) =>
-                this.renderAccountRow(account, index, direction, accounts)
-              )}
-            </tbody>
-          </table>
-        </div>
-
+        {accounts?.length > 0 && (
+          <>
+            <div className='table-responsive'>
+              <table className='table table-sm invoice-table recharge-table'>
+                <thead>
+                  <tr>
+                    <th className='col-financial-segment'>
+                      Financial Segment String *
+                    </th>
+                    <th className='col-amount'>Amount *</th>
+                    <th className='col-percentage'>Percentage</th>
+                    <th className='col-actions'></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {accounts.map((account, index) =>
+                    this.renderAccountRow(account, index, direction, accounts)
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
         <div className='d-flex justify-content-between align-items-center'>
           <button
             type='button'
             className='btn btn-sm btn-outline-primary'
             onClick={onAdd}
           >
-            Add {title.slice(0, -1)} Account
+            Add {direction} Account
           </button>
 
           <div
