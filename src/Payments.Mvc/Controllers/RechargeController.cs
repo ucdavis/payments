@@ -93,6 +93,55 @@ namespace Payments.Mvc.Controllers
 
             invoice.UpdateCalculatedValues();
 
+            var model = CreateRechargeInvoiceViewModel(invoice);
+
+            //var model = CreateRechargePaymentViewModel(invoice);
+
+            if (invoice.Status == Invoice.StatusCodes.Sent)
+            {
+                //This is valid status to pay, but I think we want to allow the other statuses through so it can be viewed, but not edited.
+            }
+
+            ViewBag.Id = id;
+
+            return View(model);
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Preview(int id)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .Include(i => i.Attachments)
+                .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return PublicNotFound();
+            }
+
+
+            invoice.UpdateCalculatedValues();
+
+            var model = CreateRechargeInvoiceViewModel(invoice);
+
+            //var model = CreateRechargePaymentViewModel(invoice);
+
+            if (invoice.Status == Invoice.StatusCodes.Sent)
+            {
+                //This is valid status to pay, but I think we want to allow the other statuses through so it can be viewed, but not edited.
+            }
+
+            ViewBag.Id = id;
+
+            return View(model);
+        }
+
+        private static RechargeInvoiceViewModel CreateRechargeInvoiceViewModel(Invoice invoice)
+        {
             var model = new RechargeInvoiceViewModel()
             {
                 Id = invoice.GetFormattedId(),
@@ -117,18 +166,7 @@ namespace Payments.Mvc.Controllers
                 Status = invoice.Status,
                 DebitRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).ToList()
             };
-
-            //var model = CreateRechargePaymentViewModel(invoice);
-
-            if (invoice.Status == Invoice.StatusCodes.Sent)
-            {
-                //This is valid status to pay, but I think we want to allow the other statuses through so it can be viewed, but not edited.
-            }
-
-            ViewBag.Id = id;
-
-            return View(model);
-
+            return model;
         }
 
         /// <summary>
