@@ -73,10 +73,20 @@
     <div class="card-body card-bot-border">
         @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
         {
-            <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
-                <i class="fas fa-search me-3"></i>
-                Preview
-            </a>
+            @if (Model.Type == InvoiceTypes.Recharge)
+            {
+                <a asp-controller="Recharge" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                    <i class="fas fa-search me-3"></i>
+                    Preview
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                    <i class="fas fa-search me-3"></i>
+                    Preview
+                </a>
+            }
 
             if (!Model.Sent)
             {
