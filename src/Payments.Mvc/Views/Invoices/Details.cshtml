@@ -734,7 +734,14 @@ else
 
                 <div id="sendInvoicePreview" class="modal-body p-0">
                     <div class="d-flex preview-embed">
-                        <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})"></iframe>
+                        @if (Model.Type == InvoiceTypes.Recharge)
+                        {
+                            <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Recharge", new {team = teamSlug, id = Model.Id})"></iframe>
+                        }
+                        else
+                        {
+                            <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})"></iframe>
+                        }
                     </div>
                 </div>
 

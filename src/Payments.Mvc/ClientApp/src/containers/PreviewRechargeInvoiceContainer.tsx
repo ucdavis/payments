@@ -114,10 +114,6 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
               invoice.debitRechargeAccounts.length > 0 && (
                 <div className='card-body'>
                   <h3>Debit Chart Strings</h3>
-                  <p className='text-muted'>
-                    These are placeholder/default chart strings shown for
-                    preview purposes.
-                  </p>
                   <table className='table'>
                     <thead>
                       <tr>
