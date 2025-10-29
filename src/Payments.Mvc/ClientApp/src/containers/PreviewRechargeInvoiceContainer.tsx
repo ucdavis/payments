@@ -1,16 +1,40 @@
 import * as React from 'react';
 import { RechargeInvoiceModel } from './PayInvoiceContainer';
+import RechargeAccountsControl from '../components/rechargeAccountsControl';
+import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 
 interface IProps {
   invoice: RechargeInvoiceModel;
 }
 
+interface IState {
+  rechargeAccounts: InvoiceRechargeItem[];
+  isValid: boolean;
+  isValidating: boolean;
+}
+
 export default class PreviewRechargeInvoiceContainer extends React.Component<
   IProps,
-  {}
+  IState
 > {
+  private _rechargeAccountsRef: RechargeAccountsControl;
+
+  constructor(props: IProps) {
+    super(props);
+
+    this.state = {
+      rechargeAccounts: props.invoice.debitRechargeAccounts || [],
+      isValid: false,
+      isValidating: true
+    };
+  }
+
+  componentDidMount() {
+    // Validation will be triggered by the child component's onValidationComplete callback
+  }
   public render() {
     const { invoice } = this.props;
+    const { rechargeAccounts, isValid, isValidating } = this.state;
 
     console.log('PreviewRechargeInvoiceContainer rendering', invoice);
 
@@ -52,6 +76,36 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
                     day: 'numeric'
                   })}
                 </span>
+              )}
+
+              {isValidating && (
+                <div className='alert alert-info mt-3' role='alert'>
+                  <i className='fas fa-spinner fa-spin me-2'></i>
+                  Validating form...
+                </div>
+              )}
+
+              {!isValidating && !isValid && (
+                <div className='alert alert-warning mt-3' role='alert'>
+                  <i className='fas fa-exclamation-triangle me-2'></i>
+                  Form validation status (preview only):
+                  <ul className='mb-0 mt-2'>
+                    <li>At least one valid debit chart string is required</li>
+                    <li>All chart strings must be validated successfully</li>
+                    <li>
+                      Total debit amounts must equal the invoice total ($
+                      {invoice.total.toFixed(2)})
+                    </li>
+                    <li>All amounts must be greater than zero</li>
+                  </ul>
+                </div>
+              )}
+
+              {!isValidating && isValid && (
+                <div className='alert alert-success mt-3' role='alert'>
+                  <i className='fas fa-check-circle me-2'></i>
+                  Form is valid (preview only)
+                </div>
               )}
 
               <div style={{ alignContent: 'center' }}>
@@ -109,36 +163,22 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
               </table>
             </div>
 
-            {/* Display existing recharge accounts in preview mode */}
-            {invoice.debitRechargeAccounts &&
-              invoice.debitRechargeAccounts.length > 0 && (
-                <div className='card-body'>
-                  <h3>Debit Chart Strings</h3>
-                  <table className='table'>
-                    <thead>
-                      <tr>
-                        <th>Chart String</th>
-                        <th>Amount</th>
-                        <th>Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoice.debitRechargeAccounts.map((account, index) => (
-                        <tr key={account.id || index}>
-                          <td>{account.financialSegmentString || 'N/A'}</td>
-                          <td>
-                            $
-                            {account.amount
-                              ? account.amount.toFixed(2)
-                              : '0.00'}
-                          </td>
-                          <td>{account.notes || ''}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+            {/* Recharge Accounts - Editable in preview mode for demonstration */}
+            <div className='card-body invoice-recharge-accounts'>
+              <h3>Debit Chart Strings (Preview)</h3>
+              <p className='text-muted'>
+                You can interact with the chart strings below to see how the
+                form works. Changes cannot be saved in preview mode.
+              </p>
+              <RechargeAccountsControl
+                ref={r => (this._rechargeAccountsRef = r)}
+                rechargeAccounts={rechargeAccounts}
+                invoiceTotal={invoice.total}
+                onChange={this.handleRechargeAccountsChange}
+                showCreditAccounts={false}
+                onValidationComplete={this.handleValidationComplete}
+              />
+            </div>
 
             {/* Attachments */}
             {invoice.attachments.length > 0 && (
@@ -214,7 +254,92 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
     );
   }
 
-  private getFileIcon = (contentType: string): string => {
+  private handleRechargeAccountsChange = (accounts: InvoiceRechargeItem[]) => {
+    this.setState({ rechargeAccounts: accounts }, () => {
+      this.validateForm();
+    });
+  };
+
+  private handleValidationComplete = () => {
+    console.log('Child component validation complete, validating form');
+    // The child component has already ensured all state updates are complete before calling this
+    // We can safely validate the form immediately
+    this.validateForm();
+    this.setState({ isValidating: false });
+  };
+
+  private validateForm = () => {
+    const { rechargeAccounts } = this.state;
+    const { invoice } = this.props;
+
+    // Check if any validations are in progress
+    if (this._rechargeAccountsRef && this._rechargeAccountsRef.isValidating()) {
+      console.log('Form validation pending: validation in progress');
+      this.setState({ isValid: false });
+      return;
+    }
+
+    // Check if component has validation errors
+    if (
+      this._rechargeAccountsRef &&
+      this._rechargeAccountsRef.hasValidationErrors()
+    ) {
+      console.log(
+        'Form validation failed: child component has validation errors'
+      );
+      this.setState({ isValid: false });
+      return;
+    }
+
+    // Get all debit accounts with chart strings (including those with invalid amounts)
+    const allDebitAccounts = rechargeAccounts.filter(
+      account =>
+        account.direction === 'Debit' &&
+        account.financialSegmentString &&
+        account.financialSegmentString.trim() !== ''
+    );
+
+    if (allDebitAccounts.length === 0) {
+      console.log('Form validation failed: no debit accounts');
+      this.setState({ isValid: false });
+      return;
+    }
+
+    // Check if any debit accounts have invalid amounts (zero or negative)
+    const hasInvalidAmounts = allDebitAccounts.some(
+      account => account.amount <= 0
+    );
+
+    if (hasInvalidAmounts) {
+      console.log(
+        'Form validation failed: one or more debit accounts have invalid amounts (must be greater than zero)'
+      );
+      this.setState({ isValid: false });
+      return;
+    }
+
+    // Check if the total matches the invoice total
+    const total = allDebitAccounts.reduce(
+      (sum, account) => sum + account.amount,
+      0
+    );
+    const totalMatches = Math.abs(total - invoice.total) < 0.01; // Allow for small floating point differences
+
+    if (!totalMatches) {
+      console.log(
+        `Form validation failed: total mismatch (debit total: ${total}, invoice total: ${invoice.total})`
+      );
+      this.setState({ isValid: false });
+      return;
+    }
+
+    console.log(
+      `Form validation passed: all validations successful (total: ${total}, invoice total: ${invoice.total})`
+    );
+    this.setState({ isValid: true });
+  };
+
+  private getFileIcon = (contentType: string) => {
     if (contentType === 'application/pdf') {
       return 'far fa-file-pdf';
     }
@@ -226,7 +351,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
     return 'far fa-file';
   };
 
-  private getSizeText = (size: number): string => {
+  private getSizeText = (size: number) => {
     if (size <= 0) {
       return '';
     }
