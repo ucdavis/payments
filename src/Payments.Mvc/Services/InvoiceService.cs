@@ -16,11 +16,13 @@ namespace Payments.Mvc.Services
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IEmailService _emailService;
+        private readonly IAggieEnterpriseService _aggieEnterpriseService;
 
-        public InvoiceService(ApplicationDbContext dbContext, IEmailService emailService)
+        public InvoiceService(ApplicationDbContext dbContext, IEmailService emailService, IAggieEnterpriseService aggieEnterpriseService)
         {
             _dbContext = dbContext;
             _emailService = emailService;
+            _aggieEnterpriseService = aggieEnterpriseService;
         }
 
         public async Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team)
@@ -40,6 +42,7 @@ namespace Payments.Mvc.Services
                 throw new ArgumentException("Account is inactive.", nameof(model.AccountId));
             }
 
+
             if (model.Type == Invoice.InvoiceTypes.Recharge)
             {
                 //TODO: Server side validation.
@@ -47,6 +50,27 @@ namespace Payments.Mvc.Services
                 //All recharge accounts must be valid.
                 //All credit recharge account must be 100% of total.
                 //If any debit recharge accounts, they must all be 100% of total.
+
+                if(model.RechargeAccounts == null || !model.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                {
+                    throw new ArgumentException("At least one credit recharge account is required for recharge invoices.", nameof(model.RechargeAccounts));
+                }
+                //if(model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit).Sum(a => a.Amount) != model.)
+                //{
+                //    throw new ArgumentException("Credit recharge accounts must total 100%.", nameof(model.RechargeAccounts));
+                //})
+                if(model.RechargeAccounts.Where(a => a.Amount <=0.0m ).Any())
+                {
+                    throw new ArgumentException("Recharge account amounts must be greater than 0.", nameof(model.RechargeAccounts));
+                }
+                foreach(var ra in model.RechargeAccounts)
+                {
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    if(!validationModel.IsValid)
+                    {
+                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
+                    }
+                }
             }
 
             // find coupon
@@ -55,8 +79,11 @@ namespace Payments.Mvc.Services
             {
                 coupon = await _dbContext.Coupons
                     .FirstOrDefaultAsync(c => c.Team.Id == team.Id && c.Id == model.CouponId);
+                if (model.Type == Invoice.InvoiceTypes.Recharge)
+                {
+                    throw new ArgumentException("Coupons are not allowed for recharge invoices.", nameof(model.CouponId));
+                }
             }
-
             // manage multiple customer scenario
             var invoices = new List<Invoice>();
             foreach (var customer in model.Customers)
@@ -102,6 +129,14 @@ namespace Payments.Mvc.Services
                 });
                 invoice.Attachments = attachments.ToList();
 
+                // start tracking for db
+                invoice.UpdateCalculatedValues();
+
+                if (invoice.CalculatedTotal <= 0)
+                {
+                    throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
+                }
+
                 if (model.Type == Invoice.InvoiceTypes.Recharge)
                 {
                     var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
@@ -116,15 +151,19 @@ namespace Payments.Mvc.Services
 
                     });
                     invoice.RechargeAccounts = rechargeAccounts.ToList();
+
+                    if(invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit).Sum(a => a.Amount))
+                    {
+                        throw new ArgumentException("Total of credit recharge accounts must equal invoice total.", nameof(model.RechargeAccounts));
+                    }
+                    if(invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any() &&
+                        invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Sum(a => a.Amount))
+                    {
+                        throw new ArgumentException("Total of debit recharge accounts must equal invoice total when supplied.", nameof(model.RechargeAccounts));
+                    }
                 }
 
-                // start tracking for db
-                invoice.UpdateCalculatedValues();
 
-                if (invoice.CalculatedTotal <= 0)
-                {
-                    throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
-                }
 
                 _dbContext.Invoices.Add(invoice);
 
@@ -191,8 +230,13 @@ namespace Payments.Mvc.Services
             });
             invoice.Items = items.ToList();
 
+            //TODO: Move this into a private method. Need to do on update too.
             if (invoice.Type == Invoice.InvoiceTypes.Recharge)
             {
+                // Recharges don't have tax
+                model.TaxPercent = 0;
+                invoice.TaxPercent = 0;
+
                 // remove old recharge accounts
                 // If we do it this way, there may be issues if an invoice is rejected, then we edit it and resend. Now all the entered by values are lost.
                 _dbContext.RechargeAccounts.RemoveRange(invoice.RechargeAccounts);
@@ -236,6 +280,7 @@ namespace Payments.Mvc.Services
 
             return invoice;
         }
+
 
         public async Task SendInvoice(Invoice invoice, SendInvoiceModel model)
         {
