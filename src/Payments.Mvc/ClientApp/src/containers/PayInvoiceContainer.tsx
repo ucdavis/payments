@@ -19,6 +19,8 @@ export interface RechargeInvoiceModel {
   team: InvoiceTeam;
   status: string;
   debitRechargeAccounts: InvoiceRechargeItem[];
+  message?: string;
+  errorMessage?: string;
 }
 
 export interface InvoiceLineItem {
@@ -52,6 +54,7 @@ interface IState {
   isValid: boolean;
   isSaving: boolean;
   errorMessage: string;
+  message: string;
   isValidating: boolean;
 }
 
@@ -69,6 +72,7 @@ export default class PayInvoiceContainer extends React.Component<
       isValid: false,
       isSaving: false,
       errorMessage: '',
+      message: '',
       isValidating: true
     };
   }
@@ -110,6 +114,21 @@ export default class PayInvoiceContainer extends React.Component<
             <h2 className=''>From {invoice.team.name}</h2>
             <br />
           </div>
+
+          {/* Messages from server */}
+          {invoice.errorMessage && (
+            <div className='alert alert-danger mx-3' role='alert'>
+              <i className='fas fa-exclamation-circle me-2'></i>
+              {invoice.errorMessage}
+            </div>
+          )}
+
+          {invoice.message && !invoice.errorMessage && (
+            <div className='alert alert-info mx-3' role='alert'>
+              <i className='fas fa-info-circle me-2'></i>
+              {invoice.message}
+            </div>
+          )}
 
           {/* Payment Action Area */}
           <div className='pay-action'>
@@ -534,16 +553,31 @@ export default class PayInvoiceContainer extends React.Component<
       });
 
       if (response.ok) {
-        // Success - redirect or show success message
-        window.location.href = `/recharge/pay/${invoice.linkId}?success=true`;
+        // Success - redirect to reload the page with updated invoice data
+        window.location.href = `/recharge/pay/${invoice.linkId}`;
       } else {
+        // Try to parse as the full model first (which includes errorMessage)
         const errorData = await response.json();
-        this.setState({
-          errorMessage:
-            errorData.message ||
-            'An error occurred while submitting the invoice. Please try again.',
-          isSaving: false
-        });
+
+        // If we got back a full invoice model with errorMessage, we could update the page
+        // For now, just display the error message from the response
+        if (errorData.errorMessage) {
+          this.setState({
+            errorMessage: errorData.errorMessage,
+            isSaving: false
+          });
+        } else if (errorData.message) {
+          this.setState({
+            errorMessage: errorData.message,
+            isSaving: false
+          });
+        } else {
+          this.setState({
+            errorMessage:
+              'An error occurred while submitting the invoice. Please try again.',
+            isSaving: false
+          });
+        }
       }
     } catch (error) {
       this.setState({

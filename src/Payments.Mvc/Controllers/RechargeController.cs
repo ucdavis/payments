@@ -20,7 +20,7 @@ namespace Payments.Mvc.Controllers
         private IAggieEnterpriseService _aggieEnterpriseService;
         private readonly ApplicationUserManager _userManager;
 
-        public RechargeController(ApplicationDbContext dbContext, IAggieEnterpriseService aggieEnterpriseService, ApplicationUserManager userManager) 
+        public RechargeController(ApplicationDbContext dbContext, IAggieEnterpriseService aggieEnterpriseService, ApplicationUserManager userManager)
         {
             _dbContext = dbContext;
             _aggieEnterpriseService = aggieEnterpriseService;
@@ -130,7 +130,7 @@ namespace Payments.Mvc.Controllers
 
             //var model = CreateRechargePaymentViewModel(invoice);
 
-            if (invoice.Status == Invoice.StatusCodes.Sent)
+            if (invoice.Status != Invoice.StatusCodes.Sent)
             {
                 //This is valid status to pay, but I think we want to allow the other statuses through so it can be viewed, but not edited.
             }
@@ -175,7 +175,6 @@ namespace Payments.Mvc.Controllers
         /// <param name="id">Link Id</param>
         /// <param name="model"></param>
         /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
         [HttpPost]
         public async Task<IActionResult> Pay(string id, [FromBody] RechargeAccount[] model)
         {
@@ -184,19 +183,36 @@ namespace Payments.Mvc.Controllers
             //This need to update the status, validate the chartStrings, write to the history, send emails, etc. (We probably also want the invoice details page to be able to resend the email(s) for approvals
 
             var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .Include(i => i.Attachments)
                 .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
                 .FirstOrDefaultAsync(i => i.LinkId == id);
             if (invoice == null)
             {
-                return PublicNotFound();
+                return NotFound(new { message = "Invoice not found." });
             }
+
+            // For now, return an error with the updated model until the full implementation is done
+            var returnModel = CreateRechargeInvoiceViewModel(invoice);
+            //returnModel.ErrorMessage = "Your payment information could not be updated.";
+            //return BadRequest(returnModel);
+
+            invoice.Status = Invoice.StatusCodes.PendingApproval;
+            _dbContext.Invoices.Update(invoice);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+
+
+
             //// the customer isn't allowed access to draft or cancelled invoices
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
             {
                 return PublicNotFound();
             }
-            if(invoice.Status != Invoice.StatusCodes.Sent)
-            {            
+            if (invoice.Status != Invoice.StatusCodes.Sent)
+            {
                 return RedirectToAction("Pay", new { id = invoice.LinkId });
             }
 
@@ -219,7 +235,7 @@ namespace Payments.Mvc.Controllers
             //}
             //await _dbContext.SaveChangesAsync();
             //Message = "Your payment information has been updated.";
-            //return RedirectToAction("Pay", new { id = invoice.LinkId });
+            return RedirectToAction("Pay", new { id = invoice.LinkId });
         }
 
         public ActionResult PublicNotFound()
