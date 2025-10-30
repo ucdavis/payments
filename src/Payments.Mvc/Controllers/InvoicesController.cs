@@ -432,6 +432,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Include(i => i.Coupon)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
