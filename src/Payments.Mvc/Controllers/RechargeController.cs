@@ -196,8 +196,8 @@ namespace Payments.Mvc.Controllers
                 return PublicNotFound();
             }
             if(invoice.Status != Invoice.StatusCodes.Sent)
-            {
-                return BadRequest("Invoice is not in a valid state for payment.");
+            {            
+                return RedirectToAction("Pay", new { id = invoice.LinkId });
             }
 
             //// remove any existing debit recharge accounts

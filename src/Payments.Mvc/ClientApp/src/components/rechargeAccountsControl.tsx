@@ -104,6 +104,7 @@ export default class RechargeAccountsControl extends React.Component<
     );
 
     if (hasExistingData) {
+      //TODO: Anyplace we used a timeout like this, we need to instead use promises or another method to ensure proper sequencing without arbitrary delays
       setTimeout(() => {
         this.validateExistingAccounts();
         // Also validate credit totals after initial render
