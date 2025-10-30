@@ -345,6 +345,20 @@ namespace Payments.Mvc.Services
                 SetInvoiceKey(invoice);
             }
 
+            //Possibly we want to validate the recharge accounts again before sending?
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                foreach (var ra in invoice.RechargeAccounts)
+                {
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    if (!validationModel.IsValid)
+                    {
+                        //This will throw an uncontrolled exception, but that is probably better than sending an invoice with invalid accounts.
+                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
+                    }
+                }
+            }
+
             await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
 
             invoice.Status = Invoice.StatusCodes.Sent;
