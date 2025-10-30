@@ -71,6 +71,16 @@ namespace Payments.Mvc.Services
                         throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
                     }
                 }
+
+                if(model.CouponId > 0)
+                {
+                    throw new ArgumentException("Coupons are not allowed for recharge invoices.", nameof(model.CouponId));
+                }
+
+                if(model.TaxPercent > 0.0m)
+                {
+                    throw new ArgumentException("Tax is not allowed for recharge invoices.", nameof(model.TaxPercent));
+                }
             }
 
             // find coupon
@@ -79,10 +89,6 @@ namespace Payments.Mvc.Services
             {
                 coupon = await _dbContext.Coupons
                     .FirstOrDefaultAsync(c => c.Team.Id == team.Id && c.Id == model.CouponId);
-                if (model.Type == Invoice.InvoiceTypes.Recharge)
-                {
-                    throw new ArgumentException("Coupons are not allowed for recharge invoices.", nameof(model.CouponId));
-                }
             }
             // manage multiple customer scenario
             var invoices = new List<Invoice>();
