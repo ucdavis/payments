@@ -247,7 +247,9 @@ export default class EditInvoiceContainer extends React.Component<
       taxPercent,
       items,
       memo,
-      isSendModalOpen
+      isSendModalOpen,
+      type,
+      rechargeAccounts
     } = this.state;
 
     return (
@@ -261,6 +263,8 @@ export default class EditInvoiceContainer extends React.Component<
         items={items}
         attachments={attachments}
         team={team}
+        invoiceType={type}
+        rechargeAccounts={rechargeAccounts}
         onCancel={() => {
           this.setState({ isSendModalOpen: false });
         }}

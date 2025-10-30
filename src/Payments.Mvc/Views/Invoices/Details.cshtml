@@ -73,10 +73,20 @@
     <div class="card-body card-bot-border">
         @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
         {
-            <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
-                <i class="fas fa-search me-3"></i>
-                Preview
-            </a>
+            @if (Model.Type == InvoiceTypes.Recharge)
+            {
+                <a asp-controller="Recharge" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                    <i class="fas fa-search me-3"></i>
+                    Preview
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                    <i class="fas fa-search me-3"></i>
+                    Preview
+                </a>
+            }
 
             if (!Model.Sent)
             {
@@ -724,7 +734,14 @@ else
 
                 <div id="sendInvoicePreview" class="modal-body p-0">
                     <div class="d-flex preview-embed">
-                        <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})"></iframe>
+                        @if (Model.Type == InvoiceTypes.Recharge)
+                        {
+                            <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Recharge", new {team = teamSlug, id = Model.Id})"></iframe>
+                        }
+                        else
+                        {
+                            <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})"></iframe>
+                        }
                     </div>
                 </div>
 
