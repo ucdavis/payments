@@ -332,6 +332,7 @@ export default class PayInvoiceContainer extends React.Component<
           {/* Download PDF */}
           <div className='pay-download'>
             <img src='/media/download.svg' alt='download icon' />
+            <br />
             {invoice.paid ? (
               <a
                 href={`/pdf/receipt/${invoice.linkId}`}
