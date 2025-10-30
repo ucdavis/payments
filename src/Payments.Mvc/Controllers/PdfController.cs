@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using jsreport.AspNetCore;
 using jsreport.Types;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
@@ -36,7 +37,7 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null || string.IsNullOrWhiteSpace(id))
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             // look for the file on storage server first
@@ -101,6 +102,7 @@ namespace Payments.Mvc.Controllers
             return new FileStreamResult(report.Content, report.Meta.ContentType);
         }
 
+        //The receipt page is found from both the customer and the user email page, so if it isn't found it needs a public facing error page
         [HttpGet("/receipt/{id}")]
         public async Task<ActionResult> Receipt(string id)
         {
@@ -113,12 +115,12 @@ namespace Payments.Mvc.Controllers
 
             if (invoice == null || string.IsNullOrWhiteSpace(id))
             {
-                return NotFound();
+                return PublicNotFound();
             }
 
             if (!invoice.Paid)
             {
-                return NotFound();
+                return PublicNotPaid();
             }
 
             // look for the file on storage server first
@@ -178,6 +180,28 @@ namespace Payments.Mvc.Controllers
             // reset stream and return
             report.Content.Seek(0, SeekOrigin.Begin);
             return new FileStreamResult(report.Content, report.Meta.ContentType);
+        }
+
+        /// <summary>
+        /// Returns a public-facing NotFound view with a 404 status code.
+        /// </summary>
+        /// <returns>NotFound view with 404 status</returns>
+        public ActionResult PublicNotFound()
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            return View("NotFound");
+        }
+
+        /// <summary>
+        /// Returns a view indicating that the payment has not been completed.
+        /// </summary>
+        /// <remarks>This action sets the HTTP response status code to 400 (Bad Request) before returning
+        /// the view.</remarks>
+        /// <returns>An <see cref="ActionResult"/> that renders the "NotPaid" view.</returns>
+        public ActionResult PublicNotPaid()
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return View("NotPaid");
         }
     }
 }

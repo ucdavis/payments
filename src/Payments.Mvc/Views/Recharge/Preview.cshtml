@@ -1,0 +1,23 @@
+@model Payments.Mvc.Models.PaymentViewModels.RechargeInvoiceViewModel
+
+@{
+    ViewBag.Title = "Preview Invoice";
+    Layout = "_PaymentsLayout";
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+@section scripts {
+    <script src="https://finjector.ucdavis.edu/finjector.js?v=3" type="text/javascript" asp-add-nonce="true"></script>
+    <script asp-add-nonce="true">
+        window.id = @(Json.Serialize(ViewBag.Id));
+
+        window.model = @(Json.Serialize(Model));
+
+        var form = $("#__AjaxAntiForgeryForm");
+        window.antiForgeryToken = $('input[name="__RequestVerificationToken"]', form).val();
+    </script>
+}

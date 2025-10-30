@@ -178,6 +178,7 @@ export default class EditInvoiceContainer extends React.Component<
               rechargeAccounts={rechargeAccounts}
               invoiceTotal={calculateTotal(items, discount, taxPercent)}
               onChange={v => this.updateProperty('rechargeAccounts', v)}
+              showCreditAccounts={true}
             />
           </div>
         )}
@@ -246,7 +247,9 @@ export default class EditInvoiceContainer extends React.Component<
       taxPercent,
       items,
       memo,
-      isSendModalOpen
+      isSendModalOpen,
+      type,
+      rechargeAccounts
     } = this.state;
 
     return (
@@ -260,6 +263,8 @@ export default class EditInvoiceContainer extends React.Component<
         items={items}
         attachments={attachments}
         team={team}
+        invoiceType={type}
+        rechargeAccounts={rechargeAccounts}
         onCancel={() => {
           this.setState({ isSendModalOpen: false });
         }}

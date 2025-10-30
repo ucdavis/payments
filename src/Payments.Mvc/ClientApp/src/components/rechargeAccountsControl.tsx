@@ -12,6 +12,8 @@ interface IProps {
   rechargeAccounts: InvoiceRechargeItem[];
   invoiceTotal: number;
   onChange: (rechargeAccounts: InvoiceRechargeItem[]) => void;
+  showCreditAccounts: boolean;
+  onValidationComplete?: () => void;
 }
 
 interface IState {
@@ -63,10 +65,19 @@ export default class RechargeAccountsControl extends React.Component<
       account => account.direction === 'Debit'
     );
 
-    // Ensure we have at least one credit account
-    if (creditAccounts.length === 0) {
+    // Ensure we have at least one account of the required type
+    if (props.showCreditAccounts && creditAccounts.length === 0) {
       const newAccount = this.createNewAccount('Credit', 1);
       creditAccounts.push({
+        ...newAccount,
+        validationResult: undefined,
+        isValidating: false,
+        hasValidationError: false,
+        skipNextValidation: false
+      });
+    } else if (!props.showCreditAccounts && debitAccounts.length === 0) {
+      const newAccount = this.createNewAccount('Debit', 1);
+      debitAccounts.push({
         ...newAccount,
         validationResult: undefined,
         isValidating: false,
@@ -105,6 +116,10 @@ export default class RechargeAccountsControl extends React.Component<
       setTimeout(() => {
         this.setCreditTotalValidityOnLastAmount();
         this.setDebitTotalValidityOnLastAmount();
+        // Notify parent that validation is complete (no data to validate)
+        if (this.props.onValidationComplete) {
+          this.props.onValidationComplete();
+        }
       }, 100);
     }
   }
@@ -165,10 +180,22 @@ export default class RechargeAccountsControl extends React.Component<
           account => account.direction === 'Debit'
         );
 
-        // Ensure we have at least one credit account
-        if (creditAccounts.length === 0) {
+        // Ensure we have at least one account of the required type
+        if (this.props.showCreditAccounts && creditAccounts.length === 0) {
           const newAccount = this.createNewAccount('Credit', this.state.nextId);
           creditAccounts.push({
+            ...newAccount,
+            validationResult: undefined,
+            isValidating: false,
+            hasValidationError: false,
+            skipNextValidation: false
+          });
+        } else if (
+          !this.props.showCreditAccounts &&
+          debitAccounts.length === 0
+        ) {
+          const newAccount = this.createNewAccount('Debit', this.state.nextId);
+          debitAccounts.push({
             ...newAccount,
             validationResult: undefined,
             isValidating: false,
@@ -369,24 +396,30 @@ export default class RechargeAccountsControl extends React.Component<
     index: number,
     direction: 'Credit' | 'Debit',
     chartString: string
-  ) => {
+  ): Promise<void> => {
     console.log(
       `Starting validation for ${direction} account ${index} with chartString: ${chartString}`
     );
 
-    const updateAccountSilent =
+    const accounts =
       direction === 'Credit'
-        ? this.updateCreditAccountSilent
-        : this.updateDebitAccountSilent;
+        ? this.state.creditAccounts
+        : this.state.debitAccounts;
 
-    const updateAccount =
-      direction === 'Credit'
-        ? this.updateCreditAccount
-        : this.updateDebitAccount;
+    // Create updated account with isValidating flag
+    const updatedAccountValidating = {
+      ...accounts[index],
+      isValidating: true,
+      hasValidationError: false
+    };
 
-    // Set loading state (using silent updates to avoid triggering parent onChange)
-    updateAccountSilent(index, 'isValidating', true);
-    updateAccountSilent(index, 'hasValidationError', false);
+    // Update state to show validating and notify parent so it knows validation is in progress
+    await this.updateAccountState(
+      direction,
+      index,
+      updatedAccountValidating,
+      true
+    );
 
     let valueChanged = false;
 
@@ -396,6 +429,18 @@ export default class RechargeAccountsControl extends React.Component<
         direction
       );
 
+      // Get the latest account state after validation
+      const currentAccounts =
+        direction === 'Credit'
+          ? this.state.creditAccounts
+          : this.state.debitAccounts;
+      const currentAccount = currentAccounts[index];
+
+      let updatedAccount = {
+        ...currentAccount,
+        isValidating: false
+      };
+
       if (validationResult) {
         // Update the chart string if validation returned a corrected value
         if (validationResult.chartString !== chartString) {
@@ -403,24 +448,21 @@ export default class RechargeAccountsControl extends React.Component<
             `Validation corrected chart string from "${chartString}" to "${validationResult.chartString}"`
           );
 
-          // Set flag to skip next validation to prevent infinite loop
-          updateAccountSilent(index, 'skipNextValidation', true);
-
-          // Use normal update for the corrected financial segment string (this notifies parent)
-          updateAccount(
-            index,
-            'financialSegmentString',
-            validationResult.chartString
-          );
+          updatedAccount = {
+            ...updatedAccount,
+            financialSegmentString: validationResult.chartString,
+            skipNextValidation: true,
+            validationResult: validationResult,
+            hasValidationError: !validationResult.isValid
+          };
           valueChanged = true;
+        } else {
+          updatedAccount = {
+            ...updatedAccount,
+            validationResult: validationResult,
+            hasValidationError: !validationResult.isValid
+          };
         }
-
-        updateAccountSilent(index, 'validationResult', validationResult);
-        updateAccountSilent(
-          index,
-          'hasValidationError',
-          !validationResult.isValid
-        );
 
         // Set custom validity on the input element
         this.setChartStringCustomValidity(
@@ -429,20 +471,36 @@ export default class RechargeAccountsControl extends React.Component<
           validationResult.isValid
         );
       } else {
-        updateAccountSilent(index, 'validationResult', undefined);
-        updateAccountSilent(index, 'hasValidationError', false);
+        updatedAccount = {
+          ...updatedAccount,
+          validationResult: undefined,
+          hasValidationError: false
+        };
 
         // Clear custom validity for empty strings
         this.setChartStringCustomValidity(index, direction, true);
       }
+
+      // Update state with all changes at once and notify parent
+      await this.updateAccountState(direction, index, updatedAccount, true);
     } catch (error) {
       console.error('Validation error:', error);
-      updateAccountSilent(index, 'hasValidationError', true);
+
+      const currentAccounts =
+        direction === 'Credit'
+          ? this.state.creditAccounts
+          : this.state.debitAccounts;
+      const updatedAccount = {
+        ...currentAccounts[index],
+        isValidating: false,
+        hasValidationError: true
+      };
 
       // Set custom validity for validation errors
       this.setChartStringCustomValidity(index, direction, false);
-    } finally {
-      updateAccountSilent(index, 'isValidating', false);
+
+      // Update state and notify parent
+      await this.updateAccountState(direction, index, updatedAccount, true);
     }
 
     console.log(
@@ -503,7 +561,7 @@ export default class RechargeAccountsControl extends React.Component<
       const account = this.state.creditAccounts[i];
       if (account.financialSegmentString.trim()) {
         // Set skipNextValidation to prevent onBlur interference
-        this.updateCreditAccountSilent(i, 'skipNextValidation', true);
+        await this.updateCreditAccountSilent(i, 'skipNextValidation', true);
         await this.handleChartStringValidation(
           i,
           'Credit',
@@ -517,7 +575,7 @@ export default class RechargeAccountsControl extends React.Component<
       const account = this.state.debitAccounts[i];
       if (account.financialSegmentString.trim()) {
         // Set skipNextValidation to prevent onBlur interference
-        this.updateDebitAccountSilent(i, 'skipNextValidation', true);
+        await this.updateDebitAccountSilent(i, 'skipNextValidation', true);
         await this.handleChartStringValidation(
           i,
           'Debit',
@@ -525,6 +583,22 @@ export default class RechargeAccountsControl extends React.Component<
         );
       }
     }
+
+    // All validation is complete - now update parent and notify
+    return new Promise<void>(resolve => {
+      // Set isInternalUpdate flag to prevent re-validation in componentDidUpdate
+      this.setState({ isInternalUpdate: true }, () => {
+        // Update parent with validated accounts
+        this.updateAccounts();
+
+        // Notify parent that validation is complete
+        if (this.props.onValidationComplete) {
+          this.props.onValidationComplete();
+        }
+
+        resolve();
+      });
+    });
   };
 
   private recalculatePercentagesFromAmounts = () => {
@@ -579,16 +653,65 @@ export default class RechargeAccountsControl extends React.Component<
     this.props.onChange(allAccounts);
   };
 
+  // Helper method to update a single account's state and optionally notify parent
+  private updateAccountState = (
+    direction: 'Credit' | 'Debit',
+    index: number,
+    updatedAccount: InvoiceRechargeItem,
+    notifyParent: boolean
+  ): Promise<void> => {
+    return new Promise(resolve => {
+      if (direction === 'Credit') {
+        this.setState(
+          prevState => {
+            const updated = [...prevState.creditAccounts];
+            updated[index] = updatedAccount;
+            return {
+              creditAccounts: updated,
+              isInternalUpdate: !notifyParent
+            };
+          },
+          () => {
+            if (notifyParent) {
+              this.updateAccounts();
+            }
+            resolve();
+          }
+        );
+      } else {
+        this.setState(
+          prevState => {
+            const updated = [...prevState.debitAccounts];
+            updated[index] = updatedAccount;
+            return {
+              debitAccounts: updated,
+              isInternalUpdate: !notifyParent
+            };
+          },
+          () => {
+            if (notifyParent) {
+              this.updateAccounts();
+            }
+            resolve();
+          }
+        );
+      }
+    });
+  };
+
   // Silent update methods that don't trigger parent onChange (for validation updates)
+  // These now return Promises to allow waiting for state updates to complete
   private updateCreditAccountSilent = (
     index: number,
     field: keyof InvoiceRechargeItem,
     value: any
-  ) => {
-    this.setState(prevState => {
-      const updated = [...prevState.creditAccounts];
-      updated[index] = { ...updated[index], [field]: value };
-      return { creditAccounts: updated };
+  ): Promise<void> => {
+    return new Promise(resolve => {
+      this.setState(prevState => {
+        const updated = [...prevState.creditAccounts];
+        updated[index] = { ...updated[index], [field]: value };
+        return { creditAccounts: updated };
+      }, resolve);
     });
   };
 
@@ -596,11 +719,13 @@ export default class RechargeAccountsControl extends React.Component<
     index: number,
     field: keyof InvoiceRechargeItem,
     value: any
-  ) => {
-    this.setState(prevState => {
-      const updated = [...prevState.debitAccounts];
-      updated[index] = { ...updated[index], [field]: value };
-      return { debitAccounts: updated };
+  ): Promise<void> => {
+    return new Promise(resolve => {
+      this.setState(prevState => {
+        const updated = [...prevState.debitAccounts];
+        updated[index] = { ...updated[index], [field]: value };
+        return { debitAccounts: updated };
+      }, resolve);
     });
   };
 
@@ -792,8 +917,8 @@ export default class RechargeAccountsControl extends React.Component<
 
   private removeCreditAccount = (index: number) => {
     const { creditAccounts } = this.state;
-    if (creditAccounts.length > 1) {
-      // Must have at least one credit account
+    // Must have at least one credit account when showCreditAccounts is true
+    if (creditAccounts.length > 1 || !this.props.showCreditAccounts) {
       const updatedAccounts = creditAccounts.filter((_, i) => i !== index);
       this.setState(
         {
@@ -811,18 +936,21 @@ export default class RechargeAccountsControl extends React.Component<
 
   private removeDebitAccount = (index: number) => {
     const { debitAccounts } = this.state;
-    const updatedAccounts = debitAccounts.filter((_, i) => i !== index);
-    this.setState(
-      {
-        debitAccounts: updatedAccounts,
-        isInternalUpdate: true
-      },
-      () => {
-        this.updateAccounts();
-        // Update debit total validity when accounts are removed
-        setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
-      }
-    );
+    // Must have at least one debit account when showCreditAccounts is false
+    if (debitAccounts.length > 1 || this.props.showCreditAccounts) {
+      const updatedAccounts = debitAccounts.filter((_, i) => i !== index);
+      this.setState(
+        {
+          debitAccounts: updatedAccounts,
+          isInternalUpdate: true
+        },
+        () => {
+          this.updateAccounts();
+          // Update debit total validity when accounts are removed
+          setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+        }
+      );
+    }
   };
 
   private calculateTotal = (accounts: InvoiceRechargeItem[]): number => {
@@ -963,7 +1091,12 @@ export default class RechargeAccountsControl extends React.Component<
     const removeAccount = isCredit
       ? this.removeCreditAccount
       : this.removeDebitAccount;
-    const canRemove = isCredit ? this.state.creditAccounts.length > 1 : true;
+
+    // Determine if this account can be removed based on mode and count
+    const canRemove = isCredit
+      ? this.state.creditAccounts.length > 1 || !this.props.showCreditAccounts
+      : this.state.debitAccounts.length > 1 || this.props.showCreditAccounts;
+
     const isLastAccount = index === accounts.length - 1;
 
     return (
@@ -1028,6 +1161,25 @@ export default class RechargeAccountsControl extends React.Component<
               >
                 <i className='fas fa-search'></i>
               </button>
+              {account.financialSegmentString && (
+                <a
+                  href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className={`btn btn-outline-secondary ${
+                    account.isValidating ? 'disabled' : ''
+                  }`}
+                  title='View In Finjector'
+                  aria-disabled={account.isValidating}
+                  onClick={e => {
+                    if (account.isValidating) {
+                      e.preventDefault();
+                    }
+                  }}
+                >
+                  <i className='fas fa-external-link-alt'></i>
+                </a>
+              )}
             </div>
           </td>
           <td className='cell-amount'>
@@ -1096,57 +1248,64 @@ export default class RechargeAccountsControl extends React.Component<
   ) => {
     const total = this.calculateTotal(accounts);
     const hasInvalidAmounts = accounts.some(account => account.amount <= 0);
-    const isTotalValid =
-      direction === 'Credit'
-        ? accounts.length > 0 &&
-          this.isTotalEqual(total, this.props.invoiceTotal)
-        : accounts.length === 0 ||
-          this.isTotalEqual(total, this.props.invoiceTotal);
+
+    // Determine if this section is required based on showCreditAccounts prop
+    const isRequired = this.props.showCreditAccounts
+      ? direction === 'Credit' // In credit mode, only credits are required
+      : direction === 'Debit'; // In debit-only mode, debits are required
+
+    const isTotalValid = isRequired
+      ? accounts.length > 0 && this.isTotalEqual(total, this.props.invoiceTotal)
+      : accounts.length === 0 ||
+        this.isTotalEqual(total, this.props.invoiceTotal);
 
     const isValid = isTotalValid && !hasInvalidAmounts;
 
     return (
       <div className='mb-4'>
         <h4>{title}</h4>
-        <div className='table-responsive'>
-          <table className='table table-sm invoice-table recharge-table'>
-            <thead>
-              <tr>
-                <th className='col-financial-segment'>
-                  Financial Segment String *
-                </th>
-                <th className='col-amount'>Amount *</th>
-                <th className='col-percentage'>Percentage</th>
-                <th className='col-actions'></th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account, index) =>
-                this.renderAccountRow(account, index, direction, accounts)
-              )}
-            </tbody>
-          </table>
-        </div>
-
+        {accounts?.length > 0 && (
+          <>
+            <div className='table-responsive'>
+              <table className='table table-sm invoice-table recharge-table'>
+                <thead>
+                  <tr>
+                    <th className='col-financial-segment'>
+                      Financial Segment String *
+                    </th>
+                    <th className='col-amount'>Amount *</th>
+                    <th className='col-percentage'>Percentage</th>
+                    <th className='col-actions'></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {accounts.map((account, index) =>
+                    this.renderAccountRow(account, index, direction, accounts)
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
         <div className='d-flex justify-content-between align-items-center'>
           <button
             type='button'
             className='btn btn-sm btn-outline-primary'
             onClick={onAdd}
           >
-            Add {title.slice(0, -1)} Account
+            Add {direction} Account
           </button>
 
           <div
             className={`text-end ${isValid ? 'text-success' : 'text-danger'}`}
           >
             <strong>Total: ${total.toFixed(2)}</strong>
-            {direction === 'Credit' && !isTotalValid && (
+            {isRequired && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
               </div>
             )}
-            {direction === 'Debit' && accounts.length > 0 && !isTotalValid && (
+            {!isRequired && accounts.length > 0 && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
               </div>
@@ -1160,6 +1319,16 @@ export default class RechargeAccountsControl extends React.Component<
         </div>
       </div>
     );
+  };
+
+  // Public method to check if any validations are currently in progress
+  public isValidating = (): boolean => {
+    const allAccounts = [
+      ...this.state.creditAccounts,
+      ...this.state.debitAccounts
+    ];
+
+    return allAccounts.some(account => account.isValidating);
   };
 
   // Public method to check if there are any chart string validation errors
@@ -1178,30 +1347,53 @@ export default class RechargeAccountsControl extends React.Component<
 
   public render() {
     const { creditAccounts, debitAccounts } = this.state;
+    const { showCreditAccounts } = this.props;
 
     return (
       <div className='recharge-accounts-control'>
         <h3>Recharge Account Information</h3>
 
-        {this.renderAccountSection(
-          'Credits',
-          creditAccounts,
-          'Credit',
-          this.addCreditAccount
-        )}
+        {showCreditAccounts &&
+          this.renderAccountSection(
+            'Credits',
+            creditAccounts,
+            'Credit',
+            this.addCreditAccount
+          )}
 
-        {this.renderAccountSection(
-          'Debits (Optional)',
-          debitAccounts,
-          'Debit',
-          this.addDebitAccount
-        )}
+        {showCreditAccounts &&
+          this.renderAccountSection(
+            'Debits (Optional)',
+            debitAccounts,
+            'Debit',
+            this.addDebitAccount
+          )}
+
+        {!showCreditAccounts &&
+          this.renderAccountSection(
+            'Debits',
+            debitAccounts,
+            'Debit',
+            this.addDebitAccount
+          )}
 
         <div className='alert alert-info'>
-          <strong>Note:</strong> Credit accounts are required and must total the
-          invoice amount. All amounts must be greater than zero. Debit accounts
-          are optional, but if entered, must also total the invoice amount and
-          have amounts greater than zero.
+          <strong>Note:</strong>
+          {showCreditAccounts ? (
+            <>
+              {' '}
+              Credit accounts are required and must total the invoice amount.
+              All amounts must be greater than zero. Debit accounts are
+              optional, but if entered, must also total the invoice amount and
+              have amounts greater than zero.
+            </>
+          ) : (
+            <>
+              {' '}
+              Debit accounts are required and must total the invoice amount. All
+              amounts must be greater than zero.
+            </>
+          )}
         </div>
       </div>
     );
