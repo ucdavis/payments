@@ -194,16 +194,18 @@ namespace Payments.Mvc.Controllers
             }
 
             // For now, return an error with the updated model until the full implementation is done
-            var returnModel = CreateRechargeInvoiceViewModel(invoice);
-            //returnModel.ErrorMessage = "Your payment information could not be updated.";
-            //return BadRequest(returnModel);
+            //var returnModel = CreateRechargeInvoiceViewModel(invoice);
+            ////returnModel.ErrorMessage = "Your payment information could not be updated.";
+            ////return BadRequest(returnModel);
 
-            invoice.Status = Invoice.StatusCodes.PendingApproval;
-            _dbContext.Invoices.Update(invoice);
-            await _dbContext.SaveChangesAsync();
+            //invoice.Status = Invoice.StatusCodes.PendingApproval;
+            //_dbContext.Invoices.Update(invoice);
+            //await _dbContext.SaveChangesAsync();
 
-            return Ok();
+            //return Ok();
 
+
+            throw new System.NotImplementedException();
 
 
             //// the customer isn't allowed access to draft or cancelled invoices
