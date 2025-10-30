@@ -180,33 +180,26 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> Pay(string id, [FromBody] RechargeAccount[] model)
         {
 
-            var xxx = model;
-
-
-            throw new System.NotImplementedException();
 
             //This need to update the status, validate the chartStrings, write to the history, send emails, etc. (We probably also want the invoice details page to be able to resend the email(s) for approvals
 
-            //var invoice = await _dbContext.Invoices
-            //    .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
-            //    .FirstOrDefaultAsync(i => i.LinkId == id);
-            //if (invoice == null)
-            //{
-            //    return PublicNotFound();
-            //}
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+            if (invoice == null)
+            {
+                return PublicNotFound();
+            }
             //// the customer isn't allowed access to draft or cancelled invoices
-            //if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
-            //{
-            //    return PublicNotFound();
-            //}
-            //if (!ModelState.IsValid)
-            //{
-            //    // something was wrong with the form data
-            //    // re-display the form with validation errors
-            //    model.Id = invoice.GetFormattedId();
-            //    model.LinkId = invoice.LinkId;
-            //    return View(model);
-            //}
+            if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
+            {
+                return PublicNotFound();
+            }
+            if(invoice.Status != Invoice.StatusCodes.Sent)
+            {
+                return BadRequest("Invoice is not in a valid state for payment.");
+            }
+
             //// remove any existing debit recharge accounts
             //_dbContext.RechargeAccounts.RemoveRange(invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit));
             //// add any new debit recharge accounts
