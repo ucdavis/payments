@@ -149,7 +149,15 @@
                     <i class="history-icon fa-fw @actionType.IconClass"></i>
                 </div>
                 <div>
-                    <span>@action.GetMessage()</span>
+                    @if(actionType.AllowRaw)
+                    {
+                        <span>@Html.Raw(action.GetMessage())</span>
+                    }
+                    else
+                    {
+                        <span>@action.GetMessage()</span>
+                    }
+                    <span>@Html.Raw(action.GetMessage())</span>
                     @if (!string.IsNullOrWhiteSpace(action.Actor))
                     {
                         <br/>

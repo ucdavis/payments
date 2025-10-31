@@ -12,6 +12,8 @@ namespace Payments.Core.Models.History
 
         public string IconClass => "fas fa-check-circle text-success";
 
+
+        //TODO: So, the get Message might be showing too much info. We could fix that by adding a new method GetDetails(string data) that would be expandable/collapsible in the UI. Would use the AllowRaw to decide whether to show that or not.
         public string GetMessage(string data)
         {
             var d = DeserializeData(data);
@@ -21,14 +23,14 @@ namespace Payments.Core.Models.History
             }
 
             var sb = new StringBuilder();
-            sb.AppendLine("Recharge paid and updated by customer.");
+            sb.Append("Recharge paid by customer.<br/>");
 
             foreach (var account in d.RechargeAccounts)
             {
-                sb.AppendLine($"  Chart: {account.FinancialSegmentString}, Amount: {account.Amount:C}");
+                sb.Append($"&nbsp;&nbsp;Chart: {account.FinancialSegmentString}, Amount: {account.Amount:C}<br/>");
                 if (!string.IsNullOrWhiteSpace(account.Notes))
                 {
-                    sb.AppendLine($"    Notes: {account.Notes}");
+                    sb.Append($"&nbsp;&nbsp;&nbsp;&nbsp;Notes: {account.Notes}<br/>");
                 }
             }
 

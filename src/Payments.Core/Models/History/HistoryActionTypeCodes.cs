@@ -93,5 +93,7 @@ namespace Payments.Core.Models.History
         string IconClass { get; }
 
         string GetMessage(string data);
+
+        public bool AllowRaw => false;
     }
 }
