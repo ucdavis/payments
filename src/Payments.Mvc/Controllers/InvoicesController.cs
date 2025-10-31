@@ -460,6 +460,13 @@ namespace Payments.Mvc.Controllers
                 ActionDateTime = DateTime.UtcNow,
                 Actor = user.Name,
             };
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any())
+            {
+                action.Data = new InvoiceSentHistoryActionType().SerializeData(new InvoiceSentHistoryActionType.DataType
+                {
+                    RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
+                });
+            }
             invoice.History.Add(action);
 
             await _dbContext.SaveChangesAsync();

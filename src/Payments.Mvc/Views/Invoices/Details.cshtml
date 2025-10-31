@@ -159,7 +159,7 @@
                 <div class="flex-grow-1">
                     <span>@action.GetMessage()</span>
                     
-                    @if(actionType.ShowDetails)
+                    @if(actionType.ShowDetails && action.GetDetails() != null)
                     {
                         <div class="accordion accordion-flush mt-1" id="accordion-@action.Id">
                             <div class="accordion-item">
