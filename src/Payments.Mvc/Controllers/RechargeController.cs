@@ -166,6 +166,9 @@ namespace Payments.Mvc.Controllers
                 //We will pass a canEdit or similar flag to the view for that.
             }
 
+            //todo: probably extend or update the view model. Still need to have a new react component, the view that loads it, and the post page.
+            //Also, still need to modify the recharge component so it doesn't allow add or delete, but allows the chart string to be edited, but not the amount.
+            //And.... the validation service needs to make sure they only change it to a string they are an approver for.
         }
 
         [HttpGet]
