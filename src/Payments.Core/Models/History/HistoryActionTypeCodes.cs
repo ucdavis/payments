@@ -36,6 +36,8 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType PaymentRefunded = new PaymentRefundedHistoryActionType();
 
+        public static readonly IHistoryActionType RechargePaidByCustomer = new RechargePaidByCustomerHistoryActionType();
+
         private static StringComparison _comparer = StringComparison.OrdinalIgnoreCase;
 
         private static readonly IHistoryActionType[] AllTypes = new[]
@@ -55,6 +57,7 @@ namespace Payments.Core.Models.History
             RefundRequested,
             PaymentRefunded,
             RefundCancelled,
+            RechargePaidByCustomer,
         };
 
         public static IHistoryActionType GetHistoryActionType(string actionType)

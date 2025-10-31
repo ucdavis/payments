@@ -4,11 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Core.Models.History;
 using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.PaymentViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -196,7 +198,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound(new { message = "Invoice not found." });
             }
 
-                     
+
 
             //// the customer isn't allowed access to draft or cancelled invoices
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
@@ -209,7 +211,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // validation:
-            if(model.Sum(ra => ra.Amount) != invoice.CalculatedTotal)
+            if (model.Sum(ra => ra.Amount) != invoice.CalculatedTotal)
             {
                 return BadRequest("The total of the recharge accounts does not match the invoice total. Please review and try again.");
             }
@@ -222,7 +224,7 @@ namespace Payments.Mvc.Controllers
                 {
                     return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
                 }
-                if(item.Amount <= 0)
+                if (item.Amount <= 0)
                 {
                     return BadRequest($"The amount for chart string {item.FinancialSegmentString} must be greater than zero.");
                 }
@@ -245,7 +247,7 @@ namespace Payments.Mvc.Controllers
                 var found = model.FirstOrDefault(a => a.Id == existing.Id);
                 if (found == null)
                 {
-                    if(existing.Direction != CreditDebit.Debit)
+                    if (existing.Direction != CreditDebit.Debit)
                     {
                         continue; //Should not happen due to the filter above, but just in case
                     }
@@ -257,9 +259,9 @@ namespace Payments.Mvc.Controllers
             foreach (var item in model)
             {
                 var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id);
-                if(existing != null)
+                if (existing != null)
                 {
-                    if(existing.FinancialSegmentString != item.FinancialSegmentString || existing.Amount != item.Amount || existing.Notes != item.Notes)
+                    if (existing.FinancialSegmentString != item.FinancialSegmentString || existing.Amount != item.Amount || existing.Notes != item.Notes)
                     {
                         ////Update amount
                         existing.FinancialSegmentString = item.FinancialSegmentString;
@@ -295,7 +297,22 @@ namespace Payments.Mvc.Controllers
                 _dbContext.RechargeAccounts.RemoveRange(toRemove);
             }
 
+            var action = new History()
+            {
+                Type = HistoryActionTypes.RechargePaidByCustomer.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+                Data = new RechargePaidByCustomerHistoryActionType().SerializeData(new RechargePaidByCustomerHistoryActionType.DataType
+                {
+                    RechargeAccounts = model
+                })
+            };
+            invoice.History.Add(action);
+
+
             await _dbContext.SaveChangesAsync(); //Maybe wait for all changes?
+
+
 
             //Need to notify the approvers. This will require a new email template.
 
