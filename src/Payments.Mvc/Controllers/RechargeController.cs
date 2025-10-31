@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.PaymentViewModels;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static Payments.Core.Domain.RechargeAccount;
@@ -69,6 +71,7 @@ namespace Payments.Mvc.Controllers
                     return PublicNotFound();
                 }
 
+                //TODO: Will this work? It "Should" since it is the Get.
                 // if the invoice has a new link id,
                 // just forward them to the corrected invoice
                 if (!string.IsNullOrWhiteSpace(link.Invoice.LinkId))
@@ -179,7 +182,7 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> Pay(string id, [FromBody] RechargeAccount[] model)
         {
 
-
+            var user = await _userManager.GetUserAsync(User);
             //This need to update the status, validate the chartStrings, write to the history, send emails, etc. (We probably also want the invoice details page to be able to resend the email(s) for approvals
 
             var invoice = await _dbContext.Invoices
@@ -193,30 +196,116 @@ namespace Payments.Mvc.Controllers
                 return NotFound(new { message = "Invoice not found." });
             }
 
-            // For now, return an error with the updated model until the full implementation is done
-            //var returnModel = CreateRechargeInvoiceViewModel(invoice);
-            ////returnModel.ErrorMessage = "Your payment information could not be updated.";
-            ////return BadRequest(returnModel);
-
-            //invoice.Status = Invoice.StatusCodes.PendingApproval;
-            //_dbContext.Invoices.Update(invoice);
-            //await _dbContext.SaveChangesAsync();
-
-            //return Ok();
-
-
-            throw new System.NotImplementedException();
-
+                     
 
             //// the customer isn't allowed access to draft or cancelled invoices
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled)
             {
-                return PublicNotFound();
+                return NotFound(new { message = "Invoice not found in correct Status." });
             }
             if (invoice.Status != Invoice.StatusCodes.Sent)
             {
-                return RedirectToAction("Pay", new { id = invoice.LinkId });
+                return BadRequest("Invoice is not in a valid status for payment. Please refresh the page.");
             }
+
+            // validation:
+            if(model.Sum(ra => ra.Amount) != invoice.CalculatedTotal)
+            {
+                return BadRequest("The total of the recharge accounts does not match the invoice total. Please review and try again.");
+            }
+
+            var savedApprovers = new List<Approver>();
+            foreach (var item in model)
+            {
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
+                if (!validationResult.IsValid)
+                {
+                    return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
+                }
+                if(item.Amount <= 0)
+                {
+                    return BadRequest($"The amount for chart string {item.FinancialSegmentString} must be greater than zero.");
+                }
+                if (item.FinancialSegmentString != validationResult.ChartString)
+                {
+                    item.FinancialSegmentString = validationResult.ChartString; //Just in case the natural account was replaced
+                }
+                savedApprovers.AddRange(validationResult.Approvers);
+            }
+
+            savedApprovers = savedApprovers.DistinctBy(a => a.Email?.ToLower()).ToList(); //The model will have the complete list of debits, so we don't need to check existing ones.
+
+            //Ok, we have got this far, so everthing is valid, so we can save the recharge accounts
+            // We need to check if they were changed.
+
+            //We need to remove any that were deleted. But ONLY debit ones
+            var toRemove = new List<RechargeAccount>();
+            foreach (var existing in invoice.RechargeAccounts.Where(a => a.Direction == CreditDebit.Debit))
+            {
+                var found = model.FirstOrDefault(a => a.Id == existing.Id);
+                if (found == null)
+                {
+                    if(existing.Direction != CreditDebit.Debit)
+                    {
+                        continue; //Should not happen due to the filter above, but just in case
+                    }
+                    toRemove.Add(existing);
+                    //We want to write to history
+                }
+            }
+
+            foreach (var item in model)
+            {
+                var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id);
+                if(existing != null)
+                {
+                    if(existing.FinancialSegmentString != item.FinancialSegmentString || existing.Amount != item.Amount || existing.Notes != item.Notes)
+                    {
+                        ////Update amount
+                        existing.FinancialSegmentString = item.FinancialSegmentString;
+                        existing.Amount = item.Amount;
+                        existing.EnteredByKerb = user.CampusKerberos;
+                        existing.EnteredByName = user.Name;
+                        existing.Notes = item.Notes;
+                        _dbContext.RechargeAccounts.Update(existing);
+
+                        //Want to write to history.
+                    }
+                }
+                else
+                {
+                    ////New one
+                    invoice.RechargeAccounts.Add(new RechargeAccount()
+                    {
+                        Direction = CreditDebit.Debit,
+                        FinancialSegmentString = item.FinancialSegmentString,
+                        Amount = item.Amount,
+                        InvoiceId = invoice.Id,
+                        EnteredByKerb = user.CampusKerberos,
+                        EnteredByName = user.Name,
+                        Percentage = item.Percentage,
+                        Notes = item.Notes
+                    });
+                }
+            }
+
+            //Now remove the deleted ones
+            if (toRemove.Count > 0)
+            {
+                _dbContext.RechargeAccounts.RemoveRange(toRemove);
+            }
+
+            await _dbContext.SaveChangesAsync(); //Maybe wait for all changes?
+
+            //Need to notify the approvers. This will require a new email template.
+
+            //invoice.Status = Invoice.StatusCodes.PendingApproval;
+
+            _dbContext.Invoices.Update(invoice);
+            await _dbContext.SaveChangesAsync();
+
+
+            return Ok();
 
             //// remove any existing debit recharge accounts
             //_dbContext.RechargeAccounts.RemoveRange(invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit));
