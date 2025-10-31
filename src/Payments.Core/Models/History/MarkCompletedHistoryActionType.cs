@@ -14,5 +14,9 @@ namespace Payments.Core.Models.History
         {
             return "Invoice set back to paid to generate disbursements";
         }
+        public string GetDetails(string data)
+        {
+            return null;
+        }
     }
 }

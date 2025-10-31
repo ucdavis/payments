@@ -84,6 +84,11 @@ namespace Payments.Core.Models.History
         {
             return $"Event: {data}";
         }
+
+        public string GetDetails(string data)
+        {
+            return null;
+        }
     }
 
     public interface IHistoryActionType
@@ -94,6 +99,8 @@ namespace Payments.Core.Models.History
 
         string GetMessage(string data);
 
-        public bool AllowRaw => false;
+        string GetDetails(string data);
+
+        public bool ShowDetails => false;
     }
 }

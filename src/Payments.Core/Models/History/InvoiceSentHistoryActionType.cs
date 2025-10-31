@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Payments.Core.Models.History
 {
@@ -11,6 +11,10 @@ namespace Payments.Core.Models.History
         public string GetMessage(string data)
         {
             return "Invoice was sent to the customer";
+        }
+        public string GetDetails(string data)
+        {
+            return null;
         }
     }
 }

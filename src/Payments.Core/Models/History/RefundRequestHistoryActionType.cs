@@ -15,5 +15,9 @@ namespace Payments.Core.Models.History
             //This has data (refund reason), but I'm showing it differently
             return "Refund Requested.";
         }
+        public string GetDetails(string data)
+        {
+            return null;
+        }
     }
 }

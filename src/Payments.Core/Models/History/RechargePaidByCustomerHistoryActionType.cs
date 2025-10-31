@@ -13,17 +13,23 @@ namespace Payments.Core.Models.History
         public string IconClass => "fas fa-check-circle text-success";
 
 
-        //TODO: So, the get Message might be showing too much info. We could fix that by adding a new method GetDetails(string data) that would be expandable/collapsible in the UI. Would use the AllowRaw to decide whether to show that or not.
+        //TODO: So, the get Message might be showing too much info. We could fix that by adding a new method GetDetails(string data) that would be expandable/collapsible in the UI. Would use the ShowDetails to decide whether to show that or not.
         public string GetMessage(string data)
+        {
+            return "Recharge paid by customer.";
+        }
+
+        public bool ShowDetails => true;
+
+        public string GetDetails(string data)
         {
             var d = DeserializeData(data);
             if (d == null || d.RechargeAccounts == null || d.RechargeAccounts.Length == 0)
             {
-                return "Recharge paid by customer.";
+                return null;
             }
 
             var sb = new StringBuilder();
-            sb.Append("Recharge paid by customer.<br/>");
 
             foreach (var account in d.RechargeAccounts)
             {

@@ -148,16 +148,27 @@
                 <div class="ms-2 mt-1 me-4">
                     <i class="history-icon fa-fw @actionType.IconClass"></i>
                 </div>
-                <div>
-                    @if(actionType.AllowRaw)
+                <div class="flex-grow-1">
+                    <span>@action.GetMessage()</span>
+                    
+                    @if(actionType.ShowDetails)
                     {
-                        <span>@Html.Raw(action.GetMessage())</span>
+                        <div class="accordion accordion-flush mt-1" id="accordion-@action.Id">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" style="margin-bottom: 0;">
+                                    <button class="accordion-button collapsed py-1 px-2 fs-6" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@action.Id" aria-expanded="false" aria-controls="collapse-@action.Id" style="min-height: auto;">
+                                        <small class="text-muted">View details</small>
+                                    </button>
+                                </h2>
+                                <div id="collapse-@action.Id" class="accordion-collapse collapse" data-bs-parent="#accordion-@action.Id">
+                                    <div class="accordion-body p-2 pt-1">
+                                        @Html.Raw(action.GetDetails())
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
-                    else
-                    {
-                        <span>@action.GetMessage()</span>
-                    }
-                    <span>@Html.Raw(action.GetMessage())</span>
+
                     @if (!string.IsNullOrWhiteSpace(action.Actor))
                     {
                         <br/>
