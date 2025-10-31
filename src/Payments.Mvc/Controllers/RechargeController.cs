@@ -374,7 +374,10 @@ namespace Payments.Mvc.Controllers
 
             //Need to notify the approvers. This will require a new email template.
 
-            //invoice.Status = Invoice.StatusCodes.PendingApproval;
+            invoice.PaidAt = DateTime.UtcNow;
+            invoice.Status = Invoice.StatusCodes.PendingApproval;
+
+            //TODO : Send notification to approvers
 
             _dbContext.Invoices.Update(invoice);
             await _dbContext.SaveChangesAsync();
