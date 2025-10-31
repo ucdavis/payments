@@ -114,6 +114,61 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> FinancialApprove(string id)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .Include(i => i.Attachments)
+                .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+            //I think his is ok.
+            if (invoice == null)
+            {
+                return PublicNotFound();
+            }
+
+            if(invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled || invoice.Status == Invoice.StatusCodes.Sent)
+            {
+                return PublicNotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if(user == null) {
+                return PublicNotFound();
+            }
+
+
+            var isApprover = false;
+            var actionableRechargeAccounts = new List<RechargeAccount>();
+
+            foreach(var ra in invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit))
+            {
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, CreditDebit.Debit);
+                if (validationResult.Approvers != null && validationResult.Approvers.Count > 0)
+                {
+                    if(validationResult.Approvers.Any(a => string.Equals(a.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        isApprover = true;
+                        if(ra.ApprovedByKerb == null)
+                        {
+                            actionableRechargeAccounts.Add(ra);
+                        }
+                    }
+                }
+            }
+
+            var displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Except(actionableRechargeAccounts).ToList();
+
+            if (invoice.Status != Invoice.StatusCodes.PendingApproval || !isApprover)
+            {
+                //We still want to show this so they can view it, but not approve/edit/reject it.
+                //We will pass a canEdit or similar flag to the view for that.
+            }
+
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Preview(int id)
         {
             var invoice = await _dbContext.Invoices
