@@ -404,6 +404,18 @@ namespace Payments.Mvc.Services
 
             return linkId;
         }
+
+        public async Task SendFinancialApproverEmail(Invoice invoice, SendApprovalModel model)
+        {
+            if (invoice.Type != Invoice.InvoiceTypes.Recharge)
+            {
+                return;
+            }
+
+            //The cc emails are actually going to be the to emails in this case.
+            //We might want to change it a little to have the names as well.
+            await _emailService.SendFinancialApprove(invoice, model);
+        }
     }
 
     public interface IInvoiceService
@@ -413,6 +425,8 @@ namespace Payments.Mvc.Services
         Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
+
+        Task SendFinancialApproverEmail(Invoice invoice, SendApprovalModel model);
 
         Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user);
 
