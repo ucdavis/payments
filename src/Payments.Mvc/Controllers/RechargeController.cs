@@ -8,7 +8,6 @@ using Payments.Core.Models.History;
 using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Mvc.Identity;
-using Payments.Mvc.Models.Configuration;
 using Payments.Mvc.Models.PaymentViewModels;
 using System;
 using System.Collections.Generic;
@@ -169,6 +168,8 @@ namespace Payments.Mvc.Controllers
             //todo: probably extend or update the view model. Still need to have a new react component, the view that loads it, and the post page.
             //Also, still need to modify the recharge component so it doesn't allow add or delete, but allows the chart string to be edited, but not the amount.
             //And.... the validation service needs to make sure they only change it to a string they are an approver for.
+
+            throw new NotImplementedException();
         }
 
         [HttpGet]
