@@ -54,6 +54,10 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public IList<RechargeAccount> DebitRechargeAccounts { get; set; } //Might want to change the name of this to RechargeAccounts.
 
+        public IList<RechargeAccount> DisplayDebitRechargeAccounts { get; set; } // For the Financial Approval, so they can see all the debit accounts. The ones above will be the ones they can edit or approve
+
+        public bool CanApprove { get; set; } = false;
+
         public string Message { get; set; }
         public string ErrorMessage { get; set; }
     }

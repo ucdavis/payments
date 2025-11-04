@@ -137,8 +137,6 @@ namespace Payments.Mvc.Controllers
 
             var model = CreateRechargeInvoiceViewModel(invoice);
 
-            //var model = CreateRechargePaymentViewModel(invoice);
-
             if (invoice.Status == Invoice.StatusCodes.Sent)
             {
                 //This is valid status to pay, but I think we want to allow the other statuses through so it can be viewed, but not edited.
@@ -176,7 +174,7 @@ namespace Payments.Mvc.Controllers
                 PaidDate = invoice.PaidAt.ToPacificTime(),
                 Team = new PaymentInvoiceTeamViewModel(invoice.Team),
                 Status = invoice.Status,
-                DebitRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).ToList()
+                DebitRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).ToList(),
             };
             return model;
         }
@@ -420,7 +418,17 @@ namespace Payments.Mvc.Controllers
             {
                 //We still want to show this so they can view it, but not approve/edit/reject it.
                 //We will pass a canEdit or similar flag to the view for that.
+                isApprover = false;
+                actionableRechargeAccounts = new List<RechargeAccount>();
+                displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).ToList();
             }
+
+            var model = CreateRechargeInvoiceViewModel(invoice);
+            model.DisplayDebitRechargeAccounts = displayOnlyRechargeAccounts;
+            model.DebitRechargeAccounts = actionableRechargeAccounts;
+            model.CanApprove = isApprover;
+
+
 
             //todo: probably extend or update the view model. Still need to have a new react component, the view that loads it, and the post page.
             //Also, still need to modify the recharge component so it doesn't allow add or delete, but allows the chart string to be edited, but not the amount.
