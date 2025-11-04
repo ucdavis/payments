@@ -90,7 +90,7 @@ namespace Payments.Core.Domain
         public bool Paid { get; set; }
 
         [DisplayName("Paid On")]
-        public DateTime? PaidAt { get; set; }
+        public DateTime? PaidAt { get; set; } //For Recharges, use this date for auto financial approval.
 
         public bool Refunded { get; set; }
 

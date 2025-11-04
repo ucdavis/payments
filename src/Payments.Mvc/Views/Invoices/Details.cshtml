@@ -39,6 +39,14 @@
             position: relative;
             width: 100%
         }
+        
+        .accordion-header {
+            margin-bottom: 0;
+        }
+        
+        .accordion-button.history-details {
+            min-height: auto;
+        }
     </style>
 }
 
@@ -148,8 +156,27 @@
                 <div class="ms-2 mt-1 me-4">
                     <i class="history-icon fa-fw @actionType.IconClass"></i>
                 </div>
-                <div>
+                <div class="flex-grow-1">
                     <span>@action.GetMessage()</span>
+                    
+                    @if(actionType.ShowDetails && action.GetDetails() != null)
+                    {
+                        <div class="accordion accordion-flush mt-1" id="accordion-@action.Id">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed py-1 px-2 fs-6 history-details" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@action.Id" aria-expanded="false" aria-controls="collapse-@action.Id">
+                                        <small class="text-muted">View details</small>
+                                    </button>
+                                </h2>
+                                <div id="collapse-@action.Id" class="accordion-collapse collapse" data-bs-parent="#accordion-@action.Id">
+                                    <div class="accordion-body p-2 pt-1">
+                                        @Html.Raw(action.GetDetails())
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                     @if (!string.IsNullOrWhiteSpace(action.Actor))
                     {
                         <br/>
@@ -629,9 +656,9 @@
                         <td>@acct.Amount</td>
                         <td>@acct.Percentage</td>
                         <td>
-                                @if (!string.IsNullOrWhiteSpace(acct.ApprovedByName))
+                            @if (!string.IsNullOrWhiteSpace(acct.ApprovedByName))
                             {
-                                <span class="text-success"><i class="fas fa-check"></i></span>
+                                <span class="text-success" title="@acct.ApprovedByName"><i class="fas fa-check"></i></span>
                             }
                             else
                             {
@@ -1123,6 +1150,14 @@ else
             const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
             if (!statusSpan) return;
 
+            // Dispose existing tooltips before replacing content
+            $(statusSpan).find('[title]').each(function() {
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+
             let resultHtml = '';
 
             if (validationResult.isValid) {
@@ -1148,13 +1183,31 @@ else
             }
 
             statusSpan.innerHTML = resultHtml;
+            
+            // Initialize tooltips for the newly added elements
+            $(statusSpan).find('[title]').each(function() {
+                new bootstrap.Tooltip(this);
+            });
         }
 
         function displayValidationError(accountId, errorMessage) {
             const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
             if (!statusSpan) return;
 
+            // Dispose existing tooltips before replacing content
+            $(statusSpan).find('[title]').each(function() {
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+
             statusSpan.innerHTML = '<i class="fas fa-exclamation-triangle text-warning" title="' + errorMessage + '"></i>';
+            
+            // Initialize tooltips for the newly added elements
+            $(statusSpan).find('[title]').each(function() {
+                new bootstrap.Tooltip(this);
+            });
         }
 
         // Validate all recharge accounts when page loads
@@ -1188,6 +1241,24 @@ else
             {
                 <text>validateRechargeAccounts();</text>
             }
+        });
+
+        $(function() {
+
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Or initialize all elements with title attribute
+            $('[title]').each(function() {
+                $(this).attr('data-bs-toggle', 'tooltip');
+            });
+            var allTooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            allTooltips.map(function (el) {
+                return new bootstrap.Tooltip(el);
+            });
         });
     </script>
 }

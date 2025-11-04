@@ -1,22 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Newtonsoft.Json;
 using Payments.Core.Domain;
-using System;
-using System.Text;
 
 namespace Payments.Core.Models.History
 {
-    public class InvoiceSentHistoryActionType : IHistoryActionType
+    public class RechargePaidByCustomerHistoryActionType : IHistoryActionType
     {
-        public string TypeCode => "invoice-sent";
+        public string TypeCode => "recharge-paid-customer";
 
-        public string IconClass => "fas fa-envelope text-info";
+        public string IconClass => "fas fa-check-circle text-success";
 
+
+        //TODO: So, the get Message might be showing too much info. We could fix that by adding a new method GetDetails(string data) that would be expandable/collapsible in the UI. Would use the ShowDetails to decide whether to show that or not.
         public string GetMessage(string data)
         {
-            return "Invoice was sent to the customer";
+            return "Recharge paid by customer.";
         }
 
-        public bool ShowDetails => true; // But only for recharges
+        public bool ShowDetails => true;
 
         public string GetDetails(string data)
         {

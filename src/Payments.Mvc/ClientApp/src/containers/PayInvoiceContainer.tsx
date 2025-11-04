@@ -19,6 +19,8 @@ export interface RechargeInvoiceModel {
   team: InvoiceTeam;
   status: string;
   debitRechargeAccounts: InvoiceRechargeItem[];
+  message?: string;
+  errorMessage?: string;
 }
 
 export interface InvoiceLineItem {
@@ -52,6 +54,7 @@ interface IState {
   isValid: boolean;
   isSaving: boolean;
   errorMessage: string;
+  message: string;
   isValidating: boolean;
 }
 
@@ -69,6 +72,7 @@ export default class PayInvoiceContainer extends React.Component<
       isValid: false,
       isSaving: false,
       errorMessage: '',
+      message: '',
       isValidating: true
     };
   }
@@ -111,9 +115,24 @@ export default class PayInvoiceContainer extends React.Component<
             <br />
           </div>
 
+          {/* Messages from server */}
+          {invoice.errorMessage && (
+            <div className='alert alert-danger mx-3' role='alert'>
+              <i className='fas fa-exclamation-circle me-2'></i>
+              {invoice.errorMessage}
+            </div>
+          )}
+
+          {invoice.message && !invoice.errorMessage && (
+            <div className='alert alert-info mx-3' role='alert'>
+              <i className='fas fa-info-circle me-2'></i>
+              {invoice.message}
+            </div>
+          )}
+
           {/* Payment Action Area */}
           <div className='pay-action'>
-            {!invoice.paid && (
+            {canEdit && (
               <>
                 <span className='pay-action-total'>
                   ${invoice.total.toFixed(2)}
@@ -196,6 +215,39 @@ export default class PayInvoiceContainer extends React.Component<
               </>
             )}
 
+            {!canEdit && (
+              <>
+                <span className='pay-action-total'>
+                  ${invoice.total.toFixed(2)}
+                </span>
+
+                {invoice.dueDate && (
+                  <span className='pay-action-date secondary-font'>
+                    Due{' '}
+                    {new Date(invoice.dueDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                )}
+
+                {invoice.status === 'PendingApproval' && (
+                  <div className='alert alert-info mt-3' role='alert'>
+                    <i className='fas fa-clock me-2'></i>
+                    This is Pending Financial Approver Actions.
+                  </div>
+                )}
+
+                {invoice.status !== 'PendingApproval' && (
+                  <div className='alert alert-secondary mt-3' role='alert'>
+                    <i className='fas fa-info-circle me-2'></i>
+                    Status: {invoice.status}
+                  </div>
+                )}
+              </>
+            )}
+
             {invoice.paid && (
               <>
                 <h1>Invoice Paid</h1>
@@ -273,7 +325,7 @@ export default class PayInvoiceContainer extends React.Component<
           )}
 
           {/* Display existing recharge accounts if not editable */}
-          {!canEdit && rechargeAccounts.length > 0 && (
+          {!canEdit && (
             <div className='card-body'>
               <h3>Debit Chart Strings</h3>
               <table className='table'>
@@ -287,7 +339,15 @@ export default class PayInvoiceContainer extends React.Component<
                 <tbody>
                   {rechargeAccounts.map(account => (
                     <tr key={account.id}>
-                      <td>{account.financialSegmentString}</td>
+                      <td>
+                        <a
+                          href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                        >
+                          {account.financialSegmentString}
+                        </a>
+                      </td>
                       <td>${account.amount.toFixed(2)}</td>
                       <td>{account.notes}</td>
                     </tr>
@@ -332,6 +392,7 @@ export default class PayInvoiceContainer extends React.Component<
           {/* Download PDF */}
           <div className='pay-download'>
             <img src='/media/download.svg' alt='download icon' />
+            <br />
             {invoice.paid ? (
               <a
                 href={`/pdf/receipt/${invoice.linkId}`}
@@ -492,16 +553,31 @@ export default class PayInvoiceContainer extends React.Component<
       });
 
       if (response.ok) {
-        // Success - redirect or show success message
-        window.location.href = `/recharge/pay/${invoice.linkId}?success=true`;
+        // Success - redirect to reload the page with updated invoice data
+        window.location.href = `/recharge/pay/${invoice.linkId}`;
       } else {
+        // Try to parse as the full model first (which includes errorMessage)
         const errorData = await response.json();
-        this.setState({
-          errorMessage:
-            errorData.message ||
-            'An error occurred while submitting the invoice. Please try again.',
-          isSaving: false
-        });
+
+        // If we got back a full invoice model with errorMessage, we could update the page
+        // For now, just display the error message from the response
+        if (errorData.errorMessage) {
+          this.setState({
+            errorMessage: errorData.errorMessage,
+            isSaving: false
+          });
+        } else if (errorData.message) {
+          this.setState({
+            errorMessage: errorData.message,
+            isSaving: false
+          });
+        } else {
+          this.setState({
+            errorMessage:
+              'An error occurred while submitting the invoice. Please try again.',
+            isSaving: false
+          });
+        }
       }
     } catch (error) {
       this.setState({

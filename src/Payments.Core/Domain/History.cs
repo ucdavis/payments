@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Payments.Core.Models.History;
 
@@ -31,6 +31,12 @@ namespace Payments.Core.Domain
         {
             var actionType = HistoryActionTypes.GetHistoryActionType(this.Type);
             return actionType.GetMessage(Data);
+        }
+
+        public string GetDetails()
+        {
+            var actionType = HistoryActionTypes.GetHistoryActionType(this.Type);
+            return actionType.GetDetails(Data);
         }
     }
 }

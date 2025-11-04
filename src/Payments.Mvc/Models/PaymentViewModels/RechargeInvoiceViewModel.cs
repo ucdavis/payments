@@ -53,5 +53,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public string Status { get; set; }
 
         public IList<RechargeAccount> DebitRechargeAccounts { get; set; } //Might want to change the name of this to RechargeAccounts.
+
+        public string Message { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

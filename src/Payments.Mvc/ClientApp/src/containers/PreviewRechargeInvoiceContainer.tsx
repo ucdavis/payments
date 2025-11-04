@@ -215,6 +215,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
             {/* Download PDF */}
             <div className='pay-download'>
               <img src='/media/download.svg' alt='download icon' />
+              <br />
               <a
                 href={`/pdf/${invoice.linkId}`}
                 className='btn-inverse'

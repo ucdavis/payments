@@ -36,6 +36,10 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType PaymentRefunded = new PaymentRefundedHistoryActionType();
 
+        public static readonly IHistoryActionType RechargePaidByCustomer = new RechargePaidByCustomerHistoryActionType();
+
+        public static readonly IHistoryActionType RechargeSentToFinancialApprovers = new RechargeSentToFinancialApproversHistoryActionType();
+
         private static StringComparison _comparer = StringComparison.OrdinalIgnoreCase;
 
         private static readonly IHistoryActionType[] AllTypes = new[]
@@ -55,6 +59,8 @@ namespace Payments.Core.Models.History
             RefundRequested,
             PaymentRefunded,
             RefundCancelled,
+            RechargePaidByCustomer,
+            RechargeSentToFinancialApprovers,
         };
 
         public static IHistoryActionType GetHistoryActionType(string actionType)
@@ -81,6 +87,11 @@ namespace Payments.Core.Models.History
         {
             return $"Event: {data}";
         }
+
+        public string GetDetails(string data)
+        {
+            return null;
+        }
     }
 
     public interface IHistoryActionType
@@ -90,5 +101,9 @@ namespace Payments.Core.Models.History
         string IconClass { get; }
 
         string GetMessage(string data);
+
+        string GetDetails(string data);
+
+        public bool ShowDetails => false;
     }
 }
