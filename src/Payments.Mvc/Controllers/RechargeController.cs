@@ -271,6 +271,7 @@ namespace Payments.Mvc.Controllers
             }
             if (invoice.Status != Invoice.StatusCodes.Sent)
             {
+                //This is ok here, this is the post and it isn't valid. It IS valid in the Get action above.
                 return BadRequest("Invoice is not in a valid status for payment. Please refresh the page.");
             }
 
@@ -301,7 +302,7 @@ namespace Payments.Mvc.Controllers
 
             savedApprovers = savedApprovers.DistinctBy(a => a.Email?.ToLower()).ToList(); //The model will have the complete list of debits, so we don't need to check existing ones.
 
-            //Ok, we have got this far, so everthing is valid, so we can save the recharge accounts
+            //Ok, we have got this far, so everything is valid, so we can save the recharge accounts
             // We need to check if they were changed.
 
             //We need to remove any that were deleted. But ONLY debit ones
@@ -316,7 +317,6 @@ namespace Payments.Mvc.Controllers
                         continue; //Should not happen due to the filter above, but just in case
                     }
                     toRemove.Add(existing);
-                    //We want to write to history
                 }
             }
 
@@ -334,8 +334,6 @@ namespace Payments.Mvc.Controllers
                         existing.EnteredByName = user.Name;
                         existing.Notes = item.Notes;
                         _dbContext.RechargeAccounts.Update(existing);
-
-                        //Want to write to history.
                     }
                 }
                 else
@@ -382,7 +380,7 @@ namespace Payments.Mvc.Controllers
 
             invoice.PaidAt = DateTime.UtcNow;
 
-            //invoice.Status = Invoice.StatusCodes.PendingApproval; //TODO: Uncomment. Just for testing emails
+            invoice.Status = Invoice.StatusCodes.PendingApproval; 
 
             var emails = new List<EmailRecipient>();
             foreach (var approver in savedApprovers)
@@ -423,26 +421,6 @@ namespace Payments.Mvc.Controllers
 
             return Ok();
 
-            //// remove any existing debit recharge accounts
-            //_dbContext.RechargeAccounts.RemoveRange(invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit));
-            //// add any new debit recharge accounts
-            //if (model.DebitRechargeAccounts != null)
-            //{
-            //    foreach (var ra in model.DebitRechargeAccounts)
-            //    {
-            //        // only add valid ones
-            //        if (!string.IsNullOrWhiteSpace(ra.ChartString) && !string.IsNullOrWhiteSpace(ra.PurchaseOrderNumber))
-            //        {
-            //            ra.Id = 0;
-            //            ra.Direction = RechargeAccount.CreditDebit.Debit;
-            //            ra.InvoiceId = invoice.Id;
-            //            _dbContext.RechargeAccounts.Add(ra);
-            //        }
-            //    }
-            //}
-            //await _dbContext.SaveChangesAsync();
-            //Message = "Your payment information has been updated.";
-            return RedirectToAction("Pay", new { id = invoice.LinkId });
         }
 
         public ActionResult PublicNotFound()
