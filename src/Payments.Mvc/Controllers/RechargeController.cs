@@ -381,6 +381,7 @@ namespace Payments.Mvc.Controllers
             //Need to notify the approvers. This will require a new email template.
 
             invoice.PaidAt = DateTime.UtcNow;
+
             //invoice.Status = Invoice.StatusCodes.PendingApproval; //TODO: Uncomment. Just for testing emails
 
             var emails = new List<EmailRecipient>();
@@ -399,7 +400,22 @@ namespace Payments.Mvc.Controllers
                 bccEmails = "" //TODO: Add any BCC emails if needed
             });
 
-            //TODO : Send notification to approvers
+            var notificationAction = new History()
+            {
+                Type = HistoryActionTypes.RechargeSentToFinancialApprovers.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = "System",
+                Data = new RechargeSentToFinancialApproversHistoryActionType().SerializeData(new RechargeSentToFinancialApproversHistoryActionType.DataType
+                {
+                    FinancialApprovers = savedApprovers.Select(a => new RechargeSentToFinancialApproversHistoryActionType.FinancialApprover()
+                    {
+                        Name = a.Name,
+                        Email = a.Email
+                    }).ToArray()
+                })
+            };
+
+            invoice.History.Add(notificationAction);
 
             _dbContext.Invoices.Update(invoice);
             await _dbContext.SaveChangesAsync();
