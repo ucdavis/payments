@@ -656,9 +656,9 @@
                         <td>@acct.Amount</td>
                         <td>@acct.Percentage</td>
                         <td>
-                                @if (!string.IsNullOrWhiteSpace(acct.ApprovedByName))
+                            @if (!string.IsNullOrWhiteSpace(acct.ApprovedByName))
                             {
-                                <span class="text-success"><i class="fas fa-check"></i></span>
+                                <span class="text-success" title="@acct.ApprovedByName"><i class="fas fa-check"></i></span>
                             }
                             else
                             {
@@ -1150,6 +1150,14 @@ else
             const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
             if (!statusSpan) return;
 
+            // Dispose existing tooltips before replacing content
+            $(statusSpan).find('[title]').each(function() {
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+
             let resultHtml = '';
 
             if (validationResult.isValid) {
@@ -1175,13 +1183,31 @@ else
             }
 
             statusSpan.innerHTML = resultHtml;
+            
+            // Initialize tooltips for the newly added elements
+            $(statusSpan).find('[title]').each(function() {
+                new bootstrap.Tooltip(this);
+            });
         }
 
         function displayValidationError(accountId, errorMessage) {
             const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
             if (!statusSpan) return;
 
+            // Dispose existing tooltips before replacing content
+            $(statusSpan).find('[title]').each(function() {
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+
             statusSpan.innerHTML = '<i class="fas fa-exclamation-triangle text-warning" title="' + errorMessage + '"></i>';
+            
+            // Initialize tooltips for the newly added elements
+            $(statusSpan).find('[title]').each(function() {
+                new bootstrap.Tooltip(this);
+            });
         }
 
         // Validate all recharge accounts when page loads
@@ -1215,6 +1241,24 @@ else
             {
                 <text>validateRechargeAccounts();</text>
             }
+        });
+
+        $(function() {
+
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Or initialize all elements with title attribute
+            $('[title]').each(function() {
+                $(this).attr('data-bs-toggle', 'tooltip');
+            });
+            var allTooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            allTooltips.map(function (el) {
+                return new bootstrap.Tooltip(el);
+            });
         });
     </script>
 }
