@@ -49,7 +49,7 @@ namespace Payments.Core.Jobs
                 {
                     // get all invoices that are waiting for reconcile
                     var invoices = _dbContext.Invoices
-                        .Where(i => i.Status == Invoice.StatusCodes.Paid)
+                        .Where(i => i.Status == Invoice.StatusCodes.Paid && i.Type != Invoice.InvoiceTypes.Recharge)
                         .Include(i => i.Account)
                         .Include(i => i.Team)
                         .ThenInclude(t => t.Accounts)
