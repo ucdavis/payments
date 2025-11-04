@@ -1,3 +1,4 @@
+using AspNetCoreGeneratedDocument;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -5,10 +6,12 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
 using Payments.Core.Models.History;
+using Payments.Core.Models.Invoice;
 using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Mvc.Identity;
 using Payments.Mvc.Models.PaymentViewModels;
+using Payments.Mvc.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +25,14 @@ namespace Payments.Mvc.Controllers
         private readonly ApplicationDbContext _dbContext;
         private IAggieEnterpriseService _aggieEnterpriseService;
         private readonly ApplicationUserManager _userManager;
+        private readonly IInvoiceService _invoiceService;
 
-        public RechargeController(ApplicationDbContext dbContext, IAggieEnterpriseService aggieEnterpriseService, ApplicationUserManager userManager)
+        public RechargeController(ApplicationDbContext dbContext, IAggieEnterpriseService aggieEnterpriseService, ApplicationUserManager userManager, IInvoiceService invoiceService)
         {
             _dbContext = dbContext;
             _aggieEnterpriseService = aggieEnterpriseService;
             _userManager = userManager;
+            _invoiceService = invoiceService;
         }
 
         [HttpGet]
@@ -376,7 +381,23 @@ namespace Payments.Mvc.Controllers
             //Need to notify the approvers. This will require a new email template.
 
             invoice.PaidAt = DateTime.UtcNow;
-            invoice.Status = Invoice.StatusCodes.PendingApproval;
+            //invoice.Status = Invoice.StatusCodes.PendingApproval; //TODO: Uncomment. Just for testing emails
+
+            var emails = new List<EmailRecipient>();
+            foreach (var approver in savedApprovers)
+            {
+                emails.Add(new EmailRecipient()
+                {
+                    Email = approver.Email,
+                    Name = approver.Name
+                });
+            }
+
+            await _invoiceService.SendFinancialApproverEmail(invoice, new SendApprovalModel()
+            {
+                emails = emails.ToArray(),
+                bccEmails = "" //TODO: Add any BCC emails if needed
+            });
 
             //TODO : Send notification to approvers
 
