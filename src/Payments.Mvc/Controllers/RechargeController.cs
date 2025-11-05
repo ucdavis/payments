@@ -392,13 +392,14 @@ namespace Payments.Mvc.Controllers
             }
 
 
-            var (isApprover, actionableRechargeAccounts, displayOnlyRechargeAccounts) = await GetApproverRechargeAccounts(invoice, user);
+            var (isApprover, canApprove, actionableRechargeAccounts, displayOnlyRechargeAccounts) = await GetApproverRechargeAccounts(invoice, user);
 
             if (invoice.Status != Invoice.StatusCodes.PendingApproval || !isApprover)
             {
                 //We still want to show this so they can view it, but not approve/edit/reject it.
                 //We will pass a canEdit or similar flag to the view for that.
                 isApprover = false;
+                canApprove = false;
                 actionableRechargeAccounts = new List<RechargeAccount>();
                 displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).ToList();
             }
@@ -406,7 +407,7 @@ namespace Payments.Mvc.Controllers
             var model = CreateRechargeInvoiceViewModel(invoice);
             model.DisplayDebitRechargeAccounts = displayOnlyRechargeAccounts;
             model.DebitRechargeAccounts = actionableRechargeAccounts;
-            model.CanApprove = isApprover;
+            model.CanApprove = canApprove;
 
 
             return View(model);
@@ -438,9 +439,9 @@ namespace Payments.Mvc.Controllers
                 return NotFound(new { message = "User not found." });
             }
 
-            var (isApprover, actionableRechargeAccounts, displayOnlyRechargeAccounts) = await GetApproverRechargeAccounts(invoice, user);
+            var (isApprover, canApprove, actionableRechargeAccounts, displayOnlyRechargeAccounts) = await GetApproverRechargeAccounts(invoice, user);
 
-            if (!isApprover)
+            if (!canApprove)
             {
                 return BadRequest("You are not authorized to act on this invoice. Please refresh the page.");
             }
@@ -464,18 +465,73 @@ namespace Payments.Mvc.Controllers
                 //_dbContext.Invoices.Update(invoice);
                 await _dbContext.SaveChangesAsync();
 
-                //Send rejection email
+                //Send rejection email?
+
+
+                return Ok();
             }
 
+            if(action != "Approve")
+            {
+                return BadRequest("Invalid action.");
+            }
 
-            //Deal with rejected.
-            //invoice.Status = Invoice.StatusCodes.Rejected;
+            //We are approving here.
 
-            //When Everything is approved,
+            //Make sure no new recharge accounts were added or deleted form the list of actionable ones.
+            if(model.Any(a => a.Id == 0))
+            {
+                return BadRequest("The recharge accounts may not be added. Please refresh the page and try again.");
+            }
+            foreach (var item in model)
+            {
+                var existing = actionableRechargeAccounts.FirstOrDefault(a => a.Id == item.Id);
+                if (existing == null)
+                {
+                    return BadRequest("The recharge accounts may not be removed. Please refresh the page and try again.");
+                }
+
+                if (item.FinancialSegmentString != existing.FinancialSegmentString)
+                {
+                    //Ok, they changed the chart string, we need to validate it again
+                    var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
+                    if (!validationResult.IsValid)
+                    {
+                        return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
+                    }
+                    if (!validationResult.Approvers.Any(a => a.Email == user.Email))
+                    {
+                        return BadRequest($"You are not an approver for the chart string {item.FinancialSegmentString}.");
+                    }
+                    existing.FinancialSegmentString = validationResult.ChartString; //TODO: Make sure this is saved.
+                    existing.ApprovedByKerb = user.CampusKerberos;
+                    existing.ApprovedByName = user.Name;
+                }
+            }
+
+            if(invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Any(ra => ra.ApprovedByKerb == null))
+            {
+                await _dbContext.SaveChangesAsync();
+                //We don't need a history here bacause we show it on the table onthe details page.
+                return Ok("Not all recharge accounts have been approved yet.");
+            }
+
+            //Ok, all recharge accounts have been approved.
             invoice.Paid = true;
+            //invoice.PaidAt = DateTime.UtcNow; //Do we want to do this? We set it on the pay page....
+
             invoice.Status = Invoice.StatusCodes.Approved; //Or maybe a new status so the money movement job can pick it up?
 
-            throw new NotImplementedException();
+            var approvalAction = new History()
+            {
+                Type = HistoryActionTypes.RechargeApprovedByFinancialApprover.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Data = "All debit recharge accounts have been approved."
+            };
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
         }
 
         public ActionResult PublicNotFound()
@@ -484,9 +540,10 @@ namespace Payments.Mvc.Controllers
             return View("NotFound");
         }
 
-        private async Task<(bool isApprover, List<RechargeAccount> actionableRechargeAccounts, List<RechargeAccount> displayOnlyRechargeAccounts)> GetApproverRechargeAccounts(Invoice invoice, User user)
+        private async Task<(bool isApprover, bool canApprove, List<RechargeAccount> actionableRechargeAccounts, List<RechargeAccount> displayOnlyRechargeAccounts)> GetApproverRechargeAccounts(Invoice invoice, User user)
         {
-            var isApprover = false;
+            var isApprover = false; //We may want to distinguish between isApprover and canApprove
+            var canApprove = false;
             var actionableRechargeAccounts = new List<RechargeAccount>();
 
             foreach (var ra in invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit))
@@ -499,6 +556,7 @@ namespace Payments.Mvc.Controllers
                         isApprover = true;
                         if (ra.ApprovedByKerb == null)
                         {
+                            canApprove = true;
                             actionableRechargeAccounts.Add(ra);
                         }
                     }
@@ -507,7 +565,7 @@ namespace Payments.Mvc.Controllers
 
             var displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Except(actionableRechargeAccounts).ToList();
 
-            return (isApprover, actionableRechargeAccounts, displayOnlyRechargeAccounts);
+            return (isApprover, canApprove, actionableRechargeAccounts, displayOnlyRechargeAccounts);
         }
 
     }
