@@ -1,4 +1,3 @@
-using AspNetCoreGeneratedDocument;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -357,7 +356,7 @@ namespace Payments.Mvc.Controllers
 
             invoice.History.Add(notificationAction);
 
-            _dbContext.Invoices.Update(invoice);
+            //_dbContext.Invoices.Update(invoice);
             await _dbContext.SaveChangesAsync();
 
 
@@ -393,6 +392,100 @@ namespace Payments.Mvc.Controllers
             }
 
 
+            var (isApprover, actionableRechargeAccounts, displayOnlyRechargeAccounts) = await GetApproverRechargeAccounts(invoice, user);
+
+            if (invoice.Status != Invoice.StatusCodes.PendingApproval || !isApprover)
+            {
+                //We still want to show this so they can view it, but not approve/edit/reject it.
+                //We will pass a canEdit or similar flag to the view for that.
+                isApprover = false;
+                actionableRechargeAccounts = new List<RechargeAccount>();
+                displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).ToList();
+            }
+
+            var model = CreateRechargeInvoiceViewModel(invoice);
+            model.DisplayDebitRechargeAccounts = displayOnlyRechargeAccounts;
+            model.DebitRechargeAccounts = actionableRechargeAccounts;
+            model.CanApprove = isApprover;
+
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FinancialApprove(string id, string action, string rejectReason, [FromBody] RechargeAccount[] model)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Team)
+                .Include(i => i.Attachments)
+                .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
+                .FirstOrDefaultAsync(i => i.LinkId == id);
+
+            if (invoice == null)
+            {
+                return NotFound(new { message = "Invoice not found." });
+            }
+
+            if (invoice.Status != Invoice.StatusCodes.PendingApproval)
+            {
+                return BadRequest("Invoice is not in a valid status for approval. Please refresh the page.");
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            var (isApprover, actionableRechargeAccounts, displayOnlyRechargeAccounts) = await GetApproverRechargeAccounts(invoice, user);
+
+            if (!isApprover)
+            {
+                return BadRequest("You are not authorized to act on this invoice. Please refresh the page.");
+            }
+
+            if(action == "Reject")
+            {
+                if(string.IsNullOrWhiteSpace(rejectReason))
+                {
+                    return BadRequest("A reason for rejection must be provided.");
+                }
+
+                invoice.Status = Invoice.StatusCodes.Rejected;
+                var actionEntry = new History()
+                {
+                    Type = HistoryActionTypes.RechargeRejectedByFinancialApprover.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = $"{user.Name} ({user.Email})",
+                    Data = rejectReason
+                };
+                invoice.History.Add(actionEntry);
+                //_dbContext.Invoices.Update(invoice);
+                await _dbContext.SaveChangesAsync();
+
+                //Send rejection email
+            }
+
+
+            //Deal with rejected.
+            //invoice.Status = Invoice.StatusCodes.Rejected;
+
+            //When Everything is approved,
+            invoice.Paid = true;
+            invoice.Status = Invoice.StatusCodes.Approved; //Or maybe a new status so the money movement job can pick it up?
+
+            throw new NotImplementedException();
+        }
+
+        public ActionResult PublicNotFound()
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            return View("NotFound");
+        }
+
+        private async Task<(bool isApprover, List<RechargeAccount> actionableRechargeAccounts, List<RechargeAccount> displayOnlyRechargeAccounts)> GetApproverRechargeAccounts(Invoice invoice, User user)
+        {
             var isApprover = false;
             var actionableRechargeAccounts = new List<RechargeAccount>();
 
@@ -414,54 +507,7 @@ namespace Payments.Mvc.Controllers
 
             var displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Except(actionableRechargeAccounts).ToList();
 
-            if (invoice.Status != Invoice.StatusCodes.PendingApproval || !isApprover)
-            {
-                //We still want to show this so they can view it, but not approve/edit/reject it.
-                //We will pass a canEdit or similar flag to the view for that.
-                isApprover = false;
-                actionableRechargeAccounts = new List<RechargeAccount>();
-                displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).ToList();
-            }
-
-            var model = CreateRechargeInvoiceViewModel(invoice);
-            model.DisplayDebitRechargeAccounts = displayOnlyRechargeAccounts;
-            model.DebitRechargeAccounts = actionableRechargeAccounts;
-            model.CanApprove = isApprover;
-
-
-
-            //todo: probably extend or update the view model. Still need to have a new react component, the view that loads it, and the post page.
-            //Also, still need to modify the recharge component so it doesn't allow add or delete, but allows the chart string to be edited, but not the amount.
-            //And.... the validation service needs to make sure they only change it to a string they are an approver for.
-
-            throw new NotImplementedException();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> FinancialApprove(string id, [FromBody] object model)
-        {
-            var invoice = await _dbContext.Invoices
-                .Include(i => i.Items)
-                .Include(i => i.Team)
-                .Include(i => i.Attachments)
-                .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
-                .FirstOrDefaultAsync(i => i.LinkId == id);
-
-
-            //Deal with rejected.
-            //invoice.Status = Invoice.StatusCodes.Rejected;
-
-            //When Everything is approved,
-            invoice.Paid = true;
-            invoice.Status = Invoice.StatusCodes.Approved; //Or maybe a new status so the money movement job can pick it up?
-
-            throw new NotImplementedException();
-        }
-
-        public ActionResult PublicNotFound()
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            return View("NotFound");
+            return (isApprover, actionableRechargeAccounts, displayOnlyRechargeAccounts);
         }
 
     }
