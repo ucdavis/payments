@@ -668,7 +668,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
       const response = await fetch(
         `/recharge/financialapprove/${
           invoice.linkId
-        }?action=Reject&rejectReason=${encodeURIComponent(rejectReason)}`,
+        }?actionType=Reject&rejectReason=${encodeURIComponent(rejectReason)}`,
         {
           method: 'POST',
           headers: {
@@ -738,7 +738,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
         }));
 
       const response = await fetch(
-        `/recharge/financialapprove/${invoice.linkId}?action=Approve`,
+        `/recharge/financialapprove/${invoice.linkId}?actionType=Approve`,
         {
           method: 'POST',
           headers: {

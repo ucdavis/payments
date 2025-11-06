@@ -429,7 +429,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> FinancialApprove(string id, string action, string rejectReason, [FromBody] RechargeAccount[] model)
+        public async Task<IActionResult> FinancialApprove(string id, string actionType, string rejectReason, [FromBody] RechargeAccount[] model)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
@@ -462,7 +462,7 @@ namespace Payments.Mvc.Controllers
                 return BadRequest("You are not authorized to act on this invoice. Please refresh the page.");
             }
 
-            if(action == "Reject")
+            if(actionType == "Reject")
             {
                 if(string.IsNullOrWhiteSpace(rejectReason))
                 {
@@ -487,7 +487,7 @@ namespace Payments.Mvc.Controllers
                 return Ok();
             }
 
-            if(action != "Approve")
+            if(actionType != "Approve")
             {
                 return BadRequest("Invalid action.");
             }
@@ -507,22 +507,20 @@ namespace Payments.Mvc.Controllers
                     return BadRequest("The recharge accounts may not be removed. Please refresh the page and try again.");
                 }
 
-                if (item.FinancialSegmentString != existing.FinancialSegmentString)
+                //We don't really care about checking if they changed the chart string, we will just pass whatever is in the model and validate/save that.
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
+                if (!validationResult.IsValid)
                 {
-                    //Ok, they changed the chart string, we need to validate it again
-                    var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
-                    if (!validationResult.IsValid)
-                    {
-                        return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
-                    }
-                    if (!validationResult.Approvers.Any(a => a.Email == user.Email))
-                    {
-                        return BadRequest($"You are not an approver for the chart string {item.FinancialSegmentString}.");
-                    }
-                    existing.FinancialSegmentString = validationResult.ChartString; //TODO: Make sure this is saved.
-                    existing.ApprovedByKerb = user.CampusKerberos;
-                    existing.ApprovedByName = user.Name;
+                    return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
                 }
+                if (!validationResult.Approvers.Any(a => a.Email == user.Email))
+                {
+                    return BadRequest($"You are not an approver for the chart string {item.FinancialSegmentString}.");
+                }
+                existing.FinancialSegmentString = validationResult.ChartString; //TODO: Make sure this is saved.
+                existing.ApprovedByKerb = user.CampusKerberos;
+                existing.ApprovedByName = user.Name;
+
             }
 
             if(invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Any(ra => ra.ApprovedByKerb == null))
