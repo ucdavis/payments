@@ -40,6 +40,10 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType RechargeSentToFinancialApprovers = new RechargeSentToFinancialApproversHistoryActionType();
 
+        public static readonly IHistoryActionType RechargeRejectedByFinancialApprover = new RechargeRejectedByFinancialApproverHistoryActionType();
+
+        public static readonly IHistoryActionType RechargeApprovedByFinancialApprover = new RechargeApprovedByFinancialApproverHistoryActionType();
+
         private static StringComparison _comparer = StringComparison.OrdinalIgnoreCase;
 
         private static readonly IHistoryActionType[] AllTypes = new[]
@@ -61,6 +65,7 @@ namespace Payments.Core.Models.History
             RefundCancelled,
             RechargePaidByCustomer,
             RechargeSentToFinancialApprovers,
+            RechargeRejectedByFinancialApprover,
         };
 
         public static IHistoryActionType GetHistoryActionType(string actionType)

@@ -286,6 +286,7 @@ namespace Payments.Core.Domain
             public const string Draft = "Draft";
             public const string Sent = "Sent";
             public const string PendingApproval = "PendingApproval"; // New Status for recharge invoices that need approval
+            public const string Approved = "Approved"; // New Status for recharge invoices that are approved
             public const string Rejected = "Rejected"; // New Status for recharge invoices that are rejected
             public const string Paid = "Paid";
             public const string Processing = "Processing";

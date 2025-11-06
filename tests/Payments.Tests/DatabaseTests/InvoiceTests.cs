@@ -480,12 +480,13 @@ namespace Payments.Tests.DatabaseTests
         {
             var scType = typeof(Invoice.StatusCodes);
             var props = scType.GetFields();
-            props.Length.ShouldBe(11);
+            props.Length.ShouldBe(12);
             
             //props[0].Name.ShouldBe("Draft");
             Invoice.StatusCodes.Draft.ShouldBe("Draft");
             Invoice.StatusCodes.Sent.ShouldBe("Sent");
             Invoice.StatusCodes.PendingApproval.ShouldBe("PendingApproval");
+            Invoice.StatusCodes.Approved.ShouldBe("Approved");
             Invoice.StatusCodes.Rejected.ShouldBe("Rejected");
             Invoice.StatusCodes.Paid.ShouldBe("Paid");
             Invoice.StatusCodes.Completed.ShouldBe("Completed");

@@ -427,6 +427,11 @@ namespace Payments.Mvc
                     defaults: new { controller = "recharge", action = "pay" });
 
                 endpoints.MapControllerRoute(
+                    name: "approve-recharge-invoice",
+                    pattern: "recharge/financialapprove/{id}",
+                    defaults: new { controller = "recharge", action = "financialapprove" });
+
+                endpoints.MapControllerRoute(
                     name: "download-invoice",
                     pattern: "download/{id}",
                     defaults: new { controller = "payments", action = "download" });
