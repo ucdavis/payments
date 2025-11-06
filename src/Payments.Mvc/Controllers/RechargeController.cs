@@ -275,6 +275,8 @@ namespace Payments.Mvc.Controllers
                 }
             }
 
+            var rechargeAccountToAdd = new List<RechargeAccount>();
+
             foreach (var item in model)
             {
                 var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id);
@@ -293,8 +295,9 @@ namespace Payments.Mvc.Controllers
                 }
                 else
                 {
-                    ////New one
-                    invoice.RechargeAccounts.Add(new RechargeAccount()
+
+                    ////New one (can't directly add to invoice.RechargeAccounts because then it finds it above) could filter where id != 0 but this is clearer
+                    rechargeAccountToAdd.Add(new RechargeAccount()
                     {
                         Direction = CreditDebit.Debit,
                         FinancialSegmentString = item.FinancialSegmentString,
@@ -305,6 +308,14 @@ namespace Payments.Mvc.Controllers
                         Percentage = item.Percentage,
                         Notes = item.Notes
                     });
+                }
+            }
+
+            if(rechargeAccountToAdd.Count > 0)
+            {
+                foreach(var ra in rechargeAccountToAdd)
+                {
+                    invoice.RechargeAccounts.Add(ra);
                 }
             }
 
