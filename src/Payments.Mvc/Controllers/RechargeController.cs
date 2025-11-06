@@ -326,6 +326,11 @@ namespace Payments.Mvc.Controllers
             };
             invoice.History.Add(action);
 
+            if(invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Sum(a => a.Amount) != invoice.CalculatedTotal)
+            {
+                return BadRequest("The total of the recharge accounts does not match the invoice total after saving. Please review and try again.");
+            }
+
 
             await _dbContext.SaveChangesAsync(); //Maybe wait for all changes?
 
@@ -542,6 +547,8 @@ namespace Payments.Mvc.Controllers
                 ActionDateTime = DateTime.UtcNow,
                 Data = "All debit recharge accounts have been approved."
             };
+
+            invoice.History.Add(approvalAction);
 
             await _dbContext.SaveChangesAsync();
 
