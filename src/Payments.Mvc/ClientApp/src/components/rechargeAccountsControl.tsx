@@ -14,6 +14,7 @@ interface IProps {
   onChange: (rechargeAccounts: InvoiceRechargeItem[]) => void;
   showCreditAccounts: boolean;
   onValidationComplete?: () => void;
+  fromApprove?: boolean; // When true, only chart string is editable, amount/percentage/add button disabled
 }
 
 interface IState {
@@ -1094,9 +1095,11 @@ export default class RechargeAccountsControl extends React.Component<
       : this.removeDebitAccount;
 
     // Determine if this account can be removed based on mode and count
-    const canRemove = isCredit
-      ? this.state.creditAccounts.length > 1 || !this.props.showCreditAccounts
-      : this.state.debitAccounts.length > 1 || this.props.showCreditAccounts;
+    const canRemove =
+      !this.props.fromApprove &&
+      (isCredit
+        ? this.state.creditAccounts.length > 1 || !this.props.showCreditAccounts
+        : this.state.debitAccounts.length > 1 || this.props.showCreditAccounts);
 
     const isLastAccount = index === accounts.length - 1;
 
@@ -1188,6 +1191,7 @@ export default class RechargeAccountsControl extends React.Component<
               value={account.amount}
               onChange={value => updateAccount(index, 'amount', value)}
               isInvalid={account.amount <= 0}
+              disabled={this.props.fromApprove}
               inputRef={(() => {
                 const refKey = `${direction.toLowerCase()}-${index}-amount-ref`;
                 if (!this.inputRefs[refKey]) {
@@ -1207,6 +1211,7 @@ export default class RechargeAccountsControl extends React.Component<
               max={100}
               step={0.01}
               placeholder='0.00'
+              disabled={this.props.fromApprove}
             />
           </td>
           <td className='cell-actions'>
@@ -1228,6 +1233,7 @@ export default class RechargeAccountsControl extends React.Component<
               placeholder='Notes (optional)'
               value={account.notes}
               onChange={e => updateAccount(index, 'notes', e.target.value)}
+              disabled={this.props.fromApprove}
             />
             {this.renderValidationMessages(account)}
           </td>
@@ -1255,12 +1261,18 @@ export default class RechargeAccountsControl extends React.Component<
       ? direction === 'Credit' // In credit mode, only credits are required
       : direction === 'Debit'; // In debit-only mode, debits are required
 
-    const isTotalValid = isRequired
+    // When fromApprove is true, we don't validate totals (amounts are read-only)
+    const isTotalValid = this.props.fromApprove
+      ? true
+      : isRequired
       ? accounts.length > 0 && this.isTotalEqual(total, this.props.invoiceTotal)
       : accounts.length === 0 ||
         this.isTotalEqual(total, this.props.invoiceTotal);
 
-    const isValid = isTotalValid && !hasInvalidAmounts;
+    // When fromApprove is true, we don't check amounts (they're read-only)
+    const isValid = this.props.fromApprove
+      ? true
+      : isTotalValid && !hasInvalidAmounts;
 
     return (
       <div className='mb-4'>
@@ -1289,29 +1301,35 @@ export default class RechargeAccountsControl extends React.Component<
           </>
         )}
         <div className='d-flex justify-content-between align-items-center'>
-          <button
-            type='button'
-            className='btn btn-sm btn-outline-primary'
-            onClick={onAdd}
-          >
-            Add {direction} Account
-          </button>
+          {!this.props.fromApprove && (
+            <button
+              type='button'
+              className='btn btn-sm btn-outline-primary'
+              onClick={onAdd}
+            >
+              Add {direction} Account
+            </button>
+          )}
 
           <div
             className={`text-end ${isValid ? 'text-success' : 'text-danger'}`}
           >
             <strong>Total: ${total.toFixed(2)}</strong>
-            {isRequired && !isTotalValid && (
+            {!this.props.fromApprove && isRequired && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
               </div>
             )}
-            {!isRequired && accounts.length > 0 && !isTotalValid && (
-              <div className='small text-danger'>
-                Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
-              </div>
-            )}
-            {hasInvalidAmounts && (
+            {!this.props.fromApprove &&
+              !isRequired &&
+              accounts.length > 0 &&
+              !isTotalValid && (
+                <div className='small text-danger'>
+                  Must equal invoice total: $
+                  {this.props.invoiceTotal.toFixed(2)}
+                </div>
+              )}
+            {!this.props.fromApprove && hasInvalidAmounts && (
               <div className='small text-danger'>
                 All amounts must be greater than zero
               </div>
@@ -1378,24 +1396,26 @@ export default class RechargeAccountsControl extends React.Component<
             this.addDebitAccount
           )}
 
-        <div className='alert alert-info'>
-          <strong>Note:</strong>
-          {showCreditAccounts ? (
-            <>
-              {' '}
-              Credit accounts are required and must total the invoice amount.
-              All amounts must be greater than zero. Debit accounts are
-              optional, but if entered, must also total the invoice amount and
-              have amounts greater than zero.
-            </>
-          ) : (
-            <>
-              {' '}
-              Debit accounts are required and must total the invoice amount. All
-              amounts must be greater than zero.
-            </>
-          )}
-        </div>
+        {!this.props.fromApprove && (
+          <div className='alert alert-info'>
+            <strong>Note:</strong>
+            {showCreditAccounts ? (
+              <>
+                {' '}
+                Credit accounts are required and must total the invoice amount.
+                All amounts must be greater than zero. Debit accounts are
+                optional, but if entered, must also total the invoice amount and
+                have amounts greater than zero.
+              </>
+            ) : (
+              <>
+                {' '}
+                Debit accounts are required and must total the invoice amount.
+                All amounts must be greater than zero.
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   }

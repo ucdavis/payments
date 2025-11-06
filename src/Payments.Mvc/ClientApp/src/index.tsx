@@ -9,6 +9,7 @@ import * as dateFns from 'date-fns';
 import { CreateInvoicePage } from './pages/CreateInvoice';
 import { EditInvoicePage } from './pages/EditInvoice';
 import { PayInvoicePage } from './pages/PayInvoice';
+import { FinancialApproveInvoicePage } from './pages/FinancialApproveInvoice';
 import { PreviewRechargeInvoicePage } from './pages/PreviewRechargeInvoice';
 
 declare let window: any;
@@ -41,6 +42,10 @@ if (rootElement) {
           <Route path='/:team/Invoices/Create' component={CreateInvoicePage} />
           <Route path='/:team/Invoices/Edit' component={EditInvoicePage} />
           <Route path='/Recharge/Pay/:id?' component={PayInvoicePage} />
+          <Route
+            path='/Recharge/FinancialApprove/:id?'
+            component={FinancialApproveInvoicePage}
+          />
           <Route
             path='/:team/Recharge/Preview/:id?'
             component={PreviewRechargeInvoicePage}

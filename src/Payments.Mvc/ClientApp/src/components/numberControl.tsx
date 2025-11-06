@@ -1,103 +1,115 @@
 import * as React from 'react';
 
 interface IProps {
-    className?: string;
+  className?: string;
 
-    value: number;
-    onChange: (value: number) => void;
+  value: number;
+  onChange: (value: number) => void;
 
-    min?: number;
-    max?: number;
-    step?: number;
-    placeholder?: string;
-    required?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
 
-    format?: (value: number) => string;
-    inputRef?: React.RefObject<HTMLInputElement>;
+  format?: (value: number) => string;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 interface IState {
-    type: string;
-    value: string;
+  type: string;
+  value: string;
 
-    // Fix for: https://bugzilla.mozilla.org/show_bug.cgi?id=1057858
-    noopBlur: boolean;
+  // Fix for: https://bugzilla.mozilla.org/show_bug.cgi?id=1057858
+  noopBlur: boolean;
 }
 
 export default class NumberControl extends React.PureComponent<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
 
-    constructor(props: IProps) {
-        super(props);
+    this.state = {
+      type: 'text',
+      value: this.valueToString(props.value),
 
-        this.state = {
-            type: "text",
-            value: this.valueToString(props.value),
+      noopBlur: false
+    };
+  }
 
-            noopBlur: false,
-        };
+  public componentWillReceiveProps(nextProps: IProps) {
+    this.setState({
+      value: this.valueToString(nextProps.value)
+    });
+  }
+
+  public render() {
+    const {
+      className,
+      min,
+      max,
+      step,
+      placeholder,
+      required,
+      inputRef,
+      disabled
+    } = this.props;
+    const { type, value } = this.state;
+
+    return (
+      <input
+        type={type}
+        min={min}
+        max={max}
+        step={step}
+        className={`form-control ${className}`}
+        placeholder={placeholder}
+        value={value}
+        onFocus={this.onFocus}
+        onBlur={this.onBlur}
+        onChange={e => {
+          this.setState({ value: e.target.value });
+        }}
+        required={required}
+        ref={inputRef}
+        disabled={disabled}
+      />
+    );
+  }
+
+  private valueToString = (value: number) => {
+    if (this.props.format) {
+      return this.props.format(value);
     }
 
-    public componentWillReceiveProps(nextProps: IProps) {
-        this.setState({
-            value: this.valueToString(nextProps.value),
-        });
+    if (value === 0) {
+      return '';
     }
 
-    public render() {
-        const { className, min, max, step, placeholder, required, inputRef } = this.props;
-        const { type, value } = this.state;
+    return value.toFixed(2);
+  };
 
-        return (
-            <input
-                type={type}
-                min={min}
-                max={max}
-                step={step}
-                className={`form-control ${className}`}
-                placeholder={placeholder}
-                value={value}
-                onFocus={this.onFocus}
-                onBlur={this.onBlur}
-                onChange={(e) => { this.setState({ value: e.target.value }); }}
-                required={required}
-                ref={inputRef}
-            />
-        );
+  private onFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    this.setState({ noopBlur: true });
+    this.setState({
+      noopBlur: true,
+      type: 'number'
+    });
+
+    setTimeout(() => this.setState({ noopBlur: false }), 100);
+  };
+
+  private onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (this.state.noopBlur) {
+      return;
     }
 
-    private valueToString = (value: number) => {
-        if (this.props.format) {
-            return this.props.format(value);
-        }
-
-        if (value === 0) {
-            return "";
-        }
-
-        return value.toFixed(2);
-}
-
-    private onFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-        this.setState({noopBlur: true})
-        this.setState({
-            noopBlur: true,
-            type: "number",
-        });
-
-        setTimeout(() => this.setState({noopBlur: false}), 100);
+    let discount = Number(event.target.value);
+    if (isNaN(discount)) {
+      discount = 0;
     }
 
-    private onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-        if (this.state.noopBlur) {
-            return;
-        }
-
-        let discount = Number(event.target.value);
-        if (isNaN(discount)) {
-            discount = 0;
-        }
-        
-        this.props.onChange(discount);
-        this.setState({type: "text"});
-    }
+    this.props.onChange(discount);
+    this.setState({ type: 'text' });
+  };
 }
