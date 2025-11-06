@@ -346,7 +346,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
           {invoice.displayDebitRechargeAccounts &&
             invoice.displayDebitRechargeAccounts.length > 0 && (
               <div className='card-body'>
-                <h3>Additional Debit Chart Strings</h3>
+                <h3>Debit Chart Strings</h3>
                 <p className='text-muted'>
                   These chart strings have already been approved or are assigned
                   to other approvers.
@@ -401,62 +401,6 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                 </table>
               </div>
             )}
-
-          {/* Display all debit accounts if not in edit mode */}
-          {!canEdit && (
-            <div className='card-body'>
-              <h3>Debit Chart Strings</h3>
-              <table className='table'>
-                <thead>
-                  <tr>
-                    <th>Chart String</th>
-                    <th>Amount</th>
-                    <th>Percentage</th>
-                    <th>Status</th>
-                    <th>Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ...rechargeAccounts,
-                    ...(invoice.displayDebitRechargeAccounts || [])
-                  ].map((account: any) => (
-                    <tr key={account.id}>
-                      <td>
-                        <a
-                          href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          {account.financialSegmentString}
-                        </a>
-                      </td>
-                      <td>${account.amount.toFixed(2)}</td>
-                      <td>
-                        {account.percentage > 0
-                          ? `${account.percentage.toFixed(2)}%`
-                          : ''}
-                      </td>
-                      <td>
-                        {account.approvedByName ? (
-                          <span className='text-success'>
-                            <i className='fas fa-check-circle me-1'></i>
-                            Approved by {account.approvedByName}
-                          </span>
-                        ) : (
-                          <span className='text-warning'>
-                            <i className='fas fa-clock me-1'></i>
-                            Pending Approval
-                          </span>
-                        )}
-                      </td>
-                      <td>{account.notes}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
 
           {/* Attachments */}
           {invoice.attachments.length > 0 && (
