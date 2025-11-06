@@ -36,11 +36,26 @@ namespace Payments.Mvc.Controllers
 
         [HttpGet]
         [Route("api/recharge/validate")]
-        public async Task<IActionResult> ValidateChartString(string chartString, CreditDebit direction)
+        public async Task<IActionResult> ValidateChartString(string chartString, CreditDebit direction, bool checkApprover = false)
         {
             var result = await _aggieEnterpriseService.IsRechargeAccountValid(chartString, direction);
 
             //This may not need to return the entire result object
+
+
+            //check approver probably will only be used with debits
+            if(checkApprover)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if(user != null && result.Approvers != null && result.Approvers.Count > 0)
+                {
+                    if(!result.Approvers.Any(a => string.Equals(a.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        result.IsValid = false;
+                        result.Messages.Add("You are not an approver for this chart string.");
+                    }
+                }
+            }
 
             return new JsonResult(result);
         }
@@ -443,6 +458,7 @@ namespace Payments.Mvc.Controllers
 
             if (!canApprove)
             {
+                //I'm using canApprove here because isApprover could be true, but they have already approved all their accounts.ad
                 return BadRequest("You are not authorized to act on this invoice. Please refresh the page.");
             }
 
