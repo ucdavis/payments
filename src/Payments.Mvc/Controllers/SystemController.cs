@@ -1,19 +1,19 @@
-using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Payments.Core.Domain;
-using Payments.Mvc.Models.Roles;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
-using Payments.Mvc.Identity;
-using Payments.Mvc.Models.SystemViewModels;
+using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models;
+using Payments.Mvc.Models.Roles;
+using Payments.Mvc.Models.SystemViewModels;
 using Payments.Mvc.Services;
-using System.Security.Claims;
 using Serilog;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Payments.Mvc.Controllers
 {
@@ -159,6 +159,29 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> Emulate(string id)
         {
             var user = await _userManager.FindByNameAsync(id);
+
+            if (user == null)
+            {
+                // create the user
+                var ucdPerson = await _directorySearchService.GetByEmail(id);
+                if (ucdPerson == null)
+                {
+                    return NotFound();
+                }
+                user = new User
+                {
+                    Email = ucdPerson.Mail,
+                    UserName = ucdPerson.Mail,
+                    FirstName = ucdPerson.GivenName,
+                    LastName = ucdPerson.Surname,
+                    CampusKerberos = ucdPerson.Kerberos,
+                    Name = ucdPerson.FullName
+                };
+
+                await _userManager.CreateAsync(user);
+                Log.Information($"Emulate User: User added to db: {user.CampusKerberos}");
+                user = await _userManager.FindByNameAsync(id);
+            }
 
             if (user == null) return NotFound();
 
