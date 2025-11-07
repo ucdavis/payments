@@ -13,10 +13,10 @@ export interface InvoiceRechargeItem {
   financialSegmentString: string;
   amount: number;
   percentage: number;
-  //   enteredByKerb: string; //Might need these later
-  //   enteredByName: string;
-  //   approvedByKerb: string;
-  //   approvedByName: string;
+  enteredByKerb?: string;
+  enteredByName?: string;
+  approvedByKerb?: string;
+  approvedByName?: string;
   notes: string;
   // Validation state
   validationResult?: AccountValidationModel;

@@ -255,7 +255,7 @@ namespace Payments.Mvc.Controllers
                 savedApprovers.AddRange(validationResult.Approvers);
             }
 
-            savedApprovers = savedApprovers.DistinctBy(a => a.Email?.ToLower()).ToList(); //The model will have the complete list of debits, so we don't need to check existing ones.
+            savedApprovers = savedApprovers.Where(a => !string.IsNullOrWhiteSpace(a.Email)).DistinctBy(a => a.Email!.ToLower()).ToList(); //The model will have the complete list of debits, so we don't need to check existing ones.
 
             //Ok, we have got this far, so everything is valid, so we can save the recharge accounts
             // We need to check if they were changed.
@@ -275,26 +275,29 @@ namespace Payments.Mvc.Controllers
                 }
             }
 
+            var rechargeAccountToAdd = new List<RechargeAccount>();
+
             foreach (var item in model)
             {
-                var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id);
+                var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id); //Could filter out when id == 0
                 if (existing != null)
                 {
                     if (existing.FinancialSegmentString != item.FinancialSegmentString || existing.Amount != item.Amount || existing.Notes != item.Notes)
                     {
+                        //If nothing changed, we don't update who entered it.
                         ////Update amount
                         existing.FinancialSegmentString = item.FinancialSegmentString;
                         existing.Amount = item.Amount;
                         existing.EnteredByKerb = user.CampusKerberos;
                         existing.EnteredByName = user.Name;
                         existing.Notes = item.Notes;
-                        _dbContext.RechargeAccounts.Update(existing);
+                        _dbContext.RechargeAccounts.Update(existing); //Probably not needed since we are tracking it, but just in case
                     }
                 }
                 else
                 {
-                    ////New one
-                    invoice.RechargeAccounts.Add(new RechargeAccount()
+                    ////New one (can't directly add to invoice.RechargeAccounts because then it finds it above) could filter where id != 0 but this is clearer
+                    rechargeAccountToAdd.Add(new RechargeAccount()
                     {
                         Direction = CreditDebit.Debit,
                         FinancialSegmentString = item.FinancialSegmentString,
@@ -305,6 +308,14 @@ namespace Payments.Mvc.Controllers
                         Percentage = item.Percentage,
                         Notes = item.Notes
                     });
+                }
+            }
+
+            if(rechargeAccountToAdd.Count > 0)
+            {
+                foreach(var ra in rechargeAccountToAdd)
+                {
+                    invoice.RechargeAccounts.Add(ra);
                 }
             }
 
@@ -325,6 +336,11 @@ namespace Payments.Mvc.Controllers
                 })
             };
             invoice.History.Add(action);
+
+            if(invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Sum(a => a.Amount) != invoice.CalculatedTotal)
+            {
+                return BadRequest("The total of the recharge accounts does not match the invoice total after saving. Please review and try again.");
+            }
 
 
             await _dbContext.SaveChangesAsync(); //Maybe wait for all changes?
@@ -351,7 +367,7 @@ namespace Payments.Mvc.Controllers
             await _invoiceService.SendFinancialApproverEmail(invoice, new SendApprovalModel()
             {
                 emails = emails.ToArray(),
-                bccEmails = "" //TODO: Add any BCC emails if needed
+                bccEmails = "" //TODO: Add any BCC emails if needed. Note customer is CC'd by default in the service.
             });
 
             var notificationAction = new History()
@@ -429,7 +445,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> FinancialApprove(string id, string action, string rejectReason, [FromBody] RechargeAccount[] model)
+        public async Task<IActionResult> FinancialApprove(string id, string actionType, string rejectReason, [FromBody] RechargeAccount[] model)
         {
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Items)
@@ -462,7 +478,7 @@ namespace Payments.Mvc.Controllers
                 return BadRequest("You are not authorized to act on this invoice. Please refresh the page.");
             }
 
-            if(action == "Reject")
+            if(actionType == "Reject")
             {
                 if(string.IsNullOrWhiteSpace(rejectReason))
                 {
@@ -487,7 +503,7 @@ namespace Payments.Mvc.Controllers
                 return Ok();
             }
 
-            if(action != "Approve")
+            if(actionType != "Approve")
             {
                 return BadRequest("Invalid action.");
             }
@@ -507,22 +523,20 @@ namespace Payments.Mvc.Controllers
                     return BadRequest("The recharge accounts may not be removed. Please refresh the page and try again.");
                 }
 
-                if (item.FinancialSegmentString != existing.FinancialSegmentString)
+                //We don't really care about checking if they changed the chart string, we will just pass whatever is in the model and validate/save that.
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
+                if (!validationResult.IsValid)
                 {
-                    //Ok, they changed the chart string, we need to validate it again
-                    var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
-                    if (!validationResult.IsValid)
-                    {
-                        return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
-                    }
-                    if (!validationResult.Approvers.Any(a => a.Email == user.Email))
-                    {
-                        return BadRequest($"You are not an approver for the chart string {item.FinancialSegmentString}.");
-                    }
-                    existing.FinancialSegmentString = validationResult.ChartString; //TODO: Make sure this is saved.
-                    existing.ApprovedByKerb = user.CampusKerberos;
-                    existing.ApprovedByName = user.Name;
+                    return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
                 }
+                if (!validationResult.Approvers.Any(a => a.Email == user.Email))
+                {
+                    return BadRequest($"You are not an approver for the chart string {item.FinancialSegmentString}.");
+                }
+                existing.FinancialSegmentString = validationResult.ChartString; //TODO: Make sure this is saved.
+                existing.ApprovedByKerb = user.CampusKerberos;
+                existing.ApprovedByName = user.Name;
+
             }
 
             if(invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Any(ra => ra.ApprovedByKerb == null))
@@ -544,6 +558,8 @@ namespace Payments.Mvc.Controllers
                 ActionDateTime = DateTime.UtcNow,
                 Data = "All debit recharge accounts have been approved."
             };
+
+            invoice.History.Add(approvalAction);
 
             await _dbContext.SaveChangesAsync();
 
@@ -570,7 +586,7 @@ namespace Payments.Mvc.Controllers
                     if (validationResult.Approvers.Any(a => string.Equals(a.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
                     {
                         isApprover = true;
-                        if (ra.ApprovedByKerb == null)
+                        if (ra.ApprovedByKerb == null && ra.EnteredByKerb != user.CampusKerberos) //If they entered it, they can't approve it.
                         {
                             canApprove = true;
                             actionableRechargeAccounts.Add(ra);

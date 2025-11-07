@@ -14,6 +14,7 @@ interface IProps {
   onChange: (rechargeAccounts: InvoiceRechargeItem[]) => void;
   showCreditAccounts: boolean;
   onValidationComplete?: () => void;
+  fromApprove?: boolean; // When true, only chart string is editable, amount/percentage/add button disabled
 }
 
 interface IState {
@@ -95,33 +96,30 @@ export default class RechargeAccountsControl extends React.Component<
       isInternalUpdate: false,
       isCalculatingAmountPercentage: false
     };
+  }
 
+  async componentDidMount() {
     // Validate existing financial segment strings after component mounts
     // Only validate if there are accounts with existing financial segment strings
-    const hasExistingData = props.rechargeAccounts.some(
+    const hasExistingData = this.props.rechargeAccounts.some(
       account =>
         account.financialSegmentString && account.financialSegmentString.trim()
     );
 
     if (hasExistingData) {
-      //TODO: Anyplace we used a timeout like this, we need to instead use promises or another method to ensure proper sequencing without arbitrary delays
-      setTimeout(() => {
-        this.validateExistingAccounts();
-        // Also validate credit totals after initial render
-        this.setCreditTotalValidityOnLastAmount();
-        // Also validate debit totals after initial render
-        this.setDebitTotalValidityOnLastAmount();
-      }, 100);
+      await this.validateExistingAccounts();
+      // Also validate credit totals after initial render
+      this.setCreditTotalValidityOnLastAmount();
+      // Also validate debit totals after initial render
+      this.setDebitTotalValidityOnLastAmount();
     } else {
       // Even if no existing data, validate credit totals after initial render
-      setTimeout(() => {
-        this.setCreditTotalValidityOnLastAmount();
-        this.setDebitTotalValidityOnLastAmount();
-        // Notify parent that validation is complete (no data to validate)
-        if (this.props.onValidationComplete) {
-          this.props.onValidationComplete();
-        }
-      }, 100);
+      this.setCreditTotalValidityOnLastAmount();
+      this.setDebitTotalValidityOnLastAmount();
+      // Notify parent that validation is complete (no data to validate)
+      if (this.props.onValidationComplete) {
+        this.props.onValidationComplete();
+      }
     }
   }
 
@@ -222,19 +220,11 @@ export default class RechargeAccountsControl extends React.Component<
               console.log(
                 'Validating existing accounts after account structure change'
               );
-              setTimeout(() => {
-                this.validateExistingAccounts();
-                // Also validate credit totals after structure change
-                this.setCreditTotalValidityOnLastAmount();
-                // Also validate debit totals after structure change
-                this.setDebitTotalValidityOnLastAmount();
-              }, 100);
+              // Schedule validation after setState completes
+              this.scheduleValidation();
             } else {
               // Even if no data to validate, update credit totals
-              setTimeout(() => {
-                this.setCreditTotalValidityOnLastAmount();
-                this.setDebitTotalValidityOnLastAmount();
-              }, 100);
+              this.scheduleTotalValidation();
             }
           }
         );
@@ -602,6 +592,19 @@ export default class RechargeAccountsControl extends React.Component<
     });
   };
 
+  // Helper method to schedule full validation after state updates
+  private scheduleValidation = async () => {
+    await this.validateExistingAccounts();
+    this.setCreditTotalValidityOnLastAmount();
+    this.setDebitTotalValidityOnLastAmount();
+  };
+
+  // Helper method to schedule only total validation after state updates
+  private scheduleTotalValidation = () => {
+    this.setCreditTotalValidityOnLastAmount();
+    this.setDebitTotalValidityOnLastAmount();
+  };
+
   private recalculatePercentagesFromAmounts = () => {
     if (this.props.invoiceTotal <= 0) {
       return;
@@ -638,10 +641,7 @@ export default class RechargeAccountsControl extends React.Component<
       () => {
         this.updateAccounts();
         // Update credit total validity when invoice total changes
-        setTimeout(() => {
-          this.setCreditTotalValidityOnLastAmount();
-          this.setDebitTotalValidityOnLastAmount();
-        }, 0);
+        this.scheduleTotalValidation();
       }
     );
   };
@@ -778,7 +778,7 @@ export default class RechargeAccountsControl extends React.Component<
           () => {
             this.updateAccounts();
             // Update credit total validity when amounts change
-            setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+            this.setCreditTotalValidityOnLastAmount();
           }
         );
       });
@@ -791,7 +791,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update credit total validity when amounts change
-          setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+          this.setCreditTotalValidityOnLastAmount();
         }
       );
     }
@@ -845,7 +845,7 @@ export default class RechargeAccountsControl extends React.Component<
           () => {
             this.updateAccounts();
             // Update debit total validity when amounts change
-            setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+            this.setDebitTotalValidityOnLastAmount();
           }
         );
       });
@@ -858,7 +858,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update debit total validity when amounts change
-          setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+          this.setDebitTotalValidityOnLastAmount();
         }
       );
     }
@@ -876,16 +876,13 @@ export default class RechargeAccountsControl extends React.Component<
       },
       () => {
         this.updateAccounts();
-        // Clear custom validity for new account
-        setTimeout(() => {
-          this.setChartStringCustomValidity(
-            creditAccounts.length,
-            'Credit',
-            true
-          );
-          // Update credit total validity when accounts change
-          this.setCreditTotalValidityOnLastAmount();
-        }, 0);
+        // Clear custom validity for new account and update totals
+        this.setChartStringCustomValidity(
+          creditAccounts.length,
+          'Credit',
+          true
+        );
+        this.setCreditTotalValidityOnLastAmount();
       }
     );
   };
@@ -902,16 +899,9 @@ export default class RechargeAccountsControl extends React.Component<
       },
       () => {
         this.updateAccounts();
-        // Clear custom validity for new account
-        setTimeout(() => {
-          this.setChartStringCustomValidity(
-            debitAccounts.length,
-            'Debit',
-            true
-          );
-          // Update debit total validity when accounts change
-          this.setDebitTotalValidityOnLastAmount();
-        }, 0);
+        // Clear custom validity for new account and update totals
+        this.setChartStringCustomValidity(debitAccounts.length, 'Debit', true);
+        this.setDebitTotalValidityOnLastAmount();
       }
     );
   };
@@ -929,7 +919,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update credit total validity when accounts are removed
-          setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+          this.setCreditTotalValidityOnLastAmount();
         }
       );
     }
@@ -948,7 +938,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update debit total validity when accounts are removed
-          setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+          this.setDebitTotalValidityOnLastAmount();
         }
       );
     }
@@ -1094,9 +1084,11 @@ export default class RechargeAccountsControl extends React.Component<
       : this.removeDebitAccount;
 
     // Determine if this account can be removed based on mode and count
-    const canRemove = isCredit
-      ? this.state.creditAccounts.length > 1 || !this.props.showCreditAccounts
-      : this.state.debitAccounts.length > 1 || this.props.showCreditAccounts;
+    const canRemove =
+      !this.props.fromApprove &&
+      (isCredit
+        ? this.state.creditAccounts.length > 1 || !this.props.showCreditAccounts
+        : this.state.debitAccounts.length > 1 || this.props.showCreditAccounts);
 
     const isLastAccount = index === accounts.length - 1;
 
@@ -1188,6 +1180,7 @@ export default class RechargeAccountsControl extends React.Component<
               value={account.amount}
               onChange={value => updateAccount(index, 'amount', value)}
               isInvalid={account.amount <= 0}
+              disabled={this.props.fromApprove}
               inputRef={(() => {
                 const refKey = `${direction.toLowerCase()}-${index}-amount-ref`;
                 if (!this.inputRefs[refKey]) {
@@ -1207,6 +1200,7 @@ export default class RechargeAccountsControl extends React.Component<
               max={100}
               step={0.01}
               placeholder='0.00'
+              disabled={this.props.fromApprove}
             />
           </td>
           <td className='cell-actions'>
@@ -1228,6 +1222,7 @@ export default class RechargeAccountsControl extends React.Component<
               placeholder='Notes (optional)'
               value={account.notes}
               onChange={e => updateAccount(index, 'notes', e.target.value)}
+              disabled={this.props.fromApprove}
             />
             {this.renderValidationMessages(account)}
           </td>
@@ -1255,12 +1250,18 @@ export default class RechargeAccountsControl extends React.Component<
       ? direction === 'Credit' // In credit mode, only credits are required
       : direction === 'Debit'; // In debit-only mode, debits are required
 
-    const isTotalValid = isRequired
+    // When fromApprove is true, we don't validate totals (amounts are read-only)
+    const isTotalValid = this.props.fromApprove
+      ? true
+      : isRequired
       ? accounts.length > 0 && this.isTotalEqual(total, this.props.invoiceTotal)
       : accounts.length === 0 ||
         this.isTotalEqual(total, this.props.invoiceTotal);
 
-    const isValid = isTotalValid && !hasInvalidAmounts;
+    // When fromApprove is true, we don't check amounts (they're read-only)
+    const isValid = this.props.fromApprove
+      ? true
+      : isTotalValid && !hasInvalidAmounts;
 
     return (
       <div className='mb-4'>
@@ -1289,29 +1290,35 @@ export default class RechargeAccountsControl extends React.Component<
           </>
         )}
         <div className='d-flex justify-content-between align-items-center'>
-          <button
-            type='button'
-            className='btn btn-sm btn-outline-primary'
-            onClick={onAdd}
-          >
-            Add {direction} Account
-          </button>
+          {!this.props.fromApprove && (
+            <button
+              type='button'
+              className='btn btn-sm btn-outline-primary'
+              onClick={onAdd}
+            >
+              Add {direction} Account
+            </button>
+          )}
 
           <div
             className={`text-end ${isValid ? 'text-success' : 'text-danger'}`}
           >
             <strong>Total: ${total.toFixed(2)}</strong>
-            {isRequired && !isTotalValid && (
+            {!this.props.fromApprove && isRequired && !isTotalValid && (
               <div className='small text-danger'>
                 Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
               </div>
             )}
-            {!isRequired && accounts.length > 0 && !isTotalValid && (
-              <div className='small text-danger'>
-                Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
-              </div>
-            )}
-            {hasInvalidAmounts && (
+            {!this.props.fromApprove &&
+              !isRequired &&
+              accounts.length > 0 &&
+              !isTotalValid && (
+                <div className='small text-danger'>
+                  Must equal invoice total: $
+                  {this.props.invoiceTotal.toFixed(2)}
+                </div>
+              )}
+            {!this.props.fromApprove && hasInvalidAmounts && (
               <div className='small text-danger'>
                 All amounts must be greater than zero
               </div>
@@ -1378,24 +1385,26 @@ export default class RechargeAccountsControl extends React.Component<
             this.addDebitAccount
           )}
 
-        <div className='alert alert-info'>
-          <strong>Note:</strong>
-          {showCreditAccounts ? (
-            <>
-              {' '}
-              Credit accounts are required and must total the invoice amount.
-              All amounts must be greater than zero. Debit accounts are
-              optional, but if entered, must also total the invoice amount and
-              have amounts greater than zero.
-            </>
-          ) : (
-            <>
-              {' '}
-              Debit accounts are required and must total the invoice amount. All
-              amounts must be greater than zero.
-            </>
-          )}
-        </div>
+        {!this.props.fromApprove && (
+          <div className='alert alert-info'>
+            <strong>Note:</strong>
+            {showCreditAccounts ? (
+              <>
+                {' '}
+                Credit accounts are required and must total the invoice amount.
+                All amounts must be greater than zero. Debit accounts are
+                optional, but if entered, must also total the invoice amount and
+                have amounts greater than zero.
+              </>
+            ) : (
+              <>
+                {' '}
+                Debit accounts are required and must total the invoice amount.
+                All amounts must be greater than zero.
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   }

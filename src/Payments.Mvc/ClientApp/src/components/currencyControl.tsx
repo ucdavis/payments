@@ -6,11 +6,12 @@ interface IProps {
   onChange: (value: number) => void;
   isInvalid?: boolean;
   inputRef?: React.RefObject<HTMLInputElement>;
+  disabled?: boolean;
 }
 
 export default class CurrencyControl extends React.PureComponent<IProps, {}> {
   public render() {
-    const { value, onChange, isInvalid, inputRef } = this.props;
+    const { value, onChange, isInvalid, inputRef, disabled } = this.props;
 
     return (
       <NumberControl
@@ -22,6 +23,7 @@ export default class CurrencyControl extends React.PureComponent<IProps, {}> {
         onChange={onChange}
         required={true}
         inputRef={inputRef}
+        disabled={disabled}
       />
     );
   }

@@ -18,7 +18,9 @@ export interface RechargeInvoiceModel {
   paidDate: string | null;
   team: InvoiceTeam;
   status: string;
-  debitRechargeAccounts: InvoiceRechargeItem[];
+  debitRechargeAccounts: InvoiceRechargeItem[]; // Accounts that can be edited/approved
+  displayDebitRechargeAccounts: InvoiceRechargeItem[]; // Read-only accounts
+  canApprove: boolean;
   message?: string;
   errorMessage?: string;
 }
@@ -56,9 +58,11 @@ interface IState {
   errorMessage: string;
   message: string;
   isValidating: boolean;
+  showRejectDialog: boolean;
+  rejectReason: string;
 }
 
-export default class PayInvoiceContainer extends React.Component<
+export default class FinancialApproveInvoiceContainer extends React.Component<
   IProps,
   IState
 > {
@@ -73,13 +77,14 @@ export default class PayInvoiceContainer extends React.Component<
       isSaving: false,
       errorMessage: '',
       message: '',
-      isValidating: true
+      isValidating: true,
+      showRejectDialog: false,
+      rejectReason: ''
     };
   }
 
   componentDidMount() {
     // Validation will be triggered by the child component's onValidationComplete callback
-    // No need for setTimeout - the child will notify us when it's done
   }
 
   private handleValidationComplete = () => {
@@ -97,12 +102,13 @@ export default class PayInvoiceContainer extends React.Component<
       isValid,
       isSaving,
       errorMessage,
-      isValidating
+      isValidating,
+      showRejectDialog,
+      rejectReason
     } = this.state;
-    const canEdit = invoice.status === 'Sent';
+    const canEdit = invoice.status === 'PendingApproval' && invoice.canApprove;
 
     return (
-      // If we want to make this wider, we need to change the pay-card CSS. But CC uses this too, so make a new class if needed.
       <div className='card pay-card'>
         <div className='card-gradient-header-bleed'>
           <div className='card-gradient-header'></div>
@@ -165,15 +171,9 @@ export default class PayInvoiceContainer extends React.Component<
                 {!isValidating && !isValid && !isSaving && (
                   <div className='alert alert-warning mt-3' role='alert'>
                     <i className='fas fa-exclamation-triangle me-2'></i>
-                    Please complete all required fields before submitting:
+                    Please review the following to approve:
                     <ul className='mb-0 mt-2'>
-                      <li>At least one valid debit chart string is required</li>
                       <li>All chart strings must be validated successfully</li>
-                      <li>
-                        Total debit amounts must equal the invoice total ($
-                        {invoice.total.toFixed(2)})
-                      </li>
-                      <li>All amounts must be greater than zero</li>
                     </ul>
                   </div>
                 )}
@@ -181,15 +181,21 @@ export default class PayInvoiceContainer extends React.Component<
                 {!isValidating && isValid && !isSaving && (
                   <div className='alert alert-success mt-3' role='alert'>
                     <i className='fas fa-check-circle me-2'></i>
-                    Form is valid and ready to submit
+                    Chart strings are valid and ready to approve
                   </div>
                 )}
 
-                <div style={{ alignContent: 'center' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '10px',
+                    justifyContent: 'center'
+                  }}
+                >
                   <button
                     type='button'
                     className='btn-gold btn-lg pay-now-button'
-                    onClick={this.handleSubmit}
+                    onClick={this.handleApprove}
                     disabled={!isValid || isSaving || isValidating}
                     style={{
                       cursor:
@@ -201,7 +207,7 @@ export default class PayInvoiceContainer extends React.Component<
                       isValidating
                         ? 'Validating form...'
                         : !isValid
-                        ? 'Please complete all required fields'
+                        ? 'Please ensure all chart strings are valid'
                         : ''
                     }
                   >
@@ -213,7 +219,27 @@ export default class PayInvoiceContainer extends React.Component<
                     ) : (
                       <>
                         <i className='fas fa-check me-3' aria-hidden='true' />
-                        Submit for Approval
+                        Approve
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type='button'
+                    className='btn btn-danger btn-lg reject-now-button'
+                    onClick={this.handleRejectClick}
+                    disabled={isSaving || isValidating}
+                    title={isValidating ? 'Validating form...' : ''}
+                  >
+                    {isSaving ? (
+                      <>
+                        <i className='fas fa-spinner fa-spin me-3' />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <i className='fas fa-times me-3' aria-hidden='true' />
+                        Reject
                       </>
                     )}
                   </button>
@@ -238,19 +264,10 @@ export default class PayInvoiceContainer extends React.Component<
                   </span>
                 )}
 
-                {invoice.status === 'PendingApproval' && (
-                  <div className='alert alert-info mt-3' role='alert'>
-                    <i className='fas fa-clock me-2'></i>
-                    This is Pending Financial Approver Actions.
-                  </div>
-                )}
-
-                {invoice.status !== 'PendingApproval' && (
-                  <div className='alert alert-secondary mt-3' role='alert'>
-                    <i className='fas fa-info-circle me-2'></i>
-                    Status: {invoice.status}
-                  </div>
-                )}
+                <div className='alert alert-secondary mt-3' role='alert'>
+                  <i className='fas fa-info-circle me-2'></i>
+                  Status: {invoice.status}. This invoice cannot be acted upon.
+                </div>
               </>
             )}
 
@@ -311,13 +328,13 @@ export default class PayInvoiceContainer extends React.Component<
             </table>
           </div>
 
-          {/* Recharge Accounts - Only editable if status is Sent */}
-          {canEdit && (
+          {/* Editable Recharge Accounts - Only editable if canApprove */}
+          {canEdit && rechargeAccounts.length > 0 && (
             <div className='card-body invoice-recharge-accounts'>
-              <h3>Debit Chart Strings</h3>
+              <h3>Debit Chart Strings to Approve</h3>
               <p className='text-muted'>
-                Please provide at least one valid debit chart string. The total
-                amount must match the invoice total.
+                Review and edit chart strings as needed. Only the chart string
+                can be modified.
               </p>
               <RechargeAccountsControl
                 ref={r => (this._rechargeAccountsRef = r)}
@@ -326,42 +343,70 @@ export default class PayInvoiceContainer extends React.Component<
                 onChange={this.handleRechargeAccountsChange}
                 showCreditAccounts={false}
                 onValidationComplete={this.handleValidationComplete}
+                fromApprove={true}
               />
             </div>
           )}
 
-          {/* Display existing recharge accounts if not editable */}
-          {!canEdit && (
-            <div className='card-body'>
-              <h3>Debit Chart Strings</h3>
-              <table className='table'>
-                <thead>
-                  <tr>
-                    <th>Chart String</th>
-                    <th>Amount</th>
-                    <th>Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rechargeAccounts.map(account => (
-                    <tr key={account.id}>
-                      <td>
-                        <a
-                          href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          {account.financialSegmentString}
-                        </a>
-                      </td>
-                      <td>${account.amount.toFixed(2)}</td>
-                      <td>{account.notes}</td>
+          {/* Display-only Debit Recharge Accounts */}
+          {invoice.displayDebitRechargeAccounts &&
+            invoice.displayDebitRechargeAccounts.length > 0 && (
+              <div className='card-body'>
+                <h3>Debit Chart Strings</h3>
+                <p className='text-muted'>
+                  These chart strings have already been approved or are assigned
+                  to other approvers.
+                </p>
+                <table className='table'>
+                  <thead>
+                    <tr>
+                      <th>Chart String</th>
+                      <th>Amount</th>
+                      <th>Percentage</th>
+                      <th>Status</th>
+                      <th>Notes</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {invoice.displayDebitRechargeAccounts.map(
+                      (account: any) => (
+                        <tr key={account.id}>
+                          <td>
+                            <a
+                              href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                            >
+                              {account.financialSegmentString}
+                            </a>
+                          </td>
+                          <td>${account.amount.toFixed(2)}</td>
+                          <td>
+                            {account.percentage > 0
+                              ? `${account.percentage.toFixed(2)}%`
+                              : ''}
+                          </td>
+                          <td>
+                            {account.approvedByName ? (
+                              <span className='text-success'>
+                                <i className='fas fa-check-circle me-1'></i>
+                                Approved by {account.approvedByName}
+                              </span>
+                            ) : (
+                              <span className='text-warning'>
+                                <i className='fas fa-clock me-1'></i>
+                                Pending Approval
+                              </span>
+                            )}
+                          </td>
+                          <td>{account.notes}</td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
           {/* Attachments */}
           {invoice.attachments.length > 0 && (
@@ -443,6 +488,58 @@ export default class PayInvoiceContainer extends React.Component<
             </div>
           </div>
         </div>
+
+        {/* Reject Dialog */}
+        {showRejectDialog && (
+          <div
+            className='modal'
+            style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}
+          >
+            <div className='modal-dialog'>
+              <div className='modal-content'>
+                <div className='modal-header'>
+                  <h5 className='modal-title'>Reject Invoice</h5>
+                  <button
+                    type='button'
+                    className='btn-close'
+                    onClick={this.handleCancelReject}
+                    aria-label='Close'
+                  ></button>
+                </div>
+                <div className='modal-body'>
+                  <p>Please provide a reason for rejecting this invoice:</p>
+                  <textarea
+                    className='form-control'
+                    rows={4}
+                    value={rejectReason}
+                    onChange={e =>
+                      this.setState({ rejectReason: e.target.value })
+                    }
+                    placeholder='Enter rejection reason...'
+                    autoFocus
+                  />
+                </div>
+                <div className='modal-footer'>
+                  <button
+                    type='button'
+                    className='btn btn-secondary'
+                    onClick={this.handleCancelReject}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type='button'
+                    className='btn btn-danger'
+                    onClick={this.handleConfirmReject}
+                    disabled={!rejectReason.trim()}
+                  >
+                    Confirm Rejection
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -455,7 +552,6 @@ export default class PayInvoiceContainer extends React.Component<
 
   private validateForm = () => {
     const { rechargeAccounts } = this.state;
-    const { invoice } = this.props;
 
     // Check if any validations are in progress
     if (this._rechargeAccountsRef && this._rechargeAccountsRef.isValidating()) {
@@ -476,7 +572,8 @@ export default class PayInvoiceContainer extends React.Component<
       return;
     }
 
-    // Get all debit accounts with chart strings (including those with invalid amounts)
+    // For approval, we just need valid chart strings
+    // No need to validate totals or amounts since they're read-only
     const allDebitAccounts = rechargeAccounts.filter(
       account =>
         account.direction === 'Debit' &&
@@ -490,83 +587,53 @@ export default class PayInvoiceContainer extends React.Component<
       return;
     }
 
-    // Check if any debit accounts have invalid amounts (zero or negative)
-    const hasInvalidAmounts = allDebitAccounts.some(
-      account => account.amount <= 0
-    );
-
-    if (hasInvalidAmounts) {
-      console.log(
-        'Form validation failed: one or more debit accounts have invalid amounts (must be greater than zero)'
-      );
-      this.setState({ isValid: false });
-      return;
-    }
-
-    // Check if the total matches the invoice total
-    const total = allDebitAccounts.reduce(
-      (sum, account) => sum + account.amount,
-      0
-    );
-    const totalMatches = Math.abs(total - invoice.total) < 0.01; // Allow for small floating point differences
-
-    if (!totalMatches) {
-      console.log(
-        `Form validation failed: total mismatch (debit total: ${total}, invoice total: ${invoice.total})`
-      );
-      this.setState({ isValid: false });
-      return;
-    }
-
-    console.log(
-      `Form validation passed: all validations successful (total: ${total}, invoice total: ${invoice.total})`
-    );
+    console.log('Form validation passed: all chart strings are valid');
     this.setState({ isValid: true });
   };
 
-  private handleSubmit = async () => {
-    console.log('Submitting invoice payment...');
-    const { invoice } = this.props;
-    const { rechargeAccounts, isValid } = this.state;
+  private handleRejectClick = () => {
+    this.setState({ showRejectDialog: true, rejectReason: '' });
+  };
 
-    if (!isValid) {
-      console.log('Form is invalid');
-      this.setState({
-        errorMessage:
-          'Please provide at least one valid debit chart string and ensure the total matches the invoice total.'
-      });
+  private handleCancelReject = () => {
+    this.setState({ showRejectDialog: false, rejectReason: '' });
+  };
+
+  private handleConfirmReject = async () => {
+    const { invoice } = this.props;
+    const { rejectReason } = this.state;
+
+    if (!rejectReason.trim()) {
+      this.setState({ errorMessage: 'Please provide a reason for rejection.' });
       return;
     }
-    console.log('Form is valid');
-    this.setState({ isSaving: true, errorMessage: '' });
+
+    this.setState({
+      isSaving: true,
+      errorMessage: '',
+      showRejectDialog: false
+    });
 
     try {
-      // Filter to only debit accounts and map to the format expected by the backend
-      const debitAccounts = rechargeAccounts
-        .filter(account => account.direction === 'Debit')
-        .map(account => ({
-          ...account,
-          direction: 1 // Debit = 1
-        }));
-
-      const response = await fetch(`/recharge/pay/${invoice.linkId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          RequestVerificationToken: antiForgeryToken
-        },
-        body: JSON.stringify(debitAccounts)
-      });
+      const response = await fetch(
+        `/recharge/financialapprove/${
+          invoice.linkId
+        }?actionType=Reject&rejectReason=${encodeURIComponent(rejectReason)}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            RequestVerificationToken: antiForgeryToken
+          },
+          body: JSON.stringify([])
+        }
+      );
 
       if (response.ok) {
         // Success - redirect to reload the page with updated invoice data
-        window.location.href = `/recharge/pay/${invoice.linkId}`;
+        window.location.href = `/recharge/financialapprove/${invoice.linkId}`;
       } else {
-        // Try to parse as the full model first (which includes errorMessage)
         const errorData = await response.json();
-
-        // If we got back a full invoice model with errorMessage, we could update the page
-        // For now, just display the error message from the response
         if (errorData.errorMessage) {
           this.setState({
             errorMessage: errorData.errorMessage,
@@ -580,7 +647,7 @@ export default class PayInvoiceContainer extends React.Component<
         } else {
           this.setState({
             errorMessage:
-              'An error occurred while submitting the invoice. Please try again.',
+              'An error occurred while rejecting the invoice. Please try again.',
             isSaving: false
           });
         }
@@ -588,7 +655,77 @@ export default class PayInvoiceContainer extends React.Component<
     } catch (error) {
       this.setState({
         errorMessage:
-          'An error occurred while submitting the invoice. Please try again.',
+          'An error occurred while rejecting the invoice. Please try again.',
+        isSaving: false
+      });
+    }
+  };
+
+  private handleApprove = async () => {
+    console.log('Approving invoice...');
+    const { invoice } = this.props;
+    const { rechargeAccounts, isValid } = this.state;
+
+    if (!isValid) {
+      console.log('Form is invalid');
+      this.setState({
+        errorMessage:
+          'Please ensure all chart strings are valid before approving.'
+      });
+      return;
+    }
+
+    console.log('Form is valid');
+    this.setState({ isSaving: true, errorMessage: '' });
+
+    try {
+      // Filter to only debit accounts and map to the format expected by the backend
+      const debitAccounts = rechargeAccounts
+        .filter(account => account.direction === 'Debit')
+        .map(account => ({
+          ...account,
+          direction: 1 // Debit = 1
+        }));
+
+      const response = await fetch(
+        `/recharge/financialapprove/${invoice.linkId}?actionType=Approve`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            RequestVerificationToken: antiForgeryToken
+          },
+          body: JSON.stringify(debitAccounts)
+        }
+      );
+
+      if (response.ok) {
+        // Success - redirect to reload the page with updated invoice data
+        window.location.href = `/recharge/financialapprove/${invoice.linkId}`;
+      } else {
+        const errorData = await response.json();
+        if (errorData.errorMessage) {
+          this.setState({
+            errorMessage: errorData.errorMessage,
+            isSaving: false
+          });
+        } else if (errorData.message) {
+          this.setState({
+            errorMessage: errorData.message,
+            isSaving: false
+          });
+        } else {
+          this.setState({
+            errorMessage:
+              'An error occurred while approving the invoice. Please try again.',
+            isSaving: false
+          });
+        }
+      }
+    } catch (error) {
+      this.setState({
+        errorMessage:
+          'An error occurred while approving the invoice. Please try again.',
         isSaving: false
       });
     }
