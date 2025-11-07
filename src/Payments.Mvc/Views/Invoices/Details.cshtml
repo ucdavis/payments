@@ -27,6 +27,14 @@
     var userPermissions = user.TeamPermissions.Where(p => p.Team.Slug == teamSlug).Select(p => p.Role.Name);
 
     var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
+
+    var editableStatusCodes = new List<string>
+    {
+        Invoice.StatusCodes.Draft,
+        Invoice.StatusCodes.Sent,
+        Invoice.StatusCodes.PendingApproval,
+        Invoice.StatusCodes.Rejected
+    };
     
 }
 
@@ -79,7 +87,7 @@
         </div>
     }
     <div class="card-body card-bot-border">
-        @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
+        @if (editableStatusCodes.Contains(Model.Status) && Model.Status != Invoice.StatusCodes.Rejected)
         {
             @if (Model.Type == InvoiceTypes.Recharge)
             {
@@ -216,7 +224,7 @@
                 </a>
             }
 
-            @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
+            @if (editableStatusCodes.Contains(Model.Status))
             {
                 if (!Model.Sent)
                 {

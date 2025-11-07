@@ -7,6 +7,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Helpers;
 using Payments.Core.Models.Invoice;
+using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Emails;
 
@@ -361,7 +362,19 @@ namespace Payments.Mvc.Services
 
             await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
 
-            invoice.Status = Invoice.StatusCodes.Sent;
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                //We don't want to change the status of these just because we resend
+                if(invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Rejected)
+                {
+                    invoice.Status = Invoice.StatusCodes.Sent;
+                }
+            }
+            else
+            {
+                invoice.Status = Invoice.StatusCodes.Sent;
+            }
+                
             invoice.Sent = true;
             invoice.SentAt = DateTime.UtcNow;
         }
@@ -412,9 +425,53 @@ namespace Payments.Mvc.Services
                 return;
             }
 
+            if(model == null)
+            {
+                model = await GetInvoiceApprovers(invoice);
+            }
+
             //The cc emails are actually going to be the to emails in this case.
             //We might want to change it a little to have the names as well.
             await _emailService.SendFinancialApprove(invoice, model);
+        }
+
+        private async Task<SendApprovalModel> GetInvoiceApprovers(Invoice invoice)
+        {
+            if(invoice.RechargeAccounts == null || !invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+            {
+                throw new ArgumentException("Invoice has no debit recharge accounts to get approvers from.", nameof(invoice));
+            }
+
+            var approvers = new List<Approver>();
+            foreach(var ra in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+            {
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                if(validationResult.Approvers != null)
+                {
+                    approvers.AddRange(validationResult.Approvers);
+                }
+            }
+            var approverDistinct = approvers
+                .Where(a => !string.IsNullOrWhiteSpace(a.Email))
+                .DistinctBy(a => a.Email!.ToLower())
+                .ToList();
+
+            var emails = new List<EmailRecipient>();
+            foreach (var approver in approverDistinct)
+            {
+                emails.Add(new EmailRecipient()
+                {
+                    Email = approver.Email,
+                    Name = approver.Name
+                });
+            }
+
+            return new SendApprovalModel()
+            {
+                emails = emails.ToArray(),
+                bccEmails = "" //TODO: Add any BCC emails if needed. Note customer is CC'd by default in the service.
+            };
+
         }
     }
 

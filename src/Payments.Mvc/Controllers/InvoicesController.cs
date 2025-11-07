@@ -452,6 +452,12 @@ namespace Payments.Mvc.Controllers
 
             await _invoiceService.SendInvoice(invoice, model);
 
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.Status == Invoice.StatusCodes.PendingApproval)
+            {
+                //Need to resend these ones too
+                await _invoiceService.SendFinancialApproverEmail(invoice, null); //Will pull them with a private method
+            }
+
             // record action
             var user = await _userManager.GetUserAsync(User);
             var action = new History()

@@ -255,7 +255,7 @@ namespace Payments.Mvc.Controllers
                 savedApprovers.AddRange(validationResult.Approvers);
             }
 
-            savedApprovers = savedApprovers.DistinctBy(a => a.Email?.ToLower()).ToList(); //The model will have the complete list of debits, so we don't need to check existing ones.
+            savedApprovers = savedApprovers.Where(a => !string.IsNullOrWhiteSpace(a.Email)).DistinctBy(a => a.Email!.ToLower()).ToList(); //The model will have the complete list of debits, so we don't need to check existing ones.
 
             //Ok, we have got this far, so everything is valid, so we can save the recharge accounts
             // We need to check if they were changed.
@@ -367,7 +367,7 @@ namespace Payments.Mvc.Controllers
             await _invoiceService.SendFinancialApproverEmail(invoice, new SendApprovalModel()
             {
                 emails = emails.ToArray(),
-                bccEmails = "" //TODO: Add any BCC emails if needed
+                bccEmails = "" //TODO: Add any BCC emails if needed. Note customer is CC'd by default in the service.
             });
 
             var notificationAction = new History()
