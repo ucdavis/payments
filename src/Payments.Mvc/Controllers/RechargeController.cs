@@ -279,23 +279,23 @@ namespace Payments.Mvc.Controllers
 
             foreach (var item in model)
             {
-                var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id);
+                var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id); //Could filter out when id == 0
                 if (existing != null)
                 {
                     if (existing.FinancialSegmentString != item.FinancialSegmentString || existing.Amount != item.Amount || existing.Notes != item.Notes)
                     {
+                        //If nothing changed, we don't update who entered it.
                         ////Update amount
                         existing.FinancialSegmentString = item.FinancialSegmentString;
                         existing.Amount = item.Amount;
                         existing.EnteredByKerb = user.CampusKerberos;
                         existing.EnteredByName = user.Name;
                         existing.Notes = item.Notes;
-                        _dbContext.RechargeAccounts.Update(existing);
+                        _dbContext.RechargeAccounts.Update(existing); //Probably not needed since we are tracking it, but just in case
                     }
                 }
                 else
                 {
-
                     ////New one (can't directly add to invoice.RechargeAccounts because then it finds it above) could filter where id != 0 but this is clearer
                     rechargeAccountToAdd.Add(new RechargeAccount()
                     {
@@ -586,7 +586,7 @@ namespace Payments.Mvc.Controllers
                     if (validationResult.Approvers.Any(a => string.Equals(a.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
                     {
                         isApprover = true;
-                        if (ra.ApprovedByKerb == null)
+                        if (ra.ApprovedByKerb == null && ra.EnteredByKerb != user.CampusKerberos) //If they entered it, they can't approve it.
                         {
                             canApprove = true;
                             actionableRechargeAccounts.Add(ra);
