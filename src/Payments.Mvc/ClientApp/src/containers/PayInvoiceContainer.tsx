@@ -191,6 +191,12 @@ export default class PayInvoiceContainer extends React.Component<
                     className='btn-gold btn-lg pay-now-button'
                     onClick={this.handleSubmit}
                     disabled={!isValid || isSaving || isValidating}
+                    style={{
+                      cursor:
+                        (!isValid || isValidating) && !isSaving
+                          ? 'not-allowed'
+                          : 'pointer'
+                    }}
                     title={
                       isValidating
                         ? 'Validating form...'

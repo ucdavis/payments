@@ -197,6 +197,12 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                     className='btn-gold btn-lg pay-now-button'
                     onClick={this.handleApprove}
                     disabled={!isValid || isSaving || isValidating}
+                    style={{
+                      cursor:
+                        (!isValid || isValidating) && !isSaving
+                          ? 'not-allowed'
+                          : 'pointer'
+                    }}
                     title={
                       isValidating
                         ? 'Validating form...'

@@ -96,33 +96,30 @@ export default class RechargeAccountsControl extends React.Component<
       isInternalUpdate: false,
       isCalculatingAmountPercentage: false
     };
+  }
 
+  async componentDidMount() {
     // Validate existing financial segment strings after component mounts
     // Only validate if there are accounts with existing financial segment strings
-    const hasExistingData = props.rechargeAccounts.some(
+    const hasExistingData = this.props.rechargeAccounts.some(
       account =>
         account.financialSegmentString && account.financialSegmentString.trim()
     );
 
     if (hasExistingData) {
-      //TODO: Anyplace we used a timeout like this, we need to instead use promises or another method to ensure proper sequencing without arbitrary delays
-      setTimeout(() => {
-        this.validateExistingAccounts();
-        // Also validate credit totals after initial render
-        this.setCreditTotalValidityOnLastAmount();
-        // Also validate debit totals after initial render
-        this.setDebitTotalValidityOnLastAmount();
-      }, 100);
+      await this.validateExistingAccounts();
+      // Also validate credit totals after initial render
+      this.setCreditTotalValidityOnLastAmount();
+      // Also validate debit totals after initial render
+      this.setDebitTotalValidityOnLastAmount();
     } else {
       // Even if no existing data, validate credit totals after initial render
-      setTimeout(() => {
-        this.setCreditTotalValidityOnLastAmount();
-        this.setDebitTotalValidityOnLastAmount();
-        // Notify parent that validation is complete (no data to validate)
-        if (this.props.onValidationComplete) {
-          this.props.onValidationComplete();
-        }
-      }, 100);
+      this.setCreditTotalValidityOnLastAmount();
+      this.setDebitTotalValidityOnLastAmount();
+      // Notify parent that validation is complete (no data to validate)
+      if (this.props.onValidationComplete) {
+        this.props.onValidationComplete();
+      }
     }
   }
 
@@ -223,19 +220,11 @@ export default class RechargeAccountsControl extends React.Component<
               console.log(
                 'Validating existing accounts after account structure change'
               );
-              setTimeout(() => {
-                this.validateExistingAccounts();
-                // Also validate credit totals after structure change
-                this.setCreditTotalValidityOnLastAmount();
-                // Also validate debit totals after structure change
-                this.setDebitTotalValidityOnLastAmount();
-              }, 100);
+              // Schedule validation after setState completes
+              this.scheduleValidation();
             } else {
               // Even if no data to validate, update credit totals
-              setTimeout(() => {
-                this.setCreditTotalValidityOnLastAmount();
-                this.setDebitTotalValidityOnLastAmount();
-              }, 100);
+              this.scheduleTotalValidation();
             }
           }
         );
@@ -603,6 +592,19 @@ export default class RechargeAccountsControl extends React.Component<
     });
   };
 
+  // Helper method to schedule full validation after state updates
+  private scheduleValidation = async () => {
+    await this.validateExistingAccounts();
+    this.setCreditTotalValidityOnLastAmount();
+    this.setDebitTotalValidityOnLastAmount();
+  };
+
+  // Helper method to schedule only total validation after state updates
+  private scheduleTotalValidation = () => {
+    this.setCreditTotalValidityOnLastAmount();
+    this.setDebitTotalValidityOnLastAmount();
+  };
+
   private recalculatePercentagesFromAmounts = () => {
     if (this.props.invoiceTotal <= 0) {
       return;
@@ -639,10 +641,7 @@ export default class RechargeAccountsControl extends React.Component<
       () => {
         this.updateAccounts();
         // Update credit total validity when invoice total changes
-        setTimeout(() => {
-          this.setCreditTotalValidityOnLastAmount();
-          this.setDebitTotalValidityOnLastAmount();
-        }, 0);
+        this.scheduleTotalValidation();
       }
     );
   };
@@ -779,7 +778,7 @@ export default class RechargeAccountsControl extends React.Component<
           () => {
             this.updateAccounts();
             // Update credit total validity when amounts change
-            setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+            this.setCreditTotalValidityOnLastAmount();
           }
         );
       });
@@ -792,7 +791,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update credit total validity when amounts change
-          setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+          this.setCreditTotalValidityOnLastAmount();
         }
       );
     }
@@ -846,7 +845,7 @@ export default class RechargeAccountsControl extends React.Component<
           () => {
             this.updateAccounts();
             // Update debit total validity when amounts change
-            setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+            this.setDebitTotalValidityOnLastAmount();
           }
         );
       });
@@ -859,7 +858,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update debit total validity when amounts change
-          setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+          this.setDebitTotalValidityOnLastAmount();
         }
       );
     }
@@ -877,16 +876,13 @@ export default class RechargeAccountsControl extends React.Component<
       },
       () => {
         this.updateAccounts();
-        // Clear custom validity for new account
-        setTimeout(() => {
-          this.setChartStringCustomValidity(
-            creditAccounts.length,
-            'Credit',
-            true
-          );
-          // Update credit total validity when accounts change
-          this.setCreditTotalValidityOnLastAmount();
-        }, 0);
+        // Clear custom validity for new account and update totals
+        this.setChartStringCustomValidity(
+          creditAccounts.length,
+          'Credit',
+          true
+        );
+        this.setCreditTotalValidityOnLastAmount();
       }
     );
   };
@@ -903,16 +899,9 @@ export default class RechargeAccountsControl extends React.Component<
       },
       () => {
         this.updateAccounts();
-        // Clear custom validity for new account
-        setTimeout(() => {
-          this.setChartStringCustomValidity(
-            debitAccounts.length,
-            'Debit',
-            true
-          );
-          // Update debit total validity when accounts change
-          this.setDebitTotalValidityOnLastAmount();
-        }, 0);
+        // Clear custom validity for new account and update totals
+        this.setChartStringCustomValidity(debitAccounts.length, 'Debit', true);
+        this.setDebitTotalValidityOnLastAmount();
       }
     );
   };
@@ -930,7 +919,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update credit total validity when accounts are removed
-          setTimeout(() => this.setCreditTotalValidityOnLastAmount(), 0);
+          this.setCreditTotalValidityOnLastAmount();
         }
       );
     }
@@ -949,7 +938,7 @@ export default class RechargeAccountsControl extends React.Component<
         () => {
           this.updateAccounts();
           // Update debit total validity when accounts are removed
-          setTimeout(() => this.setDebitTotalValidityOnLastAmount(), 0);
+          this.setDebitTotalValidityOnLastAmount();
         }
       );
     }
