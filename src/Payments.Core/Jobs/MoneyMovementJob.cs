@@ -253,7 +253,7 @@ namespace Payments.Core.Jobs
                 {
                     // get all invoices are in processing
                     var invoices = _dbContext.Invoices
-                        .Where(i => i.Status == Invoice.StatusCodes.Processing)
+                        .Where(i => i.Status == Invoice.StatusCodes.Processing && i.Type != Invoice.InvoiceTypes.Recharge)
                         .Include(i => i.Team)
                         .ToList();
 
