@@ -353,10 +353,12 @@ export default class RechargeAccountsControl extends React.Component<
 
     try {
       const directionValue = direction === 'Credit' ? 0 : 1;
+      // Add checkApprover param when fromApprove is true and direction is Debit
+      const checkApprover = this.props.fromApprove && direction === 'Debit';
       const response = await fetch(
         `/api/recharge/validate?chartString=${encodeURIComponent(
           chartString
-        )}&direction=${directionValue}`,
+        )}&direction=${directionValue}&checkApprover=${checkApprover}`,
         {
           method: 'GET',
           headers: {

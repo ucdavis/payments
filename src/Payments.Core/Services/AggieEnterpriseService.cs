@@ -410,14 +410,14 @@ namespace Payments.Core.Services
                 }
             }
 
-#if DEBUG
-            rtValue.Approvers.Add(new Approver
-            {
-                FirstName = "Jason",
-                LastName = "Sylvestre",
-                Email = "jsylvestre@ucdavis.edu",
-            });
-#endif
+//#if DEBUG
+//            rtValue.Approvers.Add(new Approver
+//            {
+//                FirstName = "Jason",
+//                LastName = "Sylvestre",
+//                Email = "jsylvestre@ucdavis.edu",
+//            });
+//#endif
 
             return rtValue;
         }
