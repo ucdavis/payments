@@ -78,13 +78,9 @@ namespace Payments.Core.Services
                 _settings.BaseUrl = _settings.BaseUrl.Substring(0, _settings.BaseUrl.Length - 3);
             }
             var client = new HttpClient()
-            {                
-                BaseAddress = new Uri($"{_settings.BaseUrl}v1/"),
-            };
-            if(_financeSettings.UseCoa)
             {
-                client.BaseAddress = new Uri($"{_settings.BaseUrl}v2/");
-            }
+                BaseAddress = new Uri($"{_settings.BaseUrl}v2/")
+            };
             if (forRecharge)
             {
                 client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.RechargeApiKey); //This is where the magic happens

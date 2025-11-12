@@ -26,12 +26,14 @@ namespace Payments.Core.Jobs
         private readonly ISlothService _slothService;
         private readonly INotificationService _notificationService;
         private readonly FinanceSettings _financeSettings;
+        private readonly PaymentsApiSettings _paymentsApiSettings;
 
-        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService, INotificationService notificationService, IOptions<FinanceSettings> financeSettings)
+        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService, INotificationService notificationService, IOptions<FinanceSettings> financeSettings, IOptions<PaymentsApiSettings> paymentsApiSettings)
         {
             _dbContext = dbContext;
             _slothService = slothService;
             _notificationService = notificationService;
+            _paymentsApiSettings = paymentsApiSettings.Value;
 
             _financeSettings = financeSettings.Value;
         }
@@ -83,14 +85,13 @@ namespace Payments.Core.Jobs
                             log.Warning("Team {team} has no default account for payments", team.Name);
                             continue;
                         }
-                        if (_financeSettings.UseCoa)
+
+                        if (String.IsNullOrWhiteSpace(team.DefaultAccount.FinancialSegmentString))
                         {
-                            if (String.IsNullOrWhiteSpace(team.DefaultAccount.FinancialSegmentString))
-                            {
-                                log.Warning("Team {team} has no financial segment string for payments", team.Name);
-                                continue;
-                            }
+                            log.Warning("Team {team} has no financial segment string for payments", team.Name);
+                            continue;
                         }
+
 
                         // transaction found, bank reconcile was successful
                         invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
@@ -120,52 +121,21 @@ namespace Payments.Core.Jobs
                             Description = "Funds Distribution"
                         };
 
-                        if (_financeSettings.UseCoa)
+
+                        var incomeAeAccount = team.DefaultAccount.FinancialSegmentString;
+
+                        if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
                         {
-                            var incomeAeAccount = team.DefaultAccount.FinancialSegmentString;
-
-                            if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
-                            {
-                                //Validate? here and if invalid use the team default?                            
-                                // the invoice has a specified account, use it instead of the team's default
-                                incomeAeAccount = invoice.Account.FinancialSegmentString;
-                            }
-
-                            // Populate transfers with financial segment strings
-                            debitHolding.FinancialSegmentString = _financeSettings.ClearingFinancialSegmentString;
-                            feeCredit.FinancialSegmentString = _financeSettings.FeeFinancialSegmentString;
-                            incomeCredit.FinancialSegmentString = incomeAeAccount;
+                            //Validate? here and if invalid use the team default?                            
+                            // the invoice has a specified account, use it instead of the team's default
+                            incomeAeAccount = invoice.Account.FinancialSegmentString;
                         }
-                        else
-                        {
 
-                            var incomeAccountChart = team.DefaultAccount.Chart;
-                            var incomeAccount = team.DefaultAccount.Account;
-                            var incomeSubAccount = team.DefaultAccount.SubAccount;
-
-                            if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.Account) && invoice.Account.IsActive)
-                            {
-                                // the invoice has a specified account, use it instead of the team's default
-                                incomeAccountChart = invoice.Account.Chart;
-                                incomeAccount = invoice.Account.Account;
-                                incomeSubAccount = invoice.Account.SubAccount;
-                            }
-
-                            // populate transfers with KFS values
-                            debitHolding.Chart = _financeSettings.ClearingChart;
-                            debitHolding.Account = _financeSettings.ClearingAccount;
-                            debitHolding.ObjectCode = ObjectCodes.Income;
-
-                            feeCredit.Chart = _financeSettings.FeeChart;
-                            feeCredit.Account = _financeSettings.FeeAccount;
-                            feeCredit.ObjectCode = ObjectCodes.Income;
-
-                            incomeCredit.Chart = incomeAccountChart;
-                            incomeCredit.Account = incomeAccount;
-                            incomeCredit.SubAccount = incomeSubAccount;
-                            incomeCredit.ObjectCode = ObjectCodes.Income;
-                            //Guess we never did project code... No sense messing with it now.
-                        }
+                        // Populate transfers with financial segment strings
+                        debitHolding.FinancialSegmentString = _financeSettings.ClearingFinancialSegmentString;
+                        feeCredit.FinancialSegmentString = _financeSettings.FeeFinancialSegmentString;
+                        incomeCredit.FinancialSegmentString = incomeAeAccount;
+                        
 
 
 
@@ -248,6 +218,12 @@ namespace Payments.Core.Jobs
 
         public async Task FindIncomeTransactions(ILogger log)
         {
+            if (_financeSettings.DisableJob)
+            {
+                log.Information("Money Movement Job Disabled");
+                return;
+            }
+
             using (var ts = _dbContext.Database.BeginTransaction())
             {
                 try
@@ -338,6 +314,11 @@ namespace Payments.Core.Jobs
                         if (slothCheck != null && slothCheck.Status != "Cancelled")
                         {
                             log.Warning("Invoice {id} already has a sloth transaction with processor id {processorId}. Skipping creation.", invoice.Id, invoice.GetFormattedId());
+                            //It probably has an incorrect status. Lets fix it.
+                            invoice.Status = Invoice.StatusCodes.Processing;
+                            invoice.KfsTrackingNumber = slothCheck.KfsTrackingNumber;
+                            await _dbContext.SaveChangesAsync();
+
                             continue;
                         }
 
@@ -388,7 +369,8 @@ namespace Payments.Core.Jobs
                         }
 
                         // setup transaction
-                        var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
+                        var merchantUrl = $"{_paymentsApiSettings.BaseUrl}/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
+                        var payPageUrl = $"{_paymentsApiSettings.BaseUrl}/recharge/pay/{invoice.LinkId}";
                         var slothTransaction = new CreateTransaction()
                         {
                             AutoApprove = _financeSettings.RechargeAutoApprove,
@@ -406,10 +388,15 @@ namespace Payments.Core.Jobs
                         slothTransaction.AddMetadata("Team Name", invoice.Team.Name);
                         slothTransaction.AddMetadata("Team Slug", invoice.Team.Slug);
                         slothTransaction.AddMetadata("Invoice", invoice.GetFormattedId());
+                        slothTransaction.AddMetadata("Payment Link", payPageUrl);
                         foreach (var recharge in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
                         {
                             slothTransaction.AddMetadata(recharge.FinancialSegmentString, $"Entered By: {recharge.EnteredByName} ({recharge.EnteredByKerb})");
                             slothTransaction.AddMetadata(recharge.FinancialSegmentString, $"Approved By: {recharge.ApprovedByName} ({recharge.ApprovedByKerb})");
+                            if(!string.IsNullOrWhiteSpace( recharge.Notes))
+                            {
+                                slothTransaction.AddMetadata(recharge.FinancialSegmentString, $"Notes: {recharge.Notes}");
+                            }
                         }
 
                         try
@@ -446,6 +433,82 @@ namespace Payments.Core.Jobs
                     throw;
                 }
             }
+        }
+
+        public async Task ProcessRechargePendingTransactions(ILogger log)
+        {
+            if(_financeSettings.RechargeDisableJob)
+            {
+                log.Information("Recharge Money Movement Job Disabled");
+                return;
+            }
+
+            using (var ts = _dbContext.Database.BeginTransaction()) 
+            {
+                try
+                {
+                    var invoices = _dbContext.Invoices
+                        .Where(i => i.Status == Invoice.StatusCodes.Processing && i.Type == Invoice.InvoiceTypes.Recharge)
+                        .Include(i => i.Team)
+                        .Include(i => i.RechargeAccounts) //Might want this for notifications
+                        .ToList();
+
+                    foreach (var invoice in invoices)
+                    {
+                        if (string.IsNullOrWhiteSpace(invoice.KfsTrackingNumber))
+                        {
+                            log.Warning("Invoice {id} has no kfs tracking number.", invoice.Id);
+                            continue;
+                        }
+                        var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber, true); 
+                        //var slothTransaction = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true); //Could also use this way. They should both be the same info
+                        // look for transfers into the fees account that have completed
+                        var transaction = transactions?.FirstOrDefault(t =>
+                            string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase));
+                        if (transaction != null)
+                        {
+                            log.Information("Invoice {id} recharge distribution found with transaction: {transactionId}", invoice.Id, transaction.Id);
+                            // transaction found, bank reconcile was successful
+                            invoice.Status = Invoice.StatusCodes.Completed;
+                            //invoice.PaidAt = transaction.TransactionDate; //Going to keep this what it was to show when the user approved it.
+                            if (invoice.PaidAt == null)
+                            {
+                                invoice.PaidAt = transaction.TransactionDate;
+                            }
+                            invoice.Paid = true;
+
+                            // send notifications
+                            try
+                            {
+                                var notification = new ReconcileNotification()
+                                {
+                                    InvoiceId = invoice.Id,
+                                };
+                                await _notificationService.SendReconcileNotification(notification);
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error(ex, "Error while sending notification");
+                            }
+
+                        }
+
+                    }
+
+                    await _dbContext.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    //TODO: Review this
+                    log.Error(ex, ex.Message);
+                    ts.Rollback();
+                    throw;
+                }
+            }
+
+            //Update invoices, send any notifications?
+
+                //throw new NotImplementedException();
         }
     }
 }

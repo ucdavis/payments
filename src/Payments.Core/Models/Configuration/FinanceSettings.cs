@@ -11,9 +11,9 @@ namespace Payments.Core.Models.Configuration
         public string FeeChart { get; set; }
         public string FeeAccount { get; set; }
         
-        public bool UseCoa { get; set; } = false;
+        public bool UseCoa { get; set; } = true;
         //If UseCoa is turned on, ShowCoa should be as well.
-        public bool ShowCoa { get; set; } = false;
+        public bool ShowCoa { get; set; } = true;
 
         public string ClearingFinancialSegmentString { get; set; }
         public string FeeFinancialSegmentString { get; set; }

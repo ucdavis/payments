@@ -69,18 +69,48 @@ namespace Payments.Jobs.MoneyMovement
             }
 
             try
-            { 
-            
+            {
+                // log run
+                jobRecord = new MoneyMovementJobRecord()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = $"{MoneyMovementJob.JobName}-Recharge",
+                    RanOn = DateTime.UtcNow,
+                    Status = "Running",
+                };
+
+                _log = Log.Logger
+                    .ForContext("jobname", jobRecord.Name)
+                    .ForContext("jobid", jobRecord.Id);
+
+                //var assembyName = typeof(Program).Assembly.GetName();
+                _log.Information("Running {job} build {build}", assembyName.Name, assembyName.Version);
+                _log.Information("MoneyMovement Version 4");
+
+                // save log to db
+                dbContext.MoneyMovementJobRecords.Add(jobRecord);
+                dbContext.SaveChanges();
+
+                // create job service
+                var moneyMovementJob = provider.GetService<MoneyMovementJob>();
+
+                // call each step
+                moneyMovementJob.ProcessRechargeTransactions(_log).GetAwaiter().GetResult();
+
+                moneyMovementJob.ProcessRechargePendingTransactions(_log).GetAwaiter().GetResult();
+
+                jobRecord.Status = "Finished";
+
             }
             catch (Exception ex)
             {
-
-                _log.Error("Error sending notification", ex);
+                jobRecord.Status = "Error";
+                _log.Error("Error running money movement job (Recharge)", ex);
+                throw;
             }
             finally
             {
-                _log.Information("Job complete");
-                Log.CloseAndFlush();
+                dbContext.SaveChanges();
             }
         }
 
@@ -90,6 +120,7 @@ namespace Payments.Jobs.MoneyMovement
 
             // options files
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
+            services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
 
             // db service
