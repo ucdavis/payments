@@ -1,18 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
 using Payments.Core.Models.Configuration;
+using Payments.Core.Models.History;
 using Payments.Core.Models.Notifications;
 using Payments.Core.Models.Sloth;
 using Payments.Core.Resources;
 using Payments.Core.Services;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Payments.Core.Jobs
 {
@@ -303,6 +304,143 @@ namespace Payments.Core.Jobs
                 }
                 catch (Exception ex)
                 {
+                    log.Error(ex, ex.Message);
+                    ts.Rollback();
+                    throw;
+                }
+            }
+        }
+
+        public async Task ProcessRechargeTransactions(ILogger log)
+        {
+            if (_financeSettings.RechargeDisableJob)
+            {
+                log.Information("Recharge Money Movement Job Disabled");
+                return;
+            }
+            using (var ts = _dbContext.Database.BeginTransaction()) //Should this be for each invoice? If it fails we might get multiple uploads. (Can pass the link as the processor id as a catch...
+            {
+                try
+                {
+                    var invoices = _dbContext.Invoices
+                        .Where(i => i.Status == Invoice.StatusCodes.Approved && i.Type == Invoice.InvoiceTypes.Recharge)
+                        .Include(i => i.Team)
+                        .Include(i => i.RechargeAccounts)
+                        .ToList();
+                    log.Information("{count} invoices found expecting upload to sloth", invoices.Count);
+
+                    foreach (var invoice in invoices)
+                    {
+                        // Do we want to pre-validate the chart strings and move to rejected if invalid?
+
+
+                        var slothCheck = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true);
+                        if (slothCheck != null && slothCheck.Status != "Cancelled")
+                        {
+                            log.Warning("Invoice {id} already has a sloth transaction with processor id {processorId}. Skipping creation.", invoice.Id, invoice.GetFormattedId());
+                            continue;
+                        }
+
+                        var creditTransfers = new List<CreateTransfer>();
+                        var debitTransfers = new List<CreateTransfer>();
+
+                        foreach (var recharge in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                        {
+                            var creditTransfer = new CreateTransfer()
+                            {
+                                Amount = recharge.Amount,
+                                Direction = Transfer.CreditDebit.Credit,
+                                Description = $"Recharge Credit INV {invoice.GetFormattedId()}",
+                            };
+
+                            creditTransfer.FinancialSegmentString = recharge.FinancialSegmentString;
+
+                            creditTransfers.Add(creditTransfer);
+                        }
+
+                        foreach (var recharge in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+                        {
+                            var debitTransfer = new CreateTransfer()
+                            {
+                                Amount = recharge.Amount,
+                                Direction = Transfer.CreditDebit.Debit,
+                                Description = $"Recharge Debit INV {invoice.GetFormattedId()}",
+                            };
+                            debitTransfer.FinancialSegmentString = recharge.FinancialSegmentString;
+                            debitTransfers.Add(debitTransfer);
+                        }
+
+                        if (debitTransfers.Sum(t => t.Amount) != creditTransfers.Sum(t => t.Amount))
+                        {
+                            log.Error("Invoice {id} debit and credit amounts do not match. Debits: {debits} Credits: {credits}", invoice.Id, debitTransfers.Sum(t => t.Amount), creditTransfers.Sum(t => t.Amount));
+                            invoice.Status = Invoice.StatusCodes.Rejected;
+
+                            var actionEntry = new History()
+                            {
+                                Type = HistoryActionTypes.RechargeRejected.TypeCode,
+                                ActionDateTime = DateTime.UtcNow,
+                                Data = "Invoice debit and credit amounts do not match."
+                            };
+                            invoice.History.Add(actionEntry);
+
+                            await _dbContext.SaveChangesAsync();
+                            continue;
+                        }
+
+                        // setup transaction
+                        var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
+                        var slothTransaction = new CreateTransaction()
+                        {
+                            AutoApprove = _financeSettings.RechargeAutoApprove,
+                            ValidateFinancialSegmentStrings = _financeSettings.ValidateRechargeFinancialSegmentString,
+                            MerchantTrackingNumber = invoice.GetFormattedId(),
+                            MerchantTrackingUrl = merchantUrl,
+                            TransactionDate = DateTime.UtcNow,
+                            Description = $"Recharge INV {invoice.GetFormattedId()}",
+                            Source = _financeSettings.RechargeSlothSourceName,
+                            SourceType = "Recharge",
+                            KfsTrackingNumber = null, // Will be set when processed in sloth, we will get it from the response
+                            Transfers = debitTransfers.Concat(creditTransfers).ToList(),
+                            ProcessorTrackingNumber = invoice.GetFormattedId(),
+                        };
+                        slothTransaction.AddMetadata("Team Name", invoice.Team.Name);
+                        slothTransaction.AddMetadata("Team Slug", invoice.Team.Slug);
+                        slothTransaction.AddMetadata("Invoice", invoice.GetFormattedId());
+                        foreach (var recharge in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+                        {
+                            slothTransaction.AddMetadata(recharge.FinancialSegmentString, $"Entered By: {recharge.EnteredByName} ({recharge.EnteredByKerb})");
+                            slothTransaction.AddMetadata(recharge.FinancialSegmentString, $"Approved By: {recharge.ApprovedByName} ({recharge.ApprovedByKerb})");
+                        }
+
+                        try
+                        {
+                            // create transaction (But before we do this, lets try to get it by processor id to avoid duplicates)
+                            var response = await _slothService.CreateTransaction(slothTransaction, true);
+
+                            if (response == null || response.Id == null)
+                            {
+                                log.Error("Invoice {id} sloth transaction creation failed.", invoice.Id);
+                                continue;
+                            }
+                            invoice.Status = Invoice.StatusCodes.Processing;
+                            invoice.KfsTrackingNumber = response.KfsTrackingNumber;
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(ex, "Error creating sloth transaction for invoice {id}", invoice.Id);
+                            continue;
+                        }
+
+
+                    }
+
+                    log.Information("Finishing Job");
+                    await _dbContext.SaveChangesAsync();
+                    ts.Commit();
+                }
+                catch (Exception ex)
+                {
+                    //TODO: Review this
                     log.Error(ex, ex.Message);
                     ts.Rollback();
                     throw;

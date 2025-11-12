@@ -24,6 +24,10 @@ namespace Payments.Core.Models.Configuration
         public bool AutoApprove { get; set; } = true;
 
         public bool RechargeAutoApprove { get; set; } = true;
-        public bool RechargeDisableJob { get; set; } = false; //Probably don't want this one?
+        public bool RechargeDisableJob { get; set; } = false;
+
+        public string RechargeSlothSourceName { get; set; } = "PaymentsRecharge";
+
+        public bool ValidateRechargeFinancialSegmentString { get; set; } = false; //Maybe we want this to default to true?
     }
 }

@@ -101,5 +101,7 @@ namespace Payments.Core.Services
     public class CreateSlothTransactionResponse
     {
         public string Id { get; set; }
+
+        public string KfsTrackingNumber { get; set; } // Assigned by Sloth for recharges
     }
 }

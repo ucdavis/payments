@@ -67,6 +67,21 @@ namespace Payments.Jobs.MoneyMovement
             {               
                 dbContext.SaveChanges();
             }
+
+            try
+            { 
+            
+            }
+            catch (Exception ex)
+            {
+
+                _log.Error("Error sending notification", ex);
+            }
+            finally
+            {
+                _log.Information("Job complete");
+                Log.CloseAndFlush();
+            }
         }
 
         private static ServiceProvider ConfigureServices()
