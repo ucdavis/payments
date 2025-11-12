@@ -22,5 +22,8 @@ namespace Payments.Core.Models.Configuration
 
         public bool DisableJob { get; set; } = false;
         public bool AutoApprove { get; set; } = true;
+
+        public bool RechargeAutoApprove { get; set; } = true;
+        public bool RechargeDisableJob { get; set; } = false; //Probably don't want this one?
     }
 }

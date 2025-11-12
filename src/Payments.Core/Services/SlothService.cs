@@ -12,11 +12,11 @@ namespace Payments.Core.Services
 {
     public interface ISlothService
     {
-        Task<Transaction> GetTransactionsByProcessorId(string id);
+        Task<Transaction> GetTransactionsByProcessorId(string id, bool forRecharge = false);
 
-        Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey);
+        Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey, bool forRecharge = false);
 
-        Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction);
+        Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction, bool forRecharge = false);
     }
 
     public class SlothService : ISlothService
@@ -30,9 +30,9 @@ namespace Payments.Core.Services
             _financeSettings = financeSettings.Value;
         }
 
-        public async Task<Transaction> GetTransactionsByProcessorId(string id)
+        public async Task<Transaction> GetTransactionsByProcessorId(string id, bool forRecharge = false)
         {
-            using (var client = GetHttpClient())
+            using (var client = GetHttpClient(forRecharge))
             {
                 var escapedId = Uri.EscapeDataString(id);
                 var url = $"transactions/processor/{escapedId}";
@@ -43,9 +43,9 @@ namespace Payments.Core.Services
             }
         }
 
-        public async Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey)
+        public async Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey, bool forRecharge = false)
         {
-            using (var client = GetHttpClient())
+            using (var client = GetHttpClient(forRecharge))
             {
                 var escapedKey = Uri.EscapeDataString(kfskey);
                 var url = $"transactions/kfskey/{escapedKey}";
@@ -56,9 +56,9 @@ namespace Payments.Core.Services
             }
         }
 
-        public async Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction)
+        public async Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction, bool forRecharge = false)
         {
-            using (var client = GetHttpClient())
+            using (var client = GetHttpClient(forRecharge))
             {
                 var url = "transactions";
 
@@ -68,7 +68,7 @@ namespace Payments.Core.Services
             }
         }
 
-        private HttpClient GetHttpClient()
+        private HttpClient GetHttpClient(bool forRecharge)
         {
             if (_settings.BaseUrl.EndsWith("v1/", StringComparison.OrdinalIgnoreCase) ||
                 _settings.BaseUrl.EndsWith("v2/", StringComparison.OrdinalIgnoreCase))
@@ -85,7 +85,14 @@ namespace Payments.Core.Services
             {
                 client.BaseAddress = new Uri($"{_settings.BaseUrl}v2/");
             }
-            client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.ApiKey);
+            if (forRecharge)
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.RechargeApiKey); //This is where the magic happens
+            }
+            else
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.ApiKey);
+            }
 
             return client;
         }
