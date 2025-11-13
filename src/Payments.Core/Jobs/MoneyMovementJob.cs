@@ -294,6 +294,8 @@ namespace Payments.Core.Jobs
                 log.Information("Recharge Money Movement Job Disabled");
                 return;
             }
+
+            log.Information("Starting ProcessRechargeTransactions Job");
             using (var ts = _dbContext.Database.BeginTransaction()) //Should this be for each invoice? If it fails we might get multiple uploads. (Can pass the link as the processor id as a catch...
             {
                 try
@@ -411,6 +413,7 @@ namespace Payments.Core.Jobs
                             }
                             invoice.Status = Invoice.StatusCodes.Processing;
                             invoice.KfsTrackingNumber = response.KfsTrackingNumber;
+                            await _dbContext.SaveChangesAsync();
                         }
                         catch (Exception ex)
                         {
@@ -421,7 +424,7 @@ namespace Payments.Core.Jobs
 
                     }
 
-                    log.Information("Finishing Job");
+                    log.Information("Finishing ProcessRechargeTransactions Job");
                     await _dbContext.SaveChangesAsync();
                     ts.Commit();
                 }
@@ -442,6 +445,7 @@ namespace Payments.Core.Jobs
                 log.Information("Recharge Money Movement Job Disabled");
                 return;
             }
+            log.Information("Starting ProcessRechargePendingTransactions Job");
 
             using (var ts = _dbContext.Database.BeginTransaction()) 
             {
@@ -490,12 +494,34 @@ namespace Payments.Core.Jobs
                             {
                                 log.Error(ex, "Error while sending notification");
                             }
+                            //await _dbContext.SaveChangesAsync();
 
+                        }
+                        else
+                        {
+                            transaction = transactions?.FirstOrDefault(t =>
+                            string.Equals(t.Status, "Cancelled", StringComparison.OrdinalIgnoreCase));
+                            if (transaction != null)
+                            {
+                                log.Information("Invoice {id} recharge distribution cancelled with transaction: {transactionId}", invoice.Id, transaction.Id);
+                            }
+                            invoice.Status = Invoice.StatusCodes.Rejected;
+                            var actionEntry = new History()
+                            {
+                                Type = HistoryActionTypes.RechargeRejected.TypeCode,
+                                ActionDateTime = DateTime.UtcNow,
+                                Data = "Recharge transaction was cancelled in Sloth."
+                            };
+                            invoice.History.Add(actionEntry);
+                            //await _dbContext.SaveChangesAsync();
                         }
 
                     }
 
                     await _dbContext.SaveChangesAsync();
+
+                    ts.Commit();
+                    log.Information("Finishing ProcessRechargePendingTransactions Job");
                 }
                 catch (Exception ex)
                 {
