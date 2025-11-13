@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
-using Payments.Core.Extensions;
+using Payments.Core.Helpers;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Notifications;
@@ -414,6 +414,27 @@ namespace Payments.Core.Jobs
                             invoice.Status = Invoice.StatusCodes.Processing;
                             invoice.KfsTrackingNumber = response.KfsTrackingNumber;
                             await _dbContext.SaveChangesAsync();
+                        }
+                        catch (HttpServiceInternalException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                        {
+                            log.Error(ex, "Bad request creating sloth transaction for invoice {id}. Message: {message}, Content: {content}",
+                                invoice.Id, ex.Message, ex.Content);
+                            invoice.Status = Invoice.StatusCodes.Rejected;
+                            var actionEntry = new History()
+                            {
+                                Type = HistoryActionTypes.RechargeRejected.TypeCode,
+                                ActionDateTime = DateTime.UtcNow,
+                                Data = $"Recharge transaction rejected by Sloth: {ex.Content}"
+                            };
+                            invoice.History.Add(actionEntry);
+                            continue;
+                        }
+                        catch (HttpServiceInternalException ex)
+                        {
+                            log.Error(ex, "Error creating sloth transaction for invoice {id}. Status: {statusCode}, Content: {content}",
+                                invoice.Id, ex.StatusCode, ex.Content);
+                            //Leave it in approved to try again later
+                            continue;
                         }
                         catch (Exception ex)
                         {
