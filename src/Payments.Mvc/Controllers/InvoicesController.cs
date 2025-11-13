@@ -488,6 +488,7 @@ namespace Payments.Mvc.Controllers
         {
             // find item
             var invoice = await _dbContext.Invoices
+                .Include(a => a.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -496,7 +497,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            if (invoice.Status != Invoice.StatusCodes.Sent)
+            if (invoice.Status != Invoice.StatusCodes.Sent && invoice.Status != Invoice.StatusCodes.Rejected)
             {
                 return NotFound();
             }
@@ -505,6 +506,16 @@ namespace Payments.Mvc.Controllers
             invoice.Sent = false;
             invoice.SentAt = null;
             invoice.LinkId = null;
+
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                invoice.PaidAt = null;
+                foreach (var acct in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+                {                
+                    acct.ApprovedByKerb = null;
+                    acct.ApprovedByName = null;
+                }
+            }
 
             // record action
             var user = await _userManager.GetUserAsync(User);

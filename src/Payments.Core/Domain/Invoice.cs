@@ -305,6 +305,7 @@ namespace Payments.Core.Domain
                     Draft,
                     Sent,
                     PendingApproval,
+                    Approved,
                     Rejected,
                     Paid,
                     Processing,
@@ -329,6 +330,7 @@ namespace Payments.Core.Domain
                         return "text-bg-info";
 
                     case Completed:
+                    case Approved:
                     case Paid:
                         return "text-bg-success";
 
