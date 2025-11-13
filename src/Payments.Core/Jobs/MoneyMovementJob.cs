@@ -505,10 +505,6 @@ namespace Payments.Core.Jobs
                     throw;
                 }
             }
-
-            //Update invoices, send any notifications?
-
-                //throw new NotImplementedException();
         }
     }
 }

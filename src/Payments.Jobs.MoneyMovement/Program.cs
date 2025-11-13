@@ -120,7 +120,7 @@ namespace Payments.Jobs.MoneyMovement
 
             // options files
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
-            services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi"));
+            services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi")); //Using this for the base url
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
 
             // db service
