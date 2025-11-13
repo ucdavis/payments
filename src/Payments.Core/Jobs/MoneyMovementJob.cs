@@ -485,11 +485,18 @@ namespace Payments.Core.Jobs
                             log.Warning("Invoice {id} has no kfs tracking number.", invoice.Id);
                             continue;
                         }
-                        var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber, true); 
+
+                        //There really should only be one, so we have to deal with that. Maybe if there was a reversal?
+                        var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber, true); //This can return multiples because we are re-using the KFS number.
+
                         //var slothTransaction = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true); //Could also use this way. They should both be the same info
                         // look for transfers into the fees account that have completed
                         var transaction = transactions?.FirstOrDefault(t =>
                             string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase));
+
+                        
+
+                        fix this._notificationService it can have other status codes too.
                         if (transaction != null)
                         {
                             log.Information("Invoice {id} recharge distribution found with transaction: {transactionId}", invoice.Id, transaction.Id);
