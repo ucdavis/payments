@@ -62,13 +62,15 @@ namespace Payments.Core.Jobs
 
                     foreach (var invoice in invoices)
                     {
-                        //Eventually, this call may be changed to return a list of transactions
-                        var transaction = await _slothService.GetTransactionsByProcessorId(invoice.PaymentProcessorId);
+                        //this has been changed to return a list of transactions
+                        var transactions = await _slothService.GetTransactionsByProcessorId(invoice.PaymentProcessorId);
+                        var transaction = transactions?.FirstOrDefault(t => string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase));
                         if (transaction == null)
                         {
                             log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
                             continue;
                         }
+                        //This if can't happen anymore, but we don't really care.
                         if (transaction.Status != "Completed")
                         {
                             log.Warning("No completed reconciliation found for invoice id: {id} Paid Date: {PaidAt} Status: {status}", invoice.Id, invoice.PaidAt, transaction.Status);
@@ -309,11 +311,10 @@ namespace Payments.Core.Jobs
 
                     foreach (var invoice in invoices)
                     {
-                        // Do we want to pre-validate the chart strings and move to rejected if invalid?
 
-
-                        var slothCheck = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true);
-                        if (slothCheck != null && slothCheck.Status != "Cancelled")
+                        var slothChecks = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true);
+                        var slothCheck = slothChecks?.Where(a => a.Status != "Cancelled").FirstOrDefault(); //PendingApproval, Scheduled, Processing, Rejected, Completed 
+                        if (slothCheck != null)
                         {
                             log.Warning("Invoice {id} already has a sloth transaction with processor id {processorId}. Skipping creation.", invoice.Id, invoice.GetFormattedId());
                             //It probably has an incorrect status. Lets fix it.
@@ -486,17 +487,14 @@ namespace Payments.Core.Jobs
                             continue;
                         }
 
-                        //There really should only be one, so we have to deal with that. Maybe if there was a reversal?
-                        var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber, true); //This can return multiples because we are re-using the KFS number.
+                        //Should only be one, but just in case...
+                        var transactions = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true); //This can return multiples because we are re-using the KFS number.
 
                         //var slothTransaction = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true); //Could also use this way. They should both be the same info
                         // look for transfers into the fees account that have completed
                         var transaction = transactions?.FirstOrDefault(t =>
-                            string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase));
+                            string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase));                        
 
-                        
-
-                        fix this._notificationService it can have other status codes too.
                         if (transaction != null)
                         {
                             log.Information("Invoice {id} recharge distribution found with transaction: {transactionId}", invoice.Id, transaction.Id);
@@ -527,22 +525,23 @@ namespace Payments.Core.Jobs
                         }
                         else
                         {
-                            transaction = transactions?.FirstOrDefault(t =>
-                            string.Equals(t.Status, "Cancelled", StringComparison.OrdinalIgnoreCase));
+                            transaction = transactions?.FirstOrDefault(t => string.Equals(t.Status, "Cancelled", StringComparison.OrdinalIgnoreCase));
                             if (transaction != null)
                             {
                                 log.Information("Invoice {id} recharge distribution cancelled with transaction: {transactionId}", invoice.Id, transaction.Id);
+                            
+                                invoice.Status = Invoice.StatusCodes.Rejected;
+                                var actionEntry = new History()
+                                {
+                                    Type = HistoryActionTypes.RechargeRejected.TypeCode,
+                                    ActionDateTime = DateTime.UtcNow,
+                                    Data = "Recharge transaction was cancelled in Sloth."
+                                };
+                                invoice.History.Add(actionEntry);
                             }
-                            invoice.Status = Invoice.StatusCodes.Rejected;
-                            var actionEntry = new History()
-                            {
-                                Type = HistoryActionTypes.RechargeRejected.TypeCode,
-                                ActionDateTime = DateTime.UtcNow,
-                                Data = "Recharge transaction was cancelled in Sloth."
-                            };
-                            invoice.History.Add(actionEntry);
                             //await _dbContext.SaveChangesAsync();
                         }
+                        //The other actionable status could be Rejected, but because that means it could be manually edited in sloth, we don't want to do anything unless it is cancelled.
 
                     }
 

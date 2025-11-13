@@ -12,7 +12,9 @@ namespace Payments.Core.Services
 {
     public interface ISlothService
     {
-        Task<Transaction> GetTransactionsByProcessorId(string id, bool forRecharge = false);
+        Task<Transaction> GetTransactionByProcessorId(string id, bool forRecharge = false);
+
+        Task<IList<Transaction>> GetTransactionsByProcessorId(string id, bool forRecharge = false);
 
         Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey, bool forRecharge = false);
 
@@ -30,7 +32,8 @@ namespace Payments.Core.Services
             _financeSettings = financeSettings.Value;
         }
 
-        public async Task<Transaction> GetTransactionsByProcessorId(string id, bool forRecharge = false)
+        [Obsolete("Use GetTransactionsByProcessorId instead")] //This just a first or default in sloth, not ideal.
+        public async Task<Transaction> GetTransactionByProcessorId(string id, bool forRecharge = false)
         {
             using (var client = GetHttpClient(forRecharge))
             {
@@ -39,6 +42,19 @@ namespace Payments.Core.Services
 
                 var response = await client.GetAsync(url);
                 var result = await response.GetContentOrNullAsync<Transaction>();
+                return result;
+            }
+        }
+
+        public async Task<IList<Transaction>> GetTransactionsByProcessorId(string id, bool forRecharge = false)
+        {
+            using (var client = GetHttpClient(forRecharge))
+            {
+                var escapedId = Uri.EscapeDataString(id);
+                var url = $"transactions/processortrackingnumber/{escapedId}";
+
+                var response = await client.GetAsync(url);
+                var result = await response.GetContentOrNullAsync<IList<Transaction>>();
                 return result;
             }
         }
