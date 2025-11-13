@@ -377,13 +377,13 @@ namespace Payments.Core.Jobs
                         {
                             AutoApprove = _financeSettings.RechargeAutoApprove,
                             ValidateFinancialSegmentStrings = _financeSettings.ValidateRechargeFinancialSegmentString,
-                            MerchantTrackingNumber = invoice.GetFormattedId(),
+                            MerchantTrackingNumber = invoice.Id.ToString(), //use the id here so these get tied together in sloth
                             MerchantTrackingUrl = merchantUrl,
                             TransactionDate = DateTime.UtcNow,
                             Description = $"Recharge INV {invoice.GetFormattedId()}",
                             Source = _financeSettings.RechargeSlothSourceName,
                             SourceType = "Recharge",
-                            KfsTrackingNumber = null, // Will be set when processed in sloth, we will get it from the response
+                            KfsTrackingNumber = !string.IsNullOrWhiteSpace(invoice.KfsTrackingNumber) ? invoice.KfsTrackingNumber : null, // Will be set when processed in sloth, we will get it from the response
                             Transfers = debitTransfers.Concat(creditTransfers).ToList(),
                             ProcessorTrackingNumber = invoice.GetFormattedId(),
                         };
