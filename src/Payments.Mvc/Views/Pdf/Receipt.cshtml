@@ -10,6 +10,7 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -82,17 +83,35 @@
     </style>
 
 </head>
+
 <body>
-    <div id="headerContainer" class="row align-items-start">
-        <div id="logoContainer" class="col">
-            @Html.InlineSvg("/wwwroot/media/logo.svg")
+    @if (Model.Type == Invoice.InvoiceTypes.Recharge)
+    {
+        <div id="headerContainer">
+            <div id="logoContainer">
+                @Html.InlineSvg("/wwwroot/media/logo.svg")
+            </div>
         </div>
-        <div class="col">
-            <h1 id="invoiceNumber" class="font-weight-bold text-blue text-end">
-                Invoice #@Model.GetFormattedId()
+        <div>
+            <h1 id="invoiceNumber" class="font-weight-bold text-blue">
+                Recharge Invoice #@Model.GetFormattedId()
             </h1>
         </div>
-    </div>
+    }
+    else
+    {
+        <div id="headerContainer" class="row align-items-start">
+            <div id="logoContainer" class="col">
+                @Html.InlineSvg("/wwwroot/media/logo.svg")
+            </div>
+
+            <div class="col">
+                <h1 id="invoiceNumber" class="font-weight-bold text-blue text-end">
+                    Invoice #@Model.GetFormattedId()
+                </h1>
+            </div>
+        </div>
+    }
 
     <div id="invoiceInfo" class="row justify-content-between">
         <div class="col">
@@ -121,27 +140,33 @@
             {
                 <div class="row">
                     <span class="col text-label">Card</span>
-                    <span class="col text-end font-weight-bold text-blue">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
-                </div>
+                    <span
+                        class="col text-end font-weight-bold text-blue">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber,
+                                            successfulPayment.CardType)</span>
+            </div>
             }
         </div>
     </div>
 
     <div id="invoiceInfo" class="row">
         <div class="col">
-            <span class="text-label">Paid by</span><br/>
+            <span class="text-label">Paid by</span><br />
             <span class="address">
                 @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
                 {
-                    @Model.CustomerName<br/>
+                    @Model.CustomerName
+
+                    <br />
                 }
 
                 @if (!string.IsNullOrWhiteSpace(Model.CustomerCompany))
                 {
-                    @Model.CustomerCompany<br/>
+                    @Model.CustomerCompany
+
+                    <br />
                 }
 
-                @Model.CustomerEmail<br/>
+                @Model.CustomerEmail<br />
 
                 @if (!string.IsNullOrWhiteSpace(Model.CustomerAddress))
                 {
@@ -151,75 +176,115 @@
         </div>
     </div>
 
-@if (!string.IsNullOrWhiteSpace(Model.Memo))
-{
-    <div id="memoContainer">
-        <span class="text-label">Memo</span>
-        <div class="memo">
-            <p>@Model.Memo</p>
+    @if (!string.IsNullOrWhiteSpace(Model.Memo))
+    {
+        <div id="memoContainer">
+            <span class="text-label">Memo</span>
+            <div class="memo">
+                <p>@Model.Memo</p>
+            </div>
         </div>
-    </div>
-}
-
-<table id="itemsTable" class="table">
-    <thead>
-    <tr>
-        <th class="">#</th>
-        <th class="">Description</th>
-        <th class="text-end">Qty</th>
-        <th class="text-end">Unit Price</th>
-        <th class="text-end">Amount</th>
-    </tr>
-    </thead>
-    <tbody>
-    @for (var i = 0; i < Model.Items.Count; i++)
-    {
-        var item = Model.Items[i];
-        <tr class="item">
-            <td>@(i + 1)</td>
-            <td>@item.Description</td>
-            <td class="text-end">@item.Quantity</td>
-            <td class="text-end">$@item.Amount.ToString("F2")</td>
-            <td class="text-end">$@item.Total.ToString("F2")</td>
-        </tr>
-    }
-    </tbody>
-    <tbody class="subtotal-body">
-    @if (Model.CalculatedDiscount > 0)
-    {
-        <tr class="summary">
-            <td colspan="3"></td>
-            <td class="text-end text-label">Subtotal</td>
-            <td class="text-end">$@Model.CalculatedSubtotal.ToString("F2")</td>
-        </tr>
-        <tr class="summary">
-            <td colspan="3"></td>
-            <td class="text-end text-label">Discount (@Model.Coupon.Name)</td>
-            <td class="text-end">-$@Model.CalculatedDiscount.ToString("F2")</td>
-        </tr>
     }
 
-    @if (Model.CalculatedTaxAmount > 0)
-    {
-        var rateText = Model.CalculatedTaxableAmount == Model.CalculatedSubtotal
-            ? Model.TaxPercent.ToString("P3")
-            : $"{Model.TaxPercent:P3} on {Model.CalculatedTaxableAmount:C2}";
+    <table id="itemsTable" class="table">
+        <thead>
+            <tr>
+                <th class="">#</th>
+                <th class="">Description</th>
+                <th class="text-end">Qty</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-end">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Items.Count; i++)
+            {
+                var item = Model.Items[i];
+                <tr class="item">
+                    <td>@(i + 1)</td>
+                    <td>@item.Description</td>
+                    <td class="text-end">@item.Quantity</td>
+                    <td class="text-end">$@item.Amount.ToString("F2")</td>
+                    <td class="text-end">$@item.Total.ToString("F2")</td>
+                </tr>
+            }
+        </tbody>
+        <tbody class="subtotal-body">
+            @if (Model.CalculatedDiscount > 0)
+            {
+                <tr class="summary">
+                    <td colspan="3"></td>
+                    <td class="text-end text-label">Subtotal</td>
+                    <td class="text-end">$@Model.CalculatedSubtotal.ToString("F2")</td>
+                </tr>
+                <tr class="summary">
+                    <td colspan="3"></td>
+                    <td class="text-end text-label">Discount (@Model.Coupon.Name)</td>
+                    <td class="text-end">-$@Model.CalculatedDiscount.ToString("F2")</td>
+                </tr>
+            }
 
-        <tr class="summary">
-            <td colspan="3"></td>
-            <td class="text-end text-label">Tax (@rateText)</td>
-            <td class="text-end">$@Model.CalculatedTaxAmount.ToString("F2")</td>
-        </tr>
+            @if (Model.CalculatedTaxAmount > 0)
+            {
+                var rateText = Model.CalculatedTaxableAmount == Model.CalculatedSubtotal
+                ? Model.TaxPercent.ToString("P3")
+                : $"{Model.TaxPercent:P3} on {Model.CalculatedTaxableAmount:C2}";
+
+                <tr class="summary">
+                    <td colspan="3"></td>
+                    <td class="text-end text-label">Tax (@rateText)</td>
+                    <td class="text-end">$@Model.CalculatedTaxAmount.ToString("F2")</td>
+                </tr>
+            }
+        </tbody>
+        <tbody>
+            <tr class="total">
+                <td class="border-0" colspan="3"></td>
+                <td class="text-end text-label border-top">Amount Paid</td>
+                <td class="text-end text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    @if (Model.Type == Invoice.InvoiceTypes.Recharge)
+    {
+        var debitAccounts = Model.RechargeAccounts?.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).ToList();
+
+        @if (debitAccounts != null && debitAccounts.Any())
+        {
+            <div id="rechargeAccountsContainer">
+                <div class="text-label">Recharge Account Distribution</div>
+                <table id="itemsTable" class="table">
+                    <thead>
+                        <tr>
+                            <th class="">Chart String</th>
+                            <th class="">Approved By</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < debitAccounts.Count; i++)
+                        {
+                            var account = debitAccounts[i];
+                            <tr class="item">
+                                <td>
+                                    @account.FinancialSegmentString
+                                    @if (!string.IsNullOrWhiteSpace(account.Notes))
+                                    {
+                                        <br />
+                                        <small class="text-muted">@account.Notes</small>
+                                    }
+                                </td>
+                                <td>@(string.IsNullOrWhiteSpace(account.ApprovedByName) ? "-" : account.ApprovedByName)</td>
+                                <td class="text-end">$@account.Amount.ToString("F2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     }
-    </tbody>
-    <tbody>
-    <tr class="total">
-        <td class="border-0" colspan="3"></td>
-        <td class="text-end text-label border-top">Amount Paid</td>
-        <td class="text-end text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
-    </tr>
-    </tbody>
-</table>
 
 </body>
+
 </html>
