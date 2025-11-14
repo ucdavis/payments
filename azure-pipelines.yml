@@ -75,7 +75,7 @@ stages:
               command: "publish"
               publishWebProjects: false
               zipAfterPublish: false
-              projects: "./Payments.Jobs.AutoApprove/Payments.Jobs.AutoApprove.csproj"
+              projects: "./src/Payments.Jobs.AutoApprove/Payments.Jobs.AutoApprove.csproj"
               arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered"
 
           - task: PublishBuildArtifacts@1
