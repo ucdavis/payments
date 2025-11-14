@@ -41,9 +41,12 @@ namespace Payments.Emails
 
         private readonly MailAddress _refundAddress;
 
-        public SparkpostEmailService(IOptions<SparkpostSettings> sparkpostSettings, IMjmlServices mjmlServices)
+        private readonly FinanceSettings _financeSettings;
+
+        public SparkpostEmailService(IOptions<SparkpostSettings> sparkpostSettings, IMjmlServices mjmlServices, IOptions<FinanceSettings> financeSettings)
         {
             _mjmlServices = mjmlServices;
+            _financeSettings = financeSettings.Value;
 
             _sparkpostSettings = sparkpostSettings.Value;
 
@@ -205,6 +208,7 @@ namespace Payments.Emails
         {
             var viewbag = GetViewData();
             viewbag["Team"] = invoice.Team;
+            viewbag["DaysToAutoApprove"] = _financeSettings.RechargeAutoApproveDays;
 
             var model = new InvoiceViewModel
             {

@@ -5,6 +5,7 @@
 @{
     Layout = "_EmailLayout";
     var team = (Team) ViewData["Team"];
+    var daysToAutoApprove = ViewData["DaysToAutoApprove"] ?? 7;
 
     var invoice = Model.Invoice;
     var extraText = "Recharge Invoice # " + invoice.GetFormattedId();
@@ -17,7 +18,7 @@
     <h1>Invoice from @team.Name</h1>
     <h3>@extraText</h3>
     <div>You are one or more Financial Approvers needed to Approve or Deny the recharge for this invoice.</div>
-    <div>This will be auto approved in 7 days if no action is taken.</div>
+    <div>This will be auto approved in @daysToAutoApprove days if no action is taken.</div>
 </mj-text>
 
 @if(!string.IsNullOrWhiteSpace( invoice.Memo))
