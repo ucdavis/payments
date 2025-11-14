@@ -18,7 +18,7 @@ namespace Payments.Jobs.MoneyMovement
     {
         private static ILogger _log;
 
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             // setup env
             Configure();
@@ -50,10 +50,10 @@ namespace Payments.Jobs.MoneyMovement
                 var daysToAutoApprove = financeSettings.RechargeAutoApproveDays;
                 var dateThreshold = DateTime.UtcNow.AddDays(-daysToAutoApprove);
 
-                var invoices = await dbContext.Invoices
+                var invoices =  dbContext.Invoices
                     .Include(i => i.RechargeAccounts)
                     .Where(a => a.Type == Invoice.InvoiceTypes.Recharge && a.Status == Invoice.StatusCodes.PendingApproval &&
-                        a.PaidAt != null && a.PaidAt <= dateThreshold).ToListAsync();
+                        a.PaidAt != null && a.PaidAt <= dateThreshold).ToList();
                 _log.Information("Found {count} invoices to auto-approve", invoices.Count);
                 foreach (var invoice in invoices)
                 {
@@ -78,7 +78,7 @@ namespace Payments.Jobs.MoneyMovement
                     dbContext.Invoices.Update(invoice);
                     _log.Information("Auto-approved invoice {invoiceId}", invoice.Id);
 
-                   await dbContext.SaveChangesAsync();
+                    dbContext.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -89,7 +89,7 @@ namespace Payments.Jobs.MoneyMovement
             }
             finally
             {
-                await dbContext.SaveChangesAsync();
+                 dbContext.SaveChangesAsync();
             }
 
         }
