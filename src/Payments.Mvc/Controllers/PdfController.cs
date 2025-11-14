@@ -110,6 +110,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.Team)
+                .Include(i => i.RechargeAccounts)
                 .Include(i => i.PaymentEvents)
                 .FirstOrDefaultAsync(i => i.LinkId == id);
 
@@ -130,8 +131,10 @@ namespace Payments.Mvc.Controllers
             var file = await _storageService.DownloadFile(identifier, StorageSettings.ReceiptPdfContainerName);
             if (await file.ExistsAsync())
             {
+#if !DEBUG
                 var stream = await file.OpenReadAsync();
                 return new FileStreamResult(stream, file.Properties.ContentType);
+#endif
             }
 
             var footer = await _jsReportMvcService.RenderViewToStringAsync(HttpContext, RouteData, "ReceiptFooter", invoice);

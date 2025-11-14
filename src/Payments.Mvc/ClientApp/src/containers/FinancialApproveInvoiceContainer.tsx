@@ -446,7 +446,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
             <br />
             {invoice.paid ? (
               <a
-                href={`/pdf/receipt/${invoice.linkId}`}
+                href={`/receipt/${invoice.linkId}`}
                 className='btn-inverse'
                 download
               >
