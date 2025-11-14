@@ -87,10 +87,8 @@ namespace Payments.Jobs.MoneyMovement
                 _log.Error("Error running AutoApprove job", ex);
                 throw;
             }
-            finally
-            {
-                 dbContext.SaveChangesAsync();
-            }
+
+            _log.Information("AutoApprove job completed");
 
         }
 
