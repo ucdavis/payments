@@ -78,7 +78,7 @@ namespace Payments.Jobs.MoneyMovement
                     dbContext.Invoices.Update(invoice);
                     _log.Information("Auto-approved invoice {invoiceId}", invoice.Id);
 
-                    dbContext.SaveChangesAsync();
+                    dbContext.SaveChanges();
                 }
             }
             catch (Exception ex)
