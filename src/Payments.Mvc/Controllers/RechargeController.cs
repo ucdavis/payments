@@ -80,13 +80,6 @@ namespace Payments.Mvc.Controllers
 
             var model = CreateRechargeInvoiceViewModel(invoice);
 
-            //var model = CreateRechargePaymentViewModel(invoice);
-
-            if (invoice.Status != Invoice.StatusCodes.Sent)
-            {
-                //This is valid status to pay, but I think we want to allow the other statuses through so it can be viewed, but not edited.
-            }
-
             ViewBag.Id = id;
 
             return View(model);
@@ -151,10 +144,6 @@ namespace Payments.Mvc.Controllers
 
             var model = CreateRechargeInvoiceViewModel(invoice);
 
-            if (invoice.Status == Invoice.StatusCodes.Sent)
-            {
-                //This is valid status to pay, but I think we want to allow the other statuses through so it can be viewed, but not edited.
-            }
 
             ViewBag.Id = id;
 
@@ -345,12 +334,10 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync(); //Maybe wait for all changes?
 
-
-
-            //Need to notify the approvers. This will require a new email template.
+            //TODO: The logic below will have to be duplicated if we allow this step to be skipped from the invoice details page.
 
             invoice.PaidAt = DateTime.UtcNow;
-            //TODO: Also set the paid flag? Or.... probably better, wait for the financial approve step. Then I can use the PaidAt to determine auto pay, and the Paid flag for the PaymentController download (receipt) 
+            //Answered: Also set the paid flag? - NO. Or.... probably better, wait for the financial approve step. Then I can use the PaidAt to determine auto pay, and the Paid flag for the PaymentController download (receipt) 
 
             invoice.Status = Invoice.StatusCodes.PendingApproval;
 
@@ -367,7 +354,7 @@ namespace Payments.Mvc.Controllers
             await _invoiceService.SendFinancialApproverEmail(invoice, new SendApprovalModel()
             {
                 emails = emails.ToArray(),
-                bccEmails = "" //TODO: Add any BCC emails if needed. Note customer is CC'd by default in the service.
+                bccEmails = "" // Add any BCC emails if needed. Note customer is CC'd by default in the service.
             });
 
             var notificationAction = new History()
@@ -387,7 +374,6 @@ namespace Payments.Mvc.Controllers
 
             invoice.History.Add(notificationAction);
 
-            //_dbContext.Invoices.Update(invoice);
             await _dbContext.SaveChangesAsync();
 
 
@@ -405,7 +391,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Attachments)
                 .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
                 .FirstOrDefaultAsync(i => i.LinkId == id);
-            //I think his is ok.
+            //I think this is ok.
             if (invoice == null)
             {
                 return PublicNotFound();
@@ -413,6 +399,7 @@ namespace Payments.Mvc.Controllers
 
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled || invoice.Status == Invoice.StatusCodes.Sent)
             {
+                //Includes sent, because they can't approve it yet.
                 return PublicNotFound();
             }
 

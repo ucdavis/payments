@@ -495,7 +495,7 @@
                         <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
                     </dd>
                 </dl>
-                if(Model.Status == Invoice.StatusCodes.PendingApproval)
+                if(Model.Status == Invoice.StatusCodes.PendingApproval || Model.Status == Invoice.StatusCodes.Approved || Model.Status == Invoice.StatusCodes.Completed)
                 {
                     <dl class="row">
                         <dt class="col-2 text-end">Recharge Financial Approval page</dt>
