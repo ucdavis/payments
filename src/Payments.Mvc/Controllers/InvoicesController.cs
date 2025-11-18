@@ -478,7 +478,26 @@ namespace Payments.Mvc.Controllers
             if (invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.Status == Invoice.StatusCodes.PendingApproval)
             {
                 //Need to resend these ones too
-                await _invoiceService.SendFinancialApproverEmail(invoice, null); //Will pull them with a private method
+                var sentTo = await _invoiceService.SendFinancialApproverEmail(invoice, null); //Will pull them with a private method
+
+                if (sentTo != null)
+                {
+                    var approvalSentAction = new History()
+                    {
+                        Type = HistoryActionTypes.RechargeSentToFinancialApprovers.TypeCode,
+                        ActionDateTime = DateTime.UtcNow,
+                        Actor = "System",
+                        Data = new RechargeSentToFinancialApproversHistoryActionType().SerializeData(new RechargeSentToFinancialApproversHistoryActionType.DataType
+                        {
+                            FinancialApprovers = sentTo.emails.Select(a => new RechargeSentToFinancialApproversHistoryActionType.FinancialApprover()
+                            {
+                                Name = a.Name,
+                                Email = a.Email
+                            }).ToArray()
+                        })
+                    };
+                    invoice.History.Add(approvalSentAction);
+                }
             }
 
             // record action
