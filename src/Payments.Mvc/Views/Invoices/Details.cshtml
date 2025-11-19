@@ -1176,31 +1176,33 @@ else
                 }
             });
 
-            let resultHtml = '';
+            // Clear existing content
+            statusSpan.textContent = '';
 
             if (validationResult.isValid) {
-                resultHtml = '<i class="fas fa-check-circle text-success" title="Valid chart string"></i>';
+                const checkIcon = document.createElement('i');
+                checkIcon.className = 'fas fa-check-circle text-success';
+                checkIcon.setAttribute('title', 'Valid chart string');
+                statusSpan.appendChild(checkIcon);
 
                 // Add warnings if they exist
                 if (validationResult.warnings && validationResult.warnings.length > 0) {
-                    const sanitizedWarnings = validationResult.warnings.map(w => {
-                        const key = document.createTextNode(w.key).textContent;
-                        const value = document.createTextNode(w.value).textContent;
-                        return key + ': ' + value;
-                    }).join('; ');
-                    const warningTitle = document.createElement('div');
-                    warningTitle.textContent = sanitizedWarnings;
-                    resultHtml += ' <i class="fas fa-exclamation-triangle text-warning ms-1" title="' +
-                        warningTitle.textContent + '"></i>';
+                    const warningMessages = validationResult.warnings.map(w => 
+                        `${w.key}: ${w.value}`
+                    ).join('; ');
+                    
+                    const warningIcon = document.createElement('i');
+                    warningIcon.className = 'fas fa-exclamation-triangle text-warning ms-1';
+                    warningIcon.setAttribute('title', warningMessages);
+                    statusSpan.appendChild(warningIcon);
                 }
             } else {
-                 const errorDiv = document.createElement('div');
-                 errorDiv.textContent = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
-                 const errorMessages = errorDiv.textContent;
-                resultHtml = '<i class="fas fa-times-circle text-danger" title="' + errorMessages + '"></i>';
+                const errorMessages = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
+                const errorIcon = document.createElement('i');
+                errorIcon.className = 'fas fa-times-circle text-danger';
+                errorIcon.setAttribute('title', errorMessages);
+                statusSpan.appendChild(errorIcon);
             }
-
-            statusSpan.innerHTML = resultHtml;
             
             // Initialize tooltips for the newly added elements
             $(statusSpan).find('[title]').each(function() {
@@ -1220,7 +1222,12 @@ else
                 }
             });
 
-            statusSpan.innerHTML = '<i class="fas fa-exclamation-triangle text-warning" title="' + errorMessage + '"></i>';
+            // Clear existing content and create warning icon safely
+            statusSpan.textContent = '';
+            const warningIcon = document.createElement('i');
+            warningIcon.className = 'fas fa-exclamation-triangle text-warning';
+            warningIcon.setAttribute('title', errorMessage);
+            statusSpan.appendChild(warningIcon);
             
             // Initialize tooltips for the newly added elements
             $(statusSpan).find('[title]').each(function() {
