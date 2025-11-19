@@ -22,6 +22,11 @@ namespace Payments.Core.Models.History
             return $"{d.Amount:C2} payment refunded.";
         }
 
+        public string GetDetails(string data)
+        {
+            return null;
+        }
+
         public DataType DeserializeData(string data)
         {
             try

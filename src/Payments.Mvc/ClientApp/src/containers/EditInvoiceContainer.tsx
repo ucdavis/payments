@@ -3,7 +3,7 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import 'isomorphic-fetch';
 
-import { calculateDiscount } from '../helpers/calculations';
+import { calculateDiscount, calculateTotal } from '../helpers/calculations';
 
 import { Account } from '../models/Account';
 import { Coupon } from '../models/Coupon';
@@ -12,6 +12,7 @@ import { InvoiceAttachment } from '../models/InvoiceAttachment';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceItem } from '../models/InvoiceItem';
+import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
@@ -23,6 +24,7 @@ import EditItemsTable from '../components/editItemsTable';
 import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
+import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import SendModal from '../components/sendModal';
 
 declare var antiForgeryToken: string;
@@ -45,6 +47,8 @@ interface IState {
   taxPercent: number;
   memo: string;
   items: InvoiceItem[];
+  rechargeAccounts: InvoiceRechargeItem[];
+  type: string;
   loading: boolean;
   errorMessage: string;
   modelErrors: string[];
@@ -57,6 +61,7 @@ export default class EditInvoiceContainer extends React.Component<
   IState
 > {
   private _formRef: HTMLFormElement;
+  private _rechargeAccountsRef: RechargeAccountsControl;
 
   constructor(props: IProps) {
     super(props);
@@ -93,7 +98,9 @@ export default class EditInvoiceContainer extends React.Component<
       dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
       items,
       memo: invoice.memo,
+      rechargeAccounts: invoice.rechargeAccounts || [],
       taxPercent: invoice.taxPercent || 0,
+      type: invoice.type,
 
       errorMessage: '',
       modelErrors: [],
@@ -114,6 +121,8 @@ export default class EditInvoiceContainer extends React.Component<
       items,
       taxPercent,
       memo,
+      type,
+      rechargeAccounts,
       loading,
       validate
     } = this.state;
@@ -127,7 +136,8 @@ export default class EditInvoiceContainer extends React.Component<
         <LoadingModal loading={loading} />
         <div className='card-header card-header-yellow'>
           <h1>
-            Edit Invoice #{id} for {team.name}{' '}
+            Edit {type === 'CC' ? 'Credit Card' : type} Invoice #{id} for{' '}
+            {team.name}{' '}
           </h1>
         </div>
         <div className='card-body invoice-customer'>
@@ -146,6 +156,7 @@ export default class EditInvoiceContainer extends React.Component<
             coupons={coupons}
             discount={discount}
             taxPercent={taxPercent}
+            invoiceType={type}
             onItemsChange={v => this.updateProperty('items', v)}
             onDiscountChange={v => this.updateProperty('discount', v)}
             onTaxPercentChange={v => this.updateProperty('taxPercent', v)}
@@ -160,6 +171,17 @@ export default class EditInvoiceContainer extends React.Component<
             />
           </div>
         </div>
+        {type === 'Recharge' && (
+          <div className='card-body invoice-recharge-accounts'>
+            <RechargeAccountsControl
+              ref={r => (this._rechargeAccountsRef = r)}
+              rechargeAccounts={rechargeAccounts}
+              invoiceTotal={calculateTotal(items, discount, taxPercent)}
+              onChange={v => this.updateProperty('rechargeAccounts', v)}
+              showCreditAccounts={true}
+            />
+          </div>
+        )}
         <div className='card-body invoice-billing'>
           <h2>Billing</h2>
           <div className='form-group'>
@@ -225,7 +247,9 @@ export default class EditInvoiceContainer extends React.Component<
       taxPercent,
       items,
       memo,
-      isSendModalOpen
+      isSendModalOpen,
+      type,
+      rechargeAccounts
     } = this.state;
 
     return (
@@ -239,6 +263,8 @@ export default class EditInvoiceContainer extends React.Component<
         items={items}
         attachments={attachments}
         team={team}
+        invoiceType={type}
+        rechargeAccounts={rechargeAccounts}
         onCancel={() => {
           this.setState({ isSendModalOpen: false });
         }}
@@ -287,6 +313,19 @@ export default class EditInvoiceContainer extends React.Component<
       return false;
     }
 
+    // check for chart string validation errors if this is a recharge invoice
+    if (this.state.type === 'Recharge' && this._rechargeAccountsRef) {
+      const hasChartStringErrors = this._rechargeAccountsRef.hasValidationErrors();
+      if (hasChartStringErrors) {
+        this.setState({
+          errorMessage:
+            'Please fix all chart string validation errors before saving.',
+          modelErrors: []
+        });
+        return false;
+      }
+    }
+
     const { id } = this.props;
     const { slug } = this.props.team;
     const {
@@ -297,7 +336,9 @@ export default class EditInvoiceContainer extends React.Component<
       dueDate,
       taxPercent,
       items,
-      memo
+      memo,
+      type,
+      rechargeAccounts
     } = this.state;
 
     const calculatedDiscount = calculateDiscount(items, discount);
@@ -312,7 +353,9 @@ export default class EditInvoiceContainer extends React.Component<
       items,
       manualDiscount: calculatedDiscount,
       memo,
-      taxPercent
+      rechargeAccounts,
+      taxPercent,
+      type
     };
 
     // create save url
@@ -390,6 +433,28 @@ export default class EditInvoiceContainer extends React.Component<
   };
 
   private openSendModal = () => {
+    // enable validation
+    this.setState({ validate: true });
+
+    // check validation
+    const isValid = this._formRef.checkValidity();
+    if (!isValid) {
+      return;
+    }
+
+    // check for chart string validation errors if this is a recharge invoice
+    if (this.state.type === 'Recharge' && this._rechargeAccountsRef) {
+      const hasChartStringErrors = this._rechargeAccountsRef.hasValidationErrors();
+      if (hasChartStringErrors) {
+        this.setState({
+          errorMessage:
+            'Please fix all chart string validation errors before sending.',
+          modelErrors: []
+        });
+        return;
+      }
+    }
+
     this.setState({
       isSendModalOpen: true
     });

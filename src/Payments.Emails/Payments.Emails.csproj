@@ -4,16 +4,13 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
   <ItemGroup>
-    <!-- <PackageReference Include="Mjml.AspNetCore" Version="1.0.24" /> -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    <PackageReference Include="Mjml.AspNetCore" Version="1.3.0" />
+    <PackageReference Include="Razor.Templating.Core" Version="1.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Mjml.AspNetCore" Version="1.3.0"/>
-    <PackageReference Include="Razor.Templating.Core" Version="1.7.0"/>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Payments.Core\Payments.Core.csproj"/>
+    <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
   </ItemGroup>
 </Project>

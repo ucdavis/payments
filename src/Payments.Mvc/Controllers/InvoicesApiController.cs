@@ -124,6 +124,26 @@ namespace Payments.Mvc.Controllers
         {
             var team = await GetAuthorizedTeam();
 
+            if (model.Type == Invoice.InvoiceTypes.CreditCard)
+            {
+                if (team.AllowedInvoiceType == Team.AllowedInvoiceTypes.Recharge)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create credit card invoices.");
+                }
+            }
+            if (model.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                if (team.AllowedInvoiceType == Team.AllowedInvoiceTypes.CreditCard)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create recharge invoices.");
+                }
+                foreach (var rechargeAcct in model.RechargeAccounts)
+                {
+                    rechargeAcct.EnteredByKerb = "API";
+                    rechargeAcct.EnteredByName = "API";
+                }
+            }
+
             // validate model
             if (!ModelState.IsValid)
             {
@@ -191,12 +211,22 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Attachments)
                 .Include(i => i.Team)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Id == team.Id)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
             {
                 return NotFound();
+            }
+
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id == 0))
+                {
+                    rechargeAcct.EnteredByKerb = "API";
+                    rechargeAcct.EnteredByName = "API";
+                }
             }
 
             // validate model
@@ -267,6 +297,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Include(i => i.Coupon)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Id == team.Id)
                 .FirstOrDefaultAsync(i => i.Id == id);
 

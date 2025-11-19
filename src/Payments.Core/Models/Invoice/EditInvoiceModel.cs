@@ -1,3 +1,4 @@
+using Payments.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -26,6 +27,10 @@ namespace Payments.Core.Models.Invoice
         public IList<EditInvoiceItemModel> Items { get; set; }
 
         public IList<EditInvoiceAttachmentModel> Attachments { get; set; }
+
+        public IList<RechargeAccount> RechargeAccounts { get; set; } = new List<RechargeAccount>();
+
+        public string Type { get; set; }
 
         public DateTime? DueDate { get; set; }
     }

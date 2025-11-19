@@ -17,6 +17,7 @@ namespace Payments.Core.Domain
             Attachments = new List<InvoiceAttachment>();
             Items = new List<LineItem>();
             History = new List<History>();
+            RechargeAccounts = new List<RechargeAccount>();
 
             DraftCount = 0;
             CreatedAt = DateTime.UtcNow;
@@ -89,7 +90,7 @@ namespace Payments.Core.Domain
         public bool Paid { get; set; }
 
         [DisplayName("Paid On")]
-        public DateTime? PaidAt { get; set; }
+        public DateTime? PaidAt { get; set; } //For Recharges, use this date for auto financial approval.
 
         public bool Refunded { get; set; }
 
@@ -114,6 +115,12 @@ namespace Payments.Core.Domain
 
         [JsonIgnore]
         public IList<PaymentEvent> PaymentEvents { get; set; }
+
+        public IList<RechargeAccount> RechargeAccounts { get; set; }
+
+        [Required]
+        [StringLength(10)]
+        public string Type { get; set; } = InvoiceTypes.CreditCard; // CC or Recharge
 
         // ----------------------
         // Calculated Values
@@ -234,6 +241,14 @@ namespace Payments.Core.Domain
             builder.Entity<Invoice>()
                 .Property(i => i.CalculatedTotal)
                 .HasColumnType("decimal(18,2)");
+
+            // Set default value for Type column
+            builder.Entity<Invoice>()
+                .Property(i => i.Type)
+                .HasDefaultValue(InvoiceTypes.CreditCard);
+
+            builder.Entity<Invoice>().HasIndex(a => a.Type);
+
         }
 
         public Dictionary<string, string> GetPaymentDictionary()
@@ -270,6 +285,9 @@ namespace Payments.Core.Domain
         {
             public const string Draft = "Draft";
             public const string Sent = "Sent";
+            public const string PendingApproval = "PendingApproval"; // New Status for recharge invoices that need approval
+            public const string Approved = "Approved"; // New Status for recharge invoices that are approved
+            public const string Rejected = "Rejected"; // New Status for recharge invoices that are rejected
             public const string Paid = "Paid";
             public const string Processing = "Processing";
             public const string Completed = "Completed";
@@ -286,6 +304,9 @@ namespace Payments.Core.Domain
                 {
                     Draft,
                     Sent,
+                    PendingApproval,
+                    Approved,
+                    Rejected,
                     Paid,
                     Processing,
                     Completed,
@@ -305,13 +326,16 @@ namespace Payments.Core.Domain
 
                     case Processing:
                     case Sent:
+                    case PendingApproval:
                         return "text-bg-info";
 
                     case Completed:
+                    case Approved:
                     case Paid:
                         return "text-bg-success";
 
                     case Cancelled:
+                    case Rejected:
                         return "text-bg-danger";
 
                     case Refunded:
@@ -319,6 +343,12 @@ namespace Payments.Core.Domain
                         return "text-bg-secondary";
                 }
             }
+        }
+
+        public static class InvoiceTypes
+        {
+            public const string CreditCard = "CC";
+            public const string Recharge = "Recharge";
         }
     }
 }

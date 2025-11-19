@@ -110,6 +110,7 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("PaymentProcessorId", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("PaymentType", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("RechargeAccounts", "System.Collections.Generic.IList`1[Payments.Core.Domain.RechargeAccount]", new List<string>()));
             expectedFields.Add(new NameAndType("Refunded", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("RefundedAt", "System.Nullable`1[System.DateTime]", new List<string>()));
             expectedFields.Add(new NameAndType("Sent", "System.Boolean", new List<string>()));
@@ -131,6 +132,11 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("TeamName", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
+            }));
+            expectedFields.Add(new NameAndType("Type", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)10)]",
             }));
 
 
@@ -474,11 +480,14 @@ namespace Payments.Tests.DatabaseTests
         {
             var scType = typeof(Invoice.StatusCodes);
             var props = scType.GetFields();
-            props.Length.ShouldBe(9);
+            props.Length.ShouldBe(12);
             
             //props[0].Name.ShouldBe("Draft");
             Invoice.StatusCodes.Draft.ShouldBe("Draft");
             Invoice.StatusCodes.Sent.ShouldBe("Sent");
+            Invoice.StatusCodes.PendingApproval.ShouldBe("PendingApproval");
+            Invoice.StatusCodes.Approved.ShouldBe("Approved");
+            Invoice.StatusCodes.Rejected.ShouldBe("Rejected");
             Invoice.StatusCodes.Paid.ShouldBe("Paid");
             Invoice.StatusCodes.Completed.ShouldBe("Completed");
             Invoice.StatusCodes.Cancelled.ShouldBe("Cancelled");

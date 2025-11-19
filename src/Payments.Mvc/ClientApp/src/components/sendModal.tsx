@@ -11,11 +11,14 @@ import { InvoiceItem } from '../models/InvoiceItem';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
 import { InvoiceCustomer } from '../models/InvoiceCustomer';
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
+import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { PreviewInvoice } from '../models/PreviewInvoice';
 import { Team } from '../models/Team';
+import { RechargeInvoiceModel } from '../containers/PayInvoiceContainer';
 
 import Modal from './modal';
 import PreviewFrame from './previewFrame';
+import PreviewRechargeInvoiceContainer from '../containers/PreviewRechargeInvoiceContainer';
 
 interface IProps {
   customer: InvoiceCustomer;
@@ -27,8 +30,10 @@ interface IProps {
   taxPercent: number;
 
   attachments: InvoiceAttachment[];
+  rechargeAccounts?: InvoiceRechargeItem[]; // Optional - only for recharge invoices
 
   team: Team;
+  invoiceType?: string; // Optional for backward compatibility
   isModalOpen: boolean;
 
   onCancel: () => void;
@@ -106,10 +111,70 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
       attachments,
       dueDate,
       memo,
-      team
+      team,
+      invoiceType,
+      rechargeAccounts
     } = this.props;
 
-    // calculate various values:
+    // Determine if this is a recharge invoice
+    // Priority: explicit invoiceType prop > team.allowedInvoiceType
+    const isRecharge = invoiceType
+      ? invoiceType === 'Recharge'
+      : team.allowedInvoiceType === 'Recharge';
+
+    if (isRecharge) {
+      // For recharge invoices, render the React preview component directly
+      const subtotalCalc = calculateSubTotal(items);
+      const totalCalc = calculateTotal(items, discount, taxPercent);
+
+      // Filter to only include debit accounts for preview
+      const debitAccounts = rechargeAccounts
+        ? rechargeAccounts.filter(account => account.direction === 'Debit')
+        : [];
+
+      const rechargeModel: RechargeInvoiceModel = {
+        id: 'PREVIEW-DRAFT',
+        linkId: '',
+        customerEmail: customer.email,
+        memo,
+        items: items.map(item => ({
+          id: item.id,
+          description: item.description,
+          quantity: item.quantity,
+          amount: item.amount,
+          total: item.amount * item.quantity
+        })),
+        attachments: attachments.map((att, index) => ({
+          id: index, // Use index as placeholder ID for preview
+          fileName: att.fileName,
+          contentType: att.contentType,
+          size: att.size
+        })),
+        subtotal: subtotalCalc,
+        total: totalCalc,
+        dueDate: dueDate || null,
+        paid: false,
+        paidDate: null,
+        team: {
+          name: team.name,
+          contactName: '',
+          contactEmail: team.contactEmail,
+          contactPhoneNumber: team.contactPhoneNumber
+        },
+        status: 'Draft',
+        debitRechargeAccounts: debitAccounts
+      };
+
+      return (
+        <div className='modal-body p-0'>
+          <div style={{ minHeight: '60vh' }}>
+            <PreviewRechargeInvoiceContainer invoice={rechargeModel} />
+          </div>
+        </div>
+      );
+    }
+
+    // For credit card invoices, use the existing iframe approach
     const discountCalc = calculateDiscount(items, discount);
     const subtotalCalc = calculateSubTotal(items);
     const taxCalc = calculateTaxAmount(items, discount, taxPercent);

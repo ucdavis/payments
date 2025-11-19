@@ -6,14 +6,20 @@
     var team = (Team) ViewData["Team"];
 
     var invoice = Model.Invoice;
+    var extraText = "Invoice # " + invoice.GetFormattedId();
 
     var payHref = $"{ViewData["BaseUrl"]}/pay/{invoice.LinkId}";
     var pdfHref = $"{ViewData["BaseUrl"]}/download/{invoice.LinkId}";
+    if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+    {
+        payHref = $"{ViewData["BaseUrl"]}/recharge/pay/{invoice.LinkId}";
+        extraText = "Recharge Invoice # " + invoice.GetFormattedId();
+    }
 } 
 
 <mj-text align="center">
     <h1>Invoice from @team.Name</h1>
-    <h3>Invoice # @invoice.GetFormattedId()</h3>
+    <h3>@extraText</h3>
 </mj-text>
 
 <mj-table>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Payments.Jobs.AutoApprove": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

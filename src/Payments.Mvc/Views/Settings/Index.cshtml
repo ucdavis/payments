@@ -41,7 +41,7 @@
                         @Html.DisplayNameFor(model => model.WebHookApiKey)
                     </dt>
                     <dd>
-                        @if(!string.IsNullOrWhiteSpace(Model.WebHookApiKey))
+                        @if (!string.IsNullOrWhiteSpace(Model.WebHookApiKey))
                         {
                             @Html.DisplayFor(model => model.WebHookApiKey)
                         }
@@ -70,6 +70,36 @@
                 </dt>
                 <dd>
                     @Html.DisplayFor(model => model.ContactPhoneNumber)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.AllowedInvoiceType)
+                </dt>
+                <dd>
+                    @{
+                        string displayText = "";
+                        string badgeClass = "";
+
+                        switch (Model.AllowedInvoiceType)
+                        {
+                            case "CC":
+                                displayText = "Credit Card Only";
+                                badgeClass = "badge bg-primary";
+                                break;
+                            case "Recharge":
+                                displayText = "Recharge Only";
+                                badgeClass = "badge bg-success";
+                                break;
+                            case "Both":
+                                displayText = "Both Credit Card and Recharge";
+                                badgeClass = "badge bg-info";
+                                break;
+                            default:
+                                displayText = Model.AllowedInvoiceType;
+                                badgeClass = "badge bg-secondary";
+                                break;
+                        }
+                    }
+                    <span class="@badgeClass">@displayText</span>
                 </dd>
             </dl>
         </div>
