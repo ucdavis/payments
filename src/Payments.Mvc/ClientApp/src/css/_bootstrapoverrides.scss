@@ -1,0 +1,65 @@
+/* --------------------------------------
+   Custom Bootstrap Button Overrides
+   -------------------------------------- */
+
+/* Base theme colors */
+$bs-primary: $primary-color;
+$bs-secondary: $secondary-color;
+$bs-success: $quad;
+$bs-info: $tahoe;
+$bs-warning: $sunflower;
+$bs-danger: $doubledecker;
+$bs-light: #f8f9fa;
+$bs-dark: #343a40;
+
+/* --------------------------------------
+   Utility mixin for generating button vars
+   -------------------------------------- */
+@mixin make-btn-variant($name, $color) {
+  $hover-bg: mix(#000, $color, 12%);
+  $hover-bd: mix(#000, $color, 14%);
+  $active-bg: mix(#000, $color, 18%);
+  $active-bd: mix(#000, $color, 20%);
+
+  .btn-#{$name} {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #{$color};
+    --bs-btn-border-color: #{$color};
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #{$hover-bg};
+    --bs-btn-hover-border-color: #{$hover-bd};
+    --bs-btn-focus-shadow-rgb: 0, 0, 0;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #{$active-bg};
+    --bs-btn-active-border-color: #{$active-bd};
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #{$color};
+    --bs-btn-disabled-border-color: #{$color};
+  }
+
+  .btn-outline-#{$name} {
+    --bs-btn-color: #{$color};
+    --bs-btn-border-color: #{$color};
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #{$color};
+    --bs-btn-hover-border-color: #{$color};
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #{$active-bg};
+    --bs-btn-active-border-color: #{$active-bd};
+    --bs-btn-disabled-color: #{$color};
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: #{$color};
+  }
+}
+
+/* --------------------------------------
+   Generate variants for all button types
+   -------------------------------------- */
+@include make-btn-variant(primary, $bs-primary);
+@include make-btn-variant(secondary, $bs-secondary);
+@include make-btn-variant(success, $bs-success);
+@include make-btn-variant(info, $bs-info);
+@include make-btn-variant(warning, $bs-warning);
+@include make-btn-variant(danger, $bs-danger);
+@include make-btn-variant(light, $bs-light);
+@include make-btn-variant(dark, $bs-dark);

@@ -1,5 +1,3 @@
-
-
 .container-fluid {
   padding: 0;
 }
@@ -7,8 +5,8 @@
 table.dataTable {
   border: 1px solid $borders;
   border-collapse: collapse !important;
-  th, td {
-
+  th,
+  td {
   }
   thead {
     th {
@@ -16,18 +14,16 @@ table.dataTable {
       color: $primary-font;
       font-weight: inherit;
       text-transform: uppercase;
-      border:none;
-      padding-top:8px;
-      padding-bottom:8px;
-      border-bottom:1px solid $borders;
-      border-right:1px solid $borders;
+      border: none;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid $borders;
+      border-right: 1px solid $borders;
       &:last-child {
-        border-right:none;
+        border-right: none;
       }
-
-      
     }
-    
+
     .sorting:after,
     .sorting:before,
     .sorting_asc:after,
@@ -48,16 +44,14 @@ table.dataTable {
     // border-right:1px solid $borders;
   }
   td {
-    border:none;
-    border-bottom:1px solid $borders;
-    border-right:1px solid $borders;
+    border: none;
+    border-bottom: 1px solid $borders;
+    border-right: 1px solid $borders;
     &:last-child {
-      border-right:none;
+      border-right: none;
     }
   }
 }
-
-
 
 .page-item.active .page-link {
   background-color: $primary-color;
@@ -65,18 +59,30 @@ table.dataTable {
 }
 
 .input-group-sm > .input-group-append > select.btn:not([size]):not([multiple]),
-.input-group-sm > .input-group-append > select.input-group-text:not([size]):not([multiple]),
+.input-group-sm
+  > .input-group-append
+  > select.input-group-text:not([size]):not([multiple]),
 .input-group-sm > .input-group-prepend > select.btn:not([size]):not([multiple]),
-.input-group-sm > .input-group-prepend > select.input-group-text:not([size]):not([multiple]),
+.input-group-sm
+  > .input-group-prepend
+  > select.input-group-text:not([size]):not([multiple]),
 .input-group-sm > select.form-control:not([size]):not([multiple]),
 select.form-control-sm:not([size]):not([multiple]) {
   // height: calc(1.8125rem + 10px);
 }
 @-moz-document url-prefix() {
-  .input-group-sm > .input-group-append > select.btn:not([size]):not([multiple]),
-  .input-group-sm > .input-group-append > select.input-group-text:not([size]):not([multiple]),
-  .input-group-sm > .input-group-prepend > select.btn:not([size]):not([multiple]),
-  .input-group-sm > .input-group-prepend > select.input-group-text:not([size]):not([multiple]),
+  .input-group-sm
+    > .input-group-append
+    > select.btn:not([size]):not([multiple]),
+  .input-group-sm
+    > .input-group-append
+    > select.input-group-text:not([size]):not([multiple]),
+  .input-group-sm
+    > .input-group-prepend
+    > select.btn:not([size]):not([multiple]),
+  .input-group-sm
+    > .input-group-prepend
+    > select.input-group-text:not([size]):not([multiple]),
   .input-group-sm > select.form-control:not([size]):not([multiple]),
   select.form-control-sm:not([size]):not([multiple]) {
     // height: calc(2.5rem + 10px);
@@ -84,22 +90,22 @@ select.form-control-sm:not([size]):not([multiple]) {
 }
 // hide input type number arrows
 
-input[type=number] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
 .input-daterange .add-on {
-    font-size: 1rem;
-    line-height: 1.5rem;
-    height: calc(2.25rem + 2px);
-    padding: 0.375rem 1.75rem;
-    color: $secondary-font;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  height: calc(2.25rem + 2px);
+  padding: 0.375rem 1.75rem;
+  color: $secondary-font;
 }
 
 // fix spacing on checkboxes
@@ -117,16 +123,15 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .alert button.close {
-    float: none;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 1rem;
-    padding: 0.25rem;
+  float: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 1rem;
+  padding: 0.25rem;
 }
 
 .pretty {
-
   input:checked ~ .state.p-primary label::after,
   &.p-toggle .state.p-primary label::after,
   &.p-default:not(.p-fill) input:checked ~ .state.p-primary-o label::after {
@@ -150,10 +155,10 @@ input[type=number]::-webkit-outer-spin-button {
       img,
       label:before,
       label:after {
-        animation: jelly 0.7s cubic-bezier(0.250, 0.460, 0.450, 0.940);
+        animation: jelly 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         opacity: 1;
       }
-  
+
       label:before {
         border-color: transparent;
       }

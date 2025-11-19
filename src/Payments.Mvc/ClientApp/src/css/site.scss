@@ -2,16 +2,6 @@
 
 @import '~pretty-checkbox/src/pretty-checkbox.scss';
 
-@import
-       "dependencies",
-       "typography",
-       "layout",
-       "components",
-       "regions",
-       "pay_invoice",
-       "formfields",
-       "navigation",
-       "vendor",
-       "animations",
-       "media_queries"
-;
+@import 'dependencies', 'bootstrapoverrides', 'typography', 'layout',
+  'components', 'regions', 'pay_invoice', 'formfields', 'navigation', 'vendor',
+  'animations', 'media_queries';

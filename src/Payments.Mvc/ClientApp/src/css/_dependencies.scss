@@ -22,12 +22,12 @@ $sans-italic: 'proxima-nova-i', serif;
 $sans-bold: 'proxima-nova-b', serif;
 $sans-reg: 'proxima-nova-r', serif;
 
-$primary-color: #1d4a83;
-$secondary-color: #daaa00;
-$tertiary-color: #009493;
-
 $gold: #daaa00;
 $blue: #004987;
+
+$primary-color: $blue;
+$secondary-color: $gold;
+$tertiary-color: $gold;
 
 $a-link: transparentize($primary-color, 0.2);
 
@@ -45,25 +45,36 @@ $nav-active: #fff;
 $nav-secondary: $secondary-font;
 
 // UC Davis Colors
-// Supplemental bright color palette for UC Davis
 
-$unitrans-red: #ba0c2f;
-$western-redbud: #c6007e;
-$california-poppy: #ed8800;
-$golden-lupine: #ffcd00;
-$sunny-grass: #78be20;
-$sky-blue: #00b5e2;
-$recpool-blue: #008eaa;
-$wine-grape: #642667;
-// Supplemental neutral color palette for UC Davis
-$mu-brick: #c26e60;
-$harthall-stucco: #e6a65d;
-$sage-green: #9caf88;
-$evergreen: #00573f;
-$wintersky-gray: #5b7f95;
-$cenwalk-gray: #b1b3b3;
-$cork-oak: #aca39a;
-$shingle-brown: #4f2c1d;
+$recpool: #6fcfeb;
+$tahoe: #00b2e3;
+$gunrock: #0047ba;
+$bodega: #003a5d;
+
+$rain: #03f9e6;
+$arboretum: #00c4b3;
+$putahcreek: #008eaa;
+$delta: #00524c;
+
+$farmersmarket: #aada91;
+$sage: #6cca98;
+$quad: #3dae2b;
+$redwood: #266041;
+
+$goldenstate: #ffff3b;
+$sunflower: #ffdc00;
+$poppy: #f18a00;
+$california: #8a532f;
+
+$rose: #ff8189;
+$strawberry: #f93549;
+$doubledecker: #c10230;
+$merlot: #79242f;
+
+$thiebauldicing: #f095cd;
+$redbud: #c6007e;
+$pinot: #76236c;
+$cabernet: #481268;
 
 // Layouts
 
@@ -104,15 +115,9 @@ $card-thick-padding: 2rem;
 
 @mixin main-btn {
   white-space: nowrap;
-  //   display: inline-block;
-  //   height: 40px;
-  //   line-height: 40px;
-  //   padding: 0 20px;
   box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.15) inset, 0 1px 3px rgba(0, 0, 0, 0.08);
   background: $primary-color;
   border-radius: 2px;
-  //   font-size: 1rem;
-  //   letter-spacing: 0.025em;
   color: #fff !important;
   text-decoration: none;
   transition: all 0.15s ease;

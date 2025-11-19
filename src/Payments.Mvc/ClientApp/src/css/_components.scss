@@ -12,33 +12,6 @@ img.img-fluid {
   }
   @include fader;
   box-shadow: $box-shadow;
-  &:hover {
-    transform: translateY(-1px);
-  }
-}
-.alert-red {
-  background-color: transparentize($unitrans-red, 0.35);
-  &:hover {
-    background-color: transparentize($unitrans-red, 0.15);
-  }
-}
-.alert-yellow {
-  background-color: transparentize($golden-lupine, 0.35);
-  &:hover {
-    background-color: transparentize($golden-lupine, 0.15);
-  }
-}
-.alert-green {
-  background-color: transparentize($sunny-grass, 0.35);
-  &:hover {
-    background-color: transparentize($sunny-grass, 0.15);
-  }
-}
-.alert-blue {
-  background-color: transparentize($sky-blue, 0.35);
-  &:hover {
-    background-color: transparentize($sky-blue, 0.15);
-  }
 }
 
 .action-btn {
@@ -50,13 +23,11 @@ img.img-fluid {
   padding: 15px 20px;
   width: 265px;
   height: 85px;
-
   &:hover {
     color: #fff;
     opacity: 0.85;
   }
 }
-
 p a.action-btn {
   text-decoration: none !important;
 }
@@ -75,8 +46,6 @@ p a.action-btn {
   }
 }
 .btn {
-  @include main-btn;
-
   *,
   *:hover {
     color: #fff !important;
@@ -102,7 +71,7 @@ p a.action-btn {
 
 .btn-invoice-delete {
   border: none;
-  color: $unitrans-red;
+  color: $doubledecker;
 }
 .btn-inverse {
   @include inverse-btn;
@@ -233,74 +202,6 @@ ol.breadcrumb {
 
 .border-blue-right {
   border-right: 1px solid $primary-color;
-}
-
-.bg-unitrans {
-  background-color: $unitrans-red;
-}
-
-.bg-sunny-grass {
-  background-color: $sunny-grass;
-}
-
-.bg-golden-lupine {
-  background-color: $golden-lupine;
-}
-
-.bg-recpool {
-  background-color: $recpool-blue;
-}
-
-.bg-skyblue {
-  background-color: $sky-blue;
-}
-
-.bg-winegrape {
-  background-color: $wine-grape;
-}
-
-.border-unitrans {
-  border-color: $unitrans-red;
-}
-
-.border-skyblue {
-  border-color: $sky-blue;
-}
-
-.border-sunny-grass {
-  border-color: $sunny-grass;
-}
-
-.border-golden-lupine {
-  border-color: $golden-lupine;
-}
-
-.color-unitrans {
-  color: $unitrans-red !important;
-}
-
-.color-sunny-grass {
-  color: $sunny-grass;
-}
-
-.color-golden-lupine {
-  color: $golden-lupine;
-}
-
-.color-winegrape {
-  color: $wine-grape;
-}
-
-.color-western-redbud {
-  color: $western-redbud;
-}
-
-.color-poppy {
-  color: $california-poppy;
-}
-
-.color-skyblue {
-  color: $sky-blue;
 }
 
 .primary-color {
