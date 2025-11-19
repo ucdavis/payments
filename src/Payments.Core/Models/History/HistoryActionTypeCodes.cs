@@ -68,6 +68,7 @@ namespace Payments.Core.Models.History
             RechargePaidByCustomer,
             RechargeSentToFinancialApprovers,
             RechargeRejectedByFinancialApprover,
+            RechargeApprovedByFinancialApprover,
             RechargeRejected,
         };
 

@@ -10,8 +10,5 @@ namespace Payments.Core.Models.Configuration
 
         public string ApiKey { get; set; }
 
-        public string RechargeApiKey { get; set; }
-
-        public string RechargeSourceName { get; set; }
     }
 }
