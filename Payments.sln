@@ -25,7 +25,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Payments.Sql", "src\Payment
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.Emails", "src\Payments.Emails\Payments.Emails.csproj", "{7A4BE093-ED90-4464-BF9C-9B5F748D5F10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Jobs.AutoApprove", "Payments.Jobs.AutoApprove\Payments.Jobs.AutoApprove.csproj", "{67C14AEE-809F-4F73-8425-FFB06A35D678}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Jobs.AutoApprove", "src\Payments.Jobs.AutoApprove\Payments.Jobs.AutoApprove.csproj", "{67C14AEE-809F-4F73-8425-FFB06A35D678}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
@@ -8,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Payments.Core\Payments.Core.csproj" />
-    <ProjectReference Include="..\src\Payments.Jobs.Core\Payments.Jobs.Core.csproj" />
+    <ProjectReference Include="..\Payments.Core\Payments.Core.csproj" />
+    <ProjectReference Include="..\Payments.Jobs.Core\Payments.Jobs.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
