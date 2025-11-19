@@ -524,7 +524,7 @@
     </div>
 </div>
 
-@if (Model.Paid)
+@if (Model.Paid && Model.Type != InvoiceTypes.Recharge)
 {
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -551,7 +551,7 @@
                 </div>
             }
         </div>
-        <div class="card-body card-bot-border invoice-payment-details">
+            <div class="card-body card-bot-border invoice-payment-details">
             <dl class="row">
                 <dt class="col-3 text-end">Amount</dt>
                 <dd class="col-9">
@@ -598,10 +598,8 @@
                 </dl>
             }
         </div>
-        @* TODO: why is this like this?  *@
-        @foreach (var payment in Model.PaymentEvents)
-        {
-        }
+
+
         <div>
 
         </div>
