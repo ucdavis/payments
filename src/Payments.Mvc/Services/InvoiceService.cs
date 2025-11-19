@@ -46,7 +46,6 @@ namespace Payments.Mvc.Services
 
             if (model.Type == Invoice.InvoiceTypes.Recharge)
             {
-                //TODO: Server side validation.
                 //Must have at least one credit recharge account.
                 //All recharge accounts must be valid.
                 //All credit recharge account must be 100% of total.
