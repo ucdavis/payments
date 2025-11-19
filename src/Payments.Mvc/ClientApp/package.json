@@ -17,7 +17,7 @@
     "lint": "node node_modules/eslint/bin/eslint.js ClientApp --ext .tsx,.ts,.js,.jsx"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.30.2",
     "bootstrap-datepicker": "^1.8.0",
     "classnames": "^2.2.6",
     "date-fns": "^1.30.1",
