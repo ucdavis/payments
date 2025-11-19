@@ -28,7 +28,7 @@ namespace Payments.Core.Models.Configuration
 
         public string RechargeSlothSourceName { get; set; } = "PaymentsRecharge";
 
-        public bool ValidateRechargeFinancialSegmentString { get; set; } = false; //Maybe we want this to default to true?
+        public bool ValidateRechargeFinancialSegmentString { get; set; } = true; 
 
         public int RechargeAutoApproveDays { get; set; } = 7;
     }
