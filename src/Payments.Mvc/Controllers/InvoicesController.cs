@@ -136,6 +136,10 @@ namespace Payments.Mvc.Controllers
             invoice.UpdateCalculatedValues();
 
             ViewBag.TransactionLookup = $"{_slothSettings.TransactionLookup}{id}";
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                ViewBag.SlothDisbursementLookup = $"{_slothSettings.RechargeTransactionLookup}{id}";
+            }
 
             return View(invoice);
         }
