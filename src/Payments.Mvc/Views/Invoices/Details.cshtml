@@ -5,12 +5,15 @@
 @using Payments.Mvc.Models.CyberSource
 @using Payments.Mvc.Identity
 @using Payments.Mvc.Models.Roles
+@using static Payments.Core.Domain.Invoice
 @model Invoice
 @inject IHttpContextAccessor _httpContextAccessor
 @inject ApplicationUserManager _applicationUserManager
 
 @{
-    ViewBag.Title = $"Invoice #{Model.GetFormattedId()}";
+    var InvoiceType = Model.Type == InvoiceTypes.CreditCard ? "Credit Card" : "Recharge";
+
+    ViewBag.Title = $"{InvoiceType} Invoice #{Model.GetFormattedId()}";
     Layout = "_Layout";
 
     var teamSlug = _httpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
@@ -24,6 +27,14 @@
     var userPermissions = user.TeamPermissions.Where(p => p.Team.Slug == teamSlug).Select(p => p.Role.Name);
 
     var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
+
+    var editableStatusCodes = new List<string>
+    {
+        Invoice.StatusCodes.Draft,
+        Invoice.StatusCodes.Sent,
+        Invoice.StatusCodes.PendingApproval,
+        Invoice.StatusCodes.Rejected
+    };
     
 }
 
@@ -35,6 +46,14 @@
             height: 50vh;
             position: relative;
             width: 100%
+        }
+        
+        .accordion-header {
+            margin-bottom: 0;
+        }
+        
+        .accordion-button.history-details {
+            min-height: auto;
         }
     </style>
 }
@@ -68,12 +87,22 @@
         </div>
     }
     <div class="card-body card-bot-border">
-        @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
+        @if (editableStatusCodes.Contains(Model.Status) && Model.Status != Invoice.StatusCodes.Rejected)
         {
-            <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
-                <i class="fas fa-search me-3"></i>
-                Preview
-            </a>
+            @if (Model.Type == InvoiceTypes.Recharge)
+            {
+                <a asp-controller="Recharge" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                    <i class="fas fa-search me-3"></i>
+                    Preview
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                    <i class="fas fa-search me-3"></i>
+                    Preview
+                </a>
+            }
 
             if (!Model.Sent)
             {
@@ -135,8 +164,27 @@
                 <div class="ms-2 mt-1 me-4">
                     <i class="history-icon fa-fw @actionType.IconClass"></i>
                 </div>
-                <div>
+                <div class="flex-grow-1">
                     <span>@action.GetMessage()</span>
+                    
+                    @if(actionType.ShowDetails && action.GetDetails() != null)
+                    {
+                        <div class="accordion accordion-flush mt-1" id="accordion-@action.Id">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed py-1 px-2 fs-6 history-details" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@action.Id" aria-expanded="false" aria-controls="collapse-@action.Id">
+                                        <small class="text-muted">View details</small>
+                                    </button>
+                                </h2>
+                                <div id="collapse-@action.Id" class="accordion-collapse collapse" data-bs-parent="#accordion-@action.Id">
+                                    <div class="accordion-body p-2 pt-1">
+                                        @Html.Raw(action.GetDetails())
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                     @if (!string.IsNullOrWhiteSpace(action.Actor))
                     {
                         <br/>
@@ -176,7 +224,7 @@
                 </a>
             }
 
-            @if (Model.Status == Invoice.StatusCodes.Draft || Model.Status == Invoice.StatusCodes.Sent)
+            @if (editableStatusCodes.Contains(Model.Status))
             {
                 if (!Model.Sent)
                 {
@@ -436,20 +484,47 @@
         </dl>
         @if (Model.Sent)
         {
-            <dl class="row">
-                <dt class="col-2 text-end">Payment page</dt>
-                <dd class="col-10">
-                    @{
-                        var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
-                    }
-                    <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
-                </dd>
-            </dl>
+            if (Model.Type == InvoiceTypes.Recharge)
+            {
+                <dl class="row">
+                    <dt class="col-2 text-end">Recharge Pay page</dt>
+                    <dd class="col-10">
+                        @{
+                            var paymentPageHref = Url.RouteUrl("pay-recharge-invoice", new { id = Model.LinkId }, scheme);
+                        }
+                        <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
+                    </dd>
+                </dl>
+                if(Model.Status == Invoice.StatusCodes.PendingApproval || Model.Status == Invoice.StatusCodes.Approved || Model.Status == Invoice.StatusCodes.Completed)
+                {
+                    <dl class="row">
+                        <dt class="col-2 text-end">Recharge Financial Approval page</dt>
+                        <dd class="col-10">
+                            @{
+                                var approvalPageHref = Url.RouteUrl("approve-recharge-invoice", new { id = Model.LinkId }, scheme);
+                            }
+                            <a href="@approvalPageHref">@(approvalPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
+                        </dd>
+                    </dl>
+                }
+            }
+            else 
+            { 
+                <dl class="row">
+                    <dt class="col-2 text-end">Payment page</dt>
+                    <dd class="col-10">
+                        @{
+                            var paymentPageHref = Url.RouteUrl("pay-invoice", new { id = Model.LinkId }, scheme);
+                        }
+                        <a href="@paymentPageHref">@(paymentPageHref) <i class="fas fa-arrow-right ms-3"></i></a>
+                    </dd>
+                </dl>
+            }
         }
     </div>
 </div>
 
-@if (Model.Paid)
+@if (Model.Paid && Model.Type != InvoiceTypes.Recharge)
 {
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -476,7 +551,7 @@
                 </div>
             }
         </div>
-        <div class="card-body card-bot-border invoice-payment-details">
+            <div class="card-body card-bot-border invoice-payment-details">
             <dl class="row">
                 <dt class="col-3 text-end">Amount</dt>
                 <dd class="col-9">
@@ -507,63 +582,15 @@
                         <dd class="col-9">
                             <span class="text-monospace">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
                             <i class="@cardClass"></i>
-@*                            @if (successfulPayment.CardExpiry.HasValue)
-                            {
-                                <span class="badge badge-primary">@successfulPayment.CardExpiry.Value.ToString("MM/yyyy")</span>
-                            }*@
                         </dd>
                     }
-@*
-                    <dt class="col-3 text-end">Billing Name</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingFirstName @successfulPayment.BillingLastName
-                    </dd>*@
 
                     <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
                     <dd class="col-9">
                         @successfulPayment.BillingEmail
                     </dd>
                     
-                    @*@if (!string.IsNullOrWhiteSpace(successfulPayment.BillingPhone))
-                    {
-                        <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPhone)</dt>
-                        <dd class="col-9">
-                            @successfulPayment.BillingPhone
-                        </dd>
-                    }
 
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet1)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingStreet1
-                    </dd>
-
-                    @if (!string.IsNullOrWhiteSpace(successfulPayment.BillingStreet2))
-                    {
-                        <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingStreet2)</dt>
-                        <dd class="col-9">
-                            @successfulPayment.BillingStreet2
-                        </dd>
-                    }
-                    
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCity)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingCity
-                    </dd>
-
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingState)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingState
-                    </dd>
-
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingCountry)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingCountry
-                    </dd>
-
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingPostalCode)</dt>
-                    <dd class="col-9">
-                        @successfulPayment.BillingPostalCode
-                    </dd>*@
                     <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
                     <dd class="col-9">
                         @successfulPayment.ProcessorId
@@ -571,15 +598,105 @@
                 </dl>
             }
         </div>
-        @foreach (var payment in Model.PaymentEvents)
-        {
-        }
+
+
         <div>
 
         </div>
     </div>
 }
-
+@if(Model.Type == InvoiceTypes.Recharge)
+{
+    <div class="card">
+        <div class="card-header">
+            <h2>Recharge Credit Accounts</h2>
+        </div>
+        <div class="card-body invoice-details" data-direction="Credit">
+            <table class="table" data-direction="Credit">
+                <thead>
+                    <tr>
+                        <th>Financial Segment</th>
+                        <th>Notes</th>
+                        <th>Amount</th>
+                        <th>Percent</th>
+                        <th>Valid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit ))
+                {
+                    <tr data-account-id="@acct.Id" class="recharge-account-row">
+                        <td>
+                            <a href="https://finjector.ucdavis.edu/details/@acct.FinancialSegmentString" target="_blank" rel="noopener noreferrer">
+                                @acct.FinancialSegmentString
+                            </a>
+                        </td>
+                        <td>@acct.Notes</td>
+                        <td>@acct.Amount</td>
+                        <td>@acct.Percentage</td>
+                        <td>
+                            <span class="validity-status" data-account-id="@acct.Id">
+                                <i class="fas fa-spinner fa-spin text-secondary"></i>
+                            </span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h2>Recharge Debit Accounts</h2>
+        </div>
+        <div class="card-body invoice-details" data-direction="Debit">
+            <table class="table" data-direction="Debit">
+                <thead>
+                    <tr>
+                        <th>Financial Segment</th>
+                        <th>Notes</th>
+                        <th>Amount</th>
+                        <th>Percent</th>
+                        <th>Approved</th>
+                        <th>Valid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach(var acct in Model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit ))
+                {
+                    <tr data-account-id="@acct.Id" class="recharge-account-row">
+                        <td>
+                            <a href="https://finjector.ucdavis.edu/details/@acct.FinancialSegmentString" target="_blank" rel="noopener noreferrer">
+                                @acct.FinancialSegmentString
+                            </a>
+                        </td>
+                        <td>@acct.Notes</td>
+                        <td>@acct.Amount</td>
+                        <td>@acct.Percentage</td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(acct.ApprovedByName))
+                            {
+                                <span class="text-success" title="@acct.ApprovedByName"><i class="fas fa-check"></i></span>
+                            }
+                            else
+                            {
+                                <span class="text-danger"><i class="fas fa-times"></i></span>
+                            }
+                        </td>
+                        <td>
+                            <span class="validity-status" data-account-id="@acct.Id">
+                                <i class="fas fa-spinner fa-spin text-secondary"></i>
+                            </span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
 <div class="card">
     <div class="card-header">
         <h2>Account</h2>
@@ -611,7 +728,7 @@
         </dl>
     </div>
 </div>
-
+}
 <div>
     <a asp-action="Index"><i class="fas fa-chevron-left me-3"></i> Back</a>
 </div>
@@ -662,7 +779,14 @@
 
                 <div id="sendInvoicePreview" class="modal-body p-0">
                     <div class="d-flex preview-embed">
-                        <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})"></iframe>
+                        @if (Model.Type == InvoiceTypes.Recharge)
+                        {
+                            <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Recharge", new {team = teamSlug, id = Model.Id})"></iframe>
+                        }
+                        else
+                        {
+                            <iframe id="emailPreview" name="iframe_preview" src="@Url.Action("Preview", "Payments", new {id = Model.Id})"></iframe>
+                        }
                     </div>
                 </div>
 
@@ -1019,6 +1143,146 @@
             })
             .catch(function(err) {
 
+            });
+        });
+
+        // Recharge account validation functions
+        function validateChartString(chartString, direction) {
+            const directionValue = direction === 'Credit' ? 0 : 1;
+            return fetch(`/api/recharge/validate?chartString=${encodeURIComponent(chartString)}&direction=${directionValue}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': window.antiForgeryToken
+                }
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            });
+        }
+
+        function displayValidationResult(accountId, validationResult) {
+            const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
+            if (!statusSpan) return;
+
+            // Dispose existing tooltips before replacing content
+            $(statusSpan).find('[title]').each(function() {
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+
+            // Clear existing content
+            statusSpan.textContent = '';
+
+            if (validationResult.isValid) {
+                const checkIcon = document.createElement('i');
+                checkIcon.className = 'fas fa-check-circle text-success';
+                checkIcon.setAttribute('title', 'Valid chart string');
+                statusSpan.appendChild(checkIcon);
+
+                // Add warnings if they exist
+                if (validationResult.warnings && validationResult.warnings.length > 0) {
+                    const warningMessages = validationResult.warnings.map(w => 
+                        `${w.key}: ${w.value}`
+                    ).join('; ');
+                    
+                    const warningIcon = document.createElement('i');
+                    warningIcon.className = 'fas fa-exclamation-triangle text-warning ms-1';
+                    warningIcon.setAttribute('title', warningMessages);
+                    statusSpan.appendChild(warningIcon);
+                }
+            } else {
+                const errorMessages = validationResult.messages ? validationResult.messages.join('; ') : 'Invalid chart string';
+                const errorIcon = document.createElement('i');
+                errorIcon.className = 'fas fa-times-circle text-danger';
+                errorIcon.setAttribute('title', errorMessages);
+                statusSpan.appendChild(errorIcon);
+            }
+            
+            // Initialize tooltips for the newly added elements
+            $(statusSpan).find('[title]').each(function() {
+                new bootstrap.Tooltip(this);
+            });
+        }
+
+        function displayValidationError(accountId, errorMessage) {
+            const statusSpan = document.querySelector(`.validity-status[data-account-id="${accountId}"]`);
+            if (!statusSpan) return;
+
+            // Dispose existing tooltips before replacing content
+            $(statusSpan).find('[title]').each(function() {
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+
+            // Clear existing content and create warning icon safely
+            statusSpan.textContent = '';
+            const warningIcon = document.createElement('i');
+            warningIcon.className = 'fas fa-exclamation-triangle text-warning';
+            warningIcon.setAttribute('title', errorMessage);
+            statusSpan.appendChild(warningIcon);
+            
+            // Initialize tooltips for the newly added elements
+            $(statusSpan).find('[title]').each(function() {
+                new bootstrap.Tooltip(this);
+            });
+        }
+
+        // Validate all recharge accounts when page loads
+        function validateRechargeAccounts() {
+            const rechargeRows = document.querySelectorAll('.recharge-account-row');
+            
+            rechargeRows.forEach(function(row) {
+                const accountId = row.getAttribute('data-account-id');
+                const financialSegmentCell = row.children[0]; // First cell contains the financial segment string
+                const financialSegmentString = financialSegmentCell.textContent.trim();
+
+                // Get direction from data attribute
+                const direction = row.closest('[data-direction]').getAttribute('data-direction');
+                
+                if (financialSegmentString) {
+                    validateChartString(financialSegmentString, direction)
+                        .then(function(validationResult) {
+                            displayValidationResult(accountId, validationResult);
+                        })
+                        .catch(function(error) {
+                            console.error('Validation error for account ' + accountId + ':', error);
+                            displayValidationError(accountId, 'Validation failed. Please try again.');
+                        });
+                }
+            });
+        }
+
+        // Initialize validation when document is ready
+        $(document).ready(function() {
+            @if(Model.Type == InvoiceTypes.Recharge)
+            {
+                <text>validateRechargeAccounts();</text>
+            }
+        });
+
+        $(function() {
+
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Or initialize all elements with title attribute
+            $('[title]').each(function() {
+                $(this).attr('data-bs-toggle', 'tooltip');
+            });
+            var allTooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            allTooltips.map(function (el) {
+                return new bootstrap.Tooltip(el);
             });
         });
     </script>

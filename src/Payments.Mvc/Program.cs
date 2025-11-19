@@ -17,6 +17,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
+using Microsoft.EntityFrameworkCore; //Used for Migrate(), don't remove
 
 namespace Payments.Mvc
 {
@@ -58,6 +59,10 @@ namespace Payments.Mvc
                     {
                         Task.Run(() => dbInitilizer.Recreate()).Wait();
                     }
+#endif
+
+#if RELEASE
+                    dbContext.Database.Migrate();
 #endif
                     Task.Run(() => dbInitilizer.Initialize()).Wait();
                 }

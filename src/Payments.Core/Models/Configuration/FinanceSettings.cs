@@ -11,9 +11,9 @@ namespace Payments.Core.Models.Configuration
         public string FeeChart { get; set; }
         public string FeeAccount { get; set; }
         
-        public bool UseCoa { get; set; } = false;
+        public bool UseCoa { get; set; } = true;
         //If UseCoa is turned on, ShowCoa should be as well.
-        public bool ShowCoa { get; set; } = false;
+        public bool ShowCoa { get; set; } = true;
 
         public string ClearingFinancialSegmentString { get; set; }
         public string FeeFinancialSegmentString { get; set; }
@@ -22,5 +22,14 @@ namespace Payments.Core.Models.Configuration
 
         public bool DisableJob { get; set; } = false;
         public bool AutoApprove { get; set; } = true;
+
+        public bool RechargeAutoApprove { get; set; } = true;
+        public bool RechargeDisableJob { get; set; } = false;
+
+        public string RechargeSlothSourceName { get; set; } = "PaymentsRecharge";
+
+        public bool ValidateRechargeFinancialSegmentString { get; set; } = true; 
+
+        public int RechargeAutoApproveDays { get; set; } = 7;
     }
 }

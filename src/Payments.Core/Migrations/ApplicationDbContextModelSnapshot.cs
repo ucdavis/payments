@@ -372,6 +372,13 @@ namespace Payments.Core.Migrations
                     b.Property<int>("TeamId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("CC");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
@@ -379,6 +386,8 @@ namespace Payments.Core.Migrations
                     b.HasIndex("CouponId");
 
                     b.HasIndex("TeamId");
+
+                    b.HasIndex("Type");
 
                     b.ToTable("Invoices");
                 });
@@ -628,6 +637,62 @@ namespace Payments.Core.Migrations
                     b.ToTable("PaymentEvents");
                 });
 
+            modelBuilder.Entity("Payments.Core.Domain.RechargeAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ApprovedByKerb")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ApprovedByName")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<int>("Direction")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EnteredByKerb")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("EnteredByName")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("FinancialSegmentString")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<decimal>("Percentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByKerb");
+
+                    b.HasIndex("EnteredByKerb");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("RechargeAccounts");
+                });
+
             modelBuilder.Entity("Payments.Core.Domain.TaxReportJobRecord", b =>
                 {
                     b.Property<string>("Id")
@@ -654,6 +719,13 @@ namespace Payments.Core.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AllowedInvoiceType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("CC");
 
                     b.Property<string>("ApiKey")
                         .HasColumnType("nvarchar(max)");
@@ -1009,6 +1081,17 @@ namespace Payments.Core.Migrations
                     b.Navigation("Invoice");
                 });
 
+            modelBuilder.Entity("Payments.Core.Domain.RechargeAccount", b =>
+                {
+                    b.HasOne("Payments.Core.Domain.Invoice", "Invoice")
+                        .WithMany("RechargeAccounts")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
             modelBuilder.Entity("Payments.Core.Domain.TeamPermission", b =>
                 {
                     b.HasOne("Payments.Core.Domain.TeamRole", "Role")
@@ -1061,6 +1144,8 @@ namespace Payments.Core.Migrations
                     b.Navigation("Items");
 
                     b.Navigation("PaymentEvents");
+
+                    b.Navigation("RechargeAccounts");
                 });
 
             modelBuilder.Entity("Payments.Core.Domain.MoneyMovementJobRecord", b =>

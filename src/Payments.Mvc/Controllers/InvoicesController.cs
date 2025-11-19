@@ -123,6 +123,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.History)
                 .Include(i => i.PaymentEvents)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -135,6 +136,10 @@ namespace Payments.Mvc.Controllers
             invoice.UpdateCalculatedValues();
 
             ViewBag.TransactionLookup = $"{_slothSettings.TransactionLookup}{id}";
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                ViewBag.SlothDisbursementLookup = $"{_slothSettings.RechargeTransactionLookup}{id}";
+            }
 
             return View(invoice);
         }
@@ -147,7 +152,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -188,6 +193,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Coupon)
                 .Include(i => i.Items)
                 .Include(i => i.Attachments)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -202,7 +208,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -264,7 +270,9 @@ namespace Payments.Mvc.Controllers
                     FileName = a.FileName,
                     ContentType = a.ContentType,
                     Size = a.Size,
-                }).ToList()
+                }).ToList(),
+                RechargeAccounts = invoice.RechargeAccounts?.ToList() ?? new List<RechargeAccount>(),
+                Type = invoice.Type,
             };
 
             // add other relevant data
@@ -279,6 +287,26 @@ namespace Payments.Mvc.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
+
+            if(model.Type == Invoice.InvoiceTypes.CreditCard)
+            {
+                if(team.AllowedInvoiceType == Team.AllowedInvoiceTypes.Recharge)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create credit card invoices.");
+                }
+            }
+            if(model.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                if(team.AllowedInvoiceType == Team.AllowedInvoiceTypes.CreditCard)
+                {
+                    ModelState.AddModelError("Type", "This team is not allowed to create recharge invoices.");
+                }
+                foreach(var rechargeAcct in model.RechargeAccounts)
+                {
+                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
+                    rechargeAcct.EnteredByName = user.Name;
+                }
+            }
 
             // validate model
             if (!ModelState.IsValid)
@@ -338,12 +366,22 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Attachments)
                 .Include(i => i.Team)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (invoice == null)
             {
                 return NotFound();
+            }
+
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id == 0))
+                {                    
+                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
+                    rechargeAcct.EnteredByName = user.Name;            
+                }
             }
 
             // validate model
@@ -398,6 +436,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Items)
                 .Include(i => i.Team)
                 .Include(i => i.Coupon)
+                .Include(i => i.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -417,14 +456,69 @@ namespace Payments.Mvc.Controllers
 
             await _invoiceService.SendInvoice(invoice, model);
 
-            // record action
             var user = await _userManager.GetUserAsync(User);
+
+            // check if the user email is the same as the customer email for recharges so it goes directly to the pending approval.
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge && 
+                string.Equals(user.Email, invoice.CustomerEmail, StringComparison.OrdinalIgnoreCase) && 
+                invoice.Status == Invoice.StatusCodes.Sent &&
+                invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any())
+            {
+                invoice.PaidAt = DateTime.UtcNow;
+                invoice.Status = Invoice.StatusCodes.PendingApproval;
+                var approvalAction = new History()
+                {
+                    Type = HistoryActionTypes.RechargePaidByCustomer.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = user.Name,
+                    Data = new RechargePaidByCustomerHistoryActionType().SerializeData(new RechargePaidByCustomerHistoryActionType.DataType
+                    {
+                        RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
+                    })
+                };
+                invoice.History.Add(approvalAction);
+            }
+
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.Status == Invoice.StatusCodes.PendingApproval)
+            {
+                //Need to resend these ones too
+                var sentTo = await _invoiceService.SendFinancialApproverEmail(invoice, null); //Will pull them with a private method
+
+                if (sentTo != null)
+                {
+                    var approvalSentAction = new History()
+                    {
+                        Type = HistoryActionTypes.RechargeSentToFinancialApprovers.TypeCode,
+                        ActionDateTime = DateTime.UtcNow,
+                        Actor = "System",
+                        Data = new RechargeSentToFinancialApproversHistoryActionType().SerializeData(new RechargeSentToFinancialApproversHistoryActionType.DataType
+                        {
+                            FinancialApprovers = sentTo.emails.Select(a => new RechargeSentToFinancialApproversHistoryActionType.FinancialApprover()
+                            {
+                                Name = a.Name,
+                                Email = a.Email
+                            }).ToArray()
+                        })
+                    };
+                    invoice.History.Add(approvalSentAction);
+                }
+            }
+
+            // record action
+
             var action = new History()
             {
                 Type = HistoryActionTypes.InvoiceSent.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
                 Actor = user.Name,
             };
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any())
+            {
+                action.Data = new InvoiceSentHistoryActionType().SerializeData(new InvoiceSentHistoryActionType.DataType
+                {
+                    RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
+                });
+            }
             invoice.History.Add(action);
 
             await _dbContext.SaveChangesAsync();
@@ -440,6 +534,7 @@ namespace Payments.Mvc.Controllers
         {
             // find item
             var invoice = await _dbContext.Invoices
+                .Include(a => a.RechargeAccounts)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -448,7 +543,7 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            if (invoice.Status != Invoice.StatusCodes.Sent)
+            if (invoice.Status != Invoice.StatusCodes.Sent && invoice.Status != Invoice.StatusCodes.Rejected)
             {
                 return NotFound();
             }
@@ -457,6 +552,16 @@ namespace Payments.Mvc.Controllers
             invoice.Sent = false;
             invoice.SentAt = null;
             invoice.LinkId = null;
+
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                invoice.PaidAt = null;
+                foreach (var acct in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+                {                
+                    acct.ApprovedByKerb = null;
+                    acct.ApprovedByName = null;
+                }
+            }
 
             // record action
             var user = await _userManager.GetUserAsync(User);

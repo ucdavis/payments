@@ -1,0 +1,53 @@
+@using Payments.Core.Domain
+@using Payments.Emails.Helpers
+@model Payments.Emails.Models.InvoiceViewModel
+
+@{
+    Layout = "_EmailLayout";
+    var team = (Team) ViewData["Team"];
+    var daysToAutoApprove = ViewData["DaysToAutoApprove"] ?? 7;
+
+    var invoice = Model.Invoice;
+    var extraText = "Recharge Invoice # " + invoice.GetFormattedId();
+
+    var linkHref = $"{ViewData["BaseUrl"]}/recharge/financialapprove/{invoice.LinkId}";
+    var pdfHref = $"{ViewData["BaseUrl"]}/download/{invoice.LinkId}";
+} 
+
+<mj-text align="center">
+    <h1>Invoice from @team.Name</h1>
+    <h3>@extraText</h3>
+    <div>You are one or more Financial Approvers needed to Approve or Deny the recharge for this invoice.</div>
+    <div>This will be auto approved in @daysToAutoApprove days if no action is taken.</div>
+</mj-text>
+
+@if(!string.IsNullOrWhiteSpace( invoice.Memo))
+{
+    <mj-text>
+        <p style="font-weight: bold">Memo:</p>
+        <p>@invoice.Memo.TruncateWithEllipsis(550)</p>
+    </mj-text>
+}
+
+<mj-table>
+    <tr>
+        <td style="vertical-align: top;">
+            <p style="font-weight: bold">Amount Due:</p>
+            <p>@invoice.CalculatedTotal.ToString("C")</p>
+        </td>
+        <td style="vertical-align: top; text-align: right;">
+            <p style="font-weight: bold">Billed To:</p>
+            @if (!string.IsNullOrWhiteSpace(invoice.CustomerName))
+            {
+                <p>@invoice.CustomerName</p>
+            }
+            <p>@invoice.CustomerEmail</p>
+        </td>
+    </tr>
+</mj-table>
+
+<mj-button href="@linkHref" background-color="#004987">Click Here to decide</mj-button>
+
+@{ await Html.PartialAsync("_EmailSummary", invoice); }
+
+<mj-button href="@pdfHref" background-color="#004987">Download as PDF</mj-button>

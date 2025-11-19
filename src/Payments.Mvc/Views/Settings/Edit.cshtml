@@ -1,4 +1,5 @@
 @using Payments.Mvc.Models.Roles
+@using Payments.Core.Domain
 @model Payments.Mvc.Models.TeamViewModels.EditTeamViewModel
 
 @{
@@ -45,10 +46,43 @@
                         <label asp-for="WebHookApiKey" class="control-label"></label>
                         <input asp-for="WebHookApiKey" class="form-control" />
                         <span asp-validation-for="WebHookApiKey" class="text-danger"></span>
-                        <div class="text-muted">Leave blank if you don't want to pass authorization to your webhook URL</div>
+                        <div class="text-muted">Leave blank if you don't want to pass authorization to your webhook URL
+                        </div>
                     </div>
 
-                    @if (User.IsInRole(ApplicationRoleCodes.Admin))
+                    @{
+                        bool isAdmin = User.IsInRole(ApplicationRoleCodes.Admin);
+                        string labelClass = isAdmin ? "form-check-label ms-2" : "form-check-label ms-2 text-muted";
+                    }
+
+                    <div class="form-group">
+                        <label asp-for="AllowedInvoiceType" class="control-label"></label>
+                        <div class="ms-3">
+                            <div class="form-check d-flex">
+                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                    value="@Team.AllowedInvoiceTypes.CreditCard" disabled="@(!isAdmin)" />
+                                <label class="@labelClass" asp-for="AllowedInvoiceType">Credit Card Only</label>
+                            </div>
+                            <div class="form-check d-flex">
+                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                    value="@Team.AllowedInvoiceTypes.Recharge" disabled="@(!isAdmin)" />
+                                <label class="@labelClass" asp-for="AllowedInvoiceType">Recharge Only</label>
+                            </div>
+                            <div class="form-check d-flex">
+                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                    value="@Team.AllowedInvoiceTypes.Both" disabled="@(!isAdmin)" />
+                                <label class="@labelClass" asp-for="AllowedInvoiceType">Both</label>
+                            </div>
+                        </div>
+                        @if (!isAdmin)
+                        {
+                            <div class="text-muted small mt-1">If you need to change the allowed invoice type, please submit
+                                a help ticket.</div>
+                        }
+                        <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
+                    </div>
+
+                    @if (isAdmin)
                     {
                         <div class="form-group">
                             <div class="checkbox">

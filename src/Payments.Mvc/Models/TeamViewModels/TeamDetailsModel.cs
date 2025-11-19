@@ -30,6 +30,9 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "Active?")]
         public bool IsActive { get; set; }
 
+        [Display(Name = "Allowed Invoice Type")]
+        public string AllowedInvoiceType { get; set; }
+
         public IList<FinancialAccount> Accounts { get; set; }
 
         public IList<TeamPermission> Permissions { get; set; }

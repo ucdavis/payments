@@ -27,3 +27,8 @@ body {
     font-family: "proxima-nova-i", serif;
 }
 
+#rechargeAccountsContainer {
+    page-break-inside: avoid;
+    break-inside: avoid-page;
+}
+

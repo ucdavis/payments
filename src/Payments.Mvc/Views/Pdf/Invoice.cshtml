@@ -80,17 +80,33 @@
 
 </head>
 <body>
-    <div id="headerContainer" class="row align-items-start">
-        <div id="logoContainer" class="col">
-            @Html.InlineSvg("/wwwroot/media/logo.svg")
+    @if(Model.Type == Invoice.InvoiceTypes.Recharge)
+    {
+        <div id="headerContainer" >
+            <div id="logoContainer" >
+                @Html.InlineSvg("/wwwroot/media/logo.svg")
+            </div>
         </div>
-        <div class="col">
-            <h1 id="invoiceNumber" class="font-weight-bold text-blue text-end">
-                Invoice #@Model.GetFormattedId()
+        <div >
+            <h1 id="invoiceNumber" class="font-weight-bold text-blue">
+                Recharge Invoice #@Model.GetFormattedId()
             </h1>
         </div>
-    </div>
+    }
+    else
+    {
+        <div id="headerContainer" class="row align-items-start">
+            <div id="logoContainer" class="col">
+                @Html.InlineSvg("/wwwroot/media/logo.svg")
+            </div>
 
+                <div class="col">
+                    <h1 id="invoiceNumber" class="font-weight-bold text-blue text-end">
+                        Invoice #@Model.GetFormattedId()
+                    </h1>
+                </div>
+        </div>
+    }
     <div id="invoiceInfo" class="row justify-content-between">
         <div class="col">
             <span class="text-label">Contact Info</span><br />

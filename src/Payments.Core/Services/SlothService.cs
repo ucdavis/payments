@@ -12,11 +12,13 @@ namespace Payments.Core.Services
 {
     public interface ISlothService
     {
-        Task<Transaction> GetTransactionsByProcessorId(string id);
+        Task<Transaction> GetTransactionByProcessorId(string id, bool forRecharge = false);
 
-        Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey);
+        Task<IList<Transaction>> GetTransactionsByProcessorId(string id, bool forRecharge = false);
 
-        Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction);
+        Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey, bool forRecharge = false);
+
+        Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction, bool forRecharge = false);
     }
 
     public class SlothService : ISlothService
@@ -30,9 +32,10 @@ namespace Payments.Core.Services
             _financeSettings = financeSettings.Value;
         }
 
-        public async Task<Transaction> GetTransactionsByProcessorId(string id)
+        [Obsolete("Use GetTransactionsByProcessorId instead")] //This just a first or default in sloth, not ideal.
+        public async Task<Transaction> GetTransactionByProcessorId(string id, bool forRecharge = false)
         {
-            using (var client = GetHttpClient())
+            using (var client = GetHttpClient(forRecharge))
             {
                 var escapedId = Uri.EscapeDataString(id);
                 var url = $"transactions/processor/{escapedId}";
@@ -43,9 +46,22 @@ namespace Payments.Core.Services
             }
         }
 
-        public async Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey)
+        public async Task<IList<Transaction>> GetTransactionsByProcessorId(string id, bool forRecharge = false)
         {
-            using (var client = GetHttpClient())
+            using (var client = GetHttpClient(forRecharge))
+            {
+                var escapedId = Uri.EscapeDataString(id);
+                var url = $"transactions/processortrackingnumber/{escapedId}";
+
+                var response = await client.GetAsync(url);
+                var result = await response.GetContentOrNullAsync<IList<Transaction>>();
+                return result;
+            }
+        }
+
+        public async Task<IList<Transaction>> GetTransactionsByKfsKey(string kfskey, bool forRecharge = false)
+        {
+            using (var client = GetHttpClient(forRecharge))
             {
                 var escapedKey = Uri.EscapeDataString(kfskey);
                 var url = $"transactions/kfskey/{escapedKey}";
@@ -56,9 +72,9 @@ namespace Payments.Core.Services
             }
         }
 
-        public async Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction)
+        public async Task<CreateSlothTransactionResponse> CreateTransaction(CreateTransaction transaction, bool forRecharge = false)
         {
-            using (var client = GetHttpClient())
+            using (var client = GetHttpClient(forRecharge))
             {
                 var url = "transactions";
 
@@ -68,7 +84,7 @@ namespace Payments.Core.Services
             }
         }
 
-        private HttpClient GetHttpClient()
+        private HttpClient GetHttpClient(bool forRecharge)
         {
             if (_settings.BaseUrl.EndsWith("v1/", StringComparison.OrdinalIgnoreCase) ||
                 _settings.BaseUrl.EndsWith("v2/", StringComparison.OrdinalIgnoreCase))
@@ -78,14 +94,17 @@ namespace Payments.Core.Services
                 _settings.BaseUrl = _settings.BaseUrl.Substring(0, _settings.BaseUrl.Length - 3);
             }
             var client = new HttpClient()
-            {                
-                BaseAddress = new Uri($"{_settings.BaseUrl}v1/"),
-            };
-            if(_financeSettings.UseCoa)
             {
-                client.BaseAddress = new Uri($"{_settings.BaseUrl}v2/");
+                BaseAddress = new Uri($"{_settings.BaseUrl}v2/")
+            };
+            if (forRecharge)
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.RechargeApiKey); //This is where the magic happens
             }
-            client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.ApiKey);
+            else
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", _settings.ApiKey);
+            }
 
             return client;
         }
@@ -94,5 +113,7 @@ namespace Payments.Core.Services
     public class CreateSlothTransactionResponse
     {
         public string Id { get; set; }
+
+        public string KfsTrackingNumber { get; set; } // Assigned by Sloth for recharges
     }
 }

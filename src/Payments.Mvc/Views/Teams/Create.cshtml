@@ -1,4 +1,5 @@
 @using Payments.Mvc.Models.TeamViewModels
+@using Payments.Core.Domain
 @model CreateTeamViewModel
 
 @{
@@ -45,7 +46,30 @@
                         <label asp-for="WebHookApiKey" class="control-label"></label>
                         <input asp-for="WebHookApiKey" class="form-control" />
                         <span asp-validation-for="WebHookApiKey" class="text-danger"></span>
-                        <span class="text-muted">Leave blank if you don't want to pass authorization to your webhook URL</span>
+                        <span class="text-muted">Leave blank if you don't want to pass authorization to your webhook
+                            URL</span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AllowedInvoiceType" class="control-label"></label>
+                        <div class="ms-3">
+                            <div class="form-check d-flex">
+                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                    value="@Team.AllowedInvoiceTypes.CreditCard" checked />
+                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Credit Card
+                                    Only</label>
+                            </div>
+                            <div class="form-check d-flex">
+                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                    value="@Team.AllowedInvoiceTypes.Recharge" />
+                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Recharge Only</label>
+                            </div>
+                            <div class="form-check d-flex">
+                                <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
+                                    value="@Team.AllowedInvoiceTypes.Both" />
+                                <label class="form-check-label ms-2" asp-for="AllowedInvoiceType">Both</label>
+                            </div>
+                        </div>
+                        <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <input type="submit" value="Create" class="btn" />

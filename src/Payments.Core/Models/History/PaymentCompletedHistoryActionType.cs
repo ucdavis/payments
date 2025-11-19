@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 namespace Payments.Core.Models.History
@@ -18,6 +18,11 @@ namespace Payments.Core.Models.History
             }
 
             return $"{d.Amount:C2} payment successful";
+        }
+
+        public string GetDetails(string data)
+        {
+            return null;
         }
 
         public DataType DeserializeData(string data)

@@ -12,12 +12,15 @@ using Serilog;
 using System.Net;
 using System.Net.Mail;
 using Razor.Templating.Core;
+using Payments.Core.Models.Invoice;
 
 namespace Payments.Emails
 {
     public interface IEmailService
     {
         Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails);
+
+        Task SendFinancialApprove(Invoice invoice, SendApprovalModel approveModel);
 
         Task SendReceipt(Invoice invoice, PaymentEvent payment);
 
@@ -38,9 +41,12 @@ namespace Payments.Emails
 
         private readonly MailAddress _refundAddress;
 
-        public SparkpostEmailService(IOptions<SparkpostSettings> sparkpostSettings, IMjmlServices mjmlServices)
+        private readonly FinanceSettings _financeSettings;
+
+        public SparkpostEmailService(IOptions<SparkpostSettings> sparkpostSettings, IMjmlServices mjmlServices, IOptions<FinanceSettings> financeSettings)
         {
             _mjmlServices = mjmlServices;
+            _financeSettings = financeSettings.Value;
 
             _sparkpostSettings = sparkpostSettings.Value;
 
@@ -190,6 +196,53 @@ namespace Payments.Emails
                 message.Body = mjml.Html;
                 message.IsBodyHtml = true;
                 message.To.Add(_refundAddress);
+
+                // ship it
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
+            }
+        }
+
+
+        public async Task SendFinancialApprove(Invoice invoice, SendApprovalModel approvalModel)
+        {
+            var viewbag = GetViewData();
+            viewbag["Team"] = invoice.Team;
+            viewbag["DaysToAutoApprove"] = _financeSettings.RechargeAutoApproveDays;
+
+            var model = new InvoiceViewModel
+            {
+                Invoice = invoice,
+            };
+
+            // add model data to email
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/FinancialApprove.cshtml", model, viewbag);
+
+            // convert email to real html
+            MjmlResponse mjml = await _mjmlServices.Render(prehtml);
+
+            // build email
+            using (var message = new MailMessage { From = _fromAddress, Subject = $"Financial Approval recharge from CAES Payments team {invoice.Team.Name}" })
+            {
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+
+                foreach (var recipient in approvalModel.emails)
+                {
+                    message.To.Add(new MailAddress(recipient.Email, recipient.Name));
+                }                
+
+                message.CC.Add(new MailAddress(invoice.CustomerEmail, invoice.CustomerName));
+
+
+                // add bcc
+                if (!string.IsNullOrWhiteSpace(approvalModel.bccEmails))
+                {
+                    approvalModel.bccEmails.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(e => new MailAddress(e))
+                        .ToList()
+                        .ForEach(e => message.Bcc.Add(e));
+                }
 
                 // ship it
                 await _client.SendMailAsync(message);

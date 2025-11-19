@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
@@ -20,6 +20,11 @@ namespace Payments.Core.Models.History
             }
 
             return $"Coupon code \"{d.Code}\" added by customer.";
+        }
+
+        public string GetDetails(string data)
+        {
+            return null;
         }
 
         public DataType DeserializeData(string data)

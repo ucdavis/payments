@@ -69,6 +69,15 @@ stages:
               projects: "./src/Payments.Jobs.MoneyMovement/Payments.Jobs.MoneyMovement.csproj"
               arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered"
 
+          - task: DotNetCoreCLI@2
+            displayName: "Publish Payments.Jobs.AutoApprove"
+            inputs:
+              command: "publish"
+              publishWebProjects: false
+              zipAfterPublish: false
+              projects: "./src/Payments.Jobs.AutoApprove/Payments.Jobs.AutoApprove.csproj"
+              arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/app_data/jobs/triggered"
+
           - task: PublishBuildArtifacts@1
             condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
             displayName: "Publish Build Artifacts for master branch builds"

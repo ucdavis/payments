@@ -7,6 +7,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Helpers;
 using Payments.Core.Models.Invoice;
+using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Emails;
 
@@ -16,15 +17,18 @@ namespace Payments.Mvc.Services
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IEmailService _emailService;
+        private readonly IAggieEnterpriseService _aggieEnterpriseService;
 
-        public InvoiceService(ApplicationDbContext dbContext, IEmailService emailService)
+        public InvoiceService(ApplicationDbContext dbContext, IEmailService emailService, IAggieEnterpriseService aggieEnterpriseService)
         {
             _dbContext = dbContext;
             _emailService = emailService;
+            _aggieEnterpriseService = aggieEnterpriseService;
         }
 
         public async Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team)
         {
+            //Account isn't really used or needed for recharge invoices, but keep doing this until we can see if it breaks anything.
             // find account
             var account = await _dbContext.FinancialAccounts
                 .FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.Id == model.AccountId);
@@ -39,6 +43,50 @@ namespace Payments.Mvc.Services
                 throw new ArgumentException("Account is inactive.", nameof(model.AccountId));
             }
 
+
+            if (model.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                //Must have at least one credit recharge account.
+                //All recharge accounts must be valid.
+                //All credit recharge account must be 100% of total.
+                //If any debit recharge accounts, they must all be 100% of total.
+
+                if(model.RechargeAccounts == null || !model.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                {
+                    throw new ArgumentException("At least one credit recharge account is required for recharge invoices.", nameof(model.RechargeAccounts));
+                }
+
+                if(model.RechargeAccounts.Where(a => a.Amount <=0.0m ).Any())
+                {
+                    throw new ArgumentException("Recharge account amounts must be greater than 0.", nameof(model.RechargeAccounts));
+                }
+
+                foreach(var ra in model.RechargeAccounts)
+                {
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    if(!validationModel.IsValid)
+                    {
+                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
+                    }
+                    // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
+                    if(validationModel.ChartString != ra.FinancialSegmentString)
+                    {
+                        ra.FinancialSegmentString = validationModel.ChartString;
+                        //log it?
+                    }
+                }
+
+                if(model.CouponId > 0)
+                {
+                    throw new ArgumentException("Coupons are not allowed for recharge invoices.", nameof(model.CouponId));
+                }
+
+                if(model.TaxPercent > 0.0m)
+                {
+                    throw new ArgumentException("Tax is not allowed for recharge invoices.", nameof(model.TaxPercent));
+                }
+            }
+
             // find coupon
             Coupon coupon = null;
             if (model.CouponId > 0)
@@ -46,7 +94,6 @@ namespace Payments.Mvc.Services
                 coupon = await _dbContext.Coupons
                     .FirstOrDefaultAsync(c => c.Team.Id == team.Id && c.Id == model.CouponId);
             }
-
             // manage multiple customer scenario
             var invoices = new List<Invoice>();
             foreach (var customer in model.Customers)
@@ -54,40 +101,41 @@ namespace Payments.Mvc.Services
                 // create new object, track it
                 var invoice = new Invoice
                 {
-                    DraftCount      = 1,
-                    Account         = account,
-                    Coupon          = coupon,
-                    Team            = team,
-                    ManualDiscount  = model.ManualDiscount,
-                    TaxPercent      = model.TaxPercent,
-                    DueDate         = model.DueDate,
+                    DraftCount = 1,
+                    Account = account,
+                    Coupon = coupon,
+                    Team = team,
+                    ManualDiscount = model.ManualDiscount,
+                    TaxPercent = model.TaxPercent,
+                    DueDate = model.DueDate,
                     CustomerAddress = customer.Address,
-                    CustomerEmail   = customer.Email,
-                    CustomerName    = customer.Name,
+                    CustomerEmail = customer.Email,
+                    CustomerName = customer.Name,
                     CustomerCompany = customer.Company,
-                    Memo            = model.Memo,
-                    Status          = Invoice.StatusCodes.Draft,
-                    Sent            = false,
+                    Memo = model.Memo,
+                    Status = Invoice.StatusCodes.Draft,
+                    Sent = false,
+                    Type = model.Type,
                 };
 
                 // add line items
                 var items = model.Items.Select(i => new LineItem()
                 {
-                    Amount      = i.Amount,
+                    Amount = i.Amount,
                     Description = i.Description,
-                    Quantity    = i.Quantity,
-                    TaxExempt   = i.TaxExempt,
-                    Total       = i.Quantity * i.Amount,
+                    Quantity = i.Quantity,
+                    TaxExempt = i.TaxExempt,
+                    Total = i.Quantity * i.Amount,
                 });
                 invoice.Items = items.ToList();
 
                 // add attachments
                 var attachments = model.Attachments.Where(a => !string.IsNullOrWhiteSpace(a.Identifier)).Select(a => new InvoiceAttachment()
                 {
-                    Identifier  = a.Identifier,
-                    FileName    = a.FileName,
+                    Identifier = a.Identifier,
+                    FileName = a.FileName,
                     ContentType = a.ContentType,
-                    Size        = a.Size,
+                    Size = a.Size,
                 });
                 invoice.Attachments = attachments.ToList();
 
@@ -98,6 +146,34 @@ namespace Payments.Mvc.Services
                 {
                     throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
                 }
+
+                if (model.Type == Invoice.InvoiceTypes.Recharge)
+                {
+                    var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
+                    {
+                        Direction = a.Direction,
+                        FinancialSegmentString = a.FinancialSegmentString,
+                        Amount = a.Amount,
+                        Percentage = a.Percentage,
+                        EnteredByKerb = a.EnteredByKerb,
+                        EnteredByName = a.EnteredByName,
+                        Notes = a.Notes,
+
+                    });
+                    invoice.RechargeAccounts = rechargeAccounts.ToList();
+
+                    if(invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit).Sum(a => a.Amount))
+                    {
+                        throw new ArgumentException("Total of credit recharge accounts must equal invoice total.", nameof(model.RechargeAccounts));
+                    }
+                    if(invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any() &&
+                        invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Sum(a => a.Amount))
+                    {
+                        throw new ArgumentException("Total of debit recharge accounts must equal invoice total when supplied.", nameof(model.RechargeAccounts));
+                    }
+                }
+
+
 
                 _dbContext.Invoices.Add(invoice);
 
@@ -112,6 +188,7 @@ namespace Payments.Mvc.Services
             // get team out of invoice
             var team = invoice.Team;
 
+            //TODO: Continue to do the account for now, but we may not need it for recharge invoices.
             // find account
             var account = await _dbContext.FinancialAccounts
                 .FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.Id == model.AccountId);
@@ -139,16 +216,16 @@ namespace Payments.Mvc.Services
             _dbContext.LineItems.RemoveRange(invoice.Items);
 
             // update invoice
-            invoice.Account         = account;
-            invoice.Coupon          = coupon;
+            invoice.Account = account;
+            invoice.Coupon = coupon;
             invoice.CustomerAddress = model.Customer.Address;
-            invoice.CustomerEmail   = model.Customer.Email;
-            invoice.CustomerName    = model.Customer.Name;
+            invoice.CustomerEmail = model.Customer.Email;
+            invoice.CustomerName = model.Customer.Name;
             invoice.CustomerCompany = model.Customer.Company;
-            invoice.Memo            = model.Memo;
-            invoice.ManualDiscount  = model.ManualDiscount;
-            invoice.TaxPercent      = model.TaxPercent;
-            invoice.DueDate         = model.DueDate;
+            invoice.Memo = model.Memo;
+            invoice.ManualDiscount = model.ManualDiscount;
+            invoice.TaxPercent = model.TaxPercent;
+            invoice.DueDate = model.DueDate;
 
             // increase draft count
             invoice.DraftCount++;
@@ -156,21 +233,76 @@ namespace Payments.Mvc.Services
             // add line items
             var items = model.Items.Select(i => new LineItem()
             {
-                Amount      = i.Amount,
+                Amount = i.Amount,
                 Description = i.Description,
-                Quantity    = i.Quantity,
-                TaxExempt   = i.TaxExempt,
-                Total       = i.Quantity * i.Amount,
+                Quantity = i.Quantity,
+                TaxExempt = i.TaxExempt,
+                Total = i.Quantity * i.Amount,
             });
             invoice.Items = items.ToList();
+
+            //TODO: Move this into a private method. Need to do on update too.
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                // Recharges don't have tax
+                model.TaxPercent = 0;
+                invoice.TaxPercent = 0;
+                if(model.CouponId > 0)
+                {
+                    throw new ArgumentException("Coupons are not allowed for recharge invoices.", nameof(model.CouponId));
+                }
+
+                // remove old recharge accounts
+                // If we do it this way, there may be issues if an invoice is rejected, then we edit it and resend. Now all the entered by values are lost.
+                _dbContext.RechargeAccounts.RemoveRange(invoice.RechargeAccounts);
+
+                var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
+                {
+                    Direction = a.Direction,
+                    FinancialSegmentString = a.FinancialSegmentString,
+                    Amount = a.Amount,
+                    Percentage = a.Percentage,
+                    EnteredByKerb = a.EnteredByKerb,
+                    EnteredByName = a.EnteredByName,
+                    Notes = a.Notes,
+
+                });
+                invoice.RechargeAccounts = rechargeAccounts.ToList();
+
+                // Validate recharge accounts again.
+                if (invoice.RechargeAccounts == null || !invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                {
+                    throw new ArgumentException("At least one credit recharge account is required for recharge invoices.", nameof(model.RechargeAccounts));
+                }
+
+                if (invoice.RechargeAccounts.Where(a => a.Amount <= 0.0m).Any())
+                {
+                    throw new ArgumentException("Recharge account amounts must be greater than 0.", nameof(model.RechargeAccounts));
+                }
+
+                foreach (var ra in invoice.RechargeAccounts)
+                {
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    if (!validationModel.IsValid)
+                    {
+                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
+                    }
+                    // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
+                    if (validationModel.ChartString != ra.FinancialSegmentString)
+                    {
+                        ra.FinancialSegmentString = validationModel.ChartString;
+                        //log it?
+                    }
+                }
+            }
 
             // add attachments
             var attachments = model.Attachments.Select(a => new InvoiceAttachment()
             {
-                Identifier  = a.Identifier,
-                FileName    = a.FileName,
+                Identifier = a.Identifier,
+                FileName = a.FileName,
                 ContentType = a.ContentType,
-                Size        = a.Size,
+                Size = a.Size,
             });
             invoice.Attachments = attachments.ToList();
 
@@ -186,9 +318,24 @@ namespace Payments.Mvc.Services
             {
                 throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
             }
-            
+
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+
+                if (invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit).Sum(a => a.Amount))
+                {
+                    throw new ArgumentException("Total of credit recharge accounts must equal invoice total.", nameof(model.RechargeAccounts));
+                }
+                if (invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any() &&
+                    invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Sum(a => a.Amount))
+                {
+                    throw new ArgumentException("Total of debit recharge accounts must equal invoice total when supplied.", nameof(model.RechargeAccounts));
+                }
+            }
+
             return invoice;
         }
+
 
         public async Task SendInvoice(Invoice invoice, SendInvoiceModel model)
         {
@@ -198,9 +345,35 @@ namespace Payments.Mvc.Services
                 SetInvoiceKey(invoice);
             }
 
+            //Possibly we want to validate the recharge accounts again before sending?
+            if(invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                foreach (var ra in invoice.RechargeAccounts)
+                {
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    if (!validationModel.IsValid)
+                    {
+                        //This will throw an uncontrolled exception, but that is probably better than sending an invoice with invalid accounts.
+                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
+                    }
+                }
+            }
+
             await _emailService.SendInvoice(invoice, model.ccEmails, model.bccEmails);
 
-            invoice.Status = Invoice.StatusCodes.Sent;
+            if (invoice.Type == Invoice.InvoiceTypes.Recharge)
+            {
+                //We don't want to change the status of these just because we resend
+                if(invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Rejected)
+                {
+                    invoice.Status = Invoice.StatusCodes.Sent;
+                }
+            }
+            else
+            {
+                invoice.Status = Invoice.StatusCodes.Sent;
+            }
+                
             invoice.Sent = true;
             invoice.SentAt = DateTime.UtcNow;
         }
@@ -243,6 +416,64 @@ namespace Payments.Mvc.Services
 
             return linkId;
         }
+
+        public async Task<SendApprovalModel> SendFinancialApproverEmail(Invoice invoice, SendApprovalModel model)
+        {
+            if (invoice.Type != Invoice.InvoiceTypes.Recharge)
+            {
+                return null;
+            }
+
+            if(model == null)
+            {
+                model = await GetInvoiceApprovers(invoice);
+            }
+
+            //The cc emails are actually going to be the to emails in this case.
+            //We might want to change it a little to have the names as well.
+            await _emailService.SendFinancialApprove(invoice, model);
+
+            return model;
+        }
+
+        private async Task<SendApprovalModel> GetInvoiceApprovers(Invoice invoice)
+        {
+            if(invoice.RechargeAccounts == null || !invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+            {
+                throw new ArgumentException("Invoice has no debit recharge accounts to get approvers from.", nameof(invoice));
+            }
+
+            var approvers = new List<Approver>();
+            foreach(var ra in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+            {
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                if(validationResult.Approvers != null)
+                {
+                    approvers.AddRange(validationResult.Approvers);
+                }
+            }
+            var approverDistinct = approvers
+                .Where(a => !string.IsNullOrWhiteSpace(a.Email))
+                .DistinctBy(a => a.Email!.ToLower())
+                .ToList();
+
+            var emails = new List<EmailRecipient>();
+            foreach (var approver in approverDistinct)
+            {
+                emails.Add(new EmailRecipient()
+                {
+                    Email = approver.Email,
+                    Name = approver.Name
+                });
+            }
+
+            return new SendApprovalModel()
+            {
+                emails = emails.ToArray(),
+                bccEmails = "" //TODO: Add any BCC emails if needed. Note customer is CC'd by default in the service.
+            };
+
+        }
     }
 
     public interface IInvoiceService
@@ -252,6 +483,8 @@ namespace Payments.Mvc.Services
         Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
+
+        Task<SendApprovalModel> SendFinancialApproverEmail(Invoice invoice, SendApprovalModel model);
 
         Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user);
 

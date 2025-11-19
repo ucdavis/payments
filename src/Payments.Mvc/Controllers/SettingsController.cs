@@ -63,15 +63,16 @@ namespace Payments.Mvc.Controllers
 
             var model = new TeamDetailsModel
             {
-                Name               = team.Name,
-                Slug               = team.Slug,
-                ContactName        = team.ContactName,
-                ContactEmail       = team.ContactEmail,
+                Name = team.Name,
+                Slug = team.Slug,
+                ContactName = team.ContactName,
+                ContactEmail = team.ContactEmail,
                 ContactPhoneNumber = team.ContactPhoneNumber,
-                ApiKey             = userCanEdit ? team.ApiKey : "",
-                IsActive           = team.IsActive,
-                UserCanEdit        = userCanEdit,
-                WebHookApiKey      = team.WebHookApiKey
+                ApiKey = userCanEdit ? team.ApiKey : "",
+                IsActive = team.IsActive,
+                UserCanEdit = userCanEdit,
+                WebHookApiKey = team.WebHookApiKey,
+                AllowedInvoiceType = team.AllowedInvoiceType
             };
 
             return View(model);
@@ -91,13 +92,14 @@ namespace Payments.Mvc.Controllers
 
             var model = new EditTeamViewModel()
             {
-                Name               = team.Name,
-                Slug               = team.Slug,
-                ContactName        = team.ContactName,
-                ContactEmail       = team.ContactEmail,
+                Name = team.Name,
+                Slug = team.Slug,
+                ContactName = team.ContactName,
+                ContactEmail = team.ContactEmail,
                 ContactPhoneNumber = team.ContactPhoneNumber,
-                IsActive           = team.IsActive,
-                WebHookApiKey      = team.WebHookApiKey
+                IsActive = team.IsActive,
+                WebHookApiKey = team.WebHookApiKey,
+                AllowedInvoiceType = team.AllowedInvoiceType
             };
 
             return View(model);
@@ -126,17 +128,19 @@ namespace Payments.Mvc.Controllers
                 return View(model);
             }
 
-            team.Name               = model.Name;
-            team.Slug               = model.Slug;
-            team.ContactName        = model.ContactName;
-            team.ContactEmail       = model.ContactEmail;
+            team.Name = model.Name;
+            team.Slug = model.Slug;
+            team.ContactName = model.ContactName;
+            team.ContactEmail = model.ContactEmail;
             team.ContactPhoneNumber = model.ContactPhoneNumber;
-            team.WebHookApiKey      = model.WebHookApiKey;
+            team.WebHookApiKey = model.WebHookApiKey;
+            
 
             // only admins can change active
             if (User.IsInRole(ApplicationRoleCodes.Admin))
             {
                 team.IsActive = model.IsActive;
+                team.AllowedInvoiceType = model.AllowedInvoiceType;
             }
 
             await _context.SaveChangesAsync();
@@ -165,14 +169,14 @@ namespace Payments.Mvc.Controllers
 
             var model = new TeamDetailsModel
             {
-                Name               = team.Name,
-                Slug               = team.Slug,
-                ContactName        = team.ContactName,
-                ContactEmail       = team.ContactEmail,
+                Name = team.Name,
+                Slug = team.Slug,
+                ContactName = team.ContactName,
+                ContactEmail = team.ContactEmail,
                 ContactPhoneNumber = team.ContactPhoneNumber,
-                IsActive           = team.IsActive,
-                Permissions        = permissions,
-                UserCanEdit        = userCanEdit
+                IsActive = team.IsActive,
+                Permissions = permissions,
+                UserCanEdit = userCanEdit
             };
 
             return View(model);
@@ -246,10 +250,10 @@ namespace Payments.Mvc.Controllers
                 {
                     var userToCreate = new User
                     {
-                        Email          = user.Mail,
-                        UserName       = user.Mail,
+                        Email = user.Mail,
+                        UserName = user.Mail,
                         CampusKerberos = user.Kerberos,
-                        Name           = user.FullName
+                        Name = user.FullName
                     };
 
                     var userPrincipal = new ClaimsPrincipal();
@@ -427,11 +431,11 @@ namespace Payments.Mvc.Controllers
             // create webhook and add it
             var webHook = new WebHook()
             {
-                Team               = team,
-                Url                = model.Url,
-                ContentType        = model.ContentType,
-                IsActive           = model.IsActive,
-                TriggerOnPaid      = model.TriggerOnPaid,
+                Team = team,
+                Url = model.Url,
+                ContentType = model.ContentType,
+                IsActive = model.IsActive,
+                TriggerOnPaid = model.TriggerOnPaid,
                 TriggerOnReconcile = model.TriggerOnReconcile,
             };
 
@@ -460,9 +464,9 @@ namespace Payments.Mvc.Controllers
 
             var model = new EditWebHookViewModel()
             {
-                Id            = webHook.Id,
-                Url           = webHook.Url,
-                IsActive      = webHook.IsActive,
+                Id = webHook.Id,
+                Url = webHook.Url,
+                IsActive = webHook.IsActive,
                 TriggerOnPaid = webHook.TriggerOnPaid,
             };
 
@@ -494,10 +498,10 @@ namespace Payments.Mvc.Controllers
             }
 
             // update model
-            webHook.Url                = model.Url;
-            webHook.ContentType        = model.ContentType;
-            webHook.IsActive           = model.IsActive;
-            webHook.TriggerOnPaid      = model.TriggerOnPaid;
+            webHook.Url = model.Url;
+            webHook.ContentType = model.ContentType;
+            webHook.IsActive = model.IsActive;
+            webHook.TriggerOnPaid = model.TriggerOnPaid;
             webHook.TriggerOnReconcile = model.TriggerOnReconcile;
 
             await _context.SaveChangesAsync();

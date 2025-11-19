@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,6 +13,10 @@ namespace Payments.Core.Models.History
         public string GetMessage(string data)
         {
             return "Invoice was deleted";
+        }
+        public string GetDetails(string data)
+        {
+            return null;
         }
     }
 }

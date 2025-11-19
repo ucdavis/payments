@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using static Payments.Core.Domain.Team;
 
 namespace Payments.Mvc.Models.TeamViewModels
 {
@@ -38,5 +39,10 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "WebHook API Key")]
         [RegularExpression(@"^[a-zA-Z0-9\-._~]*$", ErrorMessage = "WebHook API Key may only contain URL-safe characters. (a-z A-Z 0-9 - . _ ~)")]
         public string WebHookApiKey { get; set; }
+
+        [Required]
+        [StringLength(10)]
+        [Display(Name = "Allowed Invoice Type")]
+        public string AllowedInvoiceType { get; set; } = AllowedInvoiceTypes.CreditCard;
     }
 }

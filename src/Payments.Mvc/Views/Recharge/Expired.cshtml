@@ -1,0 +1,20 @@
+@model Payments.Mvc.Models.PaymentViewModels.ExpiredInvoiceViewModel
+
+@{
+    ViewBag.Title = $"Expired Invoice Link";
+    Layout = "_PaymentsLayout";
+}
+
+<div class="card pay-card">
+    <div class="card-gradient-header-bleed">
+        <div class="card-gradient-header">
+        </div>
+    </div>
+    <div>
+        <div class="pay-action">
+            <h1>Expired Invoice</h1>
+            <p>The invoice you're trying to reach has expired.</p>
+        </div>
+        <partial name="_Footer" model="@Model.Team" />
+    </div>
+</div>
