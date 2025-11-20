@@ -89,7 +89,7 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
               after it's sent.
             </span>
             <div className='d-flex align-items-baseline'>
-              <button className='btn-outline-danger' onClick={onCancel}>
+              <button className='btn btn-outline-danger' onClick={onCancel}>
                 Cancel
               </button>
               <button className='btn btn-primary' onClick={this.onSend}>
