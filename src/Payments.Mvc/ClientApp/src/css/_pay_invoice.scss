@@ -37,25 +37,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
   background-color: transparentize($gold, 0.96);
   padding: $card-thick-padding;
-  // text-align: center;
   border-top: 1px solid $borders;
   border-bottom: 1px solid $borders;
-
   .pay-action-total {
     font-size: 2.2rem;
     font-weight: 500;
     font-family: $sans-bold;
   }
-
   .pay-action-date {
     color: $secondary-font;
     font-size: 1.2rem;
     margin-top: 1rem;
   }
-
   .reject-now-button {
     margin-top: 1.2rem;
     padding-left: 3rem;
@@ -67,33 +62,26 @@
     border-color: darken($doubledecker, 10%);
   }
 }
-
 .pay-description {
   padding: $card-thick-padding;
-
   h3 {
     font-size: 1.1rem;
     font-family: $sans-reg;
     color: $secondary-font;
   }
-
   .pay-memo {
     box-shadow: $box-shadow;
     padding: 1rem;
-
     p {
       margin-bottom: 0;
       font-style: italic;
     }
-
     margin-bottom: 3rem;
   }
 }
-
 .pay-attachments {
   padding: $card-thick-padding;
   width: 100%;
-
   h3 {
     font-size: 1.1rem;
     font-family: $sans-reg;
@@ -134,7 +122,6 @@
   text-align: center;
 }
 
-// Preview warning card
 .preview-warning-card,
 .preview-warning-card-style {
   padding: 1rem 3rem;

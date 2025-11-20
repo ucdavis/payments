@@ -554,8 +554,8 @@
         </div>
             <div class="card-body invoice-payment-details">
             <dl class="row">
-                <dt class="col-3 text-end">Amount</dt>
-                <dd class="col-9">
+                <dt class="col-2 text-end">Amount</dt>
+                <dd class="col-10">
                     @if (successfulPayment != null)
                     {
                         <span>$@successfulPayment.Amount</span>
@@ -566,8 +566,8 @@
                     }
                 </dd>
 
-                <dt class="col-3 text-end">Paid on</dt>
-                <dd class="col-9">
+                <dt class="col-2 text-end">Paid on</dt>
+                <dd class="col-10">
                     @Model.PaidAt.ToPacificTime()?.ToString("g")
                 </dd>
             </dl>
@@ -579,21 +579,21 @@
                     
                     @if (!string.IsNullOrWhiteSpace(successfulPayment.CardNumber))
                     {
-                        <dt class="col-3 text-end">Card Details</dt>
-                        <dd class="col-9">
+                        <dt class="col-2 text-end">Card Details</dt>
+                        <dd class="col-10">
                             <span class="text-monospace">@CyberSourceCardTypes.FormatCardNumber(successfulPayment.CardNumber, successfulPayment.CardType)</span>
                             <i class="@cardClass"></i>
                         </dd>
                     }
 
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
-                    <dd class="col-9">
+                    <dt class="col-2 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].BillingEmail)</dt>
+                    <dd class="col-10">
                         @successfulPayment.BillingEmail
                     </dd>
                     
 
-                    <dt class="col-3 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
-                    <dd class="col-9">
+                    <dt class="col-2 text-end">@Html.DisplayNameFor(x => x.PaymentEvents[0].ProcessorId)</dt>
+                    <dd class="col-10">
                         @successfulPayment.ProcessorId
                     </dd>
                 </dl>
