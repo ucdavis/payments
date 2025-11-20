@@ -14,7 +14,11 @@
     background-color: transparentize($primary-color, 0.99);
   }
 }
-
+.card-report {
+  box-shadow: none;
+  margin-bottom: 0rem;
+  padding: 8px;
+}
 table.table {
   td {
     vertical-align: inherit;
