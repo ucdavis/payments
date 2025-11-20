@@ -550,6 +550,16 @@ namespace Payments.Mvc.Controllers
 
             await _dbContext.SaveChangesAsync();
 
+            try
+            {
+                //It would be nicer to move this to the money movement job, but that would mean refactoring stuff
+                await _invoiceService.SendRechargeReceipt(invoice);
+            }
+            catch (Exception ex)
+            {
+                //swallow it.
+            }
+
             return Ok();
         }
 
