@@ -455,7 +455,15 @@ namespace Payments.Core.Jobs
                         catch (Exception ex)
                         {
                             log.Error(ex, "Error processing invoice {id}", invoice.Id);
-                            ts.Rollback();
+                            try
+                            {
+                                ts.Rollback();
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                // Transaction was already rolled back or committed
+                                log.Warning("Transaction for invoice {id} was already completed", invoice.Id);
+                            }
                             continue;
                         }
                     }
