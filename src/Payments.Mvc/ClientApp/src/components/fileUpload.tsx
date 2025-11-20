@@ -175,9 +175,9 @@ export default class FileUpload extends React.Component<IProps, IState> {
       axios(`${slug}/files/uploadfile`, {
         cancelToken: newAttachment.cancelToken.token,
         data,
-        headers: {
-          RequestVerificationToken: antiForgeryToken
-        },
+        //headers: {
+        //  RequestVerificationToken: antiForgeryToken
+        //},
         method: 'post',
         onUploadProgress: progressEvent =>
           this.onUploadProgress(progressEvent, newAttachment.identifier)
