@@ -12,6 +12,7 @@ using Payments.Mvc.Models.Roles;
 namespace Payments.Mvc.Controllers
 {
     [Authorize(Policy = PolicyCodes.TeamEditor)]
+    [IgnoreAntiforgeryToken]
     public class FilesController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;
@@ -43,8 +44,7 @@ namespace Payments.Mvc.Controllers
             return File(stream, attachment.ContentType, attachment.FileName);
         }
 
-        [HttpPost]
-        [IgnoreAntiforgeryToken]
+        [HttpPost]        
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             // upload file to azure
