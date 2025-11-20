@@ -212,7 +212,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                       </>
                     ) : (
                       <>
-                        <i className='fas fa-check me-3' aria-hidden='true' />
+                        <i className='fas fa-check' aria-hidden='true' />
                         Approve
                       </>
                     )}
@@ -232,7 +232,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                       </>
                     ) : (
                       <>
-                        <i className='fas fa-times me-3' aria-hidden='true' />
+                        <i className='fas fa-times' aria-hidden='true' />
                         Reject
                       </>
                     )}

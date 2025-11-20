@@ -59,8 +59,8 @@ export default class MultiCustomerControl extends React.Component<
           type='button'
           onClick={this.enableMultiCustomer}
         >
-          <i className='fas fa-plus me-3' />
-          <i className='fas fa-users me-3' />
+          <i className='fas fa-plus' />
+          <i className='fas fa-users' />
           Bill Multiple Customers
         </button>
       );

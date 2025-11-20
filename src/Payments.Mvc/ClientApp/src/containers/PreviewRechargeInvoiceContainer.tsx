@@ -116,7 +116,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
                   aria-disabled='true'
                   title='Preview mode - submission is disabled'
                 >
-                  <i className='fas fa-check me-3' aria-hidden='true' />
+                  <i className='fas fa-check' aria-hidden='true' />
                   Submit for Approval
                 </button>
               </div>

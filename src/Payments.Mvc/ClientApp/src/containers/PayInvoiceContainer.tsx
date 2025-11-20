@@ -206,7 +206,7 @@ export default class PayInvoiceContainer extends React.Component<
                       </>
                     ) : (
                       <>
-                        <i className='fas fa-check me-3' aria-hidden='true' />
+                        <i className='fas fa-check' aria-hidden='true' />
                         Submit for Approval
                       </>
                     )}
