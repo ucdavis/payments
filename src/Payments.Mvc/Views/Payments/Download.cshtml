@@ -38,12 +38,12 @@
             <img src="/media/download.svg" alt="download icon">
             <h3></h3>
 
-            <a href="@(Url.Action("Invoice", "Pdf", new { id = Model.LinkId }))" class="btn-inverse" download>
+            <a href="@(Url.Action("Invoice", "Pdf", new { id = Model.LinkId }))" class="btn btn-outline-primary" download>
                 Download Invoice PDF
             </a>
             @if(Model.Paid)
             {
-            <a href="@(Url.Action("Receipt", "Pdf", new {id = Model.LinkId}))" class="btn-inverse" download>
+            <a href="@(Url.Action("Receipt", "Pdf", new {id = Model.LinkId}))" class="btn btn-outline-primary" download>
                 Download Receipt PDF
             </a>
             }

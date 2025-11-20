@@ -111,7 +111,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
               <div style={{ alignContent: 'center' }}>
                 <button
                   type='button'
-                  className='btn-gold btn-lg pay-now-button'
+                  className='btn btn-secondary'
                   disabled={true}
                   aria-disabled='true'
                   title='Preview mode - submission is disabled'
@@ -218,7 +218,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
               <br />
               <a
                 href={`/pdf/${invoice.linkId}`}
-                className='btn-inverse'
+                className='btn btn-outline-primary'
                 download
               >
                 Download PDF

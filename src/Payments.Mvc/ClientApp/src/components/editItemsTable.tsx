@@ -148,7 +148,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                 <td>
                   {discount.hasDiscount && (
                     <button
-                      className='btn-link btn-invoice-delete'
+                      className='btn btn-danger'
                       onClick={this.removeDiscount}
                     >
                       <i className='fas fa-times' />
@@ -269,7 +269,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
         <td>${(quantity * amount).toFixed(2)}</td>
         <td>
           <button
-            className='btn-link btn-invoice-delete'
+            className='btn btn-danger'
             onClick={() => this.removeItem(id)}
           >
             <i className='fas fa-trash-alt' />

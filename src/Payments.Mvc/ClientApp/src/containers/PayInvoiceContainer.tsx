@@ -188,7 +188,7 @@ export default class PayInvoiceContainer extends React.Component<
                 <div style={{ alignContent: 'center' }}>
                   <button
                     type='button'
-                    className='btn-gold btn-lg pay-now-button'
+                    className='btn btn-secondary'
                     onClick={this.handleSubmit}
                     disabled={!isValid || isSaving || isValidating}
                     style={{
@@ -402,7 +402,7 @@ export default class PayInvoiceContainer extends React.Component<
             {invoice.paid ? (
               <a
                 href={`/receipt/${invoice.linkId}`}
-                className='btn-inverse'
+                className='btn btn-outline-primary'
                 download
               >
                 Download PDF
@@ -410,7 +410,7 @@ export default class PayInvoiceContainer extends React.Component<
             ) : (
               <a
                 href={`/pdf/${invoice.linkId}`}
-                className='btn-inverse'
+                className='btn btn-outline-primary'
                 download
               >
                 Download PDF

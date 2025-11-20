@@ -1208,7 +1208,7 @@ export default class RechargeAccountsControl extends React.Component<
           <td className='cell-actions'>
             {canRemove && (
               <button
-                className='btn-link btn-invoice-delete'
+                className='btn btn-danger'
                 onClick={() => removeAccount(index)}
               >
                 <i className='fas fa-trash-alt' />

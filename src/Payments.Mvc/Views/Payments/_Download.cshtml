@@ -5,13 +5,13 @@
     <h3></h3>
     @if (string.IsNullOrWhiteSpace(Model))
     {
-        <button class="btn-inverse">
+        <button class="btn btn-outline-primary">
             Download PDF
         </button>
     }
     else
     {
-        <a href="@Model" class="btn-inverse" download>
+        <a href="@Model" class="btn btn-outline-primary" download>
             Download PDF
         </a>
     }

@@ -194,7 +194,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                 >
                   <button
                     type='button'
-                    className='btn-gold btn-lg pay-now-button'
+                    className='btn btn-secondary'
                     onClick={this.handleApprove}
                     disabled={!isValid || isSaving || isValidating}
                     style={{
@@ -447,7 +447,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
             {invoice.paid ? (
               <a
                 href={`/receipt/${invoice.linkId}`}
-                className='btn-inverse'
+                className='btn btn-outline-primary'
                 download
               >
                 Download PDF
@@ -455,7 +455,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
             ) : (
               <a
                 href={`/pdf/${invoice.linkId}`}
-                className='btn-inverse'
+                className='btn btn-outline-primary'
                 download
               >
                 Download PDF
