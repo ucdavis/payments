@@ -20,9 +20,11 @@ namespace Payments.Emails
     {
         Task SendInvoice(Invoice invoice, string ccEmails, string bccEmails);
 
-        Task SendFinancialApprove(Invoice invoice, SendApprovalModel approveModel);
+        Task SendFinancialApprove(Invoice invoice, SendApprovalModel approvalModel);
 
         Task SendReceipt(Invoice invoice, PaymentEvent payment);
+
+        Task SendRechargeReceipt(Invoice invoice, SendApprovalModel approvalModel);
 
         Task SendNewTeamMemberNotice(Team team, User user, TeamRole role);
 
@@ -255,6 +257,42 @@ namespace Payments.Emails
             return new Dictionary<string, object>{
                 { "BaseUrl", _sparkpostSettings.BaseUrl },
             };
+        }
+
+        public async Task SendRechargeReceipt(Invoice invoice, SendApprovalModel approvalModel)
+        {
+            var viewbag = GetViewData();
+            viewbag["Team"] = invoice.Team;
+
+            var model = new ReceiptViewModel
+            {
+                Invoice = invoice,
+                Payment = null,
+            };
+
+            // add model data to email
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/Receipt.cshtml", model, viewbag);
+
+            // convert email to real html
+            var mjml = await _mjmlServices.Render(prehtml);
+
+            // build email
+            using (var message = new MailMessage { From = _fromAddress, Subject = $"Receipt from {invoice.Team.Name}" })
+            {
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+                message.To.Add(new MailAddress(invoice.CustomerEmail, invoice.CustomerName));
+
+
+                foreach (var recipient in approvalModel.emails)
+                {
+                    message.CC.Add(new MailAddress(recipient.Email, recipient.Name));
+                }
+
+                // ship it
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
+            }
         }
     }
 }

@@ -44,11 +44,12 @@
 </mj-table>
 
 @{ await Html.PartialAsync("_EmailSummary", invoice); }
-
-<mj-text>
-    <p>@payment.CardType @payment.CardNumber</p>
-    <p>@payment.BillingFirstName @payment.BillingLastName</p>
-    <p>@payment.OccuredAt.ToString("U")</p>
-</mj-text>
-
+@if(payment != null)
+{
+    <mj-text>
+        <p>@payment.CardType @payment.CardNumber</p>
+        <p>@payment.BillingFirstName @payment.BillingLastName</p>
+        <p>@payment.OccuredAt.ToString("U")</p>
+    </mj-text>
+}
 <mj-button href="@pdfHref" background-color="#004987">Download as PDF</mj-button>

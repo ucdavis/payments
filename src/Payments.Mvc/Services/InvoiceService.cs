@@ -380,11 +380,41 @@ namespace Payments.Mvc.Services
 
         public async Task SendReceipt(Invoice invoice, PaymentEvent payment, SendInvoiceModel model)
         {
+            //This is probably never called. It isn't listed in the interface. Beware if it gets implemented.
             await _emailService.SendReceipt(invoice, payment);
 
-            invoice.Status = Invoice.StatusCodes.Sent;
+            invoice.Status = Invoice.StatusCodes.Sent; //This might be wrong for non-recharge invoices? But maybe not. I think this should only be set if the invoice is sent.
             invoice.Sent = true;
             invoice.SentAt = DateTime.UtcNow;
+        }
+
+        public async Task SendRechargeReceipt(Invoice invoice)
+        {
+            //Uncomment if we wanted to notify all financial approver vs. just those who approved.
+            //SendApprovalModel people = await GetInvoiceApprovers(invoice);
+
+            SendApprovalModel people = new SendApprovalModel();
+            var approvers = new List<EmailRecipient>();
+            foreach(var ra in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+            {
+                if(ra.ApprovedByKerb == null || ra.ApprovedByKerb == "System")
+                {
+                    continue;
+                }
+                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.CampusKerberos == ra.ApprovedByKerb);
+                if ((user != null && user.Email != null))
+                {
+                    approvers.Add(new EmailRecipient()
+                    {
+                        Email = user.Email,
+                        Name = ra.ApprovedByName
+                    });
+                }
+            }
+
+            people.emails = approvers.DistinctBy(a => a.Email.ToLower()).ToArray();
+
+            await _emailService.SendRechargeReceipt(invoice, people);
         }
 
         public async Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user)
@@ -483,6 +513,8 @@ namespace Payments.Mvc.Services
         Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
+
+        Task SendRechargeReceipt(Invoice invoice);
 
         Task<SendApprovalModel> SendFinancialApproverEmail(Invoice invoice, SendApprovalModel model);
 
