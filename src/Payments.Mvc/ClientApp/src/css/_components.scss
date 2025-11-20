@@ -1,6 +1,11 @@
 button {
   cursor: pointer;
 }
+.btn {
+  i {
+    margin-right: 8px;
+  }
+}
 .alert {
   padding: $card-padding;
   p {
