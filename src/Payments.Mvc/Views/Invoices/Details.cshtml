@@ -11,9 +11,12 @@
 @inject ApplicationUserManager _applicationUserManager
 
 @{
-    var InvoiceType = Model.Type == InvoiceTypes.CreditCard ? "Credit Card" : "Recharge";
+    var isCreditCard      = Model.Type == InvoiceTypes.CreditCard;
+    var invoiceType       = isCreditCard ? "Credit Card" : "Recharge";
+    var invoiceIconClass  = isCreditCard ? "fas fa-credit-card" : "fas fa-registered";
+    var invoiceIconTitle  = invoiceType;
 
-    ViewBag.Title = $"{InvoiceType} Invoice #{Model.GetFormattedId()}";
+    ViewBag.Title = $"{invoiceType} Invoice #{Model.GetFormattedId()}";
     Layout = "_Layout";
 
     var teamSlug = _httpContextAccessor.HttpContext.GetRouteData().Values["team"] as string;
@@ -61,7 +64,10 @@
 <div class="card">
     <div class="card-header card-header-yellow d-flex justify-content-between">
         <div class="d-flex align-items-center">
-            <h2 class="m0">@ViewBag.Title for @Model.CalculatedTotal.ToString("C")</h2>
+            <h2 class="m-0">
+    <i class="@invoiceIconClass me-2" title="@invoiceIconTitle"></i>
+    @invoiceType for @Model.CalculatedTotal.ToString("C")
+</h2>
             <span class="ms-3 badge @Invoice.StatusCodes.GetBadgeClass(Model.Status)" data-level="@Model.Status">@Model.Status</span>
         </div>
 
