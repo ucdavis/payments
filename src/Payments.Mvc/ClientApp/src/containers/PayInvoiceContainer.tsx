@@ -420,19 +420,24 @@ export default class PayInvoiceContainer extends React.Component<
 
           <div className='pay-footer'>
             <span>
-              If you have any questions, contact us at
+              If you have any questions, contact us
               {invoice.team.contactEmail && (
-                <span>
-                  {' '}
+                <>
+                  {' at '}
                   <a href={`mailto:${invoice.team.contactEmail}`}>
                     {invoice.team.contactEmail}
-                  </a>{' '}
-                </span>
+                  </a>
+                </>
               )}
-              or call at
+              {invoice.team.contactEmail &&
+                invoice.team.contactPhoneNumber &&
+                ' or'}
               {invoice.team.contactPhoneNumber && (
-                <span> {invoice.team.contactPhoneNumber}</span>
+                <> call at {invoice.team.contactPhoneNumber}</>
               )}
+              {!invoice.team.contactEmail &&
+                !invoice.team.contactPhoneNumber &&
+                '.'}
             </span>
           </div>
         </div>
