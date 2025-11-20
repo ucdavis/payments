@@ -5,13 +5,11 @@ button {
   font-family: $sans-bold;
 
   i {
-    margin-right: 0; // default: no spacing
-  }
-
-  // Add margin to icon only if it’s followed by text or another element
-  i:not(:only-child) {
     margin-right: 8px;
   }
+}
+.btn-icon i {
+  margin-right: 0;
 }
 .alert {
   padding: $card-padding;

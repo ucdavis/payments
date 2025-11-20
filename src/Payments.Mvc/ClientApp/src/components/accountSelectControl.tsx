@@ -67,7 +67,7 @@ export default class AccountSelectControl extends React.Component<
         </select>
         <div className='input-group-text'>
           <button
-            className='btn btn-primary'
+            className='btn btn-primary btn-icon'
             type='button'
             onClick={this.openModal}
           >

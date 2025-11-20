@@ -1147,7 +1147,7 @@ export default class RechargeAccountsControl extends React.Component<
               )}
               <button
                 type='button'
-                className='btn btn-outline-secondary'
+                className='btn btn-outline-primary btn-icon'
                 title='CCOA Picker'
                 onClick={() =>
                   this.handleFinancialSegmentPicker(index, direction)
@@ -1161,7 +1161,7 @@ export default class RechargeAccountsControl extends React.Component<
                   href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
                   target='_blank'
                   rel='noopener noreferrer'
-                  className={`btn btn-outline-secondary ${
+                  className={`btn btn-outline-primary btn-icon ${
                     account.isValidating ? 'disabled' : ''
                   }`}
                   title='View In Finjector'
@@ -1208,7 +1208,7 @@ export default class RechargeAccountsControl extends React.Component<
           <td className='cell-actions'>
             {canRemove && (
               <button
-                className='btn btn-danger'
+                className='btn btn-danger btn-icon'
                 onClick={() => removeAccount(index)}
               >
                 <i className='fas fa-trash-alt' />

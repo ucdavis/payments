@@ -54,7 +54,7 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
           className='btn btn-outline-primary btn-sm'
           onClick={this.openModal}
         >
-          <i className='fas fa-plus me-2' /> Add coupon
+          <i className='fas fa-plus' /> Add coupon
         </button>
       );
     }

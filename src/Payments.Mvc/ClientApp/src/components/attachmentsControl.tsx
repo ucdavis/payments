@@ -71,7 +71,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
           </a>
 
           <button
-            className='btn btn-danger ms-2'
+            className='btn btn-danger btn-icon'
             onClick={() => this.removeAttachment(attachment.identifier)}
           >
             <i className='fas fa-trash-alt' />
