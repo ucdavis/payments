@@ -188,15 +188,9 @@ export default class PayInvoiceContainer extends React.Component<
                 <div style={{ alignContent: 'center' }}>
                   <button
                     type='button'
-                    className='btn btn-secondary'
+                    className='btn btn-primary btn-lg'
                     onClick={this.handleSubmit}
                     disabled={!isValid || isSaving || isValidating}
-                    style={{
-                      cursor:
-                        (!isValid || isValidating) && !isSaving
-                          ? 'not-allowed'
-                          : 'pointer'
-                    }}
                     title={
                       isValidating
                         ? 'Validating form...'
