@@ -179,6 +179,7 @@ export default class FileUpload extends React.Component<IProps, IState> {
           RequestVerificationToken: antiForgeryToken
         },
         method: 'post',
+        withCredentials: true,
         onUploadProgress: progressEvent =>
           this.onUploadProgress(progressEvent, newAttachment.identifier)
       })
