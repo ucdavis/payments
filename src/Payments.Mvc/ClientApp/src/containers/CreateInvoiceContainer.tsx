@@ -267,14 +267,23 @@ export default class CreateInvoiceContainer extends React.Component<
                   invoiceType === 'CC' ? 'active' : ''
                 }`}
               >
-                <span>Credit Card</span>
+                <span>
+                  <i
+                    className='fas fa-credit-card me-2'
+                    title='Credit Card'
+                  ></i>
+                  Credit Card
+                </span>
               </div>
               <div
                 className={`invoice-type-toggle-option ${
                   invoiceType === 'Recharge' ? 'active' : ''
                 }`}
               >
-                <span>Recharge</span>
+                <span>
+                  <i className='fas fa-registered me-2' title='Registered'></i>
+                  Recharge
+                </span>
               </div>
               <div
                 className={`invoice-type-toggle-slider ${
