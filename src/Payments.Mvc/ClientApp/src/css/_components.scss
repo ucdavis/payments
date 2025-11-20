@@ -213,7 +213,7 @@ pre[class*='language-'] {
   display: flex;
   background-color: #f8f9fa;
   border: 2px solid #dee2e6;
-  border-radius: 25px;
+  border-radius: 8px;
   cursor: pointer;
   width: 280px;
   height: 50px;
@@ -257,7 +257,7 @@ pre[class*='language-'] {
   width: 50%;
   height: 100%;
   background: $primary-color;
-  border-radius: 23px;
+  border-radius: 6px;
   transition: transform 0.3s ease;
   z-index: 1;
   box-shadow: 0 2px 4px rgba(29, 74, 131, 0.3);
