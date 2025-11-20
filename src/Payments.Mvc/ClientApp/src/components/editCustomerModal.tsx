@@ -59,10 +59,10 @@ export default class EditCustomerModal extends React.Component<IProps, IState> {
         </div>
         <div className='modal-footer'>
           <div className='flex-grow-1 d-flex justify-content-between align-items-center'>
-            <button className='btn-plain me-3' onClick={onCancel}>
+            <button className='btn btn-outline-danger me-3' onClick={onCancel}>
               Cancel
             </button>
-            <button className='btn' onClick={this.onConfirm}>
+            <button className='btn btn-primary' onClick={this.onConfirm}>
               Save
             </button>
           </div>

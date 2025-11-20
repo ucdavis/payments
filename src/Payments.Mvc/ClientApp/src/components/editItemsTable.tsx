@@ -116,7 +116,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
             <tr>
               <td>
                 <button
-                  className='btn-plain primary-color'
+                  className='btn btn-primary'
                   onClick={this.createNewItem}
                 >
                   <i className='fas fa-plus me-2' /> Add another item

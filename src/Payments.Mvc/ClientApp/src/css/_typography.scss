@@ -10,23 +10,16 @@ html {
 body {
   font-family: $sans-reg;
 }
-
 a {
   color: $a-link;
   text-decoration: none;
+  table & {
+    color: $primary-font;
+  }
   &:hover {
     color: $primary-color;
+    text-decoration: none;
   }
-
-  &.post-link {
-    display: block;
-    margin-bottom: 16px;
-
-    &:hover {
-      background-color: $bg-color;
-    }
-  }
-
   footer p & {
     color: rgba(255, 255, 255, 0.95);
     text-decoration: none;
@@ -40,18 +33,6 @@ a {
 p a {
   font-weight: 700;
   text-decoration: underline;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-a.no-underline {
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: none;
 }
 
 ul,
@@ -81,10 +62,6 @@ ol {
 p,
 span,
 div {
-  // font-size: 1rem;
-  color: $primary-font;
-
-  // margin:1.2rem 0rem;
   &.lead {
     font-size: 1.2rem;
     margin-top: 0px;

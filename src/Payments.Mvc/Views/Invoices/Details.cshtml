@@ -67,14 +67,14 @@
 
         @if (Model.Status == Invoice.StatusCodes.Draft)
         {
-            <button class="btn-plain" data-bs-toggle="modal" data-bs-target="#deleteDraftModal">
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteDraftModal">
                 <i class="far fa-trash-alt text-danger"></i>
                 Delete draft
             </button>
         }
         else if (!Model.Paid && !Model.Refunded)
         {
-            <button class="btn-plain" data-bs-toggle="modal" data-bs-target="#deleteDraftModal">
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteDraftModal">
                 <i class="far fa-trash-alt text-danger"></i>
                 Delete
             </button>
@@ -91,14 +91,14 @@
         {
             @if (Model.Type == InvoiceTypes.Recharge)
             {
-                <a asp-controller="Recharge" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                <a asp-controller="Recharge" asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-primary">
                     <i class="fas fa-search me-3"></i>
                     Preview
                 </a>
             }
             else
             {
-                <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn">
+                <a asp-controller="Payments" asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-primary">
                     <i class="fas fa-search me-3"></i>
                     Preview
                 </a>
@@ -106,14 +106,14 @@
 
             if (!Model.Sent)
             {
-                <a href="#" id="sendInvoiceButton" class="btn" data-bs-toggle="modal" data-bs-target="#sendInvoiceModal" data-action="send">
+                <a href="#" id="sendInvoiceButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sendInvoiceModal" data-action="send">
                     <i class="far fa-envelope me-3"></i>
                     Send
                 </a>
             }
             else
             {
-                <a href="#" id="sendInvoiceButton" class="btn" data-bs-toggle="modal" data-bs-target="#sendInvoiceModal" data-action="resend">
+                <a href="#" id="sendInvoiceButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sendInvoiceModal" data-action="resend">
                     <i class="far fa-envelope me-3"></i>
                     Resend
                 </a>
@@ -127,7 +127,7 @@
                 ? "#markPaidModal"
                 : "#markPaidNoPermissionModal";
 
-            <button class="btn" data-bs-toggle="modal" data-bs-target="@modalTarget">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Mark as paid
             </button>
@@ -138,7 +138,7 @@
                 ? "#setBackPaidModal"
                 : "#setBackPaidNoPermissionModal";
 
-            <button class="btn" data-bs-toggle="modal" data-bs-target="@modalTarget">
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Set Back to Paid
             </button>
@@ -149,7 +149,7 @@
                 ? "#cancelRefundRequestModal"
                 : "#cancelRefundRequestNoPermissionModal";
 
-            <button class="btn" data-bs-toggle="modal" data-bs-target="@modalTarget">
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@modalTarget">
                 <i class="far fa-check-square"></i>
                 Cancel Refund Request
             </button>
@@ -160,12 +160,12 @@
         {
             var actionType = HistoryActionTypes.GetHistoryActionType(action.Type);
 
-            <div class="d-flex w-100 history-item">
+            <div class="d-flex history-item">
                 <div class="ms-2 mt-1 me-4">
                     <i class="history-icon fa-fw @actionType.IconClass"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <span>@action.GetMessage()</span>
+                    <p class="history-action">@action.GetMessage()</p>
                     
                     @if(actionType.ShowDetails && action.GetDetails() != null)
                     {
@@ -187,14 +187,15 @@
 
                     @if (!string.IsNullOrWhiteSpace(action.Actor))
                     {
+                        
+                        <span class="history-actor">@action.Actor</span>
                         <br/>
-                        <span class="text-muted text-small"> <i class="far fa-user"></i> by @action.Actor</span>
                     }
-                    <br />
-                    <span class="text-muted">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy @ h:mm tt")</span>
+                    
+                    <span class="history-date">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy @ h:mm tt")</span>
                     @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.RefundCancelled) && !string.IsNullOrWhiteSpace(action.Data))
                     {
-                        <br/>
+                        
                         <span class="text-muted">Reason: @action.Data</span>
                     }
                 </div>
@@ -210,7 +211,7 @@
         <div>
             @if (!string.IsNullOrWhiteSpace(Model.LinkId))
             {
-                <a asp-controller="Pdf" asp-action="Invoice" asp-route-id="@Model.LinkId" class="btn" download>
+                <a asp-controller="Pdf" asp-action="Invoice" asp-route-id="@Model.LinkId" class="btn btn-primary" download>
                     <i class="fas fa-download me-3"></i>
                     Invoice
                 </a>
@@ -218,7 +219,7 @@
 
             @if (Model.Paid)
             {
-                <a asp-controller="Pdf" asp-action="Receipt" asp-route-id="@Model.LinkId" class="btn" download>
+                <a asp-controller="Pdf" asp-action="Receipt" asp-route-id="@Model.LinkId" class="btn btn-primary" download>
                     <i class="fas fa-download me-3"></i>
                     Receipt
                 </a>
@@ -228,14 +229,14 @@
             {
                 if (!Model.Sent)
                 {
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
                         <i class="far fa-edit me-3"></i>
                         Edit
                     </a>
                 }
                 else
                 {
-                    <button class="btn" data-bs-toggle="modal" data-bs-target="#editLockedInvoiceModal">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editLockedInvoiceModal">
                         <i class="far fa-edit me-3"></i>
                         Edit
                     </button>
@@ -457,11 +458,11 @@
                     <span class="col-2 d-flex justify-content-center">@a.GetSizeText()</span>
 
                     <div class="col-1 d-flex justify-content-end align-items-center">
-                        <a class="btn-plain btn-hover mx-2" target='_blank' asp-controller="Files" asp-action="GetFile" asp-route-id="@a.Id">
+                        <a class="btn btn-primary mx-2" target='_blank' asp-controller="Files" asp-action="GetFile" asp-route-id="@a.Id">
                             <i class="fas fa-download"></i>
                         </a>
 
-                        <button class="btn-plain btn-hover text-danger ms-2">
+                        <button class="btn btn-danger ms-2">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -534,7 +535,7 @@
             {
                 <div>
                     <form asp-controller="Invoices" asp-action="Refund" asp-route-id="@Model.Id">
-                        <button class="btn">
+                        <button class="btn btn-primary">
                             <i class="fas fa-hand-holding-usd me-3"></i>
                             Mark Refunded
                         </button>
@@ -544,7 +545,7 @@
             else if (!Model.Refunded)
             {
                 <div>
-                    <button class="btn" data-bs-toggle="modal" data-bs-target="#refundModal">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#refundModal">
                         <i class="fas fa-hand-holding-usd me-3"></i>
                         Request Refund
                     </button>
@@ -807,7 +808,7 @@ else
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn-inverse" data-bs-dismiss="modal">Close</button>
-                    <button type="button" id="sendInvoiceFormSubmit" class="btn">Send Invoice</button>
+                    <button type="button" id="sendInvoiceFormSubmit" class="btn btn-primary">Send Invoice</button>
                 </div>
             </div>
         </div>
@@ -834,7 +835,7 @@ else
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="unlockInvoiceFormSubmit" class="btn">Unlock Invoice</button>
+                    <button type="submit" id="unlockInvoiceFormSubmit" class="btn btn-primary">Unlock Invoice</button>
                 </div>
             </div>
         </div>
@@ -885,7 +886,7 @@ else
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="markPaidFormSubmit" class="btn">Mark as paid</button>
+                    <button type="submit" id="markPaidFormSubmit" class="btn btn-primary">Mark as paid</button>
                 </div>
             </div>
         </div>
@@ -914,7 +915,7 @@ else
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="setBackPaidFormSubmit" class="btn">Set To Paid</button>
+                    <button type="submit" id="setBackPaidFormSubmit" class="btn btn-primary">Set To Paid</button>
                 </div>
             </div>
         </div>
@@ -946,7 +947,7 @@ else
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="cancelRefundRequestFormSubmit" class="btn">Set To Completed</button>
+                    <button type="submit" id="cancelRefundRequestFormSubmit" class="btn btn-primary">Set To Completed</button>
                 </div>
             </div>
         </div>
@@ -978,7 +979,7 @@ else
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="markPaidFormSubmit" class="btn" @(successfulPayment == null ? "disabled=\"disabled\"":string.Empty)>Refund</button>
+                    <button type="submit" id="markPaidFormSubmit" class="btn btn-primary" @(successfulPayment == null ? "disabled=\"disabled\"":string.Empty)>Refund</button>
                 </div>
             </div>
         </div>
@@ -1047,7 +1048,7 @@ else
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-inverse" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="deleteDraftFormSubmit" class="btn">Delete</button>
+                    <button type="submit" id="deleteDraftFormSubmit" class="btn btn-primary">Delete</button>
                 </div>
             </div>
         </div>

@@ -92,6 +92,7 @@ body {
       .title-inner-inner {
         overflow: hidden;
         text-overflow: ellipsis;
+        font-weight: 600;
       }
     }
   }
@@ -139,43 +140,23 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient-one', endColorstr='$gradient-two', GradientType=1);
   }
 
-  .card-header-primary {
-    border-top: 4px solid $primary-color;
-  }
-
-  .card-header-yellow {
-    border-top: 4px solid $secondary-color;
-  }
-
   .card-header {
     background-color: #ffffff;
     border-radius: 0;
+    border-top: 4px solid #fff;
+    border-bottom: 1px solid $borders;
+    padding-top: 20px;
     h2 {
       font-size: 1.6rem;
       margin-bottom: 0;
     }
   }
+  .card-header-primary {
+    border-top-color: $primary-color;
+  }
 
-  .card-body {
-    // padding: $card-padding;
-    // padding-top: 1.6rem;
-    // padding-bottom: 1.6rem;
-
-    // h2 {
-    //   font-size: 1.4rem;
-    //   margin-bottom: 0;
-    // }
-
-    // h3.sub-header {
-    //   text-transform: uppercase;
-    //   font-family: $sans-reg;
-    //   font-size: 1.3rem;
-    //   font-weight: 600;
-    //   margin-bottom: 1.1rem;
-    // }
-
-    & > table {
-    }
+  .card-header-yellow {
+    border-top-color: $secondary-color;
   }
 
   .card-foot {

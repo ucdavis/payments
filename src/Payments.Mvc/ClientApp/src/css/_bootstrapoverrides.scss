@@ -1,5 +1,5 @@
 /* --------------------------------------
-   Custom Bootstrap Button Overrides
+   Custom Bootstrap Button + Text Overrides
    -------------------------------------- */
 
 /* Base theme colors */
@@ -50,10 +50,24 @@ $bs-dark: #343a40;
     --bs-btn-disabled-bg: transparent;
     --bs-btn-disabled-border-color: #{$color};
   }
+
+  /* Add text utilities */
+  .text-#{$name} {
+    color: #{$color} !important;
+  }
+
+  /* Optional: background + border utilities */
+  .bg-#{$name} {
+    background-color: #{$color} !important;
+  }
+
+  .border-#{$name} {
+    border-color: #{$color} !important;
+  }
 }
 
 /* --------------------------------------
-   Generate variants for all button types
+   Generate variants for all theme types
    -------------------------------------- */
 @include make-btn-variant(primary, $bs-primary);
 @include make-btn-variant(secondary, $bs-secondary);

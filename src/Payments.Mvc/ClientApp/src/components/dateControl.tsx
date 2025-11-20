@@ -61,7 +61,7 @@ export default class DateControl extends React.Component<IProps, {}> {
           required={required}
         />
         <div className='input-group-text'>
-          <button className='btn' type='button'>
+          <button className='btn btn-primary' type='button'>
             <i className='far fa-fw fa-calendar' />
           </button>
         </div>

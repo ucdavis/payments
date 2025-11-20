@@ -5,24 +5,18 @@
 
 <h2>Your Teams:</h2>
 
-<button type="button" class="btn btn-primary">Primary</button>
-<button type="button" class="btn btn-secondary">Secondary</button>
-<button type="button" class="btn btn-success">Success</button>
-<button type="button" class="btn btn-danger">Danger</button>
-<button type="button" class="btn btn-warning">Warning</button>
-<button type="button" class="btn btn-info">Info</button>
-<button type="button" class="btn btn-light">Light</button>
-<button type="button" class="btn btn-dark">Dark</button>
+            
+            <hr>
+            <br>
 
-<button type="button" class="btn btn-link">Link</button>
-
-<div class="row flex-column align-items-start justify-content-center">
+<div class="row">
     @foreach (var team in Model)
     {
-        <div class="col-sm-12 col-md-5">
+        <div class="col-sm-12 col-md-4">
             <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@team.Slug" class="card card-dashboard-button justify-content-between">
-                <i class="fas fa-users"></i>
-                <span>@team.Name</span>
+           
+                <h2>@team.Name</h2>
+               
                 <i class="fas fa-external-link-alt"></i>
             </a>
         </div>

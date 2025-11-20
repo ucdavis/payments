@@ -7,7 +7,7 @@
 <div class="card">
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
-        <a class="btn" data-bs-toggle="modal" data-bs-target="#createCouponModal"><i class="far fa-plus-square me-3"></i> Create New Coupon</a>
+        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCouponModal"><i class="far fa-plus-square me-3"></i> Create New Coupon</a>
     </div>
 
     <div class="card-body table-responsive">
@@ -70,8 +70,8 @@
                                 }
                             </a>
                         </td>
-                        <td class="invoices-edit-btn-col text-center">
-                            <a asp-action="Details" asp-route-id="@coupon.Id" class="btn">
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@coupon.Id" class="btn btn-outline-primary">
                                 <div>View</div>
                             </a>
                         </td>

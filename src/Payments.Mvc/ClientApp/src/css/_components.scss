@@ -32,31 +32,6 @@ p a.action-btn {
   text-decoration: none !important;
 }
 
-.btn-plain {
-  font-size: 1rem;
-  font-family: $sans-bold;
-  color: $secondary-font;
-  background-color: rgba(255, 255, 255, 0.0001);
-  border: none;
-  &:hover {
-    text-decoration: underline;
-  }
-  .options-navbar &:hover {
-    text-decoration: none;
-  }
-}
-.btn {
-  *,
-  *:hover {
-    color: #fff !important;
-  }
-}
-
-.btn-lg {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
-
 .btn-gold {
   @include main-btn;
   background-color: $gold;
@@ -101,31 +76,6 @@ p a.action-btn {
 
   &:hover {
     color: $primary-color;
-  }
-}
-.btn-register {
-  width: 100%;
-}
-
-.btn-hover {
-  &:hover {
-    box-shadow: $box-shadow;
-  }
-
-  &.btn-plain {
-    padding: 0.8rem;
-    border-radius: 3px;
-  }
-}
-
-.media {
-  margin-bottom: 16px;
-
-  img {
-    margin-right: 20px;
-  }
-
-  .media-body {
   }
 }
 
@@ -241,6 +191,7 @@ ol.breadcrumb {
 }
 .card-bot-border {
   border-bottom: 1px solid $borders;
+  background-color: transparentize($blue, 0.96);
 }
 dd {
   margin-bottom: 1rem;
@@ -438,7 +389,7 @@ pre[class*='language-'] {
 
   &.active {
     color: white !important;
-    
+
     span {
       color: white !important;
     }
@@ -473,38 +424,38 @@ pre[class*='language-'] {
       &.col-financial-segment {
         width: 55%;
       }
-      
+
       &.col-amount {
         width: 12%;
       }
-      
+
       &.col-percentage {
         width: 12%;
       }
-      
+
       &.col-actions {
         width: 6%;
       }
     }
-    
+
     td {
       &.cell-financial-segment {
         width: 55%;
         padding-right: 8px;
       }
-      
+
       &.cell-amount {
         width: 12%;
         padding-left: 4px;
         padding-right: 4px;
       }
-      
+
       &.cell-percentage {
         width: 12%;
         padding-left: 4px;
         padding-right: 4px;
       }
-      
+
       &.cell-actions {
         width: 6%;
         text-align: right;
@@ -512,26 +463,26 @@ pre[class*='language-'] {
       }
     }
   }
-  
+
   .validation-input {
     opacity: 0.6;
     position: relative;
-    
+
     &.input-normal {
       opacity: 1;
     }
   }
-  
+
   .validation-spinner-container {
     background-color: #e9ecef;
     border: 1px solid #ced4da;
   }
-  
+
   .validation-spinner {
     width: 1rem;
     height: 1rem;
   }
-  
+
   .row-separator {
     padding: 0;
     height: 8px;
