@@ -172,7 +172,7 @@ export default class FileUpload extends React.Component<IProps, IState> {
       const data = new FormData();
       data.append('file', file);
 
-      axios(`${slug}/files/uploadfile`, {
+      axios(`/${slug}/files/uploadfile`, {
         cancelToken: newAttachment.cancelToken.token,
         data,
         headers: {
