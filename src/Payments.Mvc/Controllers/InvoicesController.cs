@@ -543,7 +543,15 @@ namespace Payments.Mvc.Controllers
                 return NotFound();
             }
 
-            if (invoice.Status != Invoice.StatusCodes.Sent && invoice.Status != Invoice.StatusCodes.Rejected)
+            //unlockable statuses
+            var unlockableStatuses = new List<string>
+            {
+                Invoice.StatusCodes.Sent,
+                Invoice.StatusCodes.Rejected,
+                Invoice.StatusCodes.PendingApproval
+            };
+
+            if (!unlockableStatuses.Contains(invoice.Status))
             {
                 return NotFound();
             }
