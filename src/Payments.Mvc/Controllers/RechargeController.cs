@@ -114,7 +114,7 @@ namespace Payments.Mvc.Controllers
                 // still not found
                 if (link == null)
                 {
-                    return PublicNotFound();
+                    return RedirectToAction("PublicNotFound");
                 }
 
                 //TODO: Will this work? It "Should" since it is the Get.
@@ -394,19 +394,19 @@ namespace Payments.Mvc.Controllers
             //I think this is ok.
             if (invoice == null)
             {
-                return PublicNotFound();
+                return RedirectToAction("PublicNotFound");
             }
 
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled || invoice.Status == Invoice.StatusCodes.Sent)
             {
                 //Includes sent, because they can't approve it yet.
-                return PublicNotFound();
+                return RedirectToAction("PublicNotFound");
             }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return PublicNotFound();
+                return RedirectToAction("PublicNotFound");
             }
 
 
