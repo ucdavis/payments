@@ -221,7 +221,10 @@ export default class EditInvoiceContainer extends React.Component<
               {this.renderError()}
             </div>
             <div className='col d-flex justify-content-end align-items-center'>
-              <button className='btn btn-info' onClick={this.onSubmit}>
+              <button
+                className='btn btn-outline-primary me-2'
+                onClick={this.onSubmit}
+              >
                 Save and close
               </button>
               {!sent && (

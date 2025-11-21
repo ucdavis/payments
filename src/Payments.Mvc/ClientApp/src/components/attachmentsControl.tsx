@@ -61,7 +61,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
         <div className='col-1 d-flex justify-content-end align-items-center'>
           <a
             href={href}
-            className='btn btn-primary mx-2'
+            className='btn btn-primary btn-icon me-2'
             target='_blank'
             rel='noreferrer'
           >

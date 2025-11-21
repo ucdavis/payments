@@ -13,9 +13,6 @@ body {
 a {
   color: $a-link;
   text-decoration: none;
-  table & {
-    color: $primary-font;
-  }
   &:hover {
     color: $primary-color;
     text-decoration: none;

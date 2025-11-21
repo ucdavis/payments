@@ -220,7 +220,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
 
                   <button
                     type='button'
-                    className='btn btn-danger btn-lg reject-now-button'
+                    className='btn btn-danger btn-lg'
                     onClick={this.handleRejectClick}
                     disabled={isSaving || isValidating}
                     title={isValidating ? 'Validating form...' : ''}
