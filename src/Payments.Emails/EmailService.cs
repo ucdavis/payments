@@ -283,11 +283,14 @@ namespace Payments.Emails
                 message.IsBodyHtml = true;
                 message.To.Add(new MailAddress(invoice.CustomerEmail, invoice.CustomerName));
 
-
-                foreach (var recipient in approvalModel.emails)
+                if (approvalModel != null)
                 {
-                    message.CC.Add(new MailAddress(recipient.Email, recipient.Name));
+                    foreach (var recipient in approvalModel.emails)
+                    {
+                        message.CC.Add(new MailAddress(recipient.Email, recipient.Name));
+                    }
                 }
+
 
                 // ship it
                 await _client.SendMailAsync(message);

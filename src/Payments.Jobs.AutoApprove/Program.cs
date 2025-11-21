@@ -2,15 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Mjml.AspNetCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Jobs;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.History;
+using Payments.Core.Models.Invoice;
 using Payments.Core.Services;
+using Payments.Emails;
 using Payments.Jobs.Core;
 using Serilog;
 using System;
+
 
 namespace Payments.Jobs.MoneyMovement
 {
@@ -34,6 +38,7 @@ namespace Payments.Jobs.MoneyMovement
             // setup di
             var provider = ConfigureServices();
             var dbContext = provider.GetService<ApplicationDbContext>();
+            var emailService = provider.GetService<IEmailService>();
 
 
             try
@@ -42,6 +47,11 @@ namespace Payments.Jobs.MoneyMovement
                 {
                     throw new InvalidOperationException("Failed to obtain ApplicationDbContext from service provider.");
                 }
+                if(emailService == null)
+                {
+                    throw new InvalidOperationException("Failed to obtain IEmailService from service provider.");
+                }
+
                 var financeSettings = provider.GetService<IOptions<FinanceSettings>>()?.Value;
                 if (financeSettings == null)
                 {
@@ -52,6 +62,7 @@ namespace Payments.Jobs.MoneyMovement
 
                 var invoices =  dbContext.Invoices
                     .Include(i => i.RechargeAccounts)
+                    .Include(i => i.Team)
                     .Where(a => a.Type == Invoice.InvoiceTypes.Recharge && a.Status == Invoice.StatusCodes.PendingApproval &&
                         a.PaidAt != null && a.PaidAt <= dateThreshold).ToList();
                 _log.Information("Found {count} invoices to auto-approve", invoices.Count);
@@ -78,7 +89,34 @@ namespace Payments.Jobs.MoneyMovement
                     dbContext.Invoices.Update(invoice);
                     _log.Information("Auto-approved invoice {invoiceId}", invoice.Id);
 
-                    dbContext.SaveChanges();
+                    try
+                    {
+                        SendApprovalModel people = new SendApprovalModel();
+                        var approvers = new List<EmailRecipient>();
+                        foreach (var ra in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
+                        {
+                            if (ra.ApprovedByKerb == null || ra.ApprovedByKerb == "System")
+                            {
+                                continue;
+                            }
+                            var user =  dbContext.Users.FirstOrDefault(u => u.CampusKerberos == ra.ApprovedByKerb);
+                            if ((user != null && user.Email != null))
+                            {
+                                approvers.Add(new EmailRecipient()
+                                {
+                                    Email = user.Email,
+                                    Name = ra.ApprovedByName
+                                });
+                            }
+                        }
+
+                        people.emails = approvers.DistinctBy(a => a.Email.ToLower()).ToArray();
+                        emailService.SendRechargeReceipt(invoice, people).GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error("Failed to send auto-approval receipt email for invoice {invoiceId}", invoice.Id, ex);
+                    }
                 }
             }
             catch (Exception ex)
@@ -98,6 +136,7 @@ namespace Payments.Jobs.MoneyMovement
 
             // options files
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
+            services.Configure<SparkpostSettings>(Configuration.GetSection("Sparkpost"));
 
 
             // db service
@@ -105,6 +144,8 @@ namespace Payments.Jobs.MoneyMovement
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
             );
 
+            services.AddTransient<IEmailService, SparkpostEmailService>();
+            services.AddMjmlServices();
 
 
             return services.BuildServiceProvider();
