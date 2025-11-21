@@ -115,7 +115,7 @@ namespace Payments.Jobs.MoneyMovement
                     }
                     catch (Exception ex)
                     {
-                        _log.Error("Failed to send auto-approval receipt email for invoice {invoiceId}", invoice.Id, ex);
+                        _log.Error(ex, "Failed to send auto-approval receipt email for invoice {invoiceId}", invoice.Id);
                     }
 
                     dbContext.SaveChanges();
