@@ -111,13 +111,12 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
               <div style={{ alignContent: 'center' }}>
                 <button
                   type='button'
-                  className='btn-gold btn-lg pay-now-button'
+                  className='btn btn-primary btn-lg'
                   disabled={true}
                   aria-disabled='true'
                   title='Preview mode - submission is disabled'
-                  style={{ opacity: 0.6, cursor: 'not-allowed' }}
                 >
-                  <i className='fas fa-check me-3' aria-hidden='true' />
+                  <i className='fas fa-check' aria-hidden='true' />
                   Submit for Approval
                 </button>
               </div>
@@ -216,38 +215,37 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
             <div className='pay-download'>
               <img src='/media/download.svg' alt='download icon' />
               <br />
+              <br />
               <a
                 href={`/pdf/${invoice.linkId}`}
-                className='btn-inverse'
+                className='btn btn-outline-primary'
                 download
               >
                 Download PDF
               </a>
             </div>
 
-            {/* Footer */}
             <div className='pay-footer'>
-              <h3 className='secondary-font'>Questions?</h3>
-              <div className='pay-footer-contact'>
-                {invoice.team.contactName && (
-                  <p>
-                    <strong>Contact:</strong> {invoice.team.contactName}
-                  </p>
-                )}
+              <span>
+                If you have any questions, contact us
                 {invoice.team.contactEmail && (
-                  <p>
-                    <strong>Email:</strong>{' '}
+                  <>
+                    {' at '}
                     <a href={`mailto:${invoice.team.contactEmail}`}>
                       {invoice.team.contactEmail}
                     </a>
-                  </p>
+                  </>
                 )}
+                {invoice.team.contactEmail &&
+                  invoice.team.contactPhoneNumber &&
+                  ' or'}
                 {invoice.team.contactPhoneNumber && (
-                  <p>
-                    <strong>Phone:</strong> {invoice.team.contactPhoneNumber}
-                  </p>
+                  <> call at {invoice.team.contactPhoneNumber}</>
                 )}
-              </div>
+                {!invoice.team.contactEmail &&
+                  !invoice.team.contactPhoneNumber &&
+                  '.'}
+              </span>
             </div>
           </div>
         </div>

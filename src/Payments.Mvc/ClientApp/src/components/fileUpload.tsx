@@ -93,7 +93,7 @@ export default class FileUpload extends React.Component<IProps, IState> {
         </div>
 
         <button
-          className='btn-link btn-invoice-delete'
+          className='btn btn-danger'
           onClick={() => this.cancelUpload(attachment)}
         >
           <i className='fas fa-times' />

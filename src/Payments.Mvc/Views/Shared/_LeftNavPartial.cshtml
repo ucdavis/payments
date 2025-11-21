@@ -177,7 +177,7 @@
         @if (User.Identity.IsAuthenticated && user != null)
         {
             <form asp-action="logout" asp-controller="account" method="post">
-                <button class="nav-item nav-logout btn-plain">
+                <button class="nav-item nav-logout btn btn-link">
                     <div class="svgwrapper">
                         @Html.InlineSvg("/wwwroot/media/navicons/logout.svg")
                     </div>

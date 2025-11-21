@@ -61,7 +61,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
         <div className='col-1 d-flex justify-content-end align-items-center'>
           <a
             href={href}
-            className='btn-link btn-invoice-delete mx-2'
+            className='btn btn-primary btn-icon me-2'
             target='_blank'
             rel='noreferrer'
           >
@@ -71,7 +71,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
           </a>
 
           <button
-            className='btn-link btn-invoice-delete ms-2'
+            className='btn btn-danger btn-icon'
             onClick={() => this.removeAttachment(attachment.identifier)}
           >
             <i className='fas fa-trash-alt' />
