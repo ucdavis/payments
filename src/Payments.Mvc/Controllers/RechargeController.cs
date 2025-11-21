@@ -126,12 +126,8 @@ namespace Payments.Mvc.Controllers
                     return RedirectToAction("Pay", new { id = link.Invoice.LinkId });
                 }
 
-                // otherwise, the invoice is probably back in draft
-                var expiredModel = new ExpiredInvoiceViewModel()
-                {
-                    Team = new PaymentInvoiceTeamViewModel(link.Invoice.Team)
-                };
-                return View("Expired", expiredModel);
+
+                return RedirectToAction("Expired", new { id = id });
             }
 
             // the customer isn't allowed access to draft or cancelled invoices
@@ -391,11 +387,33 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Attachments)
                 .Include(i => i.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit))
                 .FirstOrDefaultAsync(i => i.LinkId == id);
-            //I think this is ok.
+
             if (invoice == null)
             {
-                return RedirectToAction("PublicNotFound");
+                // check expired link id
+                var link = await _dbContext.InvoiceLinks
+                    .Include(l => l.Invoice)
+                    .ThenInclude(i => i.Team)
+                    .FirstOrDefaultAsync(l => l.LinkId == id);
+
+                // still not found
+                if (link == null)
+                {
+                    return RedirectToAction("PublicNotFound");
+                }
+
+                //TODO: Will this work? It "Should" since it is the Get.
+                // if the invoice has a new link id,
+                // just forward them to the corrected invoice
+                if (!string.IsNullOrWhiteSpace(link.Invoice.LinkId))
+                {
+                    Message = "Your link was expired/old. We've forwarded you to the new link. Please review the invoice for any changes before proceeding.";
+                    return RedirectToAction("FinancialApprove", new { id = link.Invoice.LinkId });
+                }
+
+                return RedirectToAction("Expired", new { id = id });
             }
+
 
             if (invoice.Status == Invoice.StatusCodes.Draft || invoice.Status == Invoice.StatusCodes.Cancelled || invoice.Status == Invoice.StatusCodes.Sent)
             {
@@ -567,6 +585,23 @@ namespace Payments.Mvc.Controllers
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
             return View("NotFound");
+        }
+
+        public IActionResult Expired(string id)
+        {
+            var link = _dbContext.InvoiceLinks
+                .Include(l => l.Invoice)
+                .ThenInclude(i => i.Team)
+                .FirstOrDefault(l => l.LinkId == id);
+            if (link == null)
+            {
+                return RedirectToAction("PublicNotFound");
+            }
+            var model = new ExpiredInvoiceViewModel
+            {
+                Team = new PaymentInvoiceTeamViewModel(link.Invoice.Team)
+            };
+            return View(model);
         }
 
         private async Task<(bool isApprover, bool canApprove, List<RechargeAccount> actionableRechargeAccounts, List<RechargeAccount> displayOnlyRechargeAccounts)> GetApproverRechargeAccounts(Invoice invoice, User user)
