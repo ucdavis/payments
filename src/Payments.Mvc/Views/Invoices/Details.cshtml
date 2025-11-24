@@ -138,7 +138,7 @@
                 Mark as paid
             </button>
         }
-        @if (Model.Status == Invoice.StatusCodes.Processing && User.IsInRole(ApplicationRoleCodes.Admin))
+        @if (Model.Type != InvoiceTypes.Recharge && Model.Status == Invoice.StatusCodes.Processing && User.IsInRole(ApplicationRoleCodes.Admin))
         {
             var modalTarget = User.IsInRole(ApplicationRoleCodes.Admin)
                 ? "#setBackPaidModal"
