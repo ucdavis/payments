@@ -171,7 +171,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
                 form works. Changes cannot be saved in preview mode.
               </p>
               <RechargeAccountsControl
-                ref={r => (this._rechargeAccountsRef = r)}
+                ref={r => { this._rechargeAccountsRef = r; }}
                 rechargeAccounts={rechargeAccounts}
                 invoiceTotal={invoice.total}
                 onChange={this.handleRechargeAccountsChange}

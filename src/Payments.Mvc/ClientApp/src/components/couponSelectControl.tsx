@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { isAfter } from 'date-fns';
+import { isAfter, format } from 'date-fns';
 
 import { Coupon } from '../models/Coupon';
 import { InvoiceDiscount } from '../models/InvoiceDiscount';
@@ -140,7 +140,7 @@ export default class CouponSelectControl extends React.Component<
               <dd className='col-sm-8'>${discountAmount}</dd>
 
               <dt className='col-sm-4'>Expires On</dt>
-              <dd className='col-sm-8'>{expiresAt}</dd>
+              <dd className='col-sm-8'>{expiresAt ? format(expiresAt, 'MM/dd/yyyy') : ''}</dd>
             </dl>
           </div>
           <div className='col-md-3 d-flex flex-column justify-content-around align-items-center'>

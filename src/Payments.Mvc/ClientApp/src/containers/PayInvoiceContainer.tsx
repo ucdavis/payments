@@ -320,7 +320,7 @@ export default class PayInvoiceContainer extends React.Component<
                 amount must match the invoice total.
               </p>
               <RechargeAccountsControl
-                ref={r => (this._rechargeAccountsRef = r)}
+                ref={r => { this._rechargeAccountsRef = r; }}
                 rechargeAccounts={rechargeAccounts}
                 invoiceTotal={invoice.total}
                 onChange={this.handleRechargeAccountsChange}

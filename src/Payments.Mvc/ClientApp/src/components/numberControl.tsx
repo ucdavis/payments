@@ -37,10 +37,12 @@ export default class NumberControl extends React.PureComponent<IProps, IState> {
     };
   }
 
-  public componentWillReceiveProps(nextProps: IProps) {
-    this.setState({
-      value: this.valueToString(nextProps.value)
-    });
+  public componentDidUpdate(prevProps: IProps) {
+    if (prevProps.value !== this.props.value) {
+      this.setState({
+        value: this.valueToString(this.props.value)
+      });
+    }
   }
 
   public render() {

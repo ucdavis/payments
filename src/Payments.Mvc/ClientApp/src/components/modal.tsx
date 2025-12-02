@@ -5,6 +5,7 @@ import Portal from './portal';
 interface IProps {
   dialogClassName?: string;
   isOpen: boolean;
+  children?: React.ReactNode;
 
   onOpened?: () => void;
   onClosed?: () => void;
@@ -37,23 +38,26 @@ export default class LoadingModal extends React.Component<IProps, IState> {
 
   public componentDidMount() {
     this._isMounted = true;
-  }
-
-  public componentWillReceiveProps(nextProps) {
-    if (nextProps.isOpen !== this.props.isOpen) {
-      this.setState({ isOpen: nextProps.isOpen });
-    }
-
-    if (nextProps.isOpen) {
+    
+    if (this.props.isOpen) {
       this.onOpen();
-    } else {
-      this.onClose();
     }
   }
 
-  public componentWillUpdate(nextProps, nextState) {
-    // close -> open
-    if (nextState.isOpen && !this.state.isOpen) {
+  public componentDidUpdate(prevProps: IProps, prevState: IState) {
+    // Handle isOpen prop changes
+    if (prevProps.isOpen !== this.props.isOpen) {
+      this.setState({ isOpen: this.props.isOpen });
+
+      if (this.props.isOpen) {
+        this.onOpen();
+      } else {
+        this.onClose();
+      }
+    }
+
+    // Handle state changes: close -> open
+    if (this.state.isOpen && !prevState.isOpen) {
       this.init();
     }
   }
@@ -94,7 +98,7 @@ export default class LoadingModal extends React.Component<IProps, IState> {
       <div
         className={`modal-dialog modal-dialog-centered ${dialogClassName}`}
         role='document'
-        ref={r => (this._dialog = r)}
+        ref={r => { this._dialog = r; }}
       >
         <div className='modal-content'>{this.props.children}</div>
       </div>
