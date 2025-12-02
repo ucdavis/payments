@@ -55,19 +55,23 @@ export default class MultiCustomerControl extends React.Component<
     if (!hasMultipleCustomers) {
       return (
         <button
-          className='btn'
+          className='btn btn-primary'
           type='button'
           onClick={this.enableMultiCustomer}
         >
-          <i className='fas fa-plus me-3' />
-          <i className='fas fa-users me-3' />
+          <i className='fas fa-plus' />
+          <i className='fas fa-users' />
           Bill Multiple Customers
         </button>
       );
     }
 
     return (
-      <button className='btn' type='button' onClick={this.disableMultiCustomer}>
+      <button
+        className='btn btn-primary'
+        type='button'
+        onClick={this.disableMultiCustomer}
+      >
         <i className='fas fa-user me-2' />
         Bill Single Customer
       </button>
@@ -138,11 +142,14 @@ export default class MultiCustomerControl extends React.Component<
           readOnly={true}
         />
         <div className='input-group-text'>
-          <button className='btn' onClick={() => this.editCustomer(customer)}>
+          <button
+            className='btn btn-primary'
+            onClick={() => this.editCustomer(customer)}
+          >
             <i className='far fa-fw fa-edit' />
           </button>
           <button
-            className='btn'
+            className='btn btn-primary'
             onClick={() => this.removeCustomer(customer.email)}
           >
             <i className='fas fa-fw fa-times' />

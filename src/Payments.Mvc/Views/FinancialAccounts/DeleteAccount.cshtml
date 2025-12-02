@@ -80,11 +80,11 @@
 
             <form asp-action="DeleteAccount">
                 <input type="hidden" asp-for="FinancialAccount.TeamId" name="teamId" />
-                <input type="submit" value="Delete" class="btn" />
+                <input type="submit" value="Delete" class="btn btn-danger" />
             </form>
         </div>
     </div>
 </div>
 <div>
-    <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id"><i class="fas fa-chevron-left me-3"></i>Back</a>
+    <a class="btn btn-outline-primary" asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id"><i class="fas fa-chevron-left"></i>Back</a>
 </div>

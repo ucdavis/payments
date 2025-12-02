@@ -11,7 +11,7 @@ using Payments.Mvc.Models.Roles;
 
 namespace Payments.Mvc.Controllers
 {
-    [Authorize(Policy = PolicyCodes.TeamEditor)]
+    [Authorize(Policy = PolicyCodes.TeamEditor)]    
     public class FilesController : SuperController
     {
         private readonly ApplicationDbContext _dbContext;

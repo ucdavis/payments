@@ -212,7 +212,7 @@ export default class CreateInvoiceContainer extends React.Component<
           <div className='row justify-content-between align-items-center'>
             <div className='col'>
               <button
-                className='btn-plain color-unitrans'
+                className='btn btn-outline-danger'
                 onClick={this.onCancel}
               >
                 Cancel
@@ -222,10 +222,13 @@ export default class CreateInvoiceContainer extends React.Component<
               {this.renderError()}
             </div>
             <div className='col d-flex justify-content-end align-items-baseline'>
-              <button className='btn-plain me-3' onClick={this.onSubmit}>
+              <button
+                className='btn btn-outline-primary me-2'
+                onClick={this.onSubmit}
+              >
                 Save and close
               </button>
-              <button className='btn' onClick={this.openSendModal}>
+              <button className='btn btn-primary' onClick={this.openSendModal}>
                 Send
               </button>
               {this.renderSendModal()}
@@ -264,14 +267,23 @@ export default class CreateInvoiceContainer extends React.Component<
                   invoiceType === 'CC' ? 'active' : ''
                 }`}
               >
-                <span>Credit Card</span>
+                <span>
+                  <i
+                    className='fas fa-credit-card me-2'
+                    title='Credit Card'
+                  ></i>
+                  Credit Card
+                </span>
               </div>
               <div
                 className={`invoice-type-toggle-option ${
                   invoiceType === 'Recharge' ? 'active' : ''
                 }`}
               >
-                <span>Recharge</span>
+                <span>
+                  <i className='fas fa-registered me-2' title='Registered'></i>
+                  Recharge
+                </span>
               </div>
               <div
                 className={`invoice-type-toggle-slider ${

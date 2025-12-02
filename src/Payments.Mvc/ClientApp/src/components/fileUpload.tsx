@@ -76,7 +76,7 @@ export default class FileUpload extends React.Component<IProps, IState> {
         </div>
 
         <button
-          className='btn-link btn-invoice-delete'
+          className='btn btn-danger'
           onClick={() => this.cancelUpload(attachment)}
         >
           <i className='fas fa-times' />
@@ -155,13 +155,14 @@ export default class FileUpload extends React.Component<IProps, IState> {
       const data = new FormData();
       data.append('file', file);
 
-      axios(`${slug}/files/uploadfile`, {
+      axios(`/${slug}/files/uploadfile`, {
         cancelToken: newAttachment.cancelToken.token,
         data,
         headers: {
           RequestVerificationToken: antiForgeryToken
         },
         method: 'post',
+        withCredentials: true,
         onUploadProgress: progressEvent =>
           this.onUploadProgress(progressEvent, newAttachment.identifier)
       })

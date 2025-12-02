@@ -37,77 +37,41 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
   background-color: transparentize($gold, 0.96);
   padding: $card-thick-padding;
-  // text-align: center;
   border-top: 1px solid $borders;
   border-bottom: 1px solid $borders;
-
   .pay-action-total {
     font-size: 2.2rem;
     font-weight: 500;
     font-family: $sans-bold;
   }
-
   .pay-action-date {
     color: $secondary-font;
     font-size: 1.2rem;
     margin-top: 1rem;
   }
-
-  .pay-now-button {
-    margin-top: 1.2rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
-    padding: 0.5rem 1rem;
-    font-size: 1.25rem;
-    line-height: 1.5;
-  }
-
-  .reject-now-button {
-    margin-top: 1.2rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
-    padding: 0.5rem 1rem;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    background-color: $unitrans-red;
-    border-color: darken($unitrans-red, 10%);
-  }
 }
-
 .pay-description {
   padding: $card-thick-padding;
-
   h3 {
     font-size: 1.1rem;
     font-family: $sans-reg;
     color: $secondary-font;
   }
-
   .pay-memo {
     box-shadow: $box-shadow;
     padding: 1rem;
-
     p {
       margin-bottom: 0;
       font-style: italic;
     }
-
     margin-bottom: 3rem;
   }
 }
-
-.pay-coupon {
-  .pay-coupon-form {
-  }
-}
-
 .pay-attachments {
   padding: $card-thick-padding;
   width: 100%;
-
   h3 {
     font-size: 1.1rem;
     font-family: $sans-reg;
@@ -148,17 +112,16 @@
   text-align: center;
 }
 
-// Preview warning card
 .preview-warning-card,
 .preview-warning-card-style {
   padding: 1rem 3rem;
   margin: 0 auto;
   margin-bottom: 3rem;
   max-width: 761px;
-  border-left: solid $unitrans-red 6px;
+  border-left: solid $doubledecker 6px;
 
   .preview-warning-icon {
-    color: $unitrans-red;
+    color: $doubledecker;
   }
 }
 

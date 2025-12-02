@@ -16,7 +16,7 @@
             </a>
             <div class="dropdown-divider"></div>
             <form asp-action="logout" asp-controller="account" method="post">
-                <button class="btn-plain dropdown-item">
+                <button class="btn btn-primary dropdown-item">
                     <span class="">Sign Out</span>
                 </button>
             </form>
@@ -25,5 +25,5 @@
 }
 else
 {
-    <p><a class="btn-inverse" asp-area="" asp-controller="Account" asp-action="Login">Sign in</a></p>
+    <p><a class="btn btn-outline-primary" asp-area="" asp-controller="Account" asp-action="Login">Sign in</a></p>
 }

@@ -126,6 +126,10 @@ a.nav-system:hover {
   }
 }
 
+.nav-logout {
+  text-decoration: none;
+}
+
 button.nav-logout:hover {
   g#logout-primary {
     fill: $primary-color;

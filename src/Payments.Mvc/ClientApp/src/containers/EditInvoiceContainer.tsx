@@ -211,7 +211,7 @@ export default class EditInvoiceContainer extends React.Component<
           <div className='row justify-content-between align-items-center'>
             <div className='col'>
               <button
-                className='btn-plain color-unitrans'
+                className='btn btn-outline-danger'
                 onClick={this.onCancel}
               >
                 Cancel
@@ -221,11 +221,17 @@ export default class EditInvoiceContainer extends React.Component<
               {this.renderError()}
             </div>
             <div className='col d-flex justify-content-end align-items-center'>
-              <button className='btn-plain me-3' onClick={this.onSubmit}>
+              <button
+                className='btn btn-outline-primary me-2'
+                onClick={this.onSubmit}
+              >
                 Save and close
               </button>
               {!sent && (
-                <button className='btn' onClick={this.openSendModal}>
+                <button
+                  className='btn btn-primary'
+                  onClick={this.openSendModal}
+                >
                   Send
                 </button>
               )}

@@ -24,13 +24,13 @@
                 </div>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 <div>
-    <a asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id"><i class="fas fa-chevron-left me-3"></i>Back</a>
+    <a class="btn btn-outline-primary" class="btn btn-outline-primary" asp-controller="FinancialAccounts" asp-action="AccountDetails" asp-route-id="@Model.FinancialAccount.Id"><i class="fas fa-chevron-left"></i>Back</a>
 </div>
 
 @section AdditionalStyles {

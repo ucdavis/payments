@@ -95,7 +95,7 @@ export default class CouponSelectControl extends React.Component<
             />
             <div className='input-group-text'>
               <button
-                className='btn'
+                className='btn btn-primary'
                 type='button'
                 onClick={this.modalSetAmount}
               >
@@ -151,7 +151,7 @@ export default class CouponSelectControl extends React.Component<
           </div>
           <div className='col-md-1 d-flex justify-content-end align-items-center'>
             <button
-              className='btn'
+              className='btn btn-primary'
               onClick={() => this.modalPickCoupon(coupon)}
             >
               <i className='fas fa-angle-right' />
