@@ -24,47 +24,23 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFile([FromRoute(Name = "id")] string dbIdOrBlobIdentifier)
+        public async Task<IActionResult> GetFile(int id)
         {
             var team = await _dbContext.Teams.FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            string identifier;
-            string contentType;
-            string fileName;
-
-            // Try to parse as int (legacy ID-based approach)
-            if (int.TryParse(dbIdOrBlobIdentifier, out var attachmentId))
-            {
-                var attachment = await _dbContext.InvoiceAttachments
-                    .FirstOrDefaultAsync(a => a.Id == attachmentId && a.Invoice.Team.Id == team.Id);
-                if (attachment == null)
-                {
-                    return NotFound();
-                }
-
-                identifier = attachment.Identifier;
-                contentType = attachment.ContentType;
-                fileName = attachment.FileName;
-            }
-            else
-            {
-                // Treat as direct blob identifier
-                identifier = dbIdOrBlobIdentifier;
-                contentType = "application/octet-stream"; // Default content type
-                fileName = identifier; // Use identifier as filename
-            }
-
-            // get file
-            var blob = await _storageService.DownloadFile(identifier, StorageSettings.AttachmentContainerName);
-            if (blob == null || !await blob.ExistsAsync())
+            var attachment = await _dbContext.InvoiceAttachments
+                .FirstOrDefaultAsync(a => a.Id == id && a.Invoice.Team.Id == team.Id);
+            if (attachment == null)
             {
                 return NotFound();
             }
 
+            // get file
+            var blob = await _storageService.DownloadFile(attachment.Identifier, StorageSettings.AttachmentContainerName);
             var stream = await blob.OpenReadAsync();
             
             // ship it
-            return File(stream, contentType, fileName);
+            return File(stream, attachment.ContentType, attachment.FileName);
         }
 
         [HttpPost]

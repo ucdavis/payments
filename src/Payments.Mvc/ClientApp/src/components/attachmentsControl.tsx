@@ -61,16 +61,15 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
         <span className='col-2 d-flex justify-content-center'>{sizeText}</span>
 
         <div className='col-1 d-flex justify-content-end align-items-center'>
-          <a
+          {/* Download disabled until blob identifier security issue is resolved */}
+          {/* <a
             href={href}
             className='btn btn-primary btn-icon me-2'
             target='_blank'
             rel='noreferrer'
           >
-            {' '}
-            {/* lgtm [js/unsafe-external-link] */}
             <i className='fas fa-download' />
-          </a>
+          </a> */}
 
           <button
             className='btn btn-danger btn-icon'
