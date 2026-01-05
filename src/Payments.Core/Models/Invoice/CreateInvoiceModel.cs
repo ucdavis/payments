@@ -73,7 +73,7 @@ namespace Payments.Core.Models.Invoice
         /// <summary>
         /// Customer address
         /// </summary>
-        [MaxLength(100)]
+        [MaxLength(500)]
         public string Address { get; set; }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Payments.Core.Models.Invoice
         /// <summary>
         /// costumer company
         /// </summary>
-        [MaxLength(100)]
+        [MaxLength(500)]
         public string Company { get; set; }
     }
 
