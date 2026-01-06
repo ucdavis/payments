@@ -192,14 +192,16 @@ export default class CreateInvoiceContainer extends React.Component<
               onChange={d => this.updateProperty('dueDate', d)}
             />
           </div>
-          <div className='form-group'>
-            <label>Income Account</label>
-            <AccountSelectControl
-              accounts={accounts}
-              value={accountId}
-              onChange={a => this.updateProperty('accountId', a)}
-            />
-          </div>
+          {invoiceType !== 'Recharge' && (
+            <div className='form-group'>
+              <label>Income Account</label>
+              <AccountSelectControl
+                accounts={accounts}
+                value={accountId}
+                onChange={a => this.updateProperty('accountId', a)}
+              />
+            </div>
+          )}
         </div>
         <div className='card-body invoice-attachments'>
           <h2>Attachments</h2>
