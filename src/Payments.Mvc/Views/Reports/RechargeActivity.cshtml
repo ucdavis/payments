@@ -65,11 +65,22 @@
                     <th>Due Date</th>
                     <th>Paid Date</th>
                     <th>Completed Date</th>
+                    <th>Entered By</th>
+                    <th>Paid By</th>
+                    <th>Approved By</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var invoice in Model.Invoices)
                 {
+                    var enteredBy = string.Join(", ", invoice.RechargeAccounts
+                    .Where(a => a.Direction == RechargeAccount.CreditDebit.Debit && a.EnteredByKerb != null)
+                    .Select(a => $"{a.EnteredByName} ({a.EnteredByKerb})")
+                    .Distinct());
+                    var approvedBy = string.Join(", ", invoice.RechargeAccounts
+                    .Where(a => a.Direction == RechargeAccount.CreditDebit.Debit && a.ApprovedByKerb != null)
+                    .Select(a => $"{a.ApprovedByName} ({a.ApprovedByKerb})")
+                    .Distinct());
                     <tr>
                         <td>@invoice.GetFormattedId()</td>
                         <td>@invoice.Status</td>
@@ -89,6 +100,12 @@
                         <td>@invoice.History?.FirstOrDefault(a => a.Type ==
                                                     HistoryActionTypes.RechargeCompletedInSloth.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")
                     </td>
+                    <td>@enteredBy</td>
+                    <td>
+                        @invoice.History?.FirstOrDefault(a => a.Type ==
+                                                HistoryActionTypes.RechargePaidByCustomer.TypeCode)?.Actor
+                    </td>
+                    <td>@approvedBy</td>
                 </tr>
                                 }
             </tbody>
@@ -108,14 +125,14 @@
                 ],
                 order: [[7, 'desc']],
                 columnDefs: [
-                    { targets: [3, 5, 6], visible: false },
+                    { targets: [3, 5, 6, 12, 13, 14], visible: false },
                     { targets: [7, 8, 9, 10, 11], type: 'date' },
                 ],
                 autoWidth: false,
             });
 
             // toggle column visibility
-            var hiddenColumns = [3, 5, 6];
+            var hiddenColumns = [3, 5, 6, 12, 13, 14];
             var allColumnsVisible = false;
             $('#toggleColumns').on('click', function (e) {
                 e.preventDefault();
