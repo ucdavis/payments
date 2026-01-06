@@ -38,7 +38,7 @@ namespace Payments.Mvc.Services
                 throw new ArgumentException("Account Id not found for this team.", nameof(model.AccountId));
             }
 
-            if (!account.IsActive && model.Type != Invoice.InvoiceTypes.Recharge)
+            if (model.Type != Invoice.InvoiceTypes.Recharge && !account.IsActive)
             {
                 throw new ArgumentException("Account is inactive.", nameof(model.AccountId));
             }
@@ -102,8 +102,8 @@ namespace Payments.Mvc.Services
                 var invoice = new Invoice
                 {
                     DraftCount = 1,
-                    Account = account,
-                    Coupon = model.Type != Invoice.InvoiceTypes.Recharge ? coupon : null,
+                    Account = model.Type != Invoice.InvoiceTypes.Recharge ? account : null,
+                    Coupon = coupon,
                     Team = team,
                     ManualDiscount = model.ManualDiscount,
                     TaxPercent = model.TaxPercent,
@@ -193,12 +193,12 @@ namespace Payments.Mvc.Services
             var account = await _dbContext.FinancialAccounts
                 .FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.Id == model.AccountId);
 
-            if (account == null)
+            if (account == null && invoice.Type != Invoice.InvoiceTypes.Recharge)
             {
                 throw new ArgumentException("Account Id not found for this team.", nameof(model.AccountId));
             }
 
-            if (!account.IsActive)
+            if (invoice.Type != Invoice.InvoiceTypes.Recharge && !account.IsActive)
             {
                 throw new ArgumentException("Account is inactive.", nameof(model.AccountId));
             }
@@ -216,8 +216,8 @@ namespace Payments.Mvc.Services
             _dbContext.LineItems.RemoveRange(invoice.Items);
 
             // update invoice
-            invoice.Account = account;
-            invoice.Coupon = coupon;
+            invoice.Account = invoice.Type != Invoice.InvoiceTypes.Recharge ?  account : null;
+            invoice.Coupon =  coupon;
             invoice.CustomerAddress = model.Customer.Address;
             invoice.CustomerEmail = model.Customer.Email;
             invoice.CustomerName = model.Customer.Name;
