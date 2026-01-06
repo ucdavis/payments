@@ -10,37 +10,44 @@
     <div class="card-header card-header-primary">
         <h1><i class="fas fa-registered" title="Recharge Invoice"></i> @ViewBag.Title</h1>
 
-   
-    </div>
-        <div class="card-body card-bot-border">
 
-         @if (Model.Year.HasValue)
+    </div>
+    <div class="card-body card-bot-border">
+
+        @if (Model.Year.HasValue)
         {
             <div>Shows all recharge invoices created in @Model.Year. Export to excel to view additional columns.</div>
         }
         else
         {
-            <div>Shows all recharge invoices created in the last 12 months (since @DateTime.Now.AddMonths(-12).ToString("d")). Export to excel to view additional columns.</div>
+            <div>Shows all recharge invoices created in the last 12 months (since
+                @DateTime.Now.AddMonths(-12).ToString("d")). Export to excel to view additional columns.</div>
         }
-    <form asp-action="RechargeActivity" method="post">
+        <form asp-action="RechargeActivity" method="post">
             <div class="row align-items-end">
                 <div class="col-sm-4">
                     <div class="form-group">
                         <div class="form-group col-12 mt-4">
                             <label>Filter for Year</label>
                             <div class="input-group">
-                                <input class="form-control" type="text" placeholder="YYYY" asp-for="Year" asp-format="{0:yyyy}" />
+                                <input class="form-control" type="text" placeholder="YYYY" asp-for="Year"
+                                    asp-format="{0:yyyy}" />
                             </div>
                         </div>
                         <div class="form-group col-12">
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-sync-alt fa-sm"></i>Refresh Report</button>
+                                <button type="submit" class="btn btn-primary"><i
+                                        class="fas fa-sync-alt fa-sm"></i>Refresh Report</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
+        <div class="mt-2">
+            <button id="toggleColumns" class="btn btn-sm btn-secondary"><i class="fas fa-columns"></i> <span
+                    id="toggleText">Show All Columns</span></button>
+        </div>
     </div>
     <div class="card-body table-responsive">
         <table id="Invoices" class="table">
@@ -69,15 +76,21 @@
                         <td>@invoice.CustomerEmail</td>
                         <td>@invoice.CustomerName</td>
                         <td>@invoice.CalculatedTotal</td>
-                        <td>@(invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Debit) ? string.Join(", ", invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Select(a => a.FinancialSegmentString)) : "")</td>
-                        <td>@(invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit) ? string.Join(", ", invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit).Select(a => a.FinancialSegmentString)) : "")</td>
-                        <td>@(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@(invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Debit) ?
+                                                    string.Join(", ", invoice.RechargeAccounts.Where(a => a.Direction ==
+                                                    RechargeAccount.CreditDebit.Debit).Select(a => a.FinancialSegmentString)) : "")</td>
+                        <td>@(invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit) ?
+                                                    string.Join(", ", invoice.RechargeAccounts.Where(a => a.Direction ==
+                                                    RechargeAccount.CreditDebit.Credit).Select(a => a.FinancialSegmentString)) : "")</td>
+                        <td>@(invoice.SentAt.HasValue? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
-                        <td>@(invoice.DueDate.HasValue ? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
-                        <td>@(invoice.PaidAt.HasValue ? invoice.PaidAt.Value.ToPacificTime().ToString("d") : "")</td>
-                        <td>@invoice.History?.FirstOrDefault(a => a.Type == HistoryActionTypes.RechargeCompletedInSloth.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")</td>
-                    </tr>
-                }
+                        <td>@(invoice.DueDate.HasValue? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@(invoice.PaidAt.HasValue? invoice.PaidAt.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@invoice.History?.FirstOrDefault(a => a.Type ==
+                                                    HistoryActionTypes.RechargeCompletedInSloth.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")
+                    </td>
+                </tr>
+                                }
             </tbody>
         </table>
     </div>
@@ -86,18 +99,31 @@
 @section scripts
 {
     <script type="text/javascript" asp-add-nonce="true">
-        $(function() {
+        $(function () {
             // setup table
-            $("#Invoices").DataTable({
+            var table = $("#Invoices").DataTable({
                 dom: 'Bfrtip',
                 buttons: [
                     'copy', 'excel'
                 ],
-                order: [[ 7, 'desc' ]],
+                order: [[7, 'desc']],
                 columnDefs: [
                     { targets: [3, 5, 6], visible: false },
-                    { targets: [7, 8, 9, 10, 11], type: 'date'},
+                    { targets: [7, 8, 9, 10, 11], type: 'date' },
                 ],
+            });
+
+            // toggle column visibility
+            var hiddenColumns = [3, 5, 6];
+            var allColumnsVisible = false;
+            $('#toggleColumns').on('click', function (e) {
+                e.preventDefault();
+                allColumnsVisible = !allColumnsVisible;
+                hiddenColumns.forEach(function (colIdx) {
+                    var column = table.column(colIdx);
+                    column.visible(allColumnsVisible);
+                });
+                $('#toggleText').text(allColumnsVisible ? 'Hide Columns' : 'Show All Columns');
             });
             // setup datepickers
             $('#Year').datepicker({
