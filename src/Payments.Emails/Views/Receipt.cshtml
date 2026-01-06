@@ -22,7 +22,12 @@
             <p style="font-weight: bold">Total:</p>
             <p>@invoice.CalculatedTotal.ToString("C")</p>
         </td>
-        <td style="vertical-align: top; text-align: right">
+    </tr>
+</mj-table>
+
+<mj-table>
+    <tr>
+        <td style="vertical-align: top; text-align: left">
             <p style="font-weight: bold">Billed To:</p>
             @if (!string.IsNullOrWhiteSpace(invoice.CustomerName))
             {
