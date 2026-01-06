@@ -33,12 +33,12 @@ namespace Payments.Mvc.Services
             var account = await _dbContext.FinancialAccounts
                 .FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.Id == model.AccountId);
 
-            if (account == null)
+            if (account == null && model.Type != Invoice.InvoiceTypes.Recharge)
             {
                 throw new ArgumentException("Account Id not found for this team.", nameof(model.AccountId));
             }
 
-            if (!account.IsActive)
+            if (!account.IsActive && model.Type != Invoice.InvoiceTypes.Recharge)
             {
                 throw new ArgumentException("Account is inactive.", nameof(model.AccountId));
             }
@@ -103,7 +103,7 @@ namespace Payments.Mvc.Services
                 {
                     DraftCount = 1,
                     Account = account,
-                    Coupon = coupon,
+                    Coupon = model.Type != Invoice.InvoiceTypes.Recharge ? coupon : null,
                     Team = team,
                     ManualDiscount = model.ManualDiscount,
                     TaxPercent = model.TaxPercent,
