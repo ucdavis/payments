@@ -10,7 +10,7 @@ namespace Payments.Core.Models.History
 
         public string GetMessage(string data)
         {
-            return "Completed in sloth. Money moved.";
+            return "Money moved.";
         }
 
         public bool ShowDetails => false; 
