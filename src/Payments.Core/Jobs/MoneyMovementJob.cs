@@ -518,6 +518,15 @@ namespace Payments.Core.Jobs
                             log.Information("Invoice {id} recharge distribution found with transaction: {transactionId}", invoice.Id, transaction.Id);
                             // transaction found, bank reconcile was successful
                             invoice.Status = Invoice.StatusCodes.Completed;
+
+                            var actionEntry = new History()
+                            {
+                                Type = HistoryActionTypes.RechargeCompletedInSloth.TypeCode,
+                                ActionDateTime = DateTime.UtcNow,
+                            };
+                            invoice.History.Add(actionEntry);
+
+
                             //invoice.PaidAt = transaction.TransactionDate; //Going to keep this what it was to show when the user approved it.
                             if (invoice.PaidAt == null)
                             {

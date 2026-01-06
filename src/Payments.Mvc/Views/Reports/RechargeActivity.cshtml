@@ -3,12 +3,12 @@
 
 @model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
 @{
-    ViewBag.Title = "Credit Card Activity Report";
+    ViewBag.Title = "Recharge Activity Report";
 }
 
 <div class="card">
     <div class="card-header card-header-primary">
-        <h1><i class="fas fa-credit-card" title="Credit Card"></i> @ViewBag.Title</h1>
+        <h1><i class="fas fa-registered" title="Recharge Invoice"></i> @ViewBag.Title</h1>
 
    
     </div>
@@ -59,6 +59,7 @@
                     <th>Created</th>
                     <th>Due Date</th>
                     <th>Paid Date</th>
+                    <th>Completed Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -71,12 +72,13 @@
                         <td>@invoice.CustomerName</td>
                         <td>@invoice.CustomerCompany</td>
                         <td>@invoice.CalculatedTotal</td>
-                        <td>@invoice.Account.Name</td>
-                        <td>@invoice.Account.GetAccountString()</td>
-                        <td>@invoice.Account.FinancialSegmentString</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>@(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
                         <td>@(invoice.DueDate.HasValue ? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@(invoice.PaidAt.HasValue ? invoice.PaidAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.History?.FirstOrDefault(a => a.Type == HistoryActionTypes.PaymentCompleted.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")</td>
                     </tr>
                 }
