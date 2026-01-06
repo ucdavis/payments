@@ -66,6 +66,8 @@
                     <th>Created</th>
                     <th>Due Date</th>
                     <th>Paid Date</th>
+                    <th>Created By</th>
+                    <th>Sent By</th>
                 </tr>
             </thead>
             <tbody>
@@ -86,6 +88,10 @@
                         <td>@(invoice.DueDate.HasValue? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.History?.FirstOrDefault(a => a.Type ==
                                                     HistoryActionTypes.PaymentCompleted.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")</td>
+                    <td>
+                        @invoice.History?.FirstOrDefault(a => a.Type == HistoryActionTypes.InvoiceCreated.TypeCode)?.Actor
+                    </td>
+                    <td>@invoice.History?.FirstOrDefault(a => a.Type == HistoryActionTypes.InvoiceSent.TypeCode)?.Actor</td>
                 </tr>
                                 }
             </tbody>
@@ -105,14 +111,14 @@
                 ],
                 order: [[9, 'desc']],
                 columnDefs: [
-                    { targets: [3, 4, 7, 8, 12], visible: false },
+                    { targets: [3, 4, 7, 8, 12, 13, 14], visible: false },
                     { targets: [9, 10, 11, 12], type: 'date' },
                 ],
                 autoWidth: false,
             });
 
             // toggle column visibility
-            var hiddenColumns = [3, 4, 7, 8, 12];
+            var hiddenColumns = [3, 4, 7, 8, 12, 13, 14];
             var allColumnsVisible = false;
             $('#toggleColumns').on('click', function (e) {
                 e.preventDefault();

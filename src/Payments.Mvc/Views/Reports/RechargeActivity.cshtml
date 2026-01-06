@@ -68,6 +68,8 @@
                     <th>Entered By</th>
                     <th>Paid By</th>
                     <th>Approved By</th>
+                    <th>Created By</th>
+                    <th>Sent By</th>
                 </tr>
             </thead>
             <tbody>
@@ -106,6 +108,10 @@
                                                 HistoryActionTypes.RechargePaidByCustomer.TypeCode)?.Actor
                     </td>
                     <td>@approvedBy</td>
+                    <td>
+                        @invoice.History?.FirstOrDefault(a => a.Type == HistoryActionTypes.InvoiceCreated.TypeCode)?.Actor
+                    </td>
+                    <td>@invoice.History?.FirstOrDefault(a => a.Type == HistoryActionTypes.InvoiceSent.TypeCode)?.Actor</td>
                 </tr>
                                 }
             </tbody>
@@ -125,14 +131,14 @@
                 ],
                 order: [[7, 'desc']],
                 columnDefs: [
-                    { targets: [3, 5, 6, 12, 13, 14], visible: false },
+                    { targets: [3, 5, 6, 12, 13, 14, 15, 16], visible: false },
                     { targets: [7, 8, 9, 10, 11], type: 'date' },
                 ],
                 autoWidth: false,
             });
 
             // toggle column visibility
-            var hiddenColumns = [3, 5, 6, 12, 13, 14];
+            var hiddenColumns = [3, 5, 6, 12, 13, 14, 15, 16];
             var allColumnsVisible = false;
             $('#toggleColumns').on('click', function (e) {
                 e.preventDefault();

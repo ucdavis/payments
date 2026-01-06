@@ -37,7 +37,7 @@ namespace Payments.Mvc.Controllers
             //If we wanted to include other history actions, we could add them to the where clause
             var invoiceQuery = _dbContext.Invoices
                 .Include(i => i.Account)
-                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.PaymentCompleted.TypeCode))
+                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.PaymentCompleted.TypeCode || a.Type == HistoryActionTypes.InvoiceCreated.TypeCode || a.Type == HistoryActionTypes.InvoiceSent.TypeCode))
                 .Where(i => i.Team.Slug == TeamSlug && i.Type == InvoiceTypes.CreditCard);
             if (year.HasValue)
             {
@@ -70,7 +70,7 @@ namespace Payments.Mvc.Controllers
             //If we wanted to include other history actions, we could add them to the where clause
             var invoiceQuery = _dbContext.Invoices
                 .Include(a => a.RechargeAccounts)
-                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.RechargeCompletedInSloth.TypeCode || a.Type == HistoryActionTypes.RechargePaidByCustomer.TypeCode))
+                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.RechargeCompletedInSloth.TypeCode || a.Type == HistoryActionTypes.RechargePaidByCustomer.TypeCode || a.Type == HistoryActionTypes.InvoiceCreated.TypeCode || a.Type == HistoryActionTypes.InvoiceSent.TypeCode))
                 .Where(i => i.Team.Slug == TeamSlug && i.Type == InvoiceTypes.Recharge);
             if (year.HasValue)
             {
