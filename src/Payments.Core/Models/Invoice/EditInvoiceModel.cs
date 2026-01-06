@@ -40,14 +40,14 @@ namespace Payments.Core.Models.Invoice
         [MaxLength(100)]
         public string Name { get; set; }
 
-        [MaxLength(100)]
+        [MaxLength(500)]
         public string Address { get; set; }
 
         [MaxLength(100)]
         [EmailAddress]
         public string Email { get; set; }
 
-        [MaxLength(100)]
+        [MaxLength(500)]
         public string Company { get; set; }
     }
 

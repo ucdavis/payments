@@ -44,6 +44,8 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType RechargeRejected = new RechargeRejectedHistoryActionType();
 
+        public static readonly IHistoryActionType RechargeCompletedInSloth = new RechargeCompletedInSlothHistoryActionType();
+
         public static readonly IHistoryActionType RechargeApprovedByFinancialApprover = new RechargeApprovedByFinancialApproverHistoryActionType();
 
         private static StringComparison _comparer = StringComparison.OrdinalIgnoreCase;
@@ -70,6 +72,7 @@ namespace Payments.Core.Models.History
             RechargeRejectedByFinancialApprover,
             RechargeApprovedByFinancialApprover,
             RechargeRejected,
+            RechargeCompletedInSloth,
         };
 
         public static IHistoryActionType GetHistoryActionType(string actionType)

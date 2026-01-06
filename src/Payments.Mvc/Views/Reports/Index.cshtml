@@ -37,9 +37,28 @@
                                      class="img-fluid rounded" />
                             </div>
                             <div class="col">
-                                <h5 class="card-title mb-1">Team Activity Report</h5>
+                                <h5 class="card-title mb-1"><i class="fas fa-credit-card" title="Credit Card"></i> Team Activity Report</h5>
                                 <p class="card-text mb-0">
-                                    View all invoices created in the last 12 months.
+                                    View all credit card invoices created in the last 12 months.
+                                    Export to Excel to view additional columns.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-8">
+                    <a asp-action="RechargeActivity" asp-team="@teamSlug" class="card card-report text-decoration-none">
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-md-4">
+                                <img src="~/media/team_activity_report.jpg"
+                                     alt="Zoom in of the eye on the dollar"
+                                     class="img-fluid rounded" />
+                            </div>
+                            <div class="col">
+                                <h5 class="card-title mb-1"><i class="fas fa-registered" title="Recharge Invoice"></i> Team Activity Report</h5>
+                                <p class="card-text mb-0">
+                                    View all recharge invoices created in the last 12 months.
                                     Export to Excel to view additional columns.
                                 </p>
                             </div>
