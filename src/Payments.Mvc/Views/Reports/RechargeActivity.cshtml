@@ -3,12 +3,12 @@
 
 @model Payments.Mvc.Models.InvoiceViewModels.InvoiceListViewModel
 @{
-    ViewBag.Title = "Credit Card Activity Report";
+    ViewBag.Title = "Recharge Activity Report";
 }
 
 <div class="card">
     <div class="card-header card-header-primary">
-        <h1><i class="fas fa-credit-card" title="Credit Card"></i> @ViewBag.Title</h1>
+        <h1><i class="fas fa-registered" title="Recharge Invoice"></i> @ViewBag.Title</h1>
 
 
     </div>
@@ -16,14 +16,14 @@
 
         @if (Model.Year.HasValue)
         {
-            <div>Shows all invoices created in @Model.Year. Export to excel to view additional columns.</div>
+            <div>Shows all recharge invoices created in @Model.Year. Export to excel to view additional columns.</div>
         }
         else
         {
-            <div>Shows all invoices created in the last 12 months (since @DateTime.Now.AddMonths(-12).ToString("d")). Export
-                to excel to view additional columns.</div>
+            <div>Shows all recharge invoices created in the last 12 months (since
+                @DateTime.Now.AddMonths(-12).ToString("d")). Export to excel to view additional columns.</div>
         }
-        <form asp-action="Activity" method="post">
+        <form asp-action="RechargeActivity" method="post">
             <div class="row align-items-end">
                 <div class="col-sm-4">
                     <div class="form-group">
@@ -57,15 +57,14 @@
                     <th>Status</th>
                     <th>Customer Email</th>
                     <th>Customer Name</th>
-                    <th>Customer Company</th>
                     <th>Amount</th>
-                    <th>Account Name</th>
-                    <th>KFS Account</th>
-                    <th>AE Account</th>
+                    <th>Debit Accounts</th>
+                    <th>Credit Accounts</th>
                     <th>Sent At</th>
                     <th>Created</th>
                     <th>Due Date</th>
                     <th>Paid Date</th>
+                    <th>Completed Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,16 +75,20 @@
                         <td>@invoice.Status</td>
                         <td>@invoice.CustomerEmail</td>
                         <td>@invoice.CustomerName</td>
-                        <td>@invoice.CustomerCompany</td>
                         <td>@invoice.CalculatedTotal</td>
-                        <td>@invoice.Account.Name</td>
-                        <td>@invoice.Account.GetAccountString()</td>
-                        <td>@invoice.Account.FinancialSegmentString</td>
+                        <td>@(invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Debit) ?
+                                                    string.Join(", ", invoice.RechargeAccounts.Where(a => a.Direction ==
+                                                    RechargeAccount.CreditDebit.Debit).Select(a => a.FinancialSegmentString)) : "")</td>
+                        <td>@(invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit) ?
+                                                    string.Join(", ", invoice.RechargeAccounts.Where(a => a.Direction ==
+                                                    RechargeAccount.CreditDebit.Credit).Select(a => a.FinancialSegmentString)) : "")</td>
                         <td>@(invoice.SentAt.HasValue? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.CreatedAt.ToPacificTime().ToString("d")</td>
                         <td>@(invoice.DueDate.HasValue? invoice.DueDate.Value.ToPacificTime().ToString("d") : "")</td>
+                        <td>@(invoice.PaidAt.HasValue? invoice.PaidAt.Value.ToPacificTime().ToString("d") : "")</td>
                         <td>@invoice.History?.FirstOrDefault(a => a.Type ==
-                                                    HistoryActionTypes.PaymentCompleted.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")</td>
+                                                    HistoryActionTypes.RechargeCompletedInSloth.TypeCode)?.ActionDateTime.ToPacificTime().ToString("d")
+                    </td>
                 </tr>
                                 }
             </tbody>
@@ -98,21 +101,21 @@
     <script type="text/javascript" asp-add-nonce="true">
         $(function () {
             // setup table
-            var table =  $("#Invoices").DataTable({
+            var table = $("#Invoices").DataTable({
                 dom: 'Bfrtip',
                 buttons: [
                     'copy', 'excel'
                 ],
-                order: [[9, 'desc']],
+                order: [[7, 'desc']],
                 columnDefs: [
-                    { targets: [3, 4, 7, 8, 12], visible: false },
-                    { targets: [9, 10, 11, 12], type: 'date' },
+                    { targets: [3, 5, 6], visible: false },
+                    { targets: [7, 8, 9, 10, 11], type: 'date' },
                 ],
                 autoWidth: false,
             });
 
             // toggle column visibility
-            var hiddenColumns = [3, 4, 7, 8, 12];
+            var hiddenColumns = [3, 5, 6];
             var allColumnsVisible = false;
             $('#toggleColumns').on('click', function (e) {
                 e.preventDefault();
