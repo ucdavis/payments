@@ -108,6 +108,7 @@
                     { targets: [3, 4, 7, 8, 12], visible: false },
                     { targets: [9, 10, 11, 12], type: 'date' },
                 ],
+                autoWidth: false,
             });
 
             // toggle column visibility
@@ -120,6 +121,10 @@
                     var column = table.column(colIdx);
                     column.visible(allColumnsVisible);
                 });
+                // Force recalculation of column widths
+                table.columns.adjust();
+                $(window).trigger('resize');
+
                 $('#toggleText').text(allColumnsVisible ? 'Hide Columns' : 'Show All Columns');
             });
             // setup datepickers
