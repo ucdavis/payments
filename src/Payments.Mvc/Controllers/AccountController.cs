@@ -136,21 +136,23 @@ namespace Payments.Mvc.Controllers
 
             if (result.Succeeded)
             {
-                var loggedInUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-                if (loggedInUser != null)
+                if (IsUcdLogin(info))
                 {
-                    var loggedInUserClaims = await _userManager.GetClaimsAsync(loggedInUser);
-                    foreach (var claim in loggedInUserClaims.Where(c => c.Type == "ucd_additional_emails"))
+                    var loggedInUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+                    if (loggedInUser != null)
                     {
-                        await _userManager.RemoveClaimAsync(loggedInUser, claim);
+                        var loggedInUserClaims = await _userManager.GetClaimsAsync(loggedInUser);
+                        foreach (var claim in loggedInUserClaims.Where(c => c.Type == "ucd_additional_emails"))
+                        {
+                            await _userManager.RemoveClaimAsync(loggedInUser, claim);
+                        }
+                        await _userManager.AddClaimAsync(loggedInUser, new Claim("ucd_additional_emails", additionalEmails));
+
+                        // Refresh the sign-in to update claims in the authentication cookie
+                        await _signInManager.RefreshSignInAsync(loggedInUser);
                     }
-                    await _userManager.AddClaimAsync(loggedInUser, new Claim("ucd_additional_emails", additionalEmails));
 
-                    // Refresh the sign-in to update claims in the authentication cookie
-                    await _signInManager.RefreshSignInAsync(loggedInUser);
                 }
-
-
                 _logger.LogInformation("User logged in with {Name} provider.", info.LoginProvider);
                 return RedirectToLocal(returnUrl);
             }
