@@ -159,11 +159,12 @@ namespace Payments.Mvc.Controllers
         public async Task<IActionResult> Emulate(string id)
         {
             var user = await _userManager.FindByNameAsync(id);
+            var ucdPerson = await _directorySearchService.GetByEmail(id); // Always get it so we can get additional emails for the claims below.
 
             if (user == null)
             {
                 // create the user
-                var ucdPerson = await _directorySearchService.GetByEmail(id);
+                
                 if (ucdPerson == null)
                 {
                     return NotFound();
@@ -185,9 +186,22 @@ namespace Payments.Mvc.Controllers
 
             if (user == null) return NotFound();
 
+            //Clear out existing claim "ucd_additional_emails" if any and replace with current value from directory
+            var existingClaims = (await _userManager.GetClaimsAsync(user)).Where(c => c.Type == "ucd_additional_emails").ToList();
+            if (existingClaims.Any())
+            {
+                foreach (var existingClaim in existingClaims)
+                {
+                    await _userManager.RemoveClaimAsync(user, existingClaim);
+                }
+            }
+            await _userManager.AddClaimAsync(user, new Claim("ucd_additional_emails", ucdPerson.AdditionalEmails ?? string.Empty));
+
+
             await _signInManager.SignOutAsync(); // sign out current user
 
             await _signInManager.SignInAsync(user, false); // sign in new user
+
 
             Message = $"Signed in as {id}";
 

@@ -421,7 +421,8 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction("PublicNotFound");
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);            
+
             if (user == null)
             {
                 return RedirectToAction("PublicNotFound");
@@ -606,6 +607,12 @@ namespace Payments.Mvc.Controllers
 
         private async Task<(bool isApprover, bool canApprove, List<RechargeAccount> actionableRechargeAccounts, List<RechargeAccount> displayOnlyRechargeAccounts)> GetApproverRechargeAccounts(Invoice invoice, User user)
         {
+            var xxx = User.Claims.Where(c => c.Type == "ucd_additional_emails").ToList();
+
+
+            var additionalEmails = string.Join(";", User.Claims.Where(c => c.Type == "ucd_additional_emails").Select(c => c.Value).ToList());
+
+
             var isApprover = false; //We may want to distinguish between isApprover and canApprove
             var canApprove = false;
             var actionableRechargeAccounts = new List<RechargeAccount>();

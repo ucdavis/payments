@@ -108,6 +108,17 @@ namespace Payments.Mvc.Controllers
                 identity.AddClaim(new Claim(ClaimTypes.GivenName, ucdPerson.Person.GivenName));
                 identity.AddClaim(new Claim(ClaimTypes.Surname, ucdPerson.Person.Surname));
 
+                if(identity.Claims.Any(c => c.Type == "ucd_additional_emails"))
+                {
+                    var claims = identity.Claims.Where(c => c.Type == "ucd_additional_emails").ToList();
+                    foreach(var claim in claims)
+                    {
+                        identity.RemoveClaim(claim);
+                    }
+                }
+
+                identity.AddClaim(new Claim("ucd_additional_emails", ucdPerson.Person.AdditionalEmails ?? string.Empty)); // To contain health emails, if any.
+
                 // name and identifier come back as kerb, let's replace them with our found values.
                 identity.RemoveClaim(identity.FindFirst(ClaimTypes.NameIdentifier));
                 identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, ucdPerson.Person.Kerberos));
