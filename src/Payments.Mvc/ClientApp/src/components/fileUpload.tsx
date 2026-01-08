@@ -1,9 +1,10 @@
 import * as React from 'react';
 
-import axios, { AxiosResponse, CancelTokenSource } from 'axios';
-import Dropzone, { DropzoneRenderArgs } from 'react-dropzone';
+import axios, { AxiosResponse, AxiosProgressEvent, CancelTokenSource } from 'axios';
+import { useDropzone } from 'react-dropzone';
 
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
+import { Team } from '../models/Team';
 
 import TeamContext from '../contexts/TeamContext';
 
@@ -27,6 +28,7 @@ interface IState {
 
 export default class FileUpload extends React.Component<IProps, IState> {
   static contextType = TeamContext;
+  context!: Team;
 
   constructor(props) {
     super(props);
@@ -42,31 +44,12 @@ export default class FileUpload extends React.Component<IProps, IState> {
 
     return (
       <div className={className}>
-        <Dropzone onDrop={this.startUpload}>{this.renderDropzone}</Dropzone>
+        <DropzoneWrapper onDrop={this.startUpload} />
 
         {attachmentsUploading.map(this.renderUploadingAttachment)}
       </div>
     );
   }
-
-  private renderDropzone = (args: DropzoneRenderArgs) => {
-    return (
-      <div {...args.getRootProps()} className='dropzone'>
-        <input {...args.getInputProps()} />
-        <div className='d-flex justify-content-center align-items-center'>
-          <i className='fas fa-upload fa-2x me-4' />
-          <div className='d-flex flex-column align-items-center'>
-            {args.isDragActive ? (
-              <span>Drop files here...</span>
-            ) : (
-              <span>Drop files to attach, or click to Browse.</span>
-            )}
-            <span>(Individual file upload size limit 5 MB)</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   private renderUploadingAttachment = (
     attachment: UploadingInvoiceAttachment
@@ -146,7 +129,7 @@ export default class FileUpload extends React.Component<IProps, IState> {
     return `${(size / 1024 / 1024).toFixed(1)} MB`;
   };
 
-  private startUpload = (accepted: File[], rejected, event) => {
+  private startUpload = (accepted: File[]) => {
     const { slug } = this.context;
 
     // start uploads
@@ -189,7 +172,7 @@ export default class FileUpload extends React.Component<IProps, IState> {
   };
 
   private onUploadProgress = (
-    progressEvent: ProgressEvent,
+    progressEvent: AxiosProgressEvent,
     identifier: string
   ) => {
     const attachmentsUploading = [...this.state.attachmentsUploading];
@@ -198,7 +181,7 @@ export default class FileUpload extends React.Component<IProps, IState> {
     const index = attachmentsUploading.findIndex(
       a => a.identifier === identifier
     );
-    if (index > -1) {
+    if (index > -1 && progressEvent.total) {
       attachmentsUploading[index].progress =
         (progressEvent.loaded / progressEvent.total) * 100;
 
@@ -253,4 +236,26 @@ export default class FileUpload extends React.Component<IProps, IState> {
       size: attachment.size
     });
   };
+}
+
+// Wrapper component to use the useDropzone hook
+function DropzoneWrapper({ onDrop }: { onDrop: (files: File[]) => void }) {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  return (
+    <div {...getRootProps()} className='dropzone'>
+      <input {...getInputProps()} />
+      <div className='d-flex justify-content-center align-items-center'>
+        <i className='fas fa-upload fa-2x me-4' />
+        <div className='d-flex flex-column align-items-center'>
+          {isDragActive ? (
+            <span>Drop files here...</span>
+          ) : (
+            <span>Drop files to attach, or click to Browse.</span>
+          )}
+          <span>(Individual file upload size limit 5 MB)</span>
+        </div>
+      </div>
+    </div>
+  );
 }

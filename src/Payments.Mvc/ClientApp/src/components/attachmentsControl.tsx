@@ -3,6 +3,7 @@ import * as React from 'react';
 import FileUpload from './fileUpload';
 
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
+import { Team } from '../models/Team';
 
 import TeamContext from '../contexts/TeamContext';
 
@@ -13,6 +14,7 @@ interface IProps {
 
 export default class AttachmentsControl extends React.Component<IProps, {}> {
   static contextType = TeamContext;
+  context!: Team;
 
   public render() {
     const { attachments } = this.props;
@@ -26,7 +28,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
   }
 
   private renderAttachment = (attachment: InvoiceAttachment) => {
-    const team = this.context;
+    const team = this.context as Team;
 
     const fileTypeIcon = this.getFileTypeIcon(attachment.contentType);
 

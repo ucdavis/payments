@@ -1100,11 +1100,11 @@ export default class RechargeAccountsControl extends React.Component<
           <td className='cell-financial-segment'>
             <div className='input-group'>
               <input
-                ref={el =>
-                  (this.inputRefs[
+                ref={el => {
+                  this.inputRefs[
                     `${direction.toLowerCase()}-${index}-chart`
-                  ] = el)
-                }
+                  ] = el;
+                }}
                 type='text'
                 className={`form-control ${
                   account.isValidating
