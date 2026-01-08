@@ -89,6 +89,8 @@ namespace Payments.Mvc.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
+            var additionalEmails = string.Empty;
+
             // setup claims properly to deal with how CAS represents things
             if (IsUcdLogin(info)) // lgtm [cs/user-controlled-bypass]
             {
@@ -101,6 +103,7 @@ namespace Payments.Mvc.Controllers
                     TempData["ErrorMessage"] = ucdPerson.ErrorMessage;
                     return RedirectToAction("Index", "Home");
                 }
+                additionalEmails = ucdPerson.Person.AdditionalEmails ?? string.Empty;
 
                 var identity = (ClaimsIdentity)info.Principal.Identity;
 
@@ -108,16 +111,16 @@ namespace Payments.Mvc.Controllers
                 identity.AddClaim(new Claim(ClaimTypes.GivenName, ucdPerson.Person.GivenName));
                 identity.AddClaim(new Claim(ClaimTypes.Surname, ucdPerson.Person.Surname));
 
-                if(identity.Claims.Any(c => c.Type == "ucd_additional_emails"))
+                if (identity.Claims.Any(c => c.Type == "ucd_additional_emails"))
                 {
                     var claims = identity.Claims.Where(c => c.Type == "ucd_additional_emails").ToList();
-                    foreach(var claim in claims)
+                    foreach (var claim in claims)
                     {
                         identity.RemoveClaim(claim);
                     }
                 }
 
-                identity.AddClaim(new Claim("ucd_additional_emails", ucdPerson.Person.AdditionalEmails ?? string.Empty)); // To contain health emails, if any.
+                identity.AddClaim(new Claim("ucd_additional_emails", additionalEmails)); // To contain health emails, if any.
 
                 // name and identifier come back as kerb, let's replace them with our found values.
                 identity.RemoveClaim(identity.FindFirst(ClaimTypes.NameIdentifier));
@@ -133,6 +136,21 @@ namespace Payments.Mvc.Controllers
 
             if (result.Succeeded)
             {
+                var loggedInUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+                if (loggedInUser != null)
+                {
+                    var loggedInUserClaims = await _userManager.GetClaimsAsync(loggedInUser);
+                    foreach (var claim in loggedInUserClaims.Where(c => c.Type == "ucd_additional_emails"))
+                    {
+                        await _userManager.RemoveClaimAsync(loggedInUser, claim);
+                    }
+                    await _userManager.AddClaimAsync(loggedInUser, new Claim("ucd_additional_emails", additionalEmails));
+
+                    // Refresh the sign-in to update claims in the authentication cookie
+                    await _signInManager.RefreshSignInAsync(loggedInUser);
+                }
+
+
                 _logger.LogInformation("User logged in with {Name} provider.", info.LoginProvider);
                 return RedirectToLocal(returnUrl);
             }
@@ -163,11 +181,27 @@ namespace Payments.Mvc.Controllers
                 createResult = await _userManager.AddLoginAsync(user, info); // lgtm [cs/user-controlled-bypass]
                 if (createResult.Succeeded)
                 {
+                    if (IsUcdLogin(info))
+                    {
+                        var existingClaims = (await _userManager.GetClaimsAsync(user)).Where(c => c.Type == "ucd_additional_emails").ToList();
+                        if (existingClaims.Any())
+                        {
+                            foreach (var existingClaim in existingClaims)
+                            {
+                                await _userManager.RemoveClaimAsync(user, existingClaim);
+                            }
+                        }
+                        await _userManager.AddClaimAsync(user, new Claim("ucd_additional_emails", additionalEmails));
+                    }
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+
                     return RedirectToLocal(returnUrl);
                 }
             }
+
+
 
             // TODO: add in error message explaining why login failed
             ErrorMessage = "There was a problem logging you in";
@@ -237,7 +271,8 @@ namespace Payments.Mvc.Controllers
 
         #region Helpers
 
-        private bool IsUcdLogin(ExternalLoginInfo info) {
+        private bool IsUcdLogin(ExternalLoginInfo info)
+        {
             return info.LoginProvider.Equals("UCDavis", StringComparison.OrdinalIgnoreCase);
         }
 
@@ -251,7 +286,7 @@ namespace Payments.Mvc.Controllers
             {
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-        }      
+        }
 
         #endregion
     }
