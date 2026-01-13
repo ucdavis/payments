@@ -34,11 +34,11 @@ namespace Payments.Mvc.Controllers
         #region team reports
         public IActionResult Activity(string team, int? year = null)
         {
-            //If we wanted to include other hitory actions, we could add them to the where clause
+            //If we wanted to include other history actions, we could add them to the where clause
             var invoiceQuery = _dbContext.Invoices
                 .Include(i => i.Account)
-                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.PaymentCompleted.TypeCode))
-                .Where(i => i.Team.Slug == TeamSlug);
+                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.PaymentCompleted.TypeCode || a.Type == HistoryActionTypes.InvoiceCreated.TypeCode || a.Type == HistoryActionTypes.InvoiceSent.TypeCode))
+                .Where(i => i.Team.Slug == TeamSlug && i.Type == InvoiceTypes.CreditCard);
             if (year.HasValue)
             {
                 invoiceQuery = invoiceQuery.Where(i => i.CreatedAt >= new DateTime(year.Value, 1, 1) && i.CreatedAt <= new DateTime(year.Value, 12, 31));
@@ -49,6 +49,37 @@ namespace Payments.Mvc.Controllers
             }
 
 
+
+            var invoices = invoiceQuery
+                .OrderByDescending(i => i.Id)
+                .AsNoTracking()
+                .ToList();
+
+            var model = new InvoiceListViewModel()
+            {
+                Invoices = invoices,
+                Filter = null,
+                Year = year,
+            };
+
+            return View(model);
+        }
+
+        public IActionResult RechargeActivity(string team, int? year = null)
+        {
+            //If we wanted to include other history actions, we could add them to the where clause
+            var invoiceQuery = _dbContext.Invoices
+                .Include(a => a.RechargeAccounts)
+                .Include(a => a.History.Where(a => a.Type == HistoryActionTypes.RechargeCompletedInSloth.TypeCode || a.Type == HistoryActionTypes.RechargePaidByCustomer.TypeCode || a.Type == HistoryActionTypes.InvoiceCreated.TypeCode || a.Type == HistoryActionTypes.InvoiceSent.TypeCode))
+                .Where(i => i.Team.Slug == TeamSlug && i.Type == InvoiceTypes.Recharge);
+            if (year.HasValue)
+            {
+                invoiceQuery = invoiceQuery.Where(i => i.CreatedAt >= new DateTime(year.Value, 1, 1) && i.CreatedAt <= new DateTime(year.Value, 12, 31));
+            }
+            else
+            {
+                invoiceQuery = invoiceQuery.Where(i => i.CreatedAt >= DateTime.UtcNow.AddMonths(-12));
+            }
 
             var invoices = invoiceQuery
                 .OrderByDescending(i => i.Id)

@@ -7,6 +7,8 @@ namespace Payments.Mvc.Models
         public string Kerberos { get; internal set; }
         public string Mail { get; internal set; }
         public string FullName { get; internal set; }
+
+        public string AdditionalEmails { get; set; }
     }
 
     public class DirectoryResult

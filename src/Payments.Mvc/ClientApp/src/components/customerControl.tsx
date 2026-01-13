@@ -22,6 +22,7 @@ export default class CustomerControl extends React.Component<IProps, {}> {
               type='text'
               className='form-control'
               placeholder='Joe Person'
+              maxLength={100}
               onChange={e => {
                 this.onChange({ name: e.target.value });
               }}
@@ -39,6 +40,7 @@ export default class CustomerControl extends React.Component<IProps, {}> {
               type='text'
               className='form-control'
               placeholder='Company'
+              maxLength={500}
               onChange={e => {
                 this.onChange({ company: e.target.value });
               }}
@@ -56,6 +58,7 @@ export default class CustomerControl extends React.Component<IProps, {}> {
               type='email'
               className='form-control'
               placeholder='person@example.com'
+              maxLength={100}
               onChange={e => {
                 this.onChange({ email: e.target.value });
               }}
@@ -75,6 +78,7 @@ export default class CustomerControl extends React.Component<IProps, {}> {
               type='text'
               className='form-control'
               placeholder='One Shields Ave, Davis, CA'
+              maxLength={500}
               onChange={e => {
                 this.onChange({ address: e.target.value });
               }}

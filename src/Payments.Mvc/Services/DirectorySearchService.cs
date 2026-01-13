@@ -46,13 +46,17 @@ namespace Payments.Mvc.Services
             }
 
             var ucdKerbPerson = ucdKerbResult.ResponseData.Results.First();
+
+            var additionalEmails = await GetAdditionalEmails(ucdKerbPerson.IamId, ucdContact.Email);
+
             return new Person
             {
                 GivenName = ucdKerbPerson.DFirstName,
                 Surname = ucdKerbPerson.DLastName,
                 FullName = ucdKerbPerson.DFullName,
                 Kerberos = ucdKerbPerson.UserId,
-                Mail = ucdContact.Email
+                Mail = ucdContact.Email,
+                AdditionalEmails = additionalEmails
             };
         }
 
@@ -81,6 +85,8 @@ namespace Payments.Mvc.Services
             EnsureResponseSuccess(ucdContactResult);
             var ucdContact = ucdContactResult.ResponseData.Results.First();
 
+            var additionalEmails = await GetAdditionalEmails(ucdKerbPerson.IamId, ucdContact.Email);
+
             return new DirectoryResult()
             {
                 Person = new Person()
@@ -89,9 +95,43 @@ namespace Payments.Mvc.Services
                     Surname = ucdKerbPerson.DLastName,
                     FullName = ucdKerbPerson.DFullName,
                     Kerberos = ucdKerbPerson.UserId,
-                    Mail = ucdContact.Email
+                    Mail = ucdContact.Email,
+                    AdditionalEmails = additionalEmails
                 }
             };
+        }
+
+        private async Task<string> GetAdditionalEmails(string IamId, string primaryEmail)
+        {
+            try
+            {
+                var hsResult = await ietClient.HsData.Search(HsDataSearchField.iamId, IamId);
+                EnsureResponseSuccess(hsResult);
+                var additionalEmails = new List<string>();
+                foreach (var hsData in hsResult.ResponseData.Results)
+                {
+                    if (string.IsNullOrWhiteSpace(hsData.HealthEmail))
+                    {
+                        continue;
+                    }
+                    if (additionalEmails.Contains(hsData.HealthEmail, StringComparer.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+                    if (!string.Equals(hsData.HealthEmail, primaryEmail, StringComparison.OrdinalIgnoreCase))
+                    {
+                        additionalEmails.Add(hsData.HealthEmail);
+                    }
+                }
+
+
+                return string.Join(";", additionalEmails);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Failed to get additional emails for IamId {IamId}", IamId);
+                return string.Empty;
+            }
         }
 
         private void EnsureResponseSuccess<T>(IetResult<T> result)

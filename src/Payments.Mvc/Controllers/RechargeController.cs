@@ -44,12 +44,13 @@ namespace Payments.Mvc.Controllers
 
 
             //check approver probably will only be used with debits
-            if(checkApprover)
+            if (checkApprover)
             {
                 var user = await _userManager.GetUserAsync(User);
-                if(user != null && result.Approvers != null && result.Approvers.Count > 0)
+                if (user != null && result.Approvers != null && result.Approvers.Count > 0)
                 {
-                    if(!result.Approvers.Any(a => string.Equals(a.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
+                    var additionalEmails = string.Join(";", User.Claims.Where(c => c.Type == "ucd_additional_emails").Select(c => c.Value).ToList());
+                    if (!IsUserAnApprover(result.Approvers, user, additionalEmails))
                     {
                         result.IsValid = false;
                         result.Messages.Add("You are not an approver for this chart string.");
@@ -296,9 +297,9 @@ namespace Payments.Mvc.Controllers
                 }
             }
 
-            if(rechargeAccountToAdd.Count > 0)
+            if (rechargeAccountToAdd.Count > 0)
             {
-                foreach(var ra in rechargeAccountToAdd)
+                foreach (var ra in rechargeAccountToAdd)
                 {
                     invoice.RechargeAccounts.Add(ra);
                 }
@@ -322,7 +323,7 @@ namespace Payments.Mvc.Controllers
             };
             invoice.History.Add(action);
 
-            if(invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Sum(a => a.Amount) != invoice.CalculatedTotal)
+            if (invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Sum(a => a.Amount) != invoice.CalculatedTotal)
             {
                 return BadRequest("The total of the recharge accounts does not match the invoice total after saving. Please review and try again.");
             }
@@ -422,6 +423,7 @@ namespace Payments.Mvc.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
             {
                 return RedirectToAction("PublicNotFound");
@@ -483,9 +485,9 @@ namespace Payments.Mvc.Controllers
                 return BadRequest("You are not authorized to act on this invoice. Please refresh the page.");
             }
 
-            if(actionType == "Reject")
+            if (actionType == "Reject")
             {
-                if(string.IsNullOrWhiteSpace(rejectReason))
+                if (string.IsNullOrWhiteSpace(rejectReason))
                 {
                     return BadRequest("A reason for rejection must be provided.");
                 }
@@ -508,7 +510,7 @@ namespace Payments.Mvc.Controllers
                 return Ok();
             }
 
-            if(actionType != "Approve")
+            if (actionType != "Approve")
             {
                 return BadRequest("Invalid action.");
             }
@@ -516,7 +518,7 @@ namespace Payments.Mvc.Controllers
             //We are approving here.
 
             //Make sure no new recharge accounts were added or deleted form the list of actionable ones.
-            if(model.Any(a => a.Id == 0))
+            if (model.Any(a => a.Id == 0))
             {
                 return BadRequest("The recharge accounts may not be added. Please refresh the page and try again.");
             }
@@ -544,7 +546,7 @@ namespace Payments.Mvc.Controllers
 
             }
 
-            if(invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Any(ra => ra.ApprovedByKerb == null))
+            if (invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Any(ra => ra.ApprovedByKerb == null))
             {
                 await _dbContext.SaveChangesAsync();
                 //We don't need a history here bacause we show it on the table onthe details page.
@@ -606,6 +608,10 @@ namespace Payments.Mvc.Controllers
 
         private async Task<(bool isApprover, bool canApprove, List<RechargeAccount> actionableRechargeAccounts, List<RechargeAccount> displayOnlyRechargeAccounts)> GetApproverRechargeAccounts(Invoice invoice, User user)
         {
+
+            var additionalEmails = string.Join(";", User.Claims.Where(c => c.Type == "ucd_additional_emails").Select(c => c.Value).ToList());
+
+
             var isApprover = false; //We may want to distinguish between isApprover and canApprove
             var canApprove = false;
             var actionableRechargeAccounts = new List<RechargeAccount>();
@@ -615,7 +621,7 @@ namespace Payments.Mvc.Controllers
                 var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, CreditDebit.Debit);
                 if (validationResult.Approvers != null && validationResult.Approvers.Count > 0)
                 {
-                    if (validationResult.Approvers.Any(a => string.Equals(a.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
+                    if (IsUserAnApprover(validationResult.Approvers, user, additionalEmails))
                     {
                         isApprover = true;
                         if (ra.ApprovedByKerb == null && ra.EnteredByKerb != user.CampusKerberos) //If they entered it, they can't approve it.
@@ -630,6 +636,34 @@ namespace Payments.Mvc.Controllers
             var displayOnlyRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Except(actionableRechargeAccounts).ToList();
 
             return (isApprover, canApprove, actionableRechargeAccounts, displayOnlyRechargeAccounts);
+        }
+
+        private bool IsUserAnApprover(List<Approver> approvers, User user, string additionalEmails)
+        {
+            if (approvers == null || approvers.Count == 0)
+            {
+                return false;
+            }
+
+            // Check primary email
+            if (approvers.Any(a => string.Equals(a.Email, user.Email, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+
+            // Check additional emails
+            if (!string.IsNullOrWhiteSpace(additionalEmails))
+            {
+                var additionalEmailList = additionalEmails
+                    .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(email => email.Trim())
+                    .ToList();
+
+                return approvers.Any(a => additionalEmailList.Any(email =>
+                    string.Equals(a.Email, email, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            return false;
         }
 
     }

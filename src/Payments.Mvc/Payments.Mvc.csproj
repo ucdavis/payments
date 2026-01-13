@@ -17,7 +17,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.Security.CAS" Version="2.0.5" />
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-    <PackageReference Include="ietws" Version="0.2.12" />
+    <PackageReference Include="ietws" Version="0.2.26" />
     <PackageReference Include="Joonasw.AspNetCore.SecurityHeaders" Version="4.0.1" />
     <PackageReference Include="jsreport.AspNetCore" Version="2.1.0" />
     <PackageReference Include="jsreport.Client" Version="3.1.1" />
