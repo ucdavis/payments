@@ -19,6 +19,7 @@ import Alert from '../components/alert';
 import AttachmentsControl from '../components/attachmentsControl';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
+import EmailWarning from '../components/emailWarning';
 import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
@@ -149,6 +150,7 @@ export default class CreateInvoiceContainer extends React.Component<
             onChange={c => this.updateProperty('customers', c)}
           />
           <div className='invalid-feedback'>Customer required.</div>
+          <EmailWarning invoiceType={invoiceType} customers={customers} />
         </div>
         <div className='card-body invoice-items'>
           <h2>Invoice Items</h2>

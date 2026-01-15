@@ -21,6 +21,7 @@ import AttachmentsControl from '../components/attachmentsControl';
 import CustomerControl from '../components/customerControl';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
+import EmailWarning from '../components/emailWarning';
 import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
@@ -148,6 +149,7 @@ export default class EditInvoiceContainer extends React.Component<
               this.updateProperty('customer', c);
             }}
           />
+          <EmailWarning invoiceType={type} customer={customer} />
         </div>
         <div className='card-body invoice-items'>
           <h3>Invoice Items</h3>
