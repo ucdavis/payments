@@ -372,9 +372,20 @@ export default class CreateInvoiceContainer extends React.Component<
   }
 
   private updateProperty = (name: any, value: any) => {
-    this.setState(({
-      [name]: value
-    } as unknown) as IState);
+    // When switching to Recharge invoice type, clear tax and coupon
+    if (name === 'invoiceType' && value === 'Recharge') {
+      this.setState({
+        invoiceType: value,
+        taxPercent: 0,
+        discount: {
+          hasDiscount: false
+        }
+      } as IState);
+    } else {
+      this.setState(({
+        [name]: value
+      } as unknown) as IState);
+    }
   };
 
   private onCancel = () => {
