@@ -257,12 +257,7 @@ export default class CreateInvoiceContainer extends React.Component<
           <div className='invoice-type-toggle-container'>
             <div
               className='invoice-type-toggle'
-              onClick={() =>
-                this.updateProperty(
-                  'invoiceType',
-                  invoiceType === 'CC' ? 'Recharge' : 'CC'
-                )
-              }
+              onClick={this.handleInvoiceTypeChange}
             >
               <div
                 className={`invoice-type-toggle-option ${
@@ -372,19 +367,26 @@ export default class CreateInvoiceContainer extends React.Component<
   }
 
   private updateProperty = (name: any, value: any) => {
-    // When switching to Recharge invoice type, clear tax and coupon
-    if (name === 'invoiceType' && value === 'Recharge') {
+    this.setState(({
+      [name]: value
+    } as unknown) as IState);
+  };
+
+  private handleInvoiceTypeChange = () => {
+    const { invoiceType } = this.state;
+    const newInvoiceType = invoiceType === 'CC' ? 'Recharge' : 'CC';
+
+    // When switching to Recharge, clear tax and coupon
+    if (newInvoiceType === 'Recharge') {
       this.setState({
-        invoiceType: value,
+        invoiceType: newInvoiceType,
         taxPercent: 0,
         discount: {
           hasDiscount: false
         }
-      } as IState);
+      });
     } else {
-      this.setState(({
-        [name]: value
-      } as unknown) as IState);
+      this.setState({ invoiceType: newInvoiceType });
     }
   };
 
