@@ -19,6 +19,7 @@ import Alert from '../components/alert';
 import AttachmentsControl from '../components/attachmentsControl';
 import DueDateControl from '../components/dueDateControl';
 import EditItemsTable from '../components/editItemsTable';
+import EmailWarning from '../components/emailWarning';
 import InvoiceForm from '../components/invoiceForm';
 import LoadingModal from '../components/loadingModal';
 import MemoInput from '../components/memoInput';
@@ -149,6 +150,7 @@ export default class CreateInvoiceContainer extends React.Component<
             onChange={c => this.updateProperty('customers', c)}
           />
           <div className='invalid-feedback'>Customer required.</div>
+          <EmailWarning invoiceType={invoiceType} customers={customers} />
         </div>
         <div className='card-body invoice-items'>
           <h2>Invoice Items</h2>
@@ -257,12 +259,7 @@ export default class CreateInvoiceContainer extends React.Component<
           <div className='invoice-type-toggle-container'>
             <div
               className='invoice-type-toggle'
-              onClick={() =>
-                this.updateProperty(
-                  'invoiceType',
-                  invoiceType === 'CC' ? 'Recharge' : 'CC'
-                )
-              }
+              onClick={this.handleInvoiceTypeChange}
             >
               <div
                 className={`invoice-type-toggle-option ${
@@ -375,6 +372,24 @@ export default class CreateInvoiceContainer extends React.Component<
     this.setState(({
       [name]: value
     } as unknown) as IState);
+  };
+
+  private handleInvoiceTypeChange = () => {
+    const { invoiceType } = this.state;
+    const newInvoiceType = invoiceType === 'CC' ? 'Recharge' : 'CC';
+
+    // When switching to Recharge, clear tax and coupon
+    if (newInvoiceType === 'Recharge') {
+      this.setState({
+        invoiceType: newInvoiceType,
+        taxPercent: 0,
+        discount: {
+          hasDiscount: false
+        }
+      });
+    } else {
+      this.setState({ invoiceType: newInvoiceType });
+    }
   };
 
   private onCancel = () => {
