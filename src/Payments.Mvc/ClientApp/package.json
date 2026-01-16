@@ -7,13 +7,13 @@
     "node": ">=18.16.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "citest": "npx cross-env CI=true react-scripts test --coverage --coverageDirectory=./ --reporters default --reporters jest-trx-results-processor",
-    "eject": "react-scripts eject",
-    "testwatch": "jest --watchAll",
-    "coverage": "jest --coverage --coverageReporters=cobertura",
+    "start": "npx kill-port 5173 && echo Starting the development server && vite",
+    "build": "vite build",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "citest": "cross-env CI=true vitest run --coverage --reporter=default",
+    "coverage": "vitest run --coverage",
     "lint": "node node_modules/eslint/bin/eslint.js ClientApp --ext .tsx,.ts,.js,.jsx"
   },
   "dependencies": {
@@ -24,28 +24,36 @@
     "pretty-checkbox": "^3.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-error-overlay": "6.0.9",
     "react-dropzone": "^14.3.5",
-    "react-router-dom": "^6.28.0",
-    "react-scripts": "5.0.1"
+    "react-error-overlay": "6.0.9",
+    "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.0",
     "@types/bootstrap-datepicker": "^0.0.13",
     "@types/jquery": "^3.3.29",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@types/react-hot-loader": "^4.1.0",
+    "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/coverage-v8": "^3.0.0",
+    "@vitest/ui": "^3.0.0",
+    "cross-env": "^7.0.3",
     "eslint-config-prettier": "^8.3.0",
     "isomorphic-fetch": "2.2.1",
+    "jsdom": "^25.0.0",
     "prettier": "2.0.5",
     "sass": "^1.49.9",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vite": "^7.3.1",
+    "vitest": "^3.0.0"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest",
       "prettier"
     ],
     "rules": {
