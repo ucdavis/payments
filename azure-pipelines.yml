@@ -26,9 +26,9 @@ stages:
               version: 6.x
 
           - task: NodeTool@0
-            displayName: "Use Node 18 (LTS)"
+            displayName: "Use Node 22 (LTS)"
             inputs:
-              versionSpec: "18.x"
+              versionSpec: "22.x"
 
           - task: DotNetCoreCLI@2
             displayName: "Run Server Tests"
@@ -46,9 +46,9 @@ stages:
               version: 6.x
 
           - task: NodeTool@0
-            displayName: "Use Node 18 (LTS)"
+            displayName: "Use Node 22 (LTS)"
             inputs:
-              versionSpec: "18.x"
+              versionSpec: "22.x"
 
           - task: DotNetCoreCLI@2
             displayName: "Publish Payments.Mvc"
