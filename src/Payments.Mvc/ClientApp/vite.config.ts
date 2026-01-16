@@ -22,6 +22,7 @@ export default defineConfig(async ({ mode }) => {
         server: {
             port: 5173,
             hmr: {
+                protocol: 'ws',
                 clientPort: 5173,
             },
             strictPort: true,
