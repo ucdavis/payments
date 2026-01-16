@@ -208,7 +208,10 @@ namespace Payments.Mvc
             });
 
             // add hybrid mvc/react support
-            services.AddMvcReact();
+            services.AddViteServices(options =>
+            {
+                options.DevServerScheme = "http";
+            });
 
             // email services
             services.AddMjmlServices();
@@ -312,12 +315,15 @@ namespace Payments.Mvc
 
                     c.AllowScripts
                         .AllowUnsafeInline()
-                        .AllowUnsafeEval();
+                        .AllowUnsafeEval()
+                        .From("http://localhost:5173"); // Vite dev server
 
                     // allow HMR connections and Browser Link
                     c.AllowConnections
                         .To("wss://localhost:*")
-                        .To("http://localhost:*"); // Allow Visual Studio Browser Link
+                        .To("http://localhost:*") // Allow Visual Studio Browser Link
+                        .To("ws://localhost:5173") // Vite HMR
+                        .To("http://localhost:5173"); // Vite dev server
                 }
                 else
                 {

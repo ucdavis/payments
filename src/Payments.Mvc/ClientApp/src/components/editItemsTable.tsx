@@ -58,19 +58,21 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     };
   }
 
-  public componentWillReceiveProps(nextProps: IProps) {
-    const items: IState['items'] = {
-      byHash: {},
-      byId: []
-    };
+  public componentDidUpdate(prevProps: IProps) {
+    if (prevProps.items !== this.props.items) {
+      const items: IState['items'] = {
+        byHash: {},
+        byId: []
+      };
 
-    nextProps.items.forEach((item, index) => {
-      const id = item.id;
-      items.byId.push(id);
-      items.byHash[id] = item;
-    });
+      this.props.items.forEach((item, index) => {
+        const id = item.id;
+        items.byId.push(id);
+        items.byHash[id] = item;
+      });
 
-    this.setState({ items });
+      this.setState({ items });
+    }
   }
 
   public render() {

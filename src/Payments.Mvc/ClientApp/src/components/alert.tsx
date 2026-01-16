@@ -3,6 +3,7 @@ import * as React from 'react';
 interface IProps {
   className: string;
   onDismiss: () => void;
+  children?: React.ReactNode;
 }
 
 export default class Alert extends React.Component<IProps, {}> {

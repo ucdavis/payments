@@ -39,7 +39,7 @@ export default class PreviewFrame extends React.Component<IProps, {}> {
 
         return (
             <div>
-                <form method="post" action={action} target="iframe_preview" ref={r => this._previewForm = r}>
+                <form method="post" action={action} target="iframe_preview" ref={r => { this._previewForm = r; }}>
                     <input type="hidden" name="json" value={value} />
                 </form>
                 <div className="d-flex" style={{ minHeight: '60vh' }}>
