@@ -291,7 +291,10 @@ namespace Payments.Mvc
                     .From("https://www.googletagmanager.com")
                     .From("https://www.google-analytics.com");
 
-                c.AllowConnections.ToSelf().To("https://www.google-analytics.com");
+                c.AllowConnections
+                    .ToSelf()
+                    .To("https://www.google-analytics.com")
+                    .To("https://cdn.jsdelivr.net"); // Allow source maps from CDN
 
                 c.AllowImages
                     .From("https://www.google-analytics.com");
