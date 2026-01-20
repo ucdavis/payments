@@ -302,6 +302,7 @@ namespace Payments.Mvc
 
 
                 c.AllowStyles
+                    .FromSelf()
                     .From("https://stackpath.bootstrapcdn.com")
                     .From("https://use.fontawesome.com")
                     .From("https://cdn.datatables.net")
