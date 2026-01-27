@@ -1036,11 +1036,17 @@ export default class RechargeAccountsControl extends React.Component<
           // Set skipNextValidation to prevent any onBlur interference
           await updateAccountSilent(index, 'skipNextValidation', true);
 
-          // Update the field value and notify parent
-          updateAccount(index, 'financialSegmentString', chart.data);
+          // Update the field value and notify parent.
+          const currentAccounts =
+            direction === 'Credit' ? this.state.creditAccounts : this.state.debitAccounts;
+          const currentAccount = currentAccounts[index];
+          const updatedAccount = {
+            ...currentAccount,
+            financialSegmentString: chart.data,
+            skipNextValidation: true
+          };
 
-          // Give React time to update the DOM and refs before validation
-          await new Promise(resolve => setTimeout(resolve, 0));
+          await this.updateAccountState(direction, index, updatedAccount, true);
 
           // Validate the chart string manually
           console.log(
