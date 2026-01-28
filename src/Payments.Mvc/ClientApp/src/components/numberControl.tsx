@@ -14,7 +14,7 @@ interface IProps {
   disabled?: boolean;
 
   format?: (value: number) => string;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: ((el: HTMLInputElement | null) => void) | React.RefObject<HTMLInputElement>;
 }
 
 interface IState {
