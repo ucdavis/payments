@@ -309,6 +309,7 @@ namespace Payments.Mvc.Controllers
             if (toRemove.Count > 0)
             {
                 _dbContext.RechargeAccounts.RemoveRange(toRemove);
+                invoice.RechargeAccounts = invoice.RechargeAccounts.Except(toRemove).ToList();
             }
 
             var action = new History()
