@@ -291,20 +291,25 @@ namespace Payments.Mvc
                     .From("https://www.googletagmanager.com")
                     .From("https://www.google-analytics.com");
 
-                c.AllowConnections.ToSelf().To("https://www.google-analytics.com");
+                c.AllowConnections
+                    .ToSelf()
+                    .To("https://www.google-analytics.com")
+                    .To("https://cdn.jsdelivr.net") // Allow source maps from CDN
+                    .To("https://cdnjs.cloudflare.com"); // Allow source maps from cdnjs
 
                 c.AllowImages
                     .From("https://www.google-analytics.com");
 
 
                 c.AllowStyles
+                    .FromSelf()
                     .From("https://stackpath.bootstrapcdn.com")
                     .From("https://use.fontawesome.com")
                     .From("https://cdn.datatables.net")
                     .From("https://cdnjs.cloudflare.com")
                     .From("https://speedcf.cloudflareaccess.com")
                     .From("https://cdn.jsdelivr.net");
-                
+
 
                 // allow unsafe methods in development
                 // otherwise, support nonce (both aren't supported at the same time
@@ -321,9 +326,14 @@ namespace Payments.Mvc
                     // allow HMR connections and Browser Link
                     c.AllowConnections
                         .To("wss://localhost:*")
+                        .To("ws://localhost:*") // Allow WebSocket connections (Browser Link, Vite)
                         .To("http://localhost:*") // Allow Visual Studio Browser Link
-                        .To("ws://localhost:5173") // Vite HMR
                         .To("http://localhost:5173"); // Vite dev server
+
+                    // Allow Vite HMR workers
+                    c.AllowWorkers
+                        .FromSelf()
+                        .From("blob:");
                 }
                 else
                 {
