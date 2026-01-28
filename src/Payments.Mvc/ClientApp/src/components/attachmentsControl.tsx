@@ -3,6 +3,7 @@ import * as React from 'react';
 import FileUpload from './fileUpload';
 
 import { InvoiceAttachment } from '../models/InvoiceAttachment';
+import { Team } from '../models/Team';
 
 import TeamContext from '../contexts/TeamContext';
 
@@ -13,6 +14,7 @@ interface IProps {
 
 export default class AttachmentsControl extends React.Component<IProps, {}> {
   static contextType = TeamContext;
+  context!: Team;
 
   public render() {
     const { attachments } = this.props;
@@ -26,7 +28,7 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
   }
 
   private renderAttachment = (attachment: InvoiceAttachment) => {
-    const team = this.context;
+    const team = this.context as Team;
 
     const fileTypeIcon = this.getFileTypeIcon(attachment.contentType);
 
@@ -59,16 +61,15 @@ export default class AttachmentsControl extends React.Component<IProps, {}> {
         <span className='col-2 d-flex justify-content-center'>{sizeText}</span>
 
         <div className='col-1 d-flex justify-content-end align-items-center'>
-          <a
+          {/* Download disabled until blob identifier security issue is resolved */}
+          {/* <a
             href={href}
             className='btn btn-primary btn-icon me-2'
             target='_blank'
             rel='noreferrer'
           >
-            {' '}
-            {/* lgtm [js/unsafe-external-link] */}
             <i className='fas fa-download' />
-          </a>
+          </a> */}
 
           <button
             className='btn btn-danger btn-icon'

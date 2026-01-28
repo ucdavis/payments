@@ -221,3 +221,6 @@ _Pvt_Extensions
 src/\.vscode/
 
 *.jfm
+
+#  Ignore test  coverage output
+coverage/
