@@ -494,9 +494,15 @@ export default class RechargeAccountsControl extends React.Component<
 
   private handleFinancialSegmentBlur = (
     index: number,
-    direction: 'Credit' | 'Debit',
-    account: InvoiceRechargeItem
+    direction: 'Credit' | 'Debit'
   ) => {
+    // Get the current account from state, not from render-time props
+    const accounts =
+      direction === 'Credit'
+        ? this.state.creditAccounts
+        : this.state.debitAccounts;
+    const account = accounts[index];
+
     const updateAccountSilent =
       direction === 'Credit'
         ? this.updateCreditAccountSilent
@@ -1038,7 +1044,9 @@ export default class RechargeAccountsControl extends React.Component<
 
           // Update the field value and notify parent.
           const currentAccounts =
-            direction === 'Credit' ? this.state.creditAccounts : this.state.debitAccounts;
+            direction === 'Credit'
+              ? this.state.creditAccounts
+              : this.state.debitAccounts;
           const currentAccount = currentAccounts[index];
           const updatedAccount = {
             ...currentAccount,
@@ -1114,23 +1122,28 @@ export default class RechargeAccountsControl extends React.Component<
                 placeholder='Financial Segment String'
                 value={account.financialSegmentString}
                 onChange={e => {
-                  const updateAccountSilent = isCredit
-                    ? this.updateCreditAccountSilent
-                    : this.updateDebitAccountSilent;
-                  updateAccountSilent(
-                    index,
-                    'financialSegmentString',
-                    e.target.value
-                  );
+                  const value = e.target.value;
+                  this.setState(prevState => {
+                    const accounts = isCredit
+                      ? prevState.creditAccounts
+                      : prevState.debitAccounts;
+                    const updated = [...accounts];
+                    updated[index] = {
+                      ...updated[index],
+                      financialSegmentString: value,
+                      skipNextValidation: false // Clear skip flag when user manually types
+                    };
+                    return isCredit
+                      ? { creditAccounts: updated }
+                      : { debitAccounts: updated };
+                  });
 
                   // Clear custom validity when user starts typing
-                  if (e.target.value.trim() === '') {
+                  if (value.trim() === '') {
                     this.setChartStringCustomValidity(index, direction, true);
                   }
                 }}
-                onBlur={() =>
-                  this.handleFinancialSegmentBlur(index, direction, account)
-                }
+                onBlur={() => this.handleFinancialSegmentBlur(index, direction)}
                 maxLength={70}
                 required
                 disabled={account.isValidating}

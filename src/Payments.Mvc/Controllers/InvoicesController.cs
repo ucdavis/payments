@@ -470,7 +470,7 @@ namespace Payments.Mvc.Controllers
                 {
                     Type = HistoryActionTypes.RechargePaidByCustomer.TypeCode,
                     ActionDateTime = DateTime.UtcNow,
-                    Actor = user.Name,
+                    Actor = $"{user.Name} ({user.Email})",
                     Data = new RechargePaidByCustomerHistoryActionType().SerializeData(new RechargePaidByCustomerHistoryActionType.DataType
                     {
                         RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
