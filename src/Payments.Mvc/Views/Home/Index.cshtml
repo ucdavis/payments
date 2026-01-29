@@ -15,10 +15,20 @@
         <div class="col-sm-12 col-md-4">
             <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@team.Slug" class="card card-dashboard-button justify-content-between">
            
-                <h2 style="font-size:18px;">@team.Name</h2>
+                <h2 class="team-name">@team.Name</h2>
                
                 <i class="fas fa-external-link-alt"></i>
             </a>
         </div>
     }
 </div>
+
+
+@section AdditionalStyles 
+{
+    <style asp-add-nonce="true">
+        .team-name {
+            font-size: 18px;
+        }
+    </style>
+}
