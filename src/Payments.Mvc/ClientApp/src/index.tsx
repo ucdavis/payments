@@ -1,10 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import './css/site.scss';
 import './polyfills/array.js';
-import * as dateFns from 'date-fns';
+import { format, getMonth, setMonth, getYear, setYear } from 'date-fns';
 
 import { CreateInvoicePage } from './pages/CreateInvoice';
 import { EditInvoicePage } from './pages/EditInvoice';
@@ -21,38 +21,35 @@ interface ExtraWindow extends Window {
 const extraWindow = (window as unknown) as ExtraWindow;
 
 extraWindow.dateFns = {
-  format: dateFns.format,
-
-  getMonth: dateFns.getMonth,
-  setMonth: dateFns.setMonth,
-
-  getYear: dateFns.getYear,
-  setYear: dateFns.setYear
+  format,
+  getMonth,
+  setMonth,
+  getYear,
+  setYear
 };
 
 const rootElement = document.getElementById('root');
 
 if (rootElement) {
+  const root = createRoot(rootElement);
+  
   // <React.StrictMode> should be used when possible.  ReactStrap will need to update context API usage first
-  ReactDOM.render(
+  root.render(
     <BrowserRouter>
-      <React.Fragment>
-        <Switch>
-          {/* Match any server-side routes and send empty content to let MVC return the view details */}
-          <Route path='/:team/Invoices/Create' component={CreateInvoicePage} />
-          <Route path='/:team/Invoices/Edit' component={EditInvoicePage} />
-          <Route path='/Recharge/Pay/:id?' component={PayInvoicePage} />
-          <Route
-            path='/Recharge/FinancialApprove/:id?'
-            component={FinancialApproveInvoicePage}
-          />
-          <Route
-            path='/:team/Recharge/Preview/:id?'
-            component={PreviewRechargeInvoicePage}
-          />
-        </Switch>
-      </React.Fragment>
-    </BrowserRouter>,
-    rootElement
+      <Routes>
+        {/* Match any server-side routes and send empty content to let MVC return the view details */}
+        <Route path='/:team/Invoices/Create' element={<CreateInvoicePage />} />
+        <Route path='/:team/Invoices/Edit/:id?' element={<EditInvoicePage />} />
+        <Route path='/Recharge/Pay/:id?' element={<PayInvoicePage />} />
+        <Route
+          path='/Recharge/FinancialApprove/:id?'
+          element={<FinancialApproveInvoicePage />}
+        />
+        <Route
+          path='/:team/Recharge/Preview/:id?'
+          element={<PreviewRechargeInvoicePage />}
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }

@@ -30,7 +30,7 @@ export default class RechargeAccountsControl extends React.Component<
   IState
 > {
   private inputRefs: {
-    [key: string]: HTMLInputElement | React.RefObject<HTMLInputElement> | null;
+    [key: string]: HTMLInputElement | null;
   } = {};
 
   // Helper function to normalize direction values from server
@@ -259,18 +259,13 @@ export default class RechargeAccountsControl extends React.Component<
     isValid: boolean
   ) => {
     const inputKey = `${direction.toLowerCase()}-${index}-chart`;
-    const inputElement = this.inputRefs[inputKey];
+    const element = this.inputRefs[inputKey];
 
-    if (inputElement) {
-      // Handle both direct HTMLInputElement and RefObject<HTMLInputElement>
-      const element =
-        'current' in inputElement ? inputElement.current : inputElement;
-      if (element) {
-        if (isValid) {
-          element.setCustomValidity('');
-        } else {
-          element.setCustomValidity('This has errors');
-        }
+    if (element) {
+      if (isValid) {
+        element.setCustomValidity('');
+      } else {
+        element.setCustomValidity('This has errors');
       }
     }
   };
@@ -293,15 +288,13 @@ export default class RechargeAccountsControl extends React.Component<
     // Update validation on all credit amount fields
     for (let i = 0; i < this.state.creditAccounts.length; i++) {
       const refKey = `credit-${i}-amount-ref`;
-      const inputRef = this.inputRefs[refKey] as React.RefObject<
-        HTMLInputElement
-      >;
+      const inputElement = this.inputRefs[refKey];
 
-      if (inputRef && inputRef.current) {
+      if (inputElement) {
         if (isValidOrNoTotal) {
-          inputRef.current.setCustomValidity('');
+          inputElement.setCustomValidity('');
         } else {
-          inputRef.current.setCustomValidity(
+          inputElement.setCustomValidity(
             'Credit amounts must total the invoice amount'
           );
         }
@@ -327,15 +320,13 @@ export default class RechargeAccountsControl extends React.Component<
     // Update validation on all debit amount fields
     for (let i = 0; i < this.state.debitAccounts.length; i++) {
       const refKey = `debit-${i}-amount-ref`;
-      const inputRef = this.inputRefs[refKey] as React.RefObject<
-        HTMLInputElement
-      >;
+      const inputElement = this.inputRefs[refKey];
 
-      if (inputRef && inputRef.current) {
+      if (inputElement) {
         if (isValidOrNoTotal) {
-          inputRef.current.setCustomValidity('');
+          inputElement.setCustomValidity('');
         } else {
-          inputRef.current.setCustomValidity(
+          inputElement.setCustomValidity(
             'Debit amounts must total the invoice amount'
           );
         }
@@ -1043,10 +1034,19 @@ export default class RechargeAccountsControl extends React.Component<
               : this.updateDebitAccount;
 
           // Set skipNextValidation to prevent any onBlur interference
-          updateAccountSilent(index, 'skipNextValidation', true);
+          await updateAccountSilent(index, 'skipNextValidation', true);
 
-          // Update the field value and notify parent
-          updateAccount(index, 'financialSegmentString', chart.data);
+          // Update the field value and notify parent.
+          const currentAccounts =
+            direction === 'Credit' ? this.state.creditAccounts : this.state.debitAccounts;
+          const currentAccount = currentAccounts[index];
+          const updatedAccount = {
+            ...currentAccount,
+            financialSegmentString: chart.data,
+            skipNextValidation: true
+          };
+
+          await this.updateAccountState(direction, index, updatedAccount, true);
 
           // Validate the chart string manually
           console.log(
@@ -1100,11 +1100,11 @@ export default class RechargeAccountsControl extends React.Component<
           <td className='cell-financial-segment'>
             <div className='input-group'>
               <input
-                ref={el =>
-                  (this.inputRefs[
+                ref={el => {
+                  this.inputRefs[
                     `${direction.toLowerCase()}-${index}-chart`
-                  ] = el)
-                }
+                  ] = el;
+                }}
                 type='text'
                 className={`form-control ${
                   account.isValidating
@@ -1183,15 +1183,10 @@ export default class RechargeAccountsControl extends React.Component<
               onChange={value => updateAccount(index, 'amount', value)}
               isInvalid={account.amount <= 0}
               disabled={this.props.fromApprove}
-              inputRef={(() => {
+              inputRef={el => {
                 const refKey = `${direction.toLowerCase()}-${index}-amount-ref`;
-                if (!this.inputRefs[refKey]) {
-                  this.inputRefs[refKey] = React.createRef<HTMLInputElement>();
-                }
-                return this.inputRefs[refKey] as React.RefObject<
-                  HTMLInputElement
-                >;
-              })()}
+                this.inputRefs[refKey] = el;
+              }}
             />
           </td>
           <td className='cell-percentage'>

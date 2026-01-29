@@ -8,7 +8,8 @@ const canUseDOM = !!(
   );
 
 interface IProps {
-    node: Element
+    node: Element;
+    children?: React.ReactNode;
 }
 
 export default class Portal extends React.Component<IProps, {}> {

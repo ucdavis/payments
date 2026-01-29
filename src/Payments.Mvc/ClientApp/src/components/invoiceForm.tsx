@@ -5,6 +5,7 @@ interface IProps {
     className?: string;
     validate: boolean;
     formRef?: (form: HTMLFormElement) => void;
+    children?: React.ReactNode;
 }
 
 export default class InvoiceForm extends React.Component<IProps, {}> {

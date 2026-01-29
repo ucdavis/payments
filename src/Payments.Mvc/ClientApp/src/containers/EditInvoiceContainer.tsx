@@ -96,7 +96,7 @@ export default class EditInvoiceContainer extends React.Component<
         hasDiscount: !!(invoice.couponId || invoice.manualDiscount),
         maunalAmount: invoice.manualDiscount
       },
-      dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/DD/YYYY') : '',
+      dueDate: invoice.dueDate ? format(invoice.dueDate, 'MM/dd/yyyy') : '',
       items,
       memo: invoice.memo,
       rechargeAccounts: invoice.rechargeAccounts || [],
@@ -132,7 +132,7 @@ export default class EditInvoiceContainer extends React.Component<
       <InvoiceForm
         className='card'
         validate={validate}
-        formRef={r => (this._formRef = r)}
+        formRef={r => { this._formRef = r; }}
       >
         <LoadingModal loading={loading} />
         <div className='card-header card-header-yellow'>
@@ -176,7 +176,7 @@ export default class EditInvoiceContainer extends React.Component<
         {type === 'Recharge' && (
           <div className='card-body invoice-recharge-accounts'>
             <RechargeAccountsControl
-              ref={r => (this._rechargeAccountsRef = r)}
+              ref={r => { this._rechargeAccountsRef = r; }}
               rechargeAccounts={rechargeAccounts}
               invoiceTotal={calculateTotal(items, discount, taxPercent)}
               onChange={v => this.updateProperty('rechargeAccounts', v)}

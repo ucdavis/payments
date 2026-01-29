@@ -14,7 +14,7 @@ interface IProps {
   disabled?: boolean;
 
   format?: (value: number) => string;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: ((el: HTMLInputElement | null) => void) | React.RefObject<HTMLInputElement>;
 }
 
 interface IState {
@@ -37,10 +37,12 @@ export default class NumberControl extends React.PureComponent<IProps, IState> {
     };
   }
 
-  public componentWillReceiveProps(nextProps: IProps) {
-    this.setState({
-      value: this.valueToString(nextProps.value)
-    });
+  public componentDidUpdate(prevProps: IProps) {
+    if (prevProps.value !== this.props.value) {
+      this.setState({
+        value: this.valueToString(this.props.value)
+      });
+    }
   }
 
   public render() {

@@ -5,7 +5,7 @@ interface IProps {
   value: number;
   onChange: (value: number) => void;
   isInvalid?: boolean;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: ((el: HTMLInputElement | null) => void) | React.RefObject<HTMLInputElement>;
   disabled?: boolean;
 }
 

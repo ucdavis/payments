@@ -50,7 +50,7 @@ export default class DateControl extends React.Component<IProps, {}> {
         className='input-group date'
         data-provide='datepicker'
         {...datePickerOptions}
-        ref={r => (this._datePicker = r)}
+        ref={r => { this._datePicker = r; }}
       >
         <input
           type='text'
