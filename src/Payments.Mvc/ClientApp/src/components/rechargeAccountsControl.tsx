@@ -1106,6 +1106,7 @@ export default class RechargeAccountsControl extends React.Component<
       <React.Fragment key={`${direction}-${index}`}>
         <tr>
           <td className='cell-financial-segment'>
+            <label className='form-label'>Financial Segment String *</label>
             <div className='input-group'>
               <input
                 ref={el => {
@@ -1190,29 +1191,6 @@ export default class RechargeAccountsControl extends React.Component<
               )}
             </div>
           </td>
-          <td className='cell-amount'>
-            <CurrencyControl
-              value={account.amount}
-              onChange={value => updateAccount(index, 'amount', value)}
-              isInvalid={account.amount <= 0}
-              disabled={this.props.fromApprove}
-              inputRef={el => {
-                const refKey = `${direction.toLowerCase()}-${index}-amount-ref`;
-                this.inputRefs[refKey] = el;
-              }}
-            />
-          </td>
-          <td className='cell-percentage'>
-            <NumberControl
-              value={account.percentage}
-              onChange={value => updateAccount(index, 'percentage', value)}
-              min={0}
-              max={100}
-              step={0.01}
-              placeholder='0.00'
-              disabled={this.props.fromApprove}
-            />
-          </td>
           <td className='cell-actions'>
             {canRemove && (
               <button
@@ -1225,7 +1203,40 @@ export default class RechargeAccountsControl extends React.Component<
           </td>
         </tr>
         <tr>
-          <td colSpan={4}>
+          <td className='cell-amount'>
+            <label className='form-label'>Amount *</label>
+            <div className='input-group'>
+              <div className='input-group-text'>
+                <i className='fas fa-dollar-sign' />
+              </div>
+
+              <CurrencyControl
+                value={account.amount}
+                onChange={value => updateAccount(index, 'amount', value)}
+                isInvalid={account.amount <= 0}
+                disabled={this.props.fromApprove}
+                inputRef={el => {
+                  const refKey = `${direction.toLowerCase()}-${index}-amount-ref`;
+                  this.inputRefs[refKey] = el;
+                }}
+              />
+            </div>
+          </td>
+          <td className='cell-percentage'>
+            <label className='form-label'>Percentage</label>
+            <NumberControl
+              value={account.percentage}
+              onChange={value => updateAccount(index, 'percentage', value)}
+              min={0}
+              max={100}
+              step={0.01}
+              placeholder='0.00'
+              disabled={this.props.fromApprove}
+            />
+          </td>
+        </tr>
+        <tr>
+          <td colSpan={2}>
             <input
               type='text'
               className='form-control'
@@ -1239,7 +1250,7 @@ export default class RechargeAccountsControl extends React.Component<
         </tr>
         {!isLastAccount && (
           <tr>
-            <td colSpan={4} className='row-separator'></td>
+            <td colSpan={2} className='row-separator'></td>
           </tr>
         )}
       </React.Fragment>
@@ -1282,11 +1293,7 @@ export default class RechargeAccountsControl extends React.Component<
               <table className='table table-sm invoice-table recharge-table'>
                 <thead>
                   <tr>
-                    <th className='col-financial-segment'>
-                      Financial Segment String *
-                    </th>
-                    <th className='col-amount'>Amount *</th>
-                    <th className='col-percentage'>Percentage</th>
+                    <th className='col-financial-segment'></th>
                     <th className='col-actions'></th>
                   </tr>
                 </thead>
