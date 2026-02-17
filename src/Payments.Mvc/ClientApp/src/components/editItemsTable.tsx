@@ -198,8 +198,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
             </tr>
           </tfoot>
         </table>
-        {totalCalc > 99999.99 && (
-          <div className='text-center alert-warning'>
+        {!isRechargeInvoice && totalCalc > 99999.99 && (
+          <div className='alert alert-danger text-center'>
             The max amount the credit card will process is $99,999.99. Please
             use multiple invoices.
           </div>

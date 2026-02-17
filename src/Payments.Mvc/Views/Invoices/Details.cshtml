@@ -86,7 +86,7 @@
             </button>
         }
     </div>
-    @if(Model?.CalculatedTotal > 99999.99m)
+    @if(isCreditCard && Model?.CalculatedTotal > 99999.99m)
     {
         <div class="alert alert-danger" role="alert">
             <strong>Warning!</strong> The max amount the credit card will process is $99,999.99. Please use multiple invoices if a discount will not be used to lower the amount below this.

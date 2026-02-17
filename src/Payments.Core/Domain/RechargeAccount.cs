@@ -23,7 +23,7 @@ namespace Payments.Core.Domain
         public string FinancialSegmentString { get; set; }
 
         [Required]
-        [Range(0.01, 1_000_000)]
+        [Range(0.01, 1_000_000_000)]
         public decimal Amount { get; set; }
 
         public decimal Percentage { get; set; }
