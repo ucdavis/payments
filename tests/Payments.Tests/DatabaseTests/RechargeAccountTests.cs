@@ -16,7 +16,7 @@ namespace Payments.Tests.DatabaseTests
 
             expectedFields.Add(new NameAndType("Amount", "System.Decimal", new List<string>
             {
-                "[System.ComponentModel.DataAnnotations.RangeAttribute((Double)0.01, (Double)1000000)]",
+                "[System.ComponentModel.DataAnnotations.RangeAttribute((Double)0.01, (Double)1000000000)]",
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
             }));
             expectedFields.Add(new NameAndType("ApprovedByKerb", "System.String", new List<string>
