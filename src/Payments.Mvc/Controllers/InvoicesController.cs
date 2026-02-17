@@ -311,10 +311,12 @@ namespace Payments.Mvc.Controllers
             // validate model
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
+
                 return new JsonResult(new
                 {
                     success = false,
-                    errorMessage = "Errors found in request",
+                    errorMessage = $"Errors found in request: {string.Join(", ", errors)}",
                     modelState = ModelState
                 });
             }
@@ -327,10 +329,11 @@ namespace Payments.Mvc.Controllers
             catch (ArgumentException ex)
             {
                 ModelState.AddModelError(ex.ParamName, ex.Message);
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
                 return new JsonResult(new
                 {
                     success = false,
-                    errorMessage = "Errors found in request",
+                    errorMessage = $"Errors found in request: {string.Join(", ", errors)}",
                     modelState = ModelState
                 });
             }
@@ -387,10 +390,11 @@ namespace Payments.Mvc.Controllers
             // validate model
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
                 return new JsonResult(new
                 {
                     success = false,
-                    errorMessage = "Errors found in request",
+                    errorMessage = $"Errors found in request: {string.Join(", ", errors)}",
                     modelState = ModelState
                 });
             }
@@ -402,10 +406,11 @@ namespace Payments.Mvc.Controllers
             catch (ArgumentException ex)
             {
                 ModelState.AddModelError(ex.ParamName, ex.Message);
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
                 return new JsonResult(new
                 {
                     success = false,
-                    errorMessage = "Errors found in request",
+                    errorMessage = $"Errors found in request: {string.Join(", ", errors)}",
                     modelState = ModelState
                 });
             }
