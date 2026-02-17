@@ -1237,6 +1237,7 @@ export default class RechargeAccountsControl extends React.Component<
         </tr>
         <tr>
           <td colSpan={2}>
+            <label className='form-label'>Notes</label>
             <input
               type='text'
               className='form-control'
@@ -1291,12 +1292,6 @@ export default class RechargeAccountsControl extends React.Component<
           <>
             <div className='table-responsive'>
               <table className='table table-sm invoice-table recharge-table'>
-                <thead>
-                  <tr>
-                    <th className='col-financial-segment'></th>
-                    <th className='col-actions'></th>
-                  </tr>
-                </thead>
                 <tbody>
                   {accounts.map((account, index) =>
                     this.renderAccountRow(account, index, direction, accounts)
