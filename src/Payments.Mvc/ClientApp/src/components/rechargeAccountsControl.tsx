@@ -1232,6 +1232,7 @@ export default class RechargeAccountsControl extends React.Component<
               step={0.01}
               placeholder='0.00'
               disabled={this.props.fromApprove}
+              tabIndex={-1}
             />
           </td>
         </tr>
