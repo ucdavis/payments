@@ -311,7 +311,7 @@ namespace Payments.Mvc.Controllers
             // validate model
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Where(e => !string.IsNullOrEmpty(e)).Distinct();
 
                 return new JsonResult(new
                 {
@@ -329,7 +329,7 @@ namespace Payments.Mvc.Controllers
             catch (ArgumentException ex)
             {
                 ModelState.AddModelError(ex.ParamName, ex.Message);
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Where(e => !string.IsNullOrEmpty(e)).Distinct();
                 return new JsonResult(new
                 {
                     success = false,
@@ -390,7 +390,7 @@ namespace Payments.Mvc.Controllers
             // validate model
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Where(e => !string.IsNullOrEmpty(e)).Distinct();
                 return new JsonResult(new
                 {
                     success = false,
@@ -406,7 +406,7 @@ namespace Payments.Mvc.Controllers
             catch (ArgumentException ex)
             {
                 ModelState.AddModelError(ex.ParamName, ex.Message);
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct();
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Where(e => !string.IsNullOrEmpty(e)).Distinct();
                 return new JsonResult(new
                 {
                     success = false,
