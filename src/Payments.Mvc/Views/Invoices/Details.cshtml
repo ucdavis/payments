@@ -639,7 +639,7 @@
                             </a>
                         </td>
                         <td>@acct.Notes</td>
-                        <td>@acct.Amount</td>
+                        <td>@acct.Amount.ToString("C")</td>
                         <td>@acct.Percentage</td>
                         <td>
                             <span class="validity-status" data-account-id="@acct.Id">
@@ -678,7 +678,7 @@
                             </a>
                         </td>
                         <td>@acct.Notes</td>
-                        <td>@acct.Amount</td>
+                        <td>@acct.Amount.ToString("C")</td>
                         <td>@acct.Percentage</td>
                         <td>
                             @if (!string.IsNullOrWhiteSpace(acct.ApprovedByName))
