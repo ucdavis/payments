@@ -2,6 +2,7 @@ import * as React from 'react';
 import { RechargeInvoiceModel } from './PayInvoiceContainer';
 import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
+import { formatCurrencyLocale } from '../utils/currency';
 
 interface IProps {
   invoice: RechargeInvoiceModel;
@@ -64,7 +65,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
             {/* Payment Action Area */}
             <div className='pay-action'>
               <span className='pay-action-total'>
-                ${invoice.total.toFixed(2)}
+                {formatCurrencyLocale(invoice.total)}
               </span>
 
               {invoice.dueDate && (
@@ -93,8 +94,8 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
                     <li>At least one valid debit chart string is required</li>
                     <li>All chart strings must be validated successfully</li>
                     <li>
-                      Total debit amounts must equal the invoice total ($
-                      {invoice.total.toFixed(2)})
+                      Total debit amounts must equal the invoice total (
+                      {formatCurrencyLocale(invoice.total)})
                     </li>
                     <li>All amounts must be greater than zero</li>
                   </ul>
@@ -148,15 +149,15 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
                     <tr key={item.id}>
                       <td>{item.description}</td>
                       <td>{item.quantity}</td>
-                      <td>${item.amount.toFixed(2)}</td>
-                      <td>${item.total.toFixed(2)}</td>
+                      <td>{formatCurrencyLocale(item.amount)}</td>
+                      <td>{formatCurrencyLocale(item.total)}</td>
                     </tr>
                   ))}
                   <tr>
                     <td></td>
                     <td>Total:</td>
                     <td></td>
-                    <td>${invoice.total.toFixed(2)}</td>
+                    <td>{formatCurrencyLocale(invoice.total)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -170,7 +171,9 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
                 form works. Changes cannot be saved in preview mode.
               </p>
               <RechargeAccountsControl
-                ref={r => { this._rechargeAccountsRef = r; }}
+                ref={r => {
+                  this._rechargeAccountsRef = r;
+                }}
                 rechargeAccounts={rechargeAccounts}
                 invoiceTotal={invoice.total}
                 onChange={this.handleRechargeAccountsChange}
