@@ -377,12 +377,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                               {account.financialSegmentString}
                             </a>
                           </td>
-                          <td>
-                            {account.amount.toLocaleString('en-US', {
-                              style: 'currency',
-                              currency: 'USD'
-                            })}
-                          </td>
+                          <td>{formatCurrencyLocale(account.amount)}</td>
                           <td>
                             {account.percentage > 0
                               ? `${account.percentage.toFixed(2)}%`
