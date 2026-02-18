@@ -7,6 +7,7 @@ import {
 
 import CurrencyControl from './currencyControl';
 import NumberControl from './numberControl';
+import { formatCurrencyLocale } from '../utils/currency';
 
 interface IProps {
   rechargeAccounts: InvoiceRechargeItem[];
@@ -129,9 +130,9 @@ export default class RechargeAccountsControl extends React.Component<
       prevProps.invoiceTotal !== this.props.invoiceTotal &&
       this.props.invoiceTotal > 0
     ) {
-      console.log(
-        `Invoice total changed from ${prevProps.invoiceTotal} to ${this.props.invoiceTotal}, recalculating percentages`
-      );
+      // console.log(
+      //   `Invoice total changed from ${prevProps.invoiceTotal} to ${this.props.invoiceTotal}, recalculating percentages`
+      // );
       this.recalculatePercentagesFromAmounts();
     }
 
@@ -139,9 +140,9 @@ export default class RechargeAccountsControl extends React.Component<
     if (prevProps.rechargeAccounts !== this.props.rechargeAccounts) {
       // If this was an internal update (we added/removed accounts), don't re-validate
       if (this.state.isInternalUpdate) {
-        console.log(
-          'Internal update detected, skipping re-validation and resetting flag'
-        );
+        // console.log(
+        //   'Internal update detected, skipping re-validation and resetting flag'
+        // );
         this.setState({ isInternalUpdate: false });
         return;
       }
@@ -159,9 +160,9 @@ export default class RechargeAccountsControl extends React.Component<
 
       // Only proceed if the accounts themselves changed (new/removed accounts), not just field updates
       if (prevAccountIds !== currentAccountIds) {
-        console.log(
-          'Account structure changed, reinitializing component state'
-        );
+        // console.log(
+        //   'Account structure changed, reinitializing component state'
+        // );
 
         const normalizedAccounts = this.props.rechargeAccounts.map(account => ({
           ...account,
@@ -217,9 +218,9 @@ export default class RechargeAccountsControl extends React.Component<
             );
 
             if (hasDataToValidate) {
-              console.log(
-                'Validating existing accounts after account structure change'
-              );
+              // console.log(
+              //   'Validating existing accounts after account structure change'
+              // );
               // Schedule validation after setState completes
               this.scheduleValidation();
             } else {
@@ -229,9 +230,9 @@ export default class RechargeAccountsControl extends React.Component<
           }
         );
       } else {
-        console.log(
-          'Account field updated, but structure unchanged - not re-validating'
-        );
+        // console.log(
+        //   'Account field updated, but structure unchanged - not re-validating'
+        // );
       }
     }
   }
@@ -381,9 +382,9 @@ export default class RechargeAccountsControl extends React.Component<
     direction: 'Credit' | 'Debit',
     chartString: string
   ): Promise<void> => {
-    console.log(
-      `Starting validation for ${direction} account ${index} with chartString: ${chartString}`
-    );
+    // console.log(
+    //   `Starting validation for ${direction} account ${index} with chartString: ${chartString}`
+    // );
 
     const accounts =
       direction === 'Credit'
@@ -428,9 +429,9 @@ export default class RechargeAccountsControl extends React.Component<
       if (validationResult) {
         // Update the chart string if validation returned a corrected value
         if (validationResult.chartString !== chartString) {
-          console.log(
-            `Validation corrected chart string from "${chartString}" to "${validationResult.chartString}"`
-          );
+          // console.log(
+          //   `Validation corrected chart string from "${chartString}" to "${validationResult.chartString}"`
+          // );
 
           updatedAccount = {
             ...updatedAccount,
@@ -487,9 +488,9 @@ export default class RechargeAccountsControl extends React.Component<
       await this.updateAccountState(direction, index, updatedAccount, true);
     }
 
-    console.log(
-      `Validation completed for ${direction} account ${index}, value changed: ${valueChanged}`
-    );
+    // console.log(
+    //   `Validation completed for ${direction} account ${index}, value changed: ${valueChanged}`
+    // );
   };
 
   private handleFinancialSegmentBlur = (
@@ -510,17 +511,17 @@ export default class RechargeAccountsControl extends React.Component<
 
     // Check if we should skip validation (to prevent infinite loop)
     if (account.skipNextValidation) {
-      console.log(
-        `Skipping validation for ${direction} account ${index} due to skipNextValidation flag`
-      );
+      // console.log(
+      //   `Skipping validation for ${direction} account ${index} due to skipNextValidation flag`
+      // );
       updateAccountSilent(index, 'skipNextValidation', false);
       return;
     }
 
     // Notify parent of final value when user finishes typing
-    console.log(
-      `User finished typing in ${direction} account ${index}, notifying parent`
-    );
+    // console.log(
+    //   `User finished typing in ${direction} account ${index}, notifying parent`
+    // );
     this.updateAccounts();
 
     // Don't validate empty strings
@@ -533,9 +534,9 @@ export default class RechargeAccountsControl extends React.Component<
       return;
     }
 
-    console.log(
-      `Triggering validation for ${direction} account ${index} with value: ${account.financialSegmentString}`
-    );
+    // console.log(
+    //   `Triggering validation for ${direction} account ${index} with value: ${account.financialSegmentString}`
+    // );
 
     // Proceed with normal validation
     this.handleChartStringValidation(
@@ -1057,14 +1058,14 @@ export default class RechargeAccountsControl extends React.Component<
           await this.updateAccountState(direction, index, updatedAccount, true);
 
           // Validate the chart string manually
-          console.log(
-            `Finjector triggering validation for ${direction} account ${index}`
-          );
+          // console.log(
+          //   `Finjector triggering validation for ${direction} account ${index}`
+          // );
           await this.handleChartStringValidation(index, direction, chart.data);
 
-          console.log(
-            `Finjector validation completed for ${direction} account ${index}`
-          );
+          // console.log(
+          //   `Finjector validation completed for ${direction} account ${index}`
+          // );
         } else {
           alert('Something went wrong with the CCOA picker');
         }
@@ -1317,10 +1318,11 @@ export default class RechargeAccountsControl extends React.Component<
           <div
             className={`text-end ${isValid ? 'text-success' : 'text-danger'}`}
           >
-            <strong>Total: ${total.toFixed(2)}</strong>
+            <strong>Total: {formatCurrencyLocale(total)}</strong>
             {!this.props.fromApprove && isRequired && !isTotalValid && (
               <div className='small text-danger'>
-                Must equal invoice total: ${this.props.invoiceTotal.toFixed(2)}
+                Must equal invoice total:{' '}
+                {formatCurrencyLocale(this.props.invoiceTotal)}
               </div>
             )}
             {!this.props.fromApprove &&
@@ -1328,8 +1330,8 @@ export default class RechargeAccountsControl extends React.Component<
               accounts.length > 0 &&
               !isTotalValid && (
                 <div className='small text-danger'>
-                  Must equal invoice total: $
-                  {this.props.invoiceTotal.toFixed(2)}
+                  Must equal invoice total:{' '}
+                  {formatCurrencyLocale(this.props.invoiceTotal)}
                 </div>
               )}
             {!this.props.fromApprove && hasInvalidAmounts && (
