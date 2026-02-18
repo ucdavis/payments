@@ -32,7 +32,7 @@
                         @Html.DisplayNameFor(model => model.DiscountAmount)
                     </dt>
                     <dd>
-                        @Html.DisplayFor(model => model.DiscountAmount)
+                        @Model.DiscountAmount?.ToString("C")
                     </dd>
                 }
                 @if (Model.DiscountPercent.HasValue)

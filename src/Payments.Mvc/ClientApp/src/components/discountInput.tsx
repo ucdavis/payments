@@ -7,6 +7,7 @@ import { InvoiceDiscount } from '../models/InvoiceDiscount';
 
 import CouponSelectControl from './couponSelectControl';
 import CurrencyControl from './currencyControl';
+import { formatCurrencyLocale } from '../utils/currency';
 
 interface IProps {
   coupons: Coupon[];
@@ -87,7 +88,9 @@ export default class DiscountInput extends React.PureComponent<IProps, IState> {
         <strong>{coupon.name}</strong>
         <br />
         {expired && <span className='badge text-bg-info me-3'>Expired</span>}
-        {!!coupon.discountAmount && <small>${coupon.discountAmount} off</small>}
+        {!!coupon.discountAmount && (
+          <small>{formatCurrencyLocale(coupon.discountAmount)} off</small>
+        )}
         {!!coupon.discountPercent && (
           <small>{coupon.discountPercent * 100}% off</small>
         )}
