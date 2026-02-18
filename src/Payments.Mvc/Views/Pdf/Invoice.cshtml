@@ -133,7 +133,7 @@
             }
             <div class="row">
                 <span class="col text-label">Total Due</span>
-                <span class="col text-end font-weight-bold text-blue">$@Model.CalculatedTotal.ToString("F2")</span>
+                <span class="col text-end font-weight-bold text-blue">@Model.CalculatedTotal.ToString("C")</span>
             </div>
         </div>
     </div>
@@ -190,8 +190,8 @@
             <td>@(i + 1)</td>
             <td>@item.Description</td>
             <td class="text-end">@item.Quantity</td>
-            <td class="text-end">$@item.Amount.ToString("F2")</td>
-            <td class="text-end">$@item.Total.ToString("F2")</td>
+            <td class="text-end">@item.Amount.ToString("C")</td>
+            <td class="text-end">@item.Total.ToString("C")</td>
         </tr>
     }
     </tbody>
@@ -202,7 +202,7 @@
         <tr class="summary">
             <td colspan="3"></td>
             <td class="text-end text-label">Subtotal</td>
-            <td class="text-end">$@Model.CalculatedSubtotal.ToString("F2")</td>
+            <td class="text-end">@Model.CalculatedSubtotal.ToString("C")</td>
         </tr>
         if (Model.Coupon != null && Model.Coupon.ExpiresAt.HasValue)
         {
@@ -212,7 +212,7 @@
         <tr class="summary">
             <td colspan="3"></td>
             <td class="text-end text-label">Discount @extra</td>
-            <td class="text-end">-$@Model.CalculatedDiscount.ToString("F2")</td>
+            <td class="text-end">-@Model.CalculatedDiscount.ToString("C")</td>
         </tr>
     }
 
@@ -225,7 +225,7 @@
         <tr class="summary">
             <td colspan="3"></td>
             <td class="text-end text-label">Tax (@rateText)</td>
-            <td class="text-end">$@Model.CalculatedTaxAmount.ToString("F2")</td>
+            <td class="text-end">@Model.CalculatedTaxAmount.ToString("C")</td>
         </tr>
     }
     </tbody>
@@ -233,7 +233,7 @@
     <tr class="total">
         <td class="border-0" colspan="3"></td>
         <td class="text-end text-label border-top">Total</td>
-        <td class="text-end text-blue border-top">$@Model.CalculatedTotal.ToString("F2")</td>
+        <td class="text-end text-blue border-top">@Model.CalculatedTotal.ToString("C")</td>
     </tr>
     </tbody>
 </table>

@@ -59,12 +59,12 @@ namespace Payments.Core.Models.Invoice
         [Range(0, 1_000_000)]
         public decimal Quantity { get; set; }
 
-        [Range(0, 1_000_000)]
+        [Range(0, 1_000_000_000)]
         public decimal Amount { get; set; }
 
         public bool TaxExempt { get; set; }
 
-        [Range(0, 1_000_000)]
+        [Range(0, 1_000_000_000)]
         public decimal Total { get; set; }
     }
 

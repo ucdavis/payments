@@ -7,6 +7,7 @@ import { InvoiceDiscount } from '../models/InvoiceDiscount';
 
 import CurrencyControl from './currencyControl';
 import Modal from './modal';
+import { formatCurrencyLocale } from '../utils/currency';
 
 interface IProps {
   coupons: Coupon[];
@@ -137,10 +138,14 @@ export default class CouponSelectControl extends React.Component<
               <dd className='col-sm-8'>{discountPercent * 100}%</dd>
 
               <dt className='col-sm-4'>Amount</dt>
-              <dd className='col-sm-8'>${discountAmount}</dd>
+              <dd className='col-sm-8'>
+                {formatCurrencyLocale(discountAmount)}
+              </dd>
 
               <dt className='col-sm-4'>Expires On</dt>
-              <dd className='col-sm-8'>{expiresAt ? format(expiresAt, 'MM/dd/yyyy') : ''}</dd>
+              <dd className='col-sm-8'>
+                {expiresAt ? format(expiresAt, 'MM/dd/yyyy') : ''}
+              </dd>
             </dl>
           </div>
           <div className='col-md-3 d-flex flex-column justify-content-around align-items-center'>

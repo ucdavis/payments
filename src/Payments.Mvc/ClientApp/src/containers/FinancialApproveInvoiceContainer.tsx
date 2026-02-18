@@ -1,6 +1,7 @@
 import * as React from 'react';
 import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
+import { formatCurrencyLocale } from '../utils/currency';
 
 declare var antiForgeryToken: string;
 
@@ -141,7 +142,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
             {canEdit && (
               <>
                 <span className='pay-action-total'>
-                  ${invoice.total.toFixed(2)}
+                  {formatCurrencyLocale(invoice.total)}
                 </span>
 
                 {invoice.dueDate && (
@@ -244,7 +245,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
             {!canEdit && (
               <>
                 <span className='pay-action-total'>
-                  ${invoice.total.toFixed(2)}
+                  {formatCurrencyLocale(invoice.total)}
                 </span>
 
                 {invoice.dueDate && (
@@ -270,7 +271,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                 <h1>Invoice Paid</h1>
                 {invoice.paidDate && (
                   <h2>
-                    ${invoice.total.toFixed(2)} USD paid{' '}
+                    {formatCurrencyLocale(invoice.total)} USD paid{' '}
                     {new Date(invoice.paidDate).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -308,15 +309,15 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                   <tr key={item.id}>
                     <td>{item.description}</td>
                     <td>{item.quantity}</td>
-                    <td>${item.amount.toFixed(2)}</td>
-                    <td>${item.total.toFixed(2)}</td>
+                    <td>{formatCurrencyLocale(item.amount)}</td>
+                    <td>{formatCurrencyLocale(item.total)}</td>
                   </tr>
                 ))}
                 <tr>
                   <td></td>
                   <td>Total:</td>
                   <td></td>
-                  <td>${invoice.total.toFixed(2)}</td>
+                  <td>{formatCurrencyLocale(invoice.total)}</td>
                 </tr>
               </tbody>
             </table>
@@ -331,7 +332,9 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                 can be modified.
               </p>
               <RechargeAccountsControl
-                ref={r => { this._rechargeAccountsRef = r; }}
+                ref={r => {
+                  this._rechargeAccountsRef = r;
+                }}
                 rechargeAccounts={rechargeAccounts}
                 invoiceTotal={invoice.total}
                 onChange={this.handleRechargeAccountsChange}
@@ -374,7 +377,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                               {account.financialSegmentString}
                             </a>
                           </td>
-                          <td>${account.amount.toFixed(2)}</td>
+                          <td>{formatCurrencyLocale(account.amount)}</td>
                           <td>
                             {account.percentage > 0
                               ? `${account.percentage.toFixed(2)}%`
