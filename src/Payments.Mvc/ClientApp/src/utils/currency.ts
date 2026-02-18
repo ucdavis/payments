@@ -4,6 +4,9 @@
  * @returns Formatted currency string (e.g., "$1,234.56")
  */
 export function formatCurrencyLocale(amount: number): string {
+  if (amount === null || amount === undefined) {
+    return '$0.00';
+  }
   return amount.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD'
