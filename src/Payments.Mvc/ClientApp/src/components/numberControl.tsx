@@ -12,9 +12,12 @@ interface IProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  tabIndex?: number;
 
   format?: (value: number) => string;
-  inputRef?: ((el: HTMLInputElement | null) => void) | React.RefObject<HTMLInputElement>;
+  inputRef?:
+    | ((el: HTMLInputElement | null) => void)
+    | React.RefObject<HTMLInputElement>;
 }
 
 interface IState {
@@ -54,7 +57,8 @@ export default class NumberControl extends React.PureComponent<IProps, IState> {
       placeholder,
       required,
       inputRef,
-      disabled
+      disabled,
+      tabIndex
     } = this.props;
     const { type, value } = this.state;
 
@@ -75,6 +79,7 @@ export default class NumberControl extends React.PureComponent<IProps, IState> {
         required={required}
         ref={inputRef}
         disabled={disabled}
+        tabIndex={tabIndex}
       />
     );
   }
