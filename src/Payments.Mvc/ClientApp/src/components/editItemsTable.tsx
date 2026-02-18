@@ -16,6 +16,7 @@ import CurrencyControl from './currencyControl';
 import DiscountInput from './discountInput';
 import NumberControl from './numberControl';
 import TaxInput from './taxInput';
+import { formatCurrencyLocale } from '../utils/currency';
 
 interface IProps {
   coupons: Coupon[];
@@ -128,7 +129,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
               <td />
               <td>Subtotal</td>
               <td />
-              <td>${subtotalCalc.toFixed(2)}</td>
+              <td>{formatCurrencyLocale(subtotalCalc)}</td>
               <td />
             </tr>
             {!isRechargeInvoice && (
@@ -145,7 +146,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                 </td>
                 <td>
                   {discount.hasDiscount && (
-                    <span>-${discountCalc.toFixed(2)}</span>
+                    <span>-{formatCurrencyLocale(discountCalc)}</span>
                   )}
                 </td>
                 <td>
@@ -182,7 +183,9 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
                     onChange={v => this.onTaxPercentChange(v)}
                   />
                 </td>
-                <td>{!!taxPercent && <span>${taxCalc.toFixed(2)}</span>}</td>
+                <td>
+                  {!!taxPercent && <span>{formatCurrencyLocale(taxCalc)}</span>}
+                </td>
                 <td />
               </tr>
             )}
@@ -193,7 +196,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
               <td />
               <td>Total</td>
               <td />
-              <td>${totalCalc.toFixed(2)}</td>
+              <td>{formatCurrencyLocale(totalCalc)}</td>
               <td />
             </tr>
           </tfoot>
@@ -269,7 +272,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
             </div>
           </div>
         </td>
-        <td>${(quantity * amount).toFixed(2)}</td>
+        <td>{formatCurrencyLocale(quantity * amount)}</td>
         <td>
           <button
             className='btn btn-danger btn-icon'
