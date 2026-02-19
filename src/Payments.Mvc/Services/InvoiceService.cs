@@ -504,6 +504,98 @@ namespace Payments.Mvc.Services
             };
 
         }
+
+        public async Task<Invoice> CopyInvoice(Invoice invoiceToCopy, Team team, User user)
+        {            
+            //This assumes the team or other validation has happened
+            var invoice = new Invoice()
+            {
+                LinkId = null,
+                DraftCount = 1,                
+                CustomerName = invoiceToCopy.CustomerName,
+                CustomerAddress = invoiceToCopy.CustomerAddress,
+                CustomerEmail = invoiceToCopy.CustomerEmail,
+                CustomerCompany = invoiceToCopy.CustomerCompany,
+                Memo = invoiceToCopy.Memo,
+                TaxPercent = invoiceToCopy.TaxPercent,
+                DueDate = invoiceToCopy.DueDate,
+                Status = Invoice.StatusCodes.Draft,
+                Coupon = null, //Don't think we want any coupon as this may have been entered by customer.
+                ManualDiscount = 0.0m,
+                Account = invoiceToCopy.Account, //Verify if this is still valid?
+                Attachments = null,
+                Team = invoiceToCopy.Team,
+                Sent = false,
+                SentAt = null,
+                Paid = false,
+                PaidAt = null,
+                Refunded = false,
+                RefundedAt = null,
+                PaymentType = null,
+                PaymentProcessorId = null,
+                KfsTrackingNumber = null,
+                CreatedAt = DateTime.UtcNow,
+                Deleted = false,
+                DeletedAt = null,
+                Type = invoiceToCopy.Type,
+            };
+
+            if(invoice.Account != null)
+            {
+                if(team.Accounts.Where(a => a.IsActive && a.Id == invoice.Account.Id).Any())
+                {
+                    // Account is valid for the team
+                }
+                else
+                {
+                    invoice.Account = null; // Invalidate the account if it's not valid for the team
+                }
+            }
+
+
+            //Line items
+            foreach(var item in invoiceToCopy.Items)
+            {
+                var newItem = new LineItem()
+                {
+                    Description = item.Description,
+                    Quantity = item.Quantity,
+                    Amount = item.Amount,
+                    Total = item.Total,
+                    TaxExempt = item.TaxExempt,                    
+                };
+                invoice.Items.Add(newItem);
+            }
+            //Recharge accounts
+            if(invoiceToCopy.RechargeAccounts != null)
+            {
+                foreach(var ra in invoiceToCopy.RechargeAccounts)
+                {
+                    var newRa = new RechargeAccount()
+                    {
+                        Direction = ra.Direction,
+                        FinancialSegmentString = ra.FinancialSegmentString,
+                        Amount = ra.Amount,
+                        Percentage = ra.Percentage,
+                        EnteredByKerb = user.CampusKerberos, 
+                        EnteredByName = user.Name,
+                        ApprovedByKerb = null,
+                        ApprovedByName = null,
+                        Notes = ra.Notes,
+                    };                    
+
+                    invoice.RechargeAccounts.Add(newRa);
+                }
+            }
+            //Possibly attachments, but probably more pain then it's worth to copy those.
+
+            //Recalculate totals.
+            invoice.UpdateCalculatedValues();
+
+            await _dbContext.Invoices.AddAsync(invoice);
+            return invoice;
+
+        }
     }
 
     public interface IInvoiceService
@@ -511,6 +603,8 @@ namespace Payments.Mvc.Services
         Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team);
 
         Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
+
+        Task<Invoice> CopyInvoice(Invoice invoice, Team team, User user);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
 
