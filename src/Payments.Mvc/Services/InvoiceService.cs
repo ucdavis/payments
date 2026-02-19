@@ -550,7 +550,7 @@ namespace Payments.Mvc.Services
                 else
                 {
                     //If they don't have any active accounts that are default, BOOM!
-                    invoice.Account = team.Accounts.Where(a => a.IsActive && a.IsActive).Single();
+                    invoice.Account = team.Accounts.Where(a => a.IsActive && a.IsDefault).Single();
 
                     var history = new History()
                     {
