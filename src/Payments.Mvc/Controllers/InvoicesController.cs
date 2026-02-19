@@ -203,6 +203,7 @@ namespace Payments.Mvc.Controllers
                 .Include(i => i.Attachments)
                 .Include(i => i.RechargeAccounts)
                 .Include(i => i.Account)
+                .Include(i => i.Team)
                 .Where(i => i.Team.Slug == TeamSlug)
                 .FirstOrDefaultAsync(i => i.Id == id);
             if (invoice == null)
