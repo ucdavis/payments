@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Helpers;
+using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Emails;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Payments.Mvc.Services
 {
@@ -548,7 +549,17 @@ namespace Payments.Mvc.Services
                 }
                 else
                 {
-                    invoice.Account = null; // Invalidate the account if it's not valid for the team
+                    //If they don't have any active accounts that are default, BOOM!
+                    invoice.Account = team.Accounts.Where(a => a.IsActive && a.IsActive).Single();
+
+                    var history = new History()
+                    {
+                        Type = HistoryActionTypes.InvoiceCopied.TypeCode,
+                        ActionDateTime = DateTime.UtcNow,
+                        Actor = user.Name,
+                        Data = $"Account changed with Invoice copy.",
+                    };
+                    invoice.History.Add(history);
                 }
             }
 
