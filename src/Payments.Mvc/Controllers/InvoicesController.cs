@@ -184,6 +184,80 @@ namespace Payments.Mvc.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Copy(int id)
+        {
+            var team = await _dbContext.Teams
+                .Include(t => t.Accounts)
+                .Include(t => t.Coupons)
+                .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            // find item
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Items)
+                .Include(i => i.Attachments)
+                .Include(i => i.RechargeAccounts)
+                .Include(i => i.Account)
+                .Include(i => i.Team)
+                .Where(i => i.Team.Slug == TeamSlug)
+                .FirstOrDefaultAsync(i => i.Id == id);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            switch (invoice.Type)
+            {
+                case Invoice.InvoiceTypes.CreditCard when team.AllowedInvoiceType == Team.AllowedInvoiceTypes.Recharge:
+                    return BadRequest("This team is not allowed to create credit card invoices.");
+                case Invoice.InvoiceTypes.Recharge when team.AllowedInvoiceType == Team.AllowedInvoiceTypes.CreditCard:
+                    return BadRequest("This team is not allowed to create recharge invoices.");
+            }
+
+
+            var copiedInvoice = await _invoiceService.CopyInvoice(invoice, team, user);
+
+            var historyAction = new History()
+            {
+                Type = HistoryActionTypes.InvoiceCreated.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+            };
+            copiedInvoice.History.Add(historyAction);
+
+            historyAction = new History()
+            {
+                Type = HistoryActionTypes.InvoiceCopied.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+                Data = $"Invoice copied from Id: {invoice.Id}",
+            };
+            copiedInvoice.History.Add(historyAction);
+
+            // Save to get the new ID
+            await _dbContext.SaveChangesAsync();
+
+            historyAction = new History()
+            {
+                Type = HistoryActionTypes.InvoiceCopied.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = user.Name,
+                Data = $"Invoice copied to Id: {copiedInvoice.Id}",
+            };
+            invoice.History.Add(historyAction);
+
+            // Save to update the original invoice history with the new action
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("Edit", "Invoices", new { id = copiedInvoice.Id });
+
+        }
+
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {

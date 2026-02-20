@@ -160,6 +160,10 @@
                 Cancel Refund Request
             </button>
         }
+        <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#duplicateInvoiceModal">
+            <i class="fas fa-copy"></i>
+            Duplicate Invoice
+        </button>
     </div>
     <div class="card-body history-timeline">
         @foreach (var action in timeline)
@@ -1061,6 +1065,43 @@ else
     </div>
 </form>
 
+<div class="modal fade" id="duplicateInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="duplicateInvoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateInvoiceModalLabel">Duplicate Invoice?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>A new draft invoice will be created as a copy of this one.</p>
+                <p>It will open in the invoice edit page where you can make any necessary changes before saving or sending.</p>
+                <ul>
+                    <li>Line items, customer details, and memo will be copied.</li>
+                    @if (Model.Attachments.Any())
+                    {
+                        <li class="text-warning"><strong>Attachments will not be copied.</strong></li>
+                    }
+                    @if (Model.Type == InvoiceTypes.Recharge)
+                    {
+                        <li>Recharge accounts will be copied, but all approvals will be reset. You will be recorded as the entered-by person.</li>
+                    }
+                    <li>Coupons and discounts will not be copied.</li>
+                </ul>
+                <div id="duplicateInvoiceError" class="alert alert-danger d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="duplicateInvoiceConfirm" class="btn btn-primary">
+                    <span id="duplicateInvoiceSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                    Duplicate Invoice
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
 {
     @Html.AntiForgeryToken()
@@ -1075,6 +1116,7 @@ else
         var invoiceSent = @Json.Serialize(Model.Sent);
         var sendUrl = '@Url.Action("Send", "Invoices", new { id = Model.Id })';
         var forwardUrl = '@Url.Action("Send", "Invoices", new { id = Model.Id })';
+        var copyUrl = '@Url.Action("Copy", "Invoices", new { id = Model.Id })';
 
         $sendModal = $('#sendInvoiceModal');
         $sendModal.on('show.bs.modal',
@@ -1266,6 +1308,47 @@ else
                 }
             });
         }
+
+        // Duplicate Invoice
+        $('#duplicateInvoiceModal').on('show.bs.modal', function () {
+            $('#duplicateInvoiceConfirm').prop('disabled', false);
+            $('#duplicateInvoiceSpinner').addClass('d-none');
+            $('#duplicateInvoiceError').addClass('d-none').text('');
+        });
+
+        $('#duplicateInvoiceConfirm').click(function () {
+            var $btn = $(this);
+            var $spinner = $('#duplicateInvoiceSpinner');
+            var $error = $('#duplicateInvoiceError');
+
+            $btn.prop('disabled', true);
+            $spinner.removeClass('d-none');
+            $error.addClass('d-none').text('');
+
+            fetch(copyUrl, {
+                credentials: 'same-origin',
+                method: 'POST',
+                headers: new Headers({
+                    'RequestVerificationToken': window.antiForgeryToken
+                })
+            })
+            .then(function (response) {
+                if (response.ok) {
+                    window.location.href = response.url;
+                } else {
+                    return response.text().then(function (text) {
+                        $error.text(text || 'An error occurred while duplicating the invoice.').removeClass('d-none');
+                        $btn.prop('disabled', false);
+                        $spinner.addClass('d-none');
+                    });
+                }
+            })
+            .catch(function () {
+                $error.text('An unexpected error occurred. Please try again.').removeClass('d-none');
+                $btn.prop('disabled', false);
+                $spinner.addClass('d-none');
+            });
+        });
 
         // Initialize validation when document is ready
         $(document).ready(function() {

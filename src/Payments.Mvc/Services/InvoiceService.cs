@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Helpers;
+using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Models.Validation;
 using Payments.Core.Services;
 using Payments.Emails;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Payments.Mvc.Services
 {
@@ -504,6 +505,108 @@ namespace Payments.Mvc.Services
             };
 
         }
+
+        public async Task<Invoice> CopyInvoice(Invoice invoiceToCopy, Team team, User user)
+        {            
+            //This assumes the team or other validation has happened
+            var invoice = new Invoice()
+            {
+                LinkId = null,
+                DraftCount = 1,                
+                CustomerName = invoiceToCopy.CustomerName,
+                CustomerAddress = invoiceToCopy.CustomerAddress,
+                CustomerEmail = invoiceToCopy.CustomerEmail,
+                CustomerCompany = invoiceToCopy.CustomerCompany,
+                Memo = invoiceToCopy.Memo,
+                TaxPercent = invoiceToCopy.TaxPercent,
+                DueDate = invoiceToCopy.DueDate,
+                Status = Invoice.StatusCodes.Draft,
+                Coupon = null, //Don't think we want any coupon as this may have been entered by customer.
+                ManualDiscount = 0.0m,
+                Account = invoiceToCopy.Account, //Verify if this is still valid?
+                Attachments = null,
+                Team = invoiceToCopy.Team,
+                Sent = false,
+                SentAt = null,
+                Paid = false,
+                PaidAt = null,
+                Refunded = false,
+                RefundedAt = null,
+                PaymentType = null,
+                PaymentProcessorId = null,
+                KfsTrackingNumber = null,
+                CreatedAt = DateTime.UtcNow,
+                Deleted = false,
+                DeletedAt = null,
+                Type = invoiceToCopy.Type,
+            };
+
+            if(invoice.Account != null)
+            {
+                if(team.Accounts.Where(a => a.IsActive && a.Id == invoice.Account.Id).Any())
+                {
+                    // Account is valid for the team
+                }
+                else
+                {
+                    //If they don't have any active accounts that are default, BOOM!
+                    invoice.Account = team.Accounts.Where(a => a.IsActive && a.IsDefault).Single();
+
+                    var history = new History()
+                    {
+                        Type = HistoryActionTypes.InvoiceCopied.TypeCode,
+                        ActionDateTime = DateTime.UtcNow,
+                        Actor = user.Name,
+                        Data = $"Account changed with Invoice copy.",
+                    };
+                    invoice.History.Add(history);
+                }
+            }
+
+
+            //Line items
+            foreach(var item in invoiceToCopy.Items)
+            {
+                var newItem = new LineItem()
+                {
+                    Description = item.Description,
+                    Quantity = item.Quantity,
+                    Amount = item.Amount,
+                    Total = item.Total,
+                    TaxExempt = item.TaxExempt,                    
+                };
+                invoice.Items.Add(newItem);
+            }
+            //Recharge accounts
+            if(invoiceToCopy.RechargeAccounts != null)
+            {
+                foreach(var ra in invoiceToCopy.RechargeAccounts)
+                {
+                    var newRa = new RechargeAccount()
+                    {
+                        Direction = ra.Direction,
+                        FinancialSegmentString = ra.FinancialSegmentString,
+                        Amount = ra.Amount,
+                        Percentage = ra.Percentage,
+                        EnteredByKerb = user.CampusKerberos, 
+                        EnteredByName = user.Name,
+                        ApprovedByKerb = null,
+                        ApprovedByName = null,
+                        Notes = ra.Notes,
+                    };                    
+
+                    invoice.RechargeAccounts.Add(newRa);
+                }
+            }
+            //Possibly attachments, but probably more pain then it's worth to copy those.
+
+            //Recalculate totals.
+            invoice.UpdateCalculatedValues();
+
+            await _dbContext.Invoices.AddAsync(invoice);
+            return invoice;
+
+        }
     }
 
     public interface IInvoiceService
@@ -511,6 +614,8 @@ namespace Payments.Mvc.Services
         Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team);
 
         Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
+
+        Task<Invoice> CopyInvoice(Invoice invoice, Team team, User user);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
 
