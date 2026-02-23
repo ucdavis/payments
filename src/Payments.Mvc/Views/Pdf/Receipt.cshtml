@@ -150,7 +150,14 @@
 
     <div id="invoiceInfo" class="row">
         <div class="col">
-            <span class="text-label">Paid by</span><br />
+            @{
+                var paidLabel = "Paid by";
+                if (Model.Type == Invoice.InvoiceTypes.Recharge)
+                {
+                    paidLabel = "Billed to";
+                }
+            }
+            <span class="text-label">@paidLabel</span><br />
             <span class="address">
                 @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
                 {
@@ -175,6 +182,20 @@
             </span>
         </div>
     </div>
+    @if (Model.Paid && Model.Type == Invoice.InvoiceTypes.Recharge)
+    {
+        var paidBy = Model.RechargeAccounts?.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).FirstOrDefault()?.EnteredByName;
+
+        <div id="invoiceInfo" class="row">
+            <div class="col">
+                <span class="text-label">Paid by</span><br />
+                <span >
+                    @paidBy
+                    <br />  
+                </span>
+            </div>
+        </div>
+    }
 
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
     {
