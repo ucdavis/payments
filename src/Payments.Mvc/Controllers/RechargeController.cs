@@ -279,6 +279,13 @@ namespace Payments.Mvc.Controllers
                         existing.Notes = item.Notes;
                         _dbContext.RechargeAccounts.Update(existing); //Probably not needed since we are tracking it, but just in case
                     }
+                    else
+                    {
+                        //Nothing changed, but we do want to change who entered it as this is used to determine if they can approve it or not at the financial approval step.
+                        existing.EnteredByKerb = user.CampusKerberos;
+                        existing.EnteredByName = user.Name;
+                        _dbContext.RechargeAccounts.Update(existing);
+                    }
                 }
                 else
                 {
