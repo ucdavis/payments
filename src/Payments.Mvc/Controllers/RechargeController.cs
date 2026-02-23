@@ -268,24 +268,13 @@ namespace Payments.Mvc.Controllers
                 var existing = invoice.RechargeAccounts.FirstOrDefault(a => a.Id == item.Id); //Could filter out when id == 0
                 if (existing != null)
                 {
-                    if (existing.FinancialSegmentString != item.FinancialSegmentString || existing.Amount != item.Amount || existing.Notes != item.Notes)
-                    {
-                        //If nothing changed, we don't update who entered it.
-                        ////Update amount
-                        existing.FinancialSegmentString = item.FinancialSegmentString;
-                        existing.Amount = item.Amount;
-                        existing.EnteredByKerb = user.CampusKerberos;
-                        existing.EnteredByName = user.Name;
-                        existing.Notes = item.Notes;
-                        _dbContext.RechargeAccounts.Update(existing); //Probably not needed since we are tracking it, but just in case
-                    }
-                    else
-                    {
-                        //Nothing changed, but we do want to change who entered it as this is used to determine if they can approve it or not at the financial approval step.
-                        existing.EnteredByKerb = user.CampusKerberos;
-                        existing.EnteredByName = user.Name;
-                        _dbContext.RechargeAccounts.Update(existing);
-                    }
+                    ////Update everything, even if it didn't change so the enterby can be used to determine if they can approve or not.
+                    existing.FinancialSegmentString = item.FinancialSegmentString;
+                    existing.Amount = item.Amount;
+                    existing.EnteredByKerb = user.CampusKerberos;
+                    existing.EnteredByName = user.Name;
+                    existing.Notes = item.Notes;
+                    _dbContext.RechargeAccounts.Update(existing); //Probably not needed since we are tracking it, but just in case
                 }
                 else
                 {
