@@ -272,7 +272,7 @@ namespace Payments.Mvc.Controllers
                     existing.FinancialSegmentString = item.FinancialSegmentString;
                     existing.Amount = item.Amount;
                     existing.EnteredByKerb = user.CampusKerberos;
-                    existing.EnteredByName = user.Name;
+                    existing.EnteredByName = $"{user.Name} ({user.Email})";
                     existing.Notes = item.Notes;
                     _dbContext.RechargeAccounts.Update(existing); //Probably not needed since we are tracking it, but just in case
                 }
@@ -286,7 +286,7 @@ namespace Payments.Mvc.Controllers
                         Amount = item.Amount,
                         InvoiceId = invoice.Id,
                         EnteredByKerb = user.CampusKerberos,
-                        EnteredByName = user.Name,
+                        EnteredByName = $"{user.Name} ({user.Email})",
                         Percentage = item.Percentage,
                         Notes = item.Notes
                     });

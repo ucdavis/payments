@@ -323,6 +323,18 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
             </table>
           </div>
 
+          <div className='card-body'>
+            <h3>Paid By</h3>
+            <p className='text-muted'>
+              {
+                [
+                  ...(invoice.displayDebitRechargeAccounts || []),
+                  ...(invoice.debitRechargeAccounts || [])
+                ].find(a => a?.enteredByName)?.enteredByName
+              }
+            </p>
+          </div>
+
           {/* Editable Recharge Accounts - Only editable if canApprove */}
           {canEdit && rechargeAccounts.length > 0 && (
             <div className='card-body invoice-recharge-accounts'>

@@ -378,7 +378,7 @@ namespace Payments.Mvc.Controllers
                 foreach(var rechargeAcct in model.RechargeAccounts)
                 {
                     rechargeAcct.EnteredByKerb = user.CampusKerberos;
-                    rechargeAcct.EnteredByName = user.Name;
+                    rechargeAcct.EnteredByName = $"{user.Name} ({user.Email})"; 
                 }
             }
 
@@ -457,7 +457,7 @@ namespace Payments.Mvc.Controllers
                 foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id == 0))
                 {                    
                     rechargeAcct.EnteredByKerb = user.CampusKerberos;
-                    rechargeAcct.EnteredByName = user.Name;            
+                    rechargeAcct.EnteredByName = $"{user.Name} ({user.Email})";            
                 }
             }
 
