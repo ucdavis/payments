@@ -589,7 +589,7 @@ namespace Payments.Mvc.Services
                         Amount = ra.Amount,
                         Percentage = ra.Percentage,
                         EnteredByKerb = user.CampusKerberos, 
-                        EnteredByName = user.Name,
+                        EnteredByName = $"{user.Name} ({user.Email})",
                         ApprovedByKerb = null,
                         ApprovedByName = null,
                         Notes = ra.Notes,
