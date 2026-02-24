@@ -181,21 +181,15 @@
                 }
             </span>
         </div>
-    </div>
-    @if (Model.Paid && Model.Type == Invoice.InvoiceTypes.Recharge)
-    {
-        var paidBy = Model.RechargeAccounts?.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).FirstOrDefault()?.EnteredByName;
-
-        <div id="invoiceInfo" class="row">
+        @if (Model.Paid && Model.Type == Invoice.InvoiceTypes.Recharge)
+        {
+            var paidBy = Model.RechargeAccounts?.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).FirstOrDefault()?.EnteredByName;
             <div class="col">
                 <span class="text-label">Paid by</span><br />
-                <span >
-                    @paidBy
-                    <br />  
-                </span>
+                <span>@paidBy</span>
             </div>
-        </div>
-    }
+        }
+    </div>
 
     @if (!string.IsNullOrWhiteSpace(Model.Memo))
     {
