@@ -324,18 +324,6 @@ export default class PayInvoiceContainer extends React.Component<
             </div>
           )}
 
-          {canEdit && (
-            <PayInvoiceAction
-              dueDate={invoice.dueDate}
-              errorMessage={errorMessage}
-              isSaving={isSaving}
-              isValid={isValid}
-              isValidating={isValidating}
-              onSubmit={this.handleSubmit}
-              total={invoice.total}
-            />
-          )}
-
           <div className='pay-download'>
             <img src='/media/download.svg' alt='download icon' />
             <br />
