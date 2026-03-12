@@ -44,5 +44,9 @@ namespace Payments.Mvc.Models.TeamViewModels
         [StringLength(10)]
         [Display(Name = "Allowed Invoice Type")]
         public string AllowedInvoiceType { get; set; } = AllowedInvoiceTypes.CreditCard;
+
+        [Required]
+        [Display(Name = "Sloth Auto Approve")]
+        public bool SlothAutoApprove { get; set; }
     }
 }

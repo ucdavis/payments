@@ -70,6 +70,7 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("SlothAutoApprove", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("Slug", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayAttribute(Name = \"Team Slug\")]",

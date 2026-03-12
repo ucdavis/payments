@@ -76,10 +76,24 @@
                         </div>
                         @if (!isAdmin)
                         {
+                            <input asp-for="AllowedInvoiceType" type="hidden" />
                             <div class="text-muted small mt-1">If you need to change the allowed invoice type, please submit
                                 a help ticket.</div>
                         }
                         <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input asp-for="SlothAutoApprove" class="form-check-input" disabled="@(!isAdmin)" />
+                            <label asp-for="SlothAutoApprove" class="@labelClass"></label>
+                        </div>
+                        @if (!isAdmin)
+                        {
+                            <input asp-for="SlothAutoApprove" type="hidden" />
+                            <div class="text-muted small mt-1">Only admins can change this setting.</div>
+                        }
+                        <span asp-validation-for="SlothAutoApprove" class="text-danger"></span>
                     </div>
 
                     @if (isAdmin)

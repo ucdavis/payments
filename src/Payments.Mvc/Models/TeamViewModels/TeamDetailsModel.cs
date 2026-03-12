@@ -33,6 +33,9 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "Allowed Invoice Type")]
         public string AllowedInvoiceType { get; set; }
 
+        [Display(Name = "Sloth Auto Approve")]
+        public bool SlothAutoApprove { get; set; }
+
         public IList<FinancialAccount> Accounts { get; set; }
 
         public IList<TeamPermission> Permissions { get; set; }

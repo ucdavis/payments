@@ -313,6 +313,13 @@ namespace Payments.Core.Jobs
                     {
                         try
                         {
+                            var team = invoice.Team;
+                            if (team == null)
+                            {
+                                log.Error("Invoice {id} is missing team data. Skipping recharge transaction creation.", invoice.Id);
+                                continue;
+                            }
+
 
                             var slothChecks = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true);
                             var slothCheck = slothChecks?.Where(a => a.Status != "Cancelled").FirstOrDefault(); //PendingApproval, Scheduled, Processing, Rejected, Completed 
@@ -376,11 +383,11 @@ namespace Payments.Core.Jobs
                             }
 
                             // setup transaction
-                            var merchantUrl = $"{_paymentsApiSettings.BaseUrl}/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
+                            var merchantUrl = $"{_paymentsApiSettings.BaseUrl}/{team.Slug}/invoices/details/{invoice.Id}";
                             var payPageUrl = $"{_paymentsApiSettings.BaseUrl}/recharge/pay/{invoice.LinkId}";
                             var slothTransaction = new CreateTransaction()
                             {
-                                AutoApprove = _financeSettings.RechargeAutoApprove,
+                                AutoApprove = team.SlothAutoApprove,
                                 ValidateFinancialSegmentStrings = _financeSettings.ValidateRechargeFinancialSegmentString,
                                 MerchantTrackingNumber = invoice.Id.ToString(), //use the id here so these get tied together in sloth
                                 MerchantTrackingUrl = merchantUrl,
@@ -392,8 +399,8 @@ namespace Payments.Core.Jobs
                                 Transfers = debitTransfers.Concat(creditTransfers).ToList(),
                                 ProcessorTrackingNumber = invoice.GetFormattedId(),
                             };
-                            slothTransaction.AddMetadata("Team Name", invoice.Team.Name);
-                            slothTransaction.AddMetadata("Team Slug", invoice.Team.Slug);
+                            slothTransaction.AddMetadata("Team Name", team.Name);
+                            slothTransaction.AddMetadata("Team Slug", team.Slug);
                             slothTransaction.AddMetadata("Invoice", invoice.GetFormattedId());
                             slothTransaction.AddMetadata("Payment Link", payPageUrl);
                             foreach (var recharge in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
