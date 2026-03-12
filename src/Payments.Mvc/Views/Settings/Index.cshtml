@@ -101,6 +101,19 @@
                     }
                     <span class="@badgeClass">@displayText</span>
                 </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.SlothAutoApprove)
+                </dt>
+                <dd>
+                    @if (Model.SlothAutoApprove)
+                    {
+                        <span class="badge bg-success">Enabled</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Disabled</span>
+                    }
+                </dd>
             </dl>
         </div>
     </div>

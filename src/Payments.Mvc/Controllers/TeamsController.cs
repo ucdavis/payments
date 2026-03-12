@@ -78,6 +78,7 @@ namespace Payments.Mvc.Controllers
                 ApiKey = Guid.NewGuid().ToString("N").ToUpper(),
                 WebHookApiKey = model.WebHookApiKey,
                 AllowedInvoiceType = model.AllowedInvoiceType,
+                SlothAutoApprove = model.SlothAutoApprove
             };
 
             // add user to team

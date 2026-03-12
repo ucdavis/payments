@@ -72,7 +72,8 @@ namespace Payments.Mvc.Controllers
                 IsActive = team.IsActive,
                 UserCanEdit = userCanEdit,
                 WebHookApiKey = team.WebHookApiKey,
-                AllowedInvoiceType = team.AllowedInvoiceType
+                AllowedInvoiceType = team.AllowedInvoiceType,
+                SlothAutoApprove = team.SlothAutoApprove,
             };
 
             return View(model);
@@ -99,7 +100,8 @@ namespace Payments.Mvc.Controllers
                 ContactPhoneNumber = team.ContactPhoneNumber,
                 IsActive = team.IsActive,
                 WebHookApiKey = team.WebHookApiKey,
-                AllowedInvoiceType = team.AllowedInvoiceType
+                AllowedInvoiceType = team.AllowedInvoiceType,
+                SlothAutoApprove = team.SlothAutoApprove,
             };
 
             return View(model);
@@ -141,6 +143,7 @@ namespace Payments.Mvc.Controllers
             {
                 team.IsActive = model.IsActive;
                 team.AllowedInvoiceType = model.AllowedInvoiceType;
+                team.SlothAutoApprove = model.SlothAutoApprove;
             }
 
             await _context.SaveChangesAsync();
