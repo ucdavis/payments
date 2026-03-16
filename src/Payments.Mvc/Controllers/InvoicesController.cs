@@ -20,6 +20,7 @@ using Payments.Mvc.Identity;
 using Payments.Mvc.Models.InvoiceViewModels;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Services;
+using Serilog;
 
 
 namespace Payments.Mvc.Controllers
@@ -533,74 +534,115 @@ namespace Payments.Mvc.Controllers
                 model = new SendInvoiceModel();
             }
 
-            await _invoiceService.SendInvoice(invoice, model);
-
-            var user = await _userManager.GetUserAsync(User);
-
-            // check if the user email is the same as the customer email for recharges so it goes directly to the pending approval.
-            if (invoice.Type == Invoice.InvoiceTypes.Recharge && 
-                string.Equals(user.Email, invoice.CustomerEmail, StringComparison.OrdinalIgnoreCase) && 
-                invoice.Status == Invoice.StatusCodes.Sent &&
-                invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any())
+            try
             {
-                invoice.PaidAt = DateTime.UtcNow;
-                invoice.Status = Invoice.StatusCodes.PendingApproval;
-                var approvalAction = new History()
-                {
-                    Type = HistoryActionTypes.RechargePaidByCustomer.TypeCode,
-                    ActionDateTime = DateTime.UtcNow,
-                    Actor = $"{user.Name} ({user.Email})",
-                    Data = new RechargePaidByCustomerHistoryActionType().SerializeData(new RechargePaidByCustomerHistoryActionType.DataType
-                    {
-                        RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
-                    })
-                };
-                invoice.History.Add(approvalAction);
-            }
+                await _invoiceService.SendInvoice(invoice, model);
 
-            if (invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.Status == Invoice.StatusCodes.PendingApproval)
-            {
-                //Need to resend these ones too
-                var sentTo = await _invoiceService.SendFinancialApproverEmail(invoice, null); //Will pull them with a private method
+                var user = await _userManager.GetUserAsync(User);
 
-                if (sentTo != null)
+                // check if the user email is the same as the customer email for recharges so it goes directly to the pending approval.
+                if (invoice.Type == Invoice.InvoiceTypes.Recharge && 
+                    string.Equals(user.Email, invoice.CustomerEmail, StringComparison.OrdinalIgnoreCase) && 
+                    invoice.Status == Invoice.StatusCodes.Sent &&
+                    invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any())
                 {
-                    var approvalSentAction = new History()
+                    invoice.PaidAt = DateTime.UtcNow;
+                    invoice.Status = Invoice.StatusCodes.PendingApproval;
+                    var approvalAction = new History()
                     {
-                        Type = HistoryActionTypes.RechargeSentToFinancialApprovers.TypeCode,
+                        Type = HistoryActionTypes.RechargePaidByCustomer.TypeCode,
                         ActionDateTime = DateTime.UtcNow,
-                        Actor = "System",
-                        Data = new RechargeSentToFinancialApproversHistoryActionType().SerializeData(new RechargeSentToFinancialApproversHistoryActionType.DataType
+                        Actor = $"{user.Name} ({user.Email})",
+                        Data = new RechargePaidByCustomerHistoryActionType().SerializeData(new RechargePaidByCustomerHistoryActionType.DataType
                         {
-                            FinancialApprovers = sentTo.emails.Select(a => new RechargeSentToFinancialApproversHistoryActionType.FinancialApprover()
-                            {
-                                Name = a.Name,
-                                Email = a.Email
-                            }).ToArray()
+                            RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
                         })
                     };
-                    invoice.History.Add(approvalSentAction);
+                    invoice.History.Add(approvalAction);
                 }
-            }
 
-            // record action
-
-            var action = new History()
-            {
-                Type = HistoryActionTypes.InvoiceSent.TypeCode,
-                ActionDateTime = DateTime.UtcNow,
-                Actor = user.Name,
-            };
-            if(invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any())
-            {
-                action.Data = new InvoiceSentHistoryActionType().SerializeData(new InvoiceSentHistoryActionType.DataType
+                if (invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.Status == Invoice.StatusCodes.PendingApproval)
                 {
-                    RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
+                    //Need to resend these ones too
+                    var sentTo = await _invoiceService.SendFinancialApproverEmail(invoice, null); //Will pull them with a private method
+
+                    if (sentTo != null)
+                    {
+                        var approvalSentAction = new History()
+                        {
+                            Type = HistoryActionTypes.RechargeSentToFinancialApprovers.TypeCode,
+                            ActionDateTime = DateTime.UtcNow,
+                            Actor = "System",
+                            Data = new RechargeSentToFinancialApproversHistoryActionType().SerializeData(new RechargeSentToFinancialApproversHistoryActionType.DataType
+                            {
+                                FinancialApprovers = sentTo.emails.Select(a => new RechargeSentToFinancialApproversHistoryActionType.FinancialApprover()
+                                {
+                                    Name = a.Name,
+                                    Email = a.Email
+                                }).ToArray()
+                            })
+                        };
+                        invoice.History.Add(approvalSentAction);
+                    }
+                }
+
+                // record action
+                var action = new History()
+                {
+                    Type = HistoryActionTypes.InvoiceSent.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = user.Name,
+                };
+                if(invoice.Type == Invoice.InvoiceTypes.Recharge && invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).Any())
+                {
+                    action.Data = new InvoiceSentHistoryActionType().SerializeData(new InvoiceSentHistoryActionType.DataType
+                    {
+                        RechargeAccounts = invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit).ToArray()
+                    });
+                }
+                invoice.History.Add(action);
+
+                await _dbContext.SaveChangesAsync();
+
+                return new JsonResult(new
+                {
+                    success = true,
                 });
             }
-            invoice.History.Add(action);
+            catch (ArgumentException ex)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    errorMessage = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error while sending invoice {InvoiceId}.", invoice.Id);
 
-            await _dbContext.SaveChangesAsync();
+                return new JsonResult(new
+                {
+                    success = false,
+                    errorMessage = "Could not send invoice email.",
+                });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult SendSummary([FromBody] SendInvoicesSummaryModel model)
+        {
+            if (model == null)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    errorMessage = "Send summary not provided.",
+                });
+            }
+
+            Message = string.IsNullOrWhiteSpace(model.Message) ? null : model.Message;
+            ErrorMessage = string.IsNullOrWhiteSpace(model.ErrorMessage) ? null : model.ErrorMessage;
 
             return new JsonResult(new
             {
@@ -994,3 +1036,4 @@ namespace Payments.Mvc.Controllers
         }
     }
 }
+

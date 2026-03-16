@@ -55,6 +55,16 @@ interface IState {
   isSendModalOpen: boolean;
 }
 
+interface IFailedSendInvoice {
+  id: number;
+  errorMessage: string;
+}
+
+interface ISendInvoicesResult {
+  sentIds: number[];
+  failedInvoices: IFailedSendInvoice[];
+}
+
 export default class CreateInvoiceContainer extends React.Component<
   IProps,
   IState
@@ -495,64 +505,118 @@ export default class CreateInvoiceContainer extends React.Component<
     return false;
   };
 
-  private sendInvoices = async (ids: number[], ccEmails: string) => {
+  private sendInvoices = async (
+    ids: number[],
+    ccEmails: string
+  ): Promise<ISendInvoicesResult> => {
     const { slug } = this.props.team;
+    const sendResult: ISendInvoicesResult = {
+      failedInvoices: [],
+      sentIds: []
+    };
+    let ccSent = !ccEmails;
 
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < ids.length; i++) {
       const id = ids[i];
-      // send invoice
       const url = `/${slug}/invoices/send/${id}`;
+      const body = JSON.stringify({
+        ccEmails: ccSent ? '' : ccEmails
+      });
 
-      // only send cc on the first email
-      let body;
-      if (i === 0) {
-        body = JSON.stringify({
-          ccEmails
+      try {
+        const response = await fetch(url, {
+          credentials: 'same-origin',
+          headers: new Headers({
+            'Content-Type': 'application/json',
+            RequestVerificationToken: antiForgeryToken
+          }),
+          body,
+          method: 'POST'
         });
-      } else {
-        body = JSON.stringify({ ccEmails: '' });
-      }
 
-      const response = await fetch(url, {
+        const result = await this.parseJsonResponse(response);
+        if (result?.success) {
+          sendResult.sentIds.push(id);
+          ccSent = true;
+          continue;
+        }
+
+        sendResult.failedInvoices.push({
+          errorMessage: result?.errorMessage || 'Could not send invoice email.',
+          id
+        });
+      } catch {
+        sendResult.failedInvoices.push({
+          errorMessage: 'Could not send invoice email.',
+          id
+        });
+      }
+    }
+
+    return sendResult;
+  };
+
+  private parseJsonResponse = async (response: Response) => {
+    try {
+      return await response.json();
+    } catch {
+      return null;
+    }
+  };
+
+  private setSendSummary = async (sendResult: ISendInvoicesResult) => {
+    const { slug } = this.props.team;
+    const message = this.buildSendSuccessMessage(sendResult.sentIds);
+    const errorMessage = this.buildSendFailureMessage(sendResult.failedInvoices);
+
+    if (!message && !errorMessage) {
+      return;
+    }
+
+    try {
+      await fetch(`/${slug}/invoices/sendsummary`, {
+        body: JSON.stringify({
+          errorMessage,
+          message
+        }),
         credentials: 'same-origin',
         headers: new Headers({
           'Content-Type': 'application/json',
           RequestVerificationToken: antiForgeryToken
         }),
-        body,
         method: 'POST'
       });
+    } catch {
+      // Ignore summary failures and still redirect back to the invoice list.
+    }
+  };
 
-      const result = await response.json();
-      if (!result.success) {
-        // Extract model errors from ModelState
-        let modelErrors: string[] = [];
-        if (result.modelState) {
-          // ModelState is an object where keys are property names and values are arrays of error messages
-          Object.keys(result.modelState).forEach(key => {
-            const errors = result.modelState[key];
-            if (Array.isArray(errors)) {
-              errors.forEach(error => {
-                if (typeof error === 'string') {
-                  modelErrors.push(error);
-                } else if (error && error.errorMessage) {
-                  modelErrors.push(error.errorMessage);
-                }
-              });
-            }
-          });
-        }
-
-        this.setState({
-          errorMessage: result.errorMessage,
-          modelErrors: modelErrors
-        });
-        return false;
-      }
+  private buildSendSuccessMessage = (sentIds: number[]) => {
+    if (sentIds.length === 0) {
+      return '';
     }
 
-    return true;
+    if (sentIds.length === 1) {
+      return '1 invoice was sent successfully.';
+    }
+
+    return `${sentIds.length} invoices were sent successfully.`;
+  };
+
+  private buildSendFailureMessage = (failedInvoices: IFailedSendInvoice[]) => {
+    if (failedInvoices.length === 0) {
+      return '';
+    }
+
+    if (failedInvoices.length === 1) {
+      const failedInvoice = failedInvoices[0];
+      return `Invoice #${failedInvoice.id} could not be sent and remains in draft. Reason: ${failedInvoice.errorMessage}`;
+    }
+
+    return `${failedInvoices.length} invoices could not be sent and remain in draft: ${failedInvoices
+      .map(failedInvoice => `#${failedInvoice.id}`)
+      .join(', ')}.`;
   };
 
   private onSubmit = async () => {
@@ -609,15 +673,8 @@ export default class CreateInvoiceContainer extends React.Component<
       return;
     }
 
-    // send emails
     const sendResult = await this.sendInvoices(saveResult, ccEmails);
-    // a failure here means that the invoices are saved, just not all sent
-    // send user back to invoices page with error message
-    if (!sendResult) {
-      // return to all invoices page
-      window.location.pathname = `/${slug}/invoices`;
-      return;
-    }
+    await this.setSendSummary(sendResult);
 
     // return to all invoices page
     window.location.pathname = `/${slug}/invoices`;
@@ -627,4 +684,5 @@ export default class CreateInvoiceContainer extends React.Component<
     this.setState({ errorMessage: '', modelErrors: [] });
   };
 }
+
 
