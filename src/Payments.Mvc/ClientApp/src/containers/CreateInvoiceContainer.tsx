@@ -396,7 +396,7 @@ export default class CreateInvoiceContainer extends React.Component<
     window.history.go(-1);
   };
 
-  private saveInvoice = async () => {
+  private saveInvoice = async (): Promise<number[] | false> => {
     // enable validation
     this.setState({ validate: true });
 
@@ -467,7 +467,7 @@ export default class CreateInvoiceContainer extends React.Component<
     const result = await response.json();
     if (result.success) {
       this.setState({ ids: result.ids });
-      return true;
+      return result.ids;
     }
 
     // Extract model errors from ModelState
@@ -495,16 +495,8 @@ export default class CreateInvoiceContainer extends React.Component<
     return false;
   };
 
-  private sendInvoices = async (ccEmails: string) => {
+  private sendInvoices = async (ids: number[], ccEmails: string) => {
     const { slug } = this.props.team;
-    const { ids } = this.state;
-    if (ids === undefined) {
-      this.setState({
-        errorMessage: 'Could not send email. Try to Save and Close instead.',
-        modelErrors: []
-      });
-      return false;
-    }
 
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < ids.length; i++) {
@@ -618,7 +610,7 @@ export default class CreateInvoiceContainer extends React.Component<
     }
 
     // send emails
-    const sendResult = await this.sendInvoices(ccEmails);
+    const sendResult = await this.sendInvoices(saveResult, ccEmails);
     // a failure here means that the invoices are saved, just not all sent
     // send user back to invoices page with error message
     if (!sendResult) {
@@ -635,3 +627,4 @@ export default class CreateInvoiceContainer extends React.Component<
     this.setState({ errorMessage: '', modelErrors: [] });
   };
 }
+
