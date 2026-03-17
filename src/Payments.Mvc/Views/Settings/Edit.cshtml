@@ -60,17 +60,17 @@
                         <div class="ms-3">
                             <div class="form-check d-flex">
                                 <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
-                                    value="@Team.AllowedInvoiceTypes.CreditCard" disabled="@(!isAdmin)" />
+                                       value="@Team.AllowedInvoiceTypes.CreditCard" disabled="@(!isAdmin)" />
                                 <label class="@labelClass" asp-for="AllowedInvoiceType">Credit Card Only</label>
                             </div>
                             <div class="form-check d-flex">
                                 <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
-                                    value="@Team.AllowedInvoiceTypes.Recharge" disabled="@(!isAdmin)" />
+                                       value="@Team.AllowedInvoiceTypes.Recharge" disabled="@(!isAdmin)" />
                                 <label class="@labelClass" asp-for="AllowedInvoiceType">Recharge Only</label>
                             </div>
                             <div class="form-check d-flex">
                                 <input asp-for="AllowedInvoiceType" class="form-check-input" type="radio"
-                                    value="@Team.AllowedInvoiceTypes.Both" disabled="@(!isAdmin)" />
+                                       value="@Team.AllowedInvoiceTypes.Both" disabled="@(!isAdmin)" />
                                 <label class="@labelClass" asp-for="AllowedInvoiceType">Both</label>
                             </div>
                         </div>
@@ -79,76 +79,71 @@
                             <input asp-for="AllowedInvoiceType" type="hidden" />
                             <div class="text-muted small mt-1">If you need to change the allowed invoice type, please submit
                                 a help ticket.</div>
-                        }
-                        <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input asp-for="SlothAutoApprove" class="form-check-input" disabled="@(!isAdmin)" />
-                            <label asp-for="SlothAutoApprove" class="@labelClass"></label>
+                            }
+                            <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
                         </div>
-                        @if (!isAdmin)
+
+                        @if (isAdmin)
                         {
-                            <input asp-for="SlothAutoApprove" type="hidden" />
-                            <div class="text-muted small mt-1">Only admins can change this setting.</div>
-                        }
-                        <span asp-validation-for="SlothAutoApprove" class="text-danger"></span>
-                    </div>
-
-                    @if (isAdmin)
-                    {
-                        <div class="form-group">
-                            <div class="checkbox">
-                                <label>
-                                    <input asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                                </label>
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input asp-for="SlothAutoApprove" class="form-check-input" disabled="@(!isAdmin)" />
+                                    <label asp-for="SlothAutoApprove" class="@labelClass"></label>
+                                </div>
+                                <span asp-validation-for="SlothAutoApprove" class="text-danger"></span>
                             </div>
-                        </div>
-                    }
 
-                    <div class="form-group">
-                        <input type="submit" value="Save" class="btn btn-primary" />
-                    </div>
-                </form>
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label>
+                                        <input asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                                    </label>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <input type="submit" value="Save" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div>
-    <a class="btn btn-outline-primary" asp-action="Index"><i class="fas fa-chevron-left"></i>Back to Team</a>
-</div>
+    <div>
+        <a class="btn btn-outline-primary" asp-action="Index"><i class="fas fa-chevron-left"></i>Back to Team</a>
+    </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
 
-    <script>
-        $(function () {
-            var dirtySlug = false;
-            $('#Name').keyup(function () {
-                if (dirtySlug) {
-                    return;
-                }
-                var slug = $(this).val();
-                slug = slug.replace(/[\W_]/g, '-');
-                slug = slug.replace(/--*/g, '-');
-                slug = slug.trim('-');
-                slug = slug.toLowerCase();
+        <script>
+                $(function () {
+                    var dirtySlug = false;
+                    $('#Name').keyup(function () {
+                        if (dirtySlug) {
+                            return;
+                        }
+                        var slug = $(this).val();
+                        slug = slug.replace(/[\W_]/g, '-');
+                        slug = slug.replace(/--*/g, '-');
+                        slug = slug.trim('-');
+                        slug = slug.toLowerCase();
 
-                $('#Slug').val(slug);
-                updateSlugUrl();
-            });
+                        $('#Slug').val(slug);
+                        updateSlugUrl();
+                    });
 
-            $('#Slug').change(function () {
-                dirtySlug = true;
-                updateSlugUrl();
-            });
+                    $('#Slug').change(function () {
+                        dirtySlug = true;
+                        updateSlugUrl();
+                    });
 
-            function updateSlugUrl() {
-                var slug = $('#Slug').val();
-                $('#slugUrl').text("https://payments.ucdavis.edu/" + slug);
-            }
-        });
-    </script>
-}
+                    function updateSlugUrl() {
+                        var slug = $('#Slug').val();
+                        $('#slugUrl').text("https://payments.ucdavis.edu/" + slug);
+                    }
+                });
+        </script>
+    }

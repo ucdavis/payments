@@ -33,7 +33,7 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "Allowed Invoice Type")]
         public string AllowedInvoiceType { get; set; }
 
-        [Display(Name = "Sloth Auto Approve")]
+        [Display(Name = "Sloth Recharge Auto Approve")]
         public bool SlothAutoApprove { get; set; }
 
         public IList<FinancialAccount> Accounts { get; set; }
