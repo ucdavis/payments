@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PayInvoiceAction from '../components/payInvoiceAction';
 import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { formatCurrencyLocale } from '../utils/currency';
@@ -132,139 +133,70 @@ export default class PayInvoiceContainer extends React.Component<
           )}
 
           {/* Payment Action Area */}
-          <div className='pay-action'>
-            {canEdit && (
-              <>
-                <span className='pay-action-total'>
-                  {formatCurrencyLocale(invoice.total)}
-                </span>
+          {canEdit && (
+            <PayInvoiceAction
+              dueDate={invoice.dueDate}
+              errorMessage={errorMessage}
+              isSaving={isSaving}
+              isValid={isValid}
+              isValidating={isValidating}
+              onSubmit={this.handleSubmit}
+              total={invoice.total}
+            />
+          )}
 
-                {invoice.dueDate && (
-                  <span className='pay-action-date secondary-font'>
-                    Due{' '}
-                    {new Date(invoice.dueDate).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+          {(!canEdit || invoice.paid) && (
+            <div className='pay-action'>
+              {!canEdit && (
+                <>
+                  <span className='pay-action-total'>
+                    {formatCurrencyLocale(invoice.total)}
                   </span>
-                )}
 
-                {errorMessage && (
-                  <div className='alert alert-danger mt-3' role='alert'>
-                    {errorMessage}
-                  </div>
-                )}
+                  {invoice.dueDate && (
+                    <span className='pay-action-date secondary-font'>
+                      Due{' '}
+                      {new Date(invoice.dueDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  )}
 
-                {isValidating && (
-                  <div className='alert alert-info mt-3' role='alert'>
-                    <i className='fas fa-spinner fa-spin me-2'></i>
-                    Validating form...
-                  </div>
-                )}
+                  {invoice.status === 'PendingApproval' && (
+                    <div className='alert alert-info mt-3' role='alert'>
+                      <i className='fas fa-clock me-2'></i>
+                      This is Pending Financial Approver Actions.
+                    </div>
+                  )}
 
-                {!isValidating && !isValid && !isSaving && (
-                  <div className='alert alert-warning mt-3' role='alert'>
-                    <i className='fas fa-exclamation-triangle me-2'></i>
-                    Please complete all required fields before submitting:
-                    <ul className='mb-0 mt-2'>
-                      <li>At least one valid debit chart string is required</li>
-                      <li>All chart strings must be validated successfully</li>
-                      <li>
-                        Total debit amounts must equal the invoice total (
-                        {formatCurrencyLocale(invoice.total)})
-                      </li>
-                      <li>All amounts must be greater than zero</li>
-                    </ul>
-                  </div>
-                )}
+                  {invoice.status !== 'PendingApproval' && (
+                    <div className='alert alert-secondary mt-3' role='alert'>
+                      <i className='fas fa-info-circle me-2'></i>
+                      Status: {invoice.status}
+                    </div>
+                  )}
+                </>
+              )}
 
-                {!isValidating && isValid && !isSaving && (
-                  <div className='alert alert-success mt-3' role='alert'>
-                    <i className='fas fa-check-circle me-2'></i>
-                    Form is valid and ready to submit
-                  </div>
-                )}
-
-                <div style={{ alignContent: 'center' }}>
-                  <button
-                    type='button'
-                    className='btn btn-primary btn-lg'
-                    onClick={this.handleSubmit}
-                    disabled={!isValid || isSaving || isValidating}
-                    title={
-                      isValidating
-                        ? 'Validating form...'
-                        : !isValid
-                        ? 'Please complete all required fields'
-                        : ''
-                    }
-                  >
-                    {isSaving ? (
-                      <>
-                        <i className='fas fa-spinner fa-spin me-3' />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <i className='fas fa-check' aria-hidden='true' />
-                        Submit for Approval
-                      </>
-                    )}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {!canEdit && (
-              <>
-                <span className='pay-action-total'>
-                  {formatCurrencyLocale(invoice.total)}
-                </span>
-
-                {invoice.dueDate && (
-                  <span className='pay-action-date secondary-font'>
-                    Due{' '}
-                    {new Date(invoice.dueDate).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </span>
-                )}
-
-                {invoice.status === 'PendingApproval' && (
-                  <div className='alert alert-info mt-3' role='alert'>
-                    <i className='fas fa-clock me-2'></i>
-                    This is Pending Financial Approver Actions.
-                  </div>
-                )}
-
-                {invoice.status !== 'PendingApproval' && (
-                  <div className='alert alert-secondary mt-3' role='alert'>
-                    <i className='fas fa-info-circle me-2'></i>
-                    Status: {invoice.status}
-                  </div>
-                )}
-              </>
-            )}
-
-            {invoice.paid && (
-              <>
-                <h1>Invoice Paid</h1>
-                {invoice.paidDate && (
-                  <h2>
-                    {formatCurrencyLocale(invoice.total)} USD paid{' '}
-                    {new Date(invoice.paidDate).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </h2>
-                )}
-              </>
-            )}
-          </div>
+              {invoice.paid && (
+                <>
+                  <h1>Invoice Paid</h1>
+                  {invoice.paidDate && (
+                    <h2>
+                      {formatCurrencyLocale(invoice.total)} USD paid{' '}
+                      {new Date(invoice.paidDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </h2>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Summary Section */}
           <div className='pay-description'>
