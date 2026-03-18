@@ -46,176 +46,178 @@ namespace Payments.Core.Jobs
                 return;
             }
 
-            using (var ts = _dbContext.Database.BeginTransaction())
+            // get all invoices that are waiting for reconcile
+            var invoices = _dbContext.Invoices
+                .Where(i => i.Status == Invoice.StatusCodes.Paid && i.Type != Invoice.InvoiceTypes.Recharge)
+                .Include(i => i.Account)
+                .Include(i => i.Team)
+                .ThenInclude(t => t.Accounts)
+                .ToList();
+
+            log.Information("{count} invoices found expecting reconciliation", invoices.Count);
+
+            foreach (var invoice in invoices)
             {
                 try
                 {
-                    // get all invoices that are waiting for reconcile
-                    var invoices = _dbContext.Invoices
-                        .Where(i => i.Status == Invoice.StatusCodes.Paid && i.Type != Invoice.InvoiceTypes.Recharge)
-                        .Include(i => i.Account)
-                        .Include(i => i.Team)
-                        .ThenInclude(t => t.Accounts)
-                        .ToList();
-
-                    log.Information("{count} invoices found expecting reconciliation", invoices.Count);
-
-                    foreach (var invoice in invoices)
+                    //this has been changed to return a list of transactions
+                    var transactions = await _slothService.GetTransactionsByProcessorId(invoice.PaymentProcessorId);
+                    var transaction = transactions?.FirstOrDefault(t => string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase));
+                    if (transaction == null)
                     {
-                        //this has been changed to return a list of transactions
-                        var transactions = await _slothService.GetTransactionsByProcessorId(invoice.PaymentProcessorId);
-                        var transaction = transactions?.FirstOrDefault(t => string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase));
-                        if (transaction == null)
-                        {
-                            log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
-                            continue;
-                        }
-                        //This if can't happen anymore, but we don't really care.
-                        if (transaction.Status != "Completed")
-                        {
-                            log.Warning("No completed reconciliation found for invoice id: {id} Paid Date: {PaidAt} Status: {status}", invoice.Id, invoice.PaidAt, transaction.Status);
-                            continue;
-                        }
-
-                        log.Information("Invoice {id} reconciliation found with transaction: {transactionId}",
-                            invoice.Id, transaction.Id);
-
-                        // get team account info
-                        var team = invoice.Team;
-                        if (team.DefaultAccount == null)
-                        {
-                            log.Warning("Team {team} has no default account for payments", team.Name);
-                            continue;
-                        }
-
-                        if (String.IsNullOrWhiteSpace(team.DefaultAccount.FinancialSegmentString))
-                        {
-                            log.Warning("Team {team} has no financial segment string for payments", team.Name);
-                            continue;
-                        }
-
-
-                        // transaction found, bank reconcile was successful
-                        invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
-                        invoice.Status = Invoice.StatusCodes.Processing;
-
-                        // calculate fees
-                        var feeAmount = Math.Round(invoice.CalculatedTotal * FeeSchedule.StandardRate, 2);
-                        var incomeAmount = invoice.CalculatedTotal - feeAmount;
-
-                        //Setup transfers with base values
-                        var debitHolding = new CreateTransfer()
-                        {
-                            Amount = invoice.CalculatedTotal,
-                            Direction = Transfer.CreditDebit.Debit,
-                            Description = "Funds Distribution",
-                        };
-                        var feeCredit = new CreateTransfer()
-                        {
-                            Amount = feeAmount,
-                            Direction = Transfer.CreditDebit.Credit,
-                            Description = "Processing Fee"
-                        };
-                        var incomeCredit = new CreateTransfer()
-                        {
-                            Amount = incomeAmount,
-                            Direction = Transfer.CreditDebit.Credit,
-                            Description = "Funds Distribution"
-                        };
-
-
-                        var incomeAeAccount = team.DefaultAccount.FinancialSegmentString;
-
-                        if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
-                        {
-                            //Validate? here and if invalid use the team default?                            
-                            // the invoice has a specified account, use it instead of the team's default
-                            incomeAeAccount = invoice.Account.FinancialSegmentString;
-                        }
-
-                        // Populate transfers with financial segment strings
-                        debitHolding.FinancialSegmentString = _financeSettings.ClearingFinancialSegmentString;
-                        feeCredit.FinancialSegmentString = _financeSettings.FeeFinancialSegmentString;
-                        incomeCredit.FinancialSegmentString = incomeAeAccount;
-
-
-
-
-                        // setup transaction
-                        var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
-
-                        var slothTransaction = new CreateTransaction()
-                        {
-                            AutoApprove = _financeSettings.AutoApprove,
-                            ValidateFinancialSegmentStrings = _financeSettings.ValidateFinancialSegmentString,
-                            MerchantTrackingNumber = transaction.MerchantTrackingNumber,
-                            MerchantTrackingUrl = merchantUrl,
-                            KfsTrackingNumber = transaction.KfsTrackingNumber,
-                            TransactionDate = DateTime.UtcNow,
-                            Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
-                            Transfers = new List<CreateTransfer>()
-                            {
-                                debitHolding,
-                                feeCredit,
-                                incomeCredit,
-                            },
-                            Source = "Payments",
-                            SourceType = "CyberSource",
-                        };
-
-                        if (feeCredit.Amount <= 0)
-                        {
-                            slothTransaction.Transfers = new List<CreateTransfer>()
-                            {
-                                debitHolding,
-                                incomeCredit,
-                            };
-                            log.Warning("Invoice {id} Fee amount is less than or equal to 0. Removing fee transfer from transaction.", invoice.Id);
-                        }
-
-                        try
-                        {
-                            slothTransaction.AddMetadata("Team Name", team.Name);
-                            slothTransaction.AddMetadata("Team Slug", team.Slug);
-                            slothTransaction.AddMetadata("Invoice", invoice.GetFormattedId());
-                        }
-                        catch
-                        {
-                            log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
-                        }
-
-                        var response = await _slothService.CreateTransaction(slothTransaction);
-
-
-                        //TODO: If there was a problem with the response, set the status back to paid?
-                        log.Information("Transaction created with ID: {id}", response.Id);
-
-                        // send notifications
-                        try
-                        {
-                            var notification = new ReconcileNotification()
-                            {
-                                InvoiceId = invoice.Id,
-                            };
-                            await _notificationService.SendReconcileNotification(notification);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error(ex, "Error while sending notification");
-                        }
+                        log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
+                        continue;
+                    }
+                    //This if can't happen anymore, but we don't really care.
+                    if (transaction.Status != "Completed")
+                    {
+                        log.Warning("No completed reconciliation found for invoice id: {id} Paid Date: {PaidAt} Status: {status}", invoice.Id, invoice.PaidAt, transaction.Status);
+                        continue;
                     }
 
-                    log.Information("Finishing Job");
-                    await _dbContext.SaveChangesAsync();
-                    ts.Commit();
+                    log.Information("Invoice {id} reconciliation found with transaction: {transactionId}",
+                        invoice.Id, transaction.Id);
+
+                    // get team account info
+                    var team = invoice.Team;
+                    if (team.DefaultAccount == null)
+                    {
+                        log.Warning("Team {team} has no default account for payments", team.Name);
+                        continue;
+                    }
+
+                    if (String.IsNullOrWhiteSpace(team.DefaultAccount.FinancialSegmentString))
+                    {
+                        log.Warning("Team {team} has no financial segment string for payments", team.Name);
+                        continue;
+                    }
+
+                    // calculate fees
+                    var feeAmount = Math.Round(invoice.CalculatedTotal * FeeSchedule.StandardRate, 2);
+                    var incomeAmount = invoice.CalculatedTotal - feeAmount;
+
+                    //Setup transfers with base values
+                    var debitHolding = new CreateTransfer()
+                    {
+                        Amount = invoice.CalculatedTotal,
+                        Direction = Transfer.CreditDebit.Debit,
+                        Description = "Funds Distribution",
+                    };
+                    var feeCredit = new CreateTransfer()
+                    {
+                        Amount = feeAmount,
+                        Direction = Transfer.CreditDebit.Credit,
+                        Description = "Processing Fee"
+                    };
+                    var incomeCredit = new CreateTransfer()
+                    {
+                        Amount = incomeAmount,
+                        Direction = Transfer.CreditDebit.Credit,
+                        Description = "Funds Distribution"
+                    };
+
+                    var incomeAeAccount = team.DefaultAccount.FinancialSegmentString;
+
+                    if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
+                    {
+                        //Validate? here and if invalid use the team default?                            
+                        // the invoice has a specified account, use it instead of the team's default
+                        incomeAeAccount = invoice.Account.FinancialSegmentString;
+                    }
+
+                    // Populate transfers with financial segment strings
+                    debitHolding.FinancialSegmentString = _financeSettings.ClearingFinancialSegmentString;
+                    feeCredit.FinancialSegmentString = _financeSettings.FeeFinancialSegmentString;
+                    incomeCredit.FinancialSegmentString = incomeAeAccount;
+
+                    // setup transaction
+                    var merchantUrl = $"https://payments.ucdavis.edu/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
+
+                    var slothTransaction = new CreateTransaction()
+                    {
+                        AutoApprove = _financeSettings.AutoApprove,
+                        ValidateFinancialSegmentStrings = _financeSettings.ValidateFinancialSegmentString,
+                        MerchantTrackingNumber = transaction.MerchantTrackingNumber,
+                        MerchantTrackingUrl = merchantUrl,
+                        KfsTrackingNumber = transaction.KfsTrackingNumber,
+                        TransactionDate = DateTime.UtcNow,
+                        Description = $"Funds Distribution INV {invoice.GetFormattedId()}",
+                        Transfers = new List<CreateTransfer>()
+                        {
+                            debitHolding,
+                            feeCredit,
+                            incomeCredit,
+                        },
+                        Source = "Payments",
+                        SourceType = "CyberSource",
+                    };
+
+                    if (feeCredit.Amount <= 0)
+                    {
+                        slothTransaction.Transfers = new List<CreateTransfer>()
+                        {
+                            debitHolding,
+                            incomeCredit,
+                        };
+                        log.Warning("Invoice {id} Fee amount is less than or equal to 0. Removing fee transfer from transaction.", invoice.Id);
+                    }
+
+                    try
+                    {
+                        slothTransaction.AddMetadata("Team Name", team.Name);
+                        slothTransaction.AddMetadata("Team Slug", team.Slug);
+                        slothTransaction.AddMetadata("Invoice", invoice.GetFormattedId());
+                    }
+                    catch
+                    {
+                        log.Warning("Error parsing invoice meta data for invoice {id}", invoice.Id);
+                    }
+
+                    // External call: no DB transaction held during this call
+                    var response = await _slothService.CreateTransaction(slothTransaction);
+                    log.Information("Transaction created with ID: {id}", response.Id);
+
+                    // Update local state only after the external call succeeded
+                    invoice.KfsTrackingNumber = transaction.KfsTrackingNumber;
+                    invoice.Status = Invoice.StatusCodes.Processing;
+
+                    // send notifications
+                    try
+                    {
+                        var notification = new ReconcileNotification()
+                        {
+                            InvoiceId = invoice.Id,
+                        };
+                        await _notificationService.SendReconcileNotification(notification);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(ex, "Error while sending notification");
+                    }
+
+                    // Short-lived transaction: commit only this invoice's local DB updates
+                    using (var ts = _dbContext.Database.BeginTransaction())
+                    {
+                        try
+                        {
+                            await _dbContext.SaveChangesAsync();
+                            ts.Commit();
+                        }
+                        catch (Exception dbEx)
+                        {
+                            log.Error(dbEx, "Error saving invoice {id} after reconciliation", invoice.Id);
+                            ts.Rollback();
+                            throw;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex, ex.Message);
-                    ts.Rollback();
-                    throw;
+                    log.Error(ex, "Error processing invoice {id}", invoice.Id);
                 }
             }
+
+            log.Information("Finishing Job");
         }
 
         public async Task FindIncomeTransactions(ILogger log)
@@ -226,67 +228,77 @@ namespace Payments.Core.Jobs
                 return;
             }
 
-            using (var ts = _dbContext.Database.BeginTransaction())
+            // get all invoices are in processing
+            var invoices = _dbContext.Invoices
+                .Where(i => i.Status == Invoice.StatusCodes.Processing && i.Type != Invoice.InvoiceTypes.Recharge)
+                .Include(i => i.Team)
+                .ToList();
+
+            log.Information("{count} invoices found expecting completion", invoices.Count);
+
+            foreach (var invoice in invoices)
             {
                 try
                 {
-                    // get all invoices are in processing
-                    var invoices = _dbContext.Invoices
-                        .Where(i => i.Status == Invoice.StatusCodes.Processing && i.Type != Invoice.InvoiceTypes.Recharge)
-                        .Include(i => i.Team)
-                        .ToList();
-
-                    log.Information("{count} invoices found expecting completion", invoices.Count);
-
-                    foreach (var invoice in invoices)
+                    if (string.IsNullOrWhiteSpace(invoice.KfsTrackingNumber))
                     {
-                        if (string.IsNullOrWhiteSpace(invoice.KfsTrackingNumber))
-                        {
-                            log.Warning("Invoice {id} has no kfs tracking number.", invoice.Id);
-                            continue;
-                        }
-
-                        var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber);
-
-                        // look for transfers into the fees account that have completed
-                        // TODO: Use the sloth transaction.Description to identify these? It depends on what we write there
-                        var distribution = transactions?.FirstOrDefault(t =>
-                            string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
-                            && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount) || string.Equals(r.FinancialSegmentString, _financeSettings.FeeFinancialSegmentString)));
-
-                        if (distribution == null && invoice.CalculatedTotal <= 0.10m)
-                        {
-                            //Ok, these are a special circumstance. If the invoice is less than 10 cents, we don't expect a fee.
-                            //The ClearingFinancialSegmentString should have a purpose code of 00 where the CyberSource txns should have a value of 45 so they should be different.
-                            distribution = transactions?.FirstOrDefault(t =>
-                              string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
-                              && t.Transfers.Any(r => string.Equals(r.FinancialSegmentString, _financeSettings.ClearingFinancialSegmentString)));
-                        }
-
-                        if (distribution == null)
-                        {
-                            log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
-                            continue;
-                        }
-
-                        log.Information("Invoice {id} distribution found with transaction: {transactionId}",
-                            invoice.Id, distribution.Id);
-
-                        // transaction found, bank reconcile was successful
-                        invoice.Status = Invoice.StatusCodes.Completed;
+                        log.Warning("Invoice {id} has no kfs tracking number.", invoice.Id);
+                        continue;
                     }
 
-                    log.Information("Finishing Job");
-                    await _dbContext.SaveChangesAsync();
-                    ts.Commit();
+                    // External call: no DB transaction held during this call
+                    var transactions = await _slothService.GetTransactionsByKfsKey(invoice.KfsTrackingNumber);
+
+                    // look for transfers into the fees account that have completed
+                    // TODO: Use the sloth transaction.Description to identify these? It depends on what we write there
+                    var distribution = transactions?.FirstOrDefault(t =>
+                        string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
+                        && t.Transfers.Any(r => string.Equals(r.Account, _financeSettings.FeeAccount) || string.Equals(r.FinancialSegmentString, _financeSettings.FeeFinancialSegmentString)));
+
+                    if (distribution == null && invoice.CalculatedTotal <= 0.10m)
+                    {
+                        //Ok, these are a special circumstance. If the invoice is less than 10 cents, we don't expect a fee.
+                        //The ClearingFinancialSegmentString should have a purpose code of 00 where the CyberSource txns should have a value of 45 so they should be different.
+                        distribution = transactions?.FirstOrDefault(t =>
+                          string.Equals(t.Status, "Completed", StringComparison.OrdinalIgnoreCase)
+                          && t.Transfers.Any(r => string.Equals(r.FinancialSegmentString, _financeSettings.ClearingFinancialSegmentString)));
+                    }
+
+                    if (distribution == null)
+                    {
+                        log.Warning("No reconciliation found for invoice id: {id} Paid Date: {PaidAt}", invoice.Id, invoice.PaidAt);
+                        continue;
+                    }
+
+                    log.Information("Invoice {id} distribution found with transaction: {transactionId}",
+                        invoice.Id, distribution.Id);
+
+                    // Update local state only after the external call succeeded
+                    invoice.Status = Invoice.StatusCodes.Completed;
+
+                    // Short-lived transaction: commit only this invoice's local DB updates
+                    using (var ts = _dbContext.Database.BeginTransaction())
+                    {
+                        try
+                        {
+                            await _dbContext.SaveChangesAsync();
+                            ts.Commit();
+                        }
+                        catch (Exception dbEx)
+                        {
+                            log.Error(dbEx, "Error saving invoice {id} after income reconciliation", invoice.Id);
+                            ts.Rollback();
+                            throw;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex, ex.Message);
-                    ts.Rollback();
-                    throw;
+                    log.Error(ex, "Error processing invoice {id}", invoice.Id);
                 }
             }
+
+            log.Information("Finishing Job");
         }
 
         public async Task ProcessRechargeTransactions(ILogger log)
@@ -313,6 +325,13 @@ namespace Payments.Core.Jobs
                     {
                         try
                         {
+                            var team = invoice.Team;
+                            if (team == null)
+                            {
+                                log.Error("Invoice {id} is missing team data. Skipping recharge transaction creation.", invoice.Id);
+                                continue;
+                            }
+
 
                             var slothChecks = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true);
                             var slothCheck = slothChecks?.Where(a => a.Status != "Cancelled").FirstOrDefault(); //PendingApproval, Scheduled, Processing, Rejected, Completed 
@@ -376,11 +395,11 @@ namespace Payments.Core.Jobs
                             }
 
                             // setup transaction
-                            var merchantUrl = $"{_paymentsApiSettings.BaseUrl}/{invoice.Team.Slug}/invoices/details/{invoice.Id}";
+                            var merchantUrl = $"{_paymentsApiSettings.BaseUrl}/{team.Slug}/invoices/details/{invoice.Id}";
                             var payPageUrl = $"{_paymentsApiSettings.BaseUrl}/recharge/pay/{invoice.LinkId}";
                             var slothTransaction = new CreateTransaction()
                             {
-                                AutoApprove = _financeSettings.RechargeAutoApprove,
+                                AutoApprove = team.SlothAutoApprove,
                                 ValidateFinancialSegmentStrings = _financeSettings.ValidateRechargeFinancialSegmentString,
                                 MerchantTrackingNumber = invoice.Id.ToString(), //use the id here so these get tied together in sloth
                                 MerchantTrackingUrl = merchantUrl,
@@ -392,8 +411,8 @@ namespace Payments.Core.Jobs
                                 Transfers = debitTransfers.Concat(creditTransfers).ToList(),
                                 ProcessorTrackingNumber = invoice.GetFormattedId(),
                             };
-                            slothTransaction.AddMetadata("Team Name", invoice.Team.Name);
-                            slothTransaction.AddMetadata("Team Slug", invoice.Team.Slug);
+                            slothTransaction.AddMetadata("Team Name", team.Name);
+                            slothTransaction.AddMetadata("Team Slug", team.Slug);
                             slothTransaction.AddMetadata("Invoice", invoice.GetFormattedId());
                             slothTransaction.AddMetadata("Payment Link", payPageUrl);
                             foreach (var recharge in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
@@ -487,17 +506,17 @@ namespace Payments.Core.Jobs
             }
             log.Information("Starting ProcessRechargePendingTransactions Job");
 
-            using (var ts = _dbContext.Database.BeginTransaction())
+            try
             {
-                try
-                {
-                    var invoices = _dbContext.Invoices
-                        .Where(i => i.Status == Invoice.StatusCodes.Processing && i.Type == Invoice.InvoiceTypes.Recharge)
-                        .Include(i => i.Team)
-                        .Include(i => i.RechargeAccounts) //Might want this for notifications
-                        .ToList();
+                var invoices = _dbContext.Invoices
+                    .Where(i => i.Status == Invoice.StatusCodes.Processing && i.Type == Invoice.InvoiceTypes.Recharge)
+                    .Include(i => i.Team)
+                    .Include(i => i.RechargeAccounts) //Might want this for notifications
+                    .ToList();
 
-                    foreach (var invoice in invoices)
+                foreach (var invoice in invoices)
+                {
+                    try
                     {
                         if (string.IsNullOrWhiteSpace(invoice.KfsTrackingNumber))
                         {
@@ -506,6 +525,7 @@ namespace Payments.Core.Jobs
                         }
 
                         //Should only be one, but just in case...
+                        // External call: no DB transaction held during this call
                         var transactions = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true); //This can return multiples because we are re-using the KFS number.
 
                         //var slothTransaction = await _slothService.GetTransactionsByProcessorId(invoice.GetFormattedId(), true); //Could also use this way. They should both be the same info
@@ -525,7 +545,6 @@ namespace Payments.Core.Jobs
                                 ActionDateTime = DateTime.UtcNow,
                             };
                             invoice.History.Add(actionEntry);
-
 
                             //invoice.PaidAt = transaction.TransactionDate; //Going to keep this what it was to show when the user approved it.
                             if (invoice.PaidAt == null)
@@ -547,8 +566,6 @@ namespace Payments.Core.Jobs
                             {
                                 log.Error(ex, "Error while sending notification");
                             }
-                            //await _dbContext.SaveChangesAsync();
-
                         }
                         else
                         {
@@ -566,24 +583,37 @@ namespace Payments.Core.Jobs
                                 };
                                 invoice.History.Add(actionEntry);
                             }
-                            //await _dbContext.SaveChangesAsync();
+                            //The other actionable status could be Rejected, but because that means it could be manually edited in sloth, we don't want to do anything unless it is cancelled.
                         }
-                        //The other actionable status could be Rejected, but because that means it could be manually edited in sloth, we don't want to do anything unless it is cancelled.
 
+                        // Short-lived transaction: commit only this invoice's local DB updates
+                        using (var ts = _dbContext.Database.BeginTransaction())
+                        {
+                            try
+                            {
+                                await _dbContext.SaveChangesAsync();
+                                ts.Commit();
+                            }
+                            catch (Exception dbEx)
+                            {
+                                log.Error(dbEx, "Error saving invoice {id} after recharge pending reconciliation", invoice.Id);
+                                ts.Rollback();
+                                throw;
+                            }
+                        }
                     }
-
-                    await _dbContext.SaveChangesAsync();
-
-                    ts.Commit();
-                    log.Information("Finishing ProcessRechargePendingTransactions Job");
+                    catch (Exception ex)
+                    {
+                        log.Error(ex, "Error processing invoice {id}", invoice.Id);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    //TODO: Review this
-                    log.Error(ex, ex.Message);
-                    ts.Rollback();
-                    throw;
-                }
+
+                log.Information("Finishing ProcessRechargePendingTransactions Job");
+            }
+            catch (Exception ex)
+            {
+                //TODO: Review this
+                log.Error(ex, ex.Message);
             }
         }
     }

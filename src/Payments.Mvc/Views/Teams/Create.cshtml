@@ -72,6 +72,13 @@
                         <span asp-validation-for="AllowedInvoiceType" class="text-danger"></span>
                     </div>
                     <div class="form-group">
+                        <div class="form-check">
+                            <input asp-for="SlothAutoApprove" class="form-check-input" />
+                            <label asp-for="SlothAutoApprove" class="form-check-label"></label>
+                        </div>
+                        <span asp-validation-for="SlothAutoApprove" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
                         <input type="submit" value="Create" class="btn btn-primary" />
                     </div>
                 </form>

@@ -1,6 +1,23 @@
 @using Payments.Mvc.Models.Roles
 @model IEnumerable<Payments.Core.Domain.Team>
 
+@functions {
+    private static (string DisplayText, string BadgeClass) GetAllowedInvoiceTypeBadge(string allowedInvoiceType)
+    {
+        switch (allowedInvoiceType)
+        {
+            case Payments.Core.Domain.Team.AllowedInvoiceTypes.CreditCard:
+                return ("Credit Card Only", "badge bg-primary");
+            case Payments.Core.Domain.Team.AllowedInvoiceTypes.Recharge:
+                return ("Recharge Only", "badge bg-success");
+            case Payments.Core.Domain.Team.AllowedInvoiceTypes.Both:
+                return ("Both Credit Card and Recharge", "badge bg-info");
+            default:
+                return (allowedInvoiceType, "badge bg-secondary");
+        }
+    }
+}
+
 @{
     ViewData["Title"] = "Teams";
     var isAdmin = User.IsInRole(ApplicationRoleCodes.Admin);
@@ -11,61 +28,91 @@
         <h1>@ViewBag.Title</h1>
         @if (isAdmin)
         {
-            <a asp-controller="Teams" asp-action="Create" asp-route-team="" class="btn btn-primary"><i class="far fa-plus-square"></i>Create New Team</a>
-        }
-    </div>
-    <div class="card-body table-responsive">
-        <table id="teamsTable" class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.IsActive)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+            <a asp-controller="Teams" asp-action="Create" asp-route-team="" class="btn btn-primary"><i
+                class="far fa-plus-square"></i>Create New Team</a>
+            }
+        </div>
+        <div class="card-body table-responsive">
+            <table id="teamsTable" class="table">
+                <thead>
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <td class="text-center">
-                            @if (item.IsActive)
-                            {
-                                <i class="far fa-check-square"></i>
-                            }
-                        </td>
-                        <td class="text-center">
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.IsActive)
+                        </th>
+                        <th>
+                            Allowed Invoices
+                        </th>
+                        @if (isAdmin)
+                        {
+                            <th>
+                                Recharge Auto Approve
+                            </th>
+                        }
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var allowedInvoiceTypeBadge = GetAllowedInvoiceTypeBadge(item.AllowedInvoiceType);
+
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td class="text-center">
+                                @if (item.IsActive)
+                                {
+                                    <i class="far fa-check-square"></i>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="@allowedInvoiceTypeBadge.BadgeClass">@allowedInvoiceTypeBadge.DisplayText</span>
+                            </td>
                             @if (isAdmin)
                             {
-                            <span>
-                                <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@item.Slug">Select</a> |
-                                <a asp-controller="Settings" asp-action="Edit" asp-route-team="@item.Slug">Edit</a> |
-                                <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
-                            </span>
+                                <td class="text-center">
+                                    @if (item.SlothAutoApprove)
+                                    {
+                                        <input type="checkbox" class="form-check-input mt-0" checked="checked" disabled="disabled"
+                                               aria-label="Sloth auto approve enabled for @item.Name" />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" class="form-check-input mt-0" disabled="disabled"
+                                               aria-label="Sloth auto approve disabled for @item.Name" />
+                                    }
+                                </td>
                             }
-                            else
-                            {
-                                <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
-                            }
+                            <td class="text-center">
+                                @if (isAdmin)
+                                {
+                                    <span>
+                                        <a asp-controller="Home" asp-action="TeamIndex" asp-route-team="@item.Slug">Select</a> |
+                                        <a asp-controller="Settings" asp-action="Edit" asp-route-team="@item.Slug">Edit</a> |
+                                        <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Settings" asp-action="Index" asp-route-team="@item.Slug">Details</a>
+                                }
 
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-@section scripts {
-    <script type="text/javascript" asp-add-nonce="true">
-        $(function() {
+    @section scripts {
+        <script type="text/javascript" asp-add-nonce="true">
+            $(function () {
             $("#teamsTable").DataTable();
-        });
-    </script>
-}
+            });
+        </script>
+    }

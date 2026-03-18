@@ -1,7 +1,9 @@
 @model Payments.Mvc.Models.TeamViewModels.TeamDetailsModel
+@using Payments.Mvc.Models.Roles
 
 @{
     ViewData["Title"] = "Team Details";
+    bool isAdmin = User.IsInRole(ApplicationRoleCodes.Admin);
 }
 
 <div class="card">
@@ -101,6 +103,22 @@
                     }
                     <span class="@badgeClass">@displayText</span>
                 </dd>
+                @if (isAdmin)
+                {
+                    <dt>
+                        @Html.DisplayNameFor(model => model.SlothAutoApprove)
+                    </dt>
+                    <dd>
+                        @if (Model.SlothAutoApprove)
+                        {
+                            <span class="badge bg-success">Enabled</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Disabled</span>
+                        }
+                    </dd>
+                }
             </dl>
         </div>
     </div>
@@ -142,5 +160,6 @@
 </div>
 
 <div>
-    <a class="btn btn-outline-primary" asp-controller="Teams" asp-action="Index"><i class="fas fa-chevron-left"></i>Back to List of Teams</a>
-</div>
+    <a class="btn btn-outline-primary" asp-controller="Teams" asp-action="Index"><i class="fas fa-chevron-left"></i>Back
+        to List of Teams</a>
+    </div>

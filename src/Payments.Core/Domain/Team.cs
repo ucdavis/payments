@@ -76,6 +76,8 @@ namespace Payments.Core.Domain
         [StringLength(10)]
         public string AllowedInvoiceType { get; set; } = AllowedInvoiceTypes.CreditCard;
 
+        public bool SlothAutoApprove { get; set; } = false;
+
         [NotMapped]
         public FinancialAccount DefaultAccount {
             get {
