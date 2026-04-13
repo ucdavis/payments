@@ -26,6 +26,7 @@ namespace Payments.Core.Domain
         [Key]
         public int Id { get; set; }
 
+        [MaxLength(128)]
         public string LinkId { get; set; }
 
         public int DraftCount { get; set; }
@@ -60,6 +61,7 @@ namespace Payments.Core.Domain
 
         public DateTime? DueDate { get; set; }
 
+        [MaxLength(50)]
         public string Status { get; set; }
 
         public Coupon Coupon { get; set; }
