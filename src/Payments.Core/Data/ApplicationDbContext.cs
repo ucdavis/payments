@@ -59,6 +59,7 @@ namespace Payments.Core.Data
             Invoice.OnModelCreating(builder);
             LogMessage.OnModelCreating(builder);
             MoneyMovementJobRecord.OnModelCreating(builder);
+            PaymentEvent.OnModelCreating(builder);
             TaxReportJobRecord.OnModelCreating(builder);
             Team.OnModelCreating(builder);
             RechargeAccount.OnModelCreating(builder);

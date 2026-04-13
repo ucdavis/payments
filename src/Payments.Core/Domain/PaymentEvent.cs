@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
@@ -86,5 +87,33 @@ namespace Payments.Core.Domain
         public DateTime OccuredAt { get; set; }
 
         public Invoice Invoice { get; set; }
+
+        protected internal static void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<PaymentEvent>()
+                .HasIndex("InvoiceId")
+                .HasDatabaseName("nci_msft_1_PaymentEvents_99E8BA0523EFE2FDCB09326BF709CC4D")
+                .IncludeProperties(
+                    nameof(Amount),
+                    nameof(BillingCity),
+                    nameof(BillingCompany),
+                    nameof(BillingCountry),
+                    nameof(BillingEmail),
+                    nameof(BillingFirstName),
+                    nameof(BillingLastName),
+                    nameof(BillingPhone),
+                    nameof(BillingPostalCode),
+                    nameof(BillingState),
+                    nameof(BillingStreet1),
+                    nameof(BillingStreet2),
+                    nameof(CardExpiry),
+                    nameof(CardNumber),
+                    nameof(CardType),
+                    nameof(Decision),
+                    nameof(OccuredAt),
+                    nameof(Processor),
+                    nameof(ProcessorId),
+                    nameof(ReturnedResults));
+        }
     }
 }
