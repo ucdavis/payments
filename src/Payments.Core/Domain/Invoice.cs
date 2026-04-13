@@ -250,6 +250,7 @@ namespace Payments.Core.Domain
                 .HasDefaultValue(InvoiceTypes.CreditCard);
 
             builder.Entity<Invoice>().HasIndex(a => a.Type);
+            builder.Entity<Invoice>().HasIndex(a => a.LinkId);
 
         }
 

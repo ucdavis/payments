@@ -1,8 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
 
 namespace Payments.Core.Domain
 {
@@ -85,6 +86,19 @@ namespace Payments.Core.Domain
 
         public DateTime OccuredAt { get; set; }
 
+        public int? InvoiceId { get; set; }
+
         public Invoice Invoice { get; set; }
+
+        protected internal static void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<PaymentEvent>()
+                .HasOne(p => p.Invoice)
+                .WithMany(i => i.PaymentEvents)
+                .HasForeignKey(p => p.InvoiceId);
+
+            builder.Entity<PaymentEvent>().HasIndex(a => a.InvoiceId);
+        }
     }
+
 }

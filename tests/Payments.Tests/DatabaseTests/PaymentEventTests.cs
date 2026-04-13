@@ -73,6 +73,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.KeyAttribute()]",
             }));
             expectedFields.Add(new NameAndType("Invoice", "Payments.Core.Domain.Invoice", new List<string>()));
+            expectedFields.Add(new NameAndType("InvoiceId", "System.Nullable`1[System.Int32]", new List<string>()));
             expectedFields.Add(new NameAndType("OccuredAt", "System.DateTime", new List<string>()));
             expectedFields.Add(new NameAndType("Processor", "System.String", new List<string>()));
             expectedFields.Add(new NameAndType("ProcessorId", "System.String", new List<string>()));
