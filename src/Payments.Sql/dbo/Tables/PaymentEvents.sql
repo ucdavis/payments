@@ -26,4 +26,9 @@ CREATE TABLE [dbo].[PaymentEvents] (
 );
 
 
+GO
+CREATE NONCLUSTERED INDEX [IX_PaymentEvents_InvoiceId]
+    ON [dbo].[PaymentEvents]([InvoiceId] ASC);
+
+
 

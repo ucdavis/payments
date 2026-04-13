@@ -62,6 +62,7 @@ namespace Payments.Core.Data
             TaxReportJobRecord.OnModelCreating(builder);
             Team.OnModelCreating(builder);
             RechargeAccount.OnModelCreating(builder);
+            PaymentEvent.OnModelCreating(builder);
         }
     }
 }

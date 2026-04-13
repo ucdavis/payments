@@ -90,7 +90,10 @@ namespace Payments.Tests.DatabaseTests
             }));
             expectedFields.Add(new NameAndType("Items", "System.Collections.Generic.IList`1[Payments.Core.Domain.LineItem]", new List<string>()));
             expectedFields.Add(new NameAndType("KfsTrackingNumber", "System.String", new List<string>()));
-            expectedFields.Add(new NameAndType("LinkId", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("LinkId", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)128)]",
+            }));
             expectedFields.Add(new NameAndType("ManualDiscount", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:C}\")]",
@@ -117,7 +120,10 @@ namespace Payments.Tests.DatabaseTests
             expectedFields.Add(new NameAndType("SentAt", "System.Nullable`1[System.DateTime]", new List<string>{
                 "[System.ComponentModel.DisplayNameAttribute(\"Sent At\")]",
             }));
-            expectedFields.Add(new NameAndType("Status", "System.String", new List<string>()));
+            expectedFields.Add(new NameAndType("Status", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)50)]",
+            }));
             expectedFields.Add(new NameAndType("TaxPercent", "System.Decimal", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.DisplayFormatAttribute(DataFormatString = \"{0:P}\")]",
