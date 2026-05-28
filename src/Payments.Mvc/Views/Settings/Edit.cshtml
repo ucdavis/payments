@@ -118,7 +118,7 @@
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />
 
-        <script>
+        <script asp-add-nonce="true">
                 $(function () {
                     var dirtySlug = false;
                     $('#Name').keyup(function () {
