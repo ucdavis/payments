@@ -513,6 +513,7 @@ namespace Payments.Mvc.Controllers
             }
 
             //We are approving here.
+            var additionalEmails = string.Join(";", User.Claims.Where(c => c.Type == "ucd_additional_emails").Select(c => c.Value).ToList());
 
             //Make sure no new recharge accounts were added or deleted form the list of actionable ones.
             if (model.Any(a => a.Id == 0))
@@ -533,7 +534,7 @@ namespace Payments.Mvc.Controllers
                 {
                     return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
                 }
-                if (!validationResult.Approvers.Any(a => a.Email == user.Email))
+                if (!IsUserAnApprover(validationResult.Approvers, user, additionalEmails))
                 {
                     return BadRequest($"You are not an approver for the chart string {item.FinancialSegmentString}.");
                 }
