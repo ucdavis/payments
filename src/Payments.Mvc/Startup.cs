@@ -152,7 +152,7 @@ namespace Payments.Mvc
                 Configuration.GetValue<string>("JsReport:ServiceUrl"),
                 Configuration.GetValue<string>("JsReport:Username"),
                 Configuration.GetValue<string>("JsReport:Password")));
-
+           
             // add swagger
             services.AddSwaggerGen(c =>
             {
@@ -163,8 +163,8 @@ namespace Payments.Mvc
                     Description = "Accept and process credit card payments for CA&ES",
                     Contact = new OpenApiContact()
                     {
-                        Name = "CAES Application Requests",
-                        Email = "apprequests@caes.ucdavis.edu"
+                        Name = "CAES Help Requests",
+                        Url = new Uri("https://caeshelp.ucdavis.edu/?appname=Payments")
                     },
                     License = new OpenApiLicense()
                     {
