@@ -42,6 +42,7 @@ namespace Payments.Mvc.Controllers
             var invoice = await _dbContext.Invoices
                 .Include(i => i.Attachments)
                 .Include(i => i.Items)
+                .Include(i => i.RechargeAccounts)
                 .FirstOrDefaultAsync(i => i.Id == id && i.Team.Id == team.Id);
 
             if (invoice == null)
