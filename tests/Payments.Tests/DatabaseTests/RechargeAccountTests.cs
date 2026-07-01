@@ -28,6 +28,10 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)128)]",
             }));
             expectedFields.Add(new NameAndType("Direction", "Payments.Core.Domain.RechargeAccount+CreditDebit", new List<string>()));
+            expectedFields.Add(new NameAndType("DirectionType", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute()]",
+            }));
             expectedFields.Add(new NameAndType("EnteredByKerb", "System.String", new List<string>
             {
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)20)]",
@@ -62,6 +66,19 @@ namespace Payments.Tests.DatabaseTests
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(RechargeAccount));
 
+        }
+
+        [Theory]
+        [InlineData(RechargeAccount.CreditDebit.Credit, "Credit")]
+        [InlineData(RechargeAccount.CreditDebit.Debit, "Debit")]
+        public void DirectionTypeReturnsDirectionName(RechargeAccount.CreditDebit direction, string expected)
+        {
+            var rechargeAccount = new RechargeAccount
+            {
+                Direction = direction
+            };
+
+            Assert.Equal(expected, rechargeAccount.DirectionType);
         }
     }
 }
