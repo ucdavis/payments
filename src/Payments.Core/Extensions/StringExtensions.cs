@@ -49,6 +49,11 @@ namespace Payments.Core.Extensions
             
         }
 
+        /// <summary>
+        /// Splits a full name into first and last name parts using only spaces as delimiters.
+        /// For one-word names, the word is treated as the last name; for names with more than two words, the final word is the last name and the rest is the first name.
+        /// Null input returns null parts, and empty or space-only input returns empty parts.
+        /// </summary>
         public static (string FirstName, string LastName) ParseFirstAndLastName(this string value)
         {
             if (value == null)
