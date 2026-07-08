@@ -306,7 +306,7 @@ namespace Payments.Tests.DatabaseTests
 
             // Assert		
             result.ShouldBeOfType<Dictionary<string, string>>();
-            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
+            result.Count.ShouldBe(15 + (2 * invoice.Items.Count));
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
@@ -317,7 +317,8 @@ namespace Payments.Tests.DatabaseTests
             result["unsigned_field_names"].ShouldBe("");
             result["locale"].ShouldBe("en");
             result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
-            result["bill_to_forename"].ShouldBe(invoice.CustomerName);
+            result["bill_to_forename"].ShouldBe(string.Empty);
+            result["bill_to_surname"].ShouldBe(invoice.CustomerName);
             result["bill_to_address_country"].ShouldBe("US");
             result["bill_to_address_state"].ShouldBe("CA");
             result["line_item_count"].ShouldBe(value.ToString());
@@ -349,7 +350,7 @@ namespace Payments.Tests.DatabaseTests
 
             // Assert		
             result.ShouldBeOfType<Dictionary<string, string>>();
-            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
+            result.Count.ShouldBe(15 + (2 * invoice.Items.Count));
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
@@ -360,7 +361,8 @@ namespace Payments.Tests.DatabaseTests
             result["unsigned_field_names"].ShouldBe("");
             result["locale"].ShouldBe("en");
             result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
-            result["bill_to_forename"].ShouldBe(invoice.CustomerName);
+            result["bill_to_forename"].ShouldBe(string.Empty);
+            result["bill_to_surname"].ShouldBe(invoice.CustomerName);
             result["bill_to_address_country"].ShouldBe("US");
             result["bill_to_address_state"].ShouldBe("CA");
             result["line_item_count"].ShouldBe(value.ToString());
@@ -395,7 +397,7 @@ namespace Payments.Tests.DatabaseTests
 
             // Assert		
             result.ShouldBeOfType<Dictionary<string, string>>();
-            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
+            result.Count.ShouldBe(15 + (2 * invoice.Items.Count));
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
@@ -406,7 +408,8 @@ namespace Payments.Tests.DatabaseTests
             result["unsigned_field_names"].ShouldBe("");
             result["locale"].ShouldBe("en");
             result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
-            result["bill_to_forename"].ShouldBe(invoice.CustomerName);
+            result["bill_to_forename"].ShouldBe(string.Empty);
+            result["bill_to_surname"].ShouldBe(invoice.CustomerName);
             result["bill_to_address_country"].ShouldBe("US");
             result["bill_to_address_state"].ShouldBe("CA");
             result["line_item_count"].ShouldBe("1");
@@ -429,27 +432,28 @@ namespace Payments.Tests.DatabaseTests
         }
 
         [Theory]
-        [InlineData("123456789 123456789 123456789 123456789 123456789 123456789X", "123456789 123456789 123456789 123456789 123456789 123456789X")]
-        [InlineData("123456789 123456789 123456789 123456789 123456789 123456789X1", "123456789 123456789 123456789 123456789 123456789 123456789X")]
-        [InlineData("123", "123")]
-        [InlineData("", "")]
-        [InlineData(" ", " ")]
-        [InlineData(null, null)]
-        public void TestCyberSourceTruncationOfDictionaryFieldCustomerName(string value, string expectedValue)
+        [InlineData("Jane Doe", "Jane", "Doe")]
+        [InlineData("Jane", "", "Jane")]
+        [InlineData("Mary Ann Smith", "Mary Ann", "Smith")]
+        [InlineData("Mary  Ann  Smith", "Mary Ann", "Smith")]
+        [InlineData("Mary\tSmith", "", "Mary\tSmith")]
+        [InlineData("", "", "")]
+        [InlineData(" ", "", "")]
+        [InlineData(null, null, null)]
+        public void TestCyberSourceParsesCustomerNameIntoDictionaryFields(string value, string expectedFirstName, string expectedLastName)
         {
             // Arrange
             var invoice = CreateValidEntities.Invoice(1, 1);
             invoice.CustomerName = value;
             invoice.UpdateCalculatedValues();
             invoice.CustomerEmail.ShouldNotBeNull();
-            
 
             // Act
             var result = invoice.GetPaymentDictionary();
 
             // Assert		
             result.ShouldBeOfType<Dictionary<string, string>>();
-            result.Count.ShouldBe(14 + (2 * invoice.Items.Count));
+            result.Count.ShouldBe(15 + (2 * invoice.Items.Count));
 
             result["transaction_type"].ShouldBe("sale");
             result["reference_number"].ShouldBe(invoice.Id.ToString());
@@ -460,18 +464,11 @@ namespace Payments.Tests.DatabaseTests
             result["unsigned_field_names"].ShouldBe("");
             result["locale"].ShouldBe("en");
             result["bill_to_email"].ShouldBe(invoice.CustomerEmail);
+            result["bill_to_forename"].ShouldBe(expectedFirstName);
+            result["bill_to_surname"].ShouldBe(expectedLastName);
             result["bill_to_address_country"].ShouldBe("US");
             result["bill_to_address_state"].ShouldBe("CA");
             result["line_item_count"].ShouldBe("1");
-            if (expectedValue == null)
-            {
-                result["bill_to_forename"].ShouldBeNull();
-            }
-            else
-            {
-                result["bill_to_forename"].Length.ShouldBeLessThanOrEqualTo(60);
-                result["bill_to_forename"].ShouldBe(expectedValue);
-            }
 
             for (int i = 0; i < 1; i++)
             {
@@ -479,6 +476,25 @@ namespace Payments.Tests.DatabaseTests
                 //result[$"item_{i}_quantity"].ShouldBe(invoice.Items[i].Quantity.ToString()); //This is gone
                 result[$"item_{i}_unit_price"].ShouldBe((invoice.Items[i].Amount * invoice.Items[i].Quantity).ToString("F2"));
             }
+        }
+
+        [Theory]
+        [InlineData("123456789012345678901234567890123456789012345678901234567890X", "123456789012345678901234567890123456789012345678901234567890")]
+        public void TestCyberSourceTruncationOfDictionaryFieldCustomerLastName(string value, string expectedValue)
+        {
+            // Arrange
+            var invoice = CreateValidEntities.Invoice(1, 1);
+            invoice.CustomerName = value;
+            invoice.UpdateCalculatedValues();
+            invoice.CustomerEmail.ShouldNotBeNull();
+
+            // Act
+            var result = invoice.GetPaymentDictionary();
+
+            // Assert		
+            result["bill_to_forename"].ShouldBe(string.Empty);
+            result["bill_to_surname"].Length.ShouldBeLessThanOrEqualTo(60);
+            result["bill_to_surname"].ShouldBe(expectedValue);
         }
 
         [Fact]

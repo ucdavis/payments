@@ -46,8 +46,34 @@ namespace Payments.Core.Extensions
             {
                 return value;
             }
-
             
+        }
+
+        public static (string FirstName, string LastName) ParseFirstAndLastName(this string value)
+        {
+            if (value == null)
+            {
+                return (null, null);
+            }
+
+            if (value == string.Empty)
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            var names = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            if (names.Length == 0)
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            if (names.Length == 1)
+            {
+                return (string.Empty, names[0]);
+            }
+
+            return (string.Join(" ", names, 0, names.Length - 1), names[names.Length - 1]);
         }
     }
 }

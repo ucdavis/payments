@@ -256,6 +256,8 @@ namespace Payments.Core.Domain
 
         public Dictionary<string, string> GetPaymentDictionary()
         {
+            var billingName = CustomerName.ParseFirstAndLastName();
+
             var dictionary = new Dictionary<string, string>
             {
                 {"transaction_type"       , "sale"},
@@ -267,7 +269,8 @@ namespace Payments.Core.Domain
                 {"unsigned_field_names"   , string.Empty},
                 {"locale"                 , "en"},
                 {"bill_to_email"          , CustomerEmail},
-                {"bill_to_forename"       , CustomerName.SafeTruncate(60)},
+                {"bill_to_forename"       , billingName.FirstName.SafeTruncate(60)},
+                {"bill_to_surname"        , billingName.LastName.SafeTruncate(60)},
                 {"bill_to_company_name"   , CustomerCompany.SafeRegexRemove().SafeTruncate(40)},
                 {"bill_to_address_country", "US"},
                 {"bill_to_address_state"  , "CA"}
