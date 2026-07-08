@@ -52,18 +52,19 @@ namespace Payments.Mvc.Swagger
                 operation.Parameters = new List<OpenApiParameter>();
             }
 
-            operation.Parameters.Add(new OpenApiParameter
-            {
-                Name = "X-Auth-Token", //ApiKeyMiddleware.HeaderKey,
-                In = ParameterLocation.Header,
-                Description = "access token",
-                Required = true,
-                Schema = new OpenApiSchema
-                {
-                    Type = "string",
-                    Default = new OpenApiString("ApiKey"),
-                }
-            });
+            //Having this parameter causes confusion in swagger UI as the main authorization must be used
+            //operation.Parameters.Add(new OpenApiParameter
+            //{
+            //    Name = "X-Auth-Token", //ApiKeyMiddleware.HeaderKey,
+            //    In = ParameterLocation.Header,
+            //    Description = "access token",
+            //    Required = true,
+            //    Schema = new OpenApiSchema
+            //    {
+            //        Type = "string",
+            //        Default = new OpenApiString("ApiKey"),
+            //    }
+            //});
         }
     }
 }

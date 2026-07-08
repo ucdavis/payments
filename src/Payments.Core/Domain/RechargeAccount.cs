@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Payments.Core.Domain
 {
@@ -17,6 +18,9 @@ namespace Payments.Core.Domain
         public Invoice Invoice { get; set; }
 
         public CreditDebit Direction { get; set; } = CreditDebit.Credit;
+
+        [NotMapped]
+        public string DirectionType => Direction.ToString();
 
         [Required]
         [StringLength(128)]
