@@ -211,7 +211,7 @@ export default class EditInvoiceContainer extends React.Component<
             </div>
           )}
           {type !== 'Recharge' &&
-            (team.canEditCreditCardRechargeAccount ||
+            (team.canEditAccountOverride ||
               this.getCreditCardRechargeAccount()) && (
               <CreditCardAccountOverrideControl
                 ref={r => {
@@ -219,7 +219,7 @@ export default class EditInvoiceContainer extends React.Component<
                 }}
                 rechargeAccount={this.getCreditCardRechargeAccount()}
                 invoiceTotal={invoiceTotal}
-                canEdit={team.canEditCreditCardRechargeAccount}
+                canEdit={team.canEditAccountOverride}
                 onChange={this.updateCreditCardRechargeAccount}
               />
             )}

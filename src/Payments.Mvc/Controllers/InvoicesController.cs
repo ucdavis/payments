@@ -152,7 +152,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType, CanEditCreditCardRechargeAccount = await CanEditCreditCardRechargeAccount(team) };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType, CanEditAccountOverride = await CanEditAccountOverride(team) };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -282,7 +282,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType, CanEditCreditCardRechargeAccount = await CanEditCreditCardRechargeAccount(team) };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType, CanEditAccountOverride = await CanEditAccountOverride(team) };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -466,7 +466,7 @@ namespace Payments.Mvc.Controllers
             else
             {
                 var existingCreditAccount = invoice.RechargeAccounts?.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
-                if (!await CanEditCreditCardRechargeAccount(invoice.Team))
+                if (!await CanEditAccountOverride(invoice.Team))
                 {
                     model.RechargeAccounts = new List<RechargeAccount>();
 
@@ -1017,7 +1017,7 @@ namespace Payments.Mvc.Controllers
             rechargeAccount.EnteredByKerb = user.CampusKerberos;
             rechargeAccount.EnteredByName = $"{user.Name} ({user.Email})";
         }
-        private async Task<bool> CanEditCreditCardRechargeAccount(Team team)
+        private async Task<bool> CanEditAccountOverride(Team team)
         {
             var user = await _userManager.GetUserAsync(User);
             return User.IsInRole(ApplicationRoleCodes.Admin)

@@ -207,7 +207,7 @@ export default class CreateInvoiceContainer extends React.Component<
               />
             </div>
           )}
-          {invoiceType !== 'Recharge' && team.canEditCreditCardRechargeAccount && (
+          {invoiceType !== 'Recharge' && team.canEditAccountOverride && (
             <CreditCardAccountOverrideControl
               ref={r => {
                 this._creditCardAccountOverrideRef = r;
