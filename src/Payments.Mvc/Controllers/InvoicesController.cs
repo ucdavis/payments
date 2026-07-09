@@ -152,7 +152,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType, CanEditCreditCardRechargeAccount = await CanEditCreditCardRechargeAccount(team) };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -282,7 +282,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType, CanEditCreditCardRechargeAccount = await CanEditCreditCardRechargeAccount(team) };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -982,6 +982,14 @@ namespace Payments.Mvc.Controllers
             return RedirectToAction("Index", "Invoices");
         }
 
+        private async Task<bool> CanEditCreditCardRechargeAccount(Team team)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return User.IsInRole(ApplicationRoleCodes.Admin)
+                   || user?.TeamPermissions.Any(a => a.TeamId == team.Id &&
+                                                      (a.Role.Name == TeamRole.Codes.Admin ||
+                                                       a.Role.Name == TeamRole.Codes.FinanceOfficer)) == true;
+        }
         private InvoiceFilterViewModel GetInvoiceFilter()
         {
             var filter = HttpContext.Session.GetObjectFromJson<InvoiceFilterViewModel>("InvoiceFilter");
