@@ -658,7 +658,7 @@ namespace Payments.Mvc.Services
 
         }
 
-        public async Task<Invoice> CopyInvoice(Invoice invoiceToCopy, Team team, User user)
+        public async Task<Invoice> CopyInvoice(Invoice invoiceToCopy, Team team, User user, bool canEditCreditCardChartStrings)
         {            
             //This assumes the team or other validation has happened
             var invoice = new Invoice()
@@ -729,11 +729,39 @@ namespace Payments.Mvc.Services
                 };
                 invoice.Items.Add(newItem);
             }
+            if(invoiceToCopy.Type == Invoice.InvoiceTypes.CreditCard && invoiceToCopy.RechargeAccounts != null)
+            {
+                //I only want the first or null
+                var accountOverride = invoiceToCopy.RechargeAccounts.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+                invoiceToCopy.RechargeAccounts = new List<RechargeAccount>();
+                if (accountOverride != null)
+                {
+                    invoiceToCopy.RechargeAccounts.Add(accountOverride);
+                }
+                else
+                {
+                    invoiceToCopy.RechargeAccounts = null;
+                }
+            }
+
             //Recharge accounts
-            if(invoiceToCopy.RechargeAccounts != null)
+            if (invoiceToCopy.RechargeAccounts != null)
             {
                 foreach(var ra in invoiceToCopy.RechargeAccounts)
                 {
+                    var isCreditCardAccountOverride = invoiceToCopy.Type == Invoice.InvoiceTypes.CreditCard &&
+                                                      ra.Direction == RechargeAccount.CreditDebit.Credit;
+                    if (isCreditCardAccountOverride && !canEditCreditCardChartStrings)
+                    {
+                        AddAccountOverrideHistory(
+                            invoice,
+                            user.Name,
+                            AccountOverrideChangedHistoryActionType.ChangeActions.NotCopiedDueToPermissions,
+                            ra.FinancialSegmentString,
+                            null);
+                        continue;
+                    }
+
                     var newRa = new RechargeAccount()
                     {
                         Direction = ra.Direction,
@@ -748,6 +776,16 @@ namespace Payments.Mvc.Services
                     };                    
 
                     invoice.RechargeAccounts.Add(newRa);
+
+                    if (isCreditCardAccountOverride)
+                    {
+                        AddAccountOverrideHistory(
+                            invoice,
+                            user.Name,
+                            AccountOverrideChangedHistoryActionType.ChangeActions.Added,
+                            null,
+                            newRa.FinancialSegmentString);
+                    }
                 }
             }
             //Possibly attachments, but probably more pain then it's worth to copy those.
@@ -763,11 +801,11 @@ namespace Payments.Mvc.Services
 
     public interface IInvoiceService
     {
-        Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team, string actor = "System");
+        Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team, string actor = "API");
 
-        Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model, string actor = "System");
+        Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model, string actor = "API");
 
-        Task<Invoice> CopyInvoice(Invoice invoice, Team team, User user);
+        Task<Invoice> CopyInvoice(Invoice invoice, Team team, User user, bool canEditCreditCardChartStrings);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
 

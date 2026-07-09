@@ -24,6 +24,7 @@ namespace Payments.Core.Models.History
                 ChangeActions.Added => "Income account override was added.",
                 ChangeActions.Removed => "Income account override was removed.",
                 ChangeActions.Changed => "Income account override was changed.",
+                ChangeActions.NotCopiedDueToPermissions => "Income account override was not copied because the user does not have permission.",
                 _ => "Income account override was updated."
             };
         }
@@ -72,6 +73,7 @@ namespace Payments.Core.Models.History
             public const string Added = "Added";
             public const string Removed = "Removed";
             public const string Changed = "Changed";
+            public const string NotCopiedDueToPermissions = "NotCopiedDueToPermissions";
         }
 
         public class DataType

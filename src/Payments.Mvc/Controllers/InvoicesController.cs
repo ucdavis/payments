@@ -220,7 +220,8 @@ namespace Payments.Mvc.Controllers
             }
 
 
-            var copiedInvoice = await _invoiceService.CopyInvoice(invoice, team, user);
+            var canEditCreditCardChartStrings = await CanEditAccountOverride(team);
+            var copiedInvoice = await _invoiceService.CopyInvoice(invoice, team, user, canEditCreditCardChartStrings);
 
             var historyAction = new History()
             {
