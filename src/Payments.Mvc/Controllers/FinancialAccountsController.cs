@@ -591,5 +591,14 @@ namespace Payments.Mvc.Controllers
 
             return result;
         }
+
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
+        [HttpGet("api/financial-accounts/validate")]
+        public async Task<IActionResult> ValidateFinancialSegmentString(string chartString)
+        {
+            var result = await _aggieEnterpriseService.IsAccountValid(chartString);
+
+            return new JsonResult(result);
+        }
     }
 }

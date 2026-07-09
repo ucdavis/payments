@@ -368,6 +368,11 @@ namespace Payments.Mvc.Controllers
                 {
                     ModelState.AddModelError("Type", "This team is not allowed to create credit card invoices.");
                 }
+
+                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                {
+                    SetEnteredBy(rechargeAcct, user);
+                }
             }
             if(model.Type == Invoice.InvoiceTypes.Recharge)
             {
@@ -377,8 +382,7 @@ namespace Payments.Mvc.Controllers
                 }
                 foreach(var rechargeAcct in model.RechargeAccounts)
                 {
-                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
-                    rechargeAcct.EnteredByName = $"{user.Name} ({user.Email})"; 
+                    SetEnteredBy(rechargeAcct, user);
                 }
             }
 
@@ -455,10 +459,24 @@ namespace Payments.Mvc.Controllers
             if(invoice.Type == Invoice.InvoiceTypes.Recharge)
             {
                 foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id == 0))
-                {                    
-                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
-                    rechargeAcct.EnteredByName = $"{user.Name} ({user.Email})";            
+                {
+                    SetEnteredBy(rechargeAcct, user);
                 }
+            }
+            else
+            {
+                var existingCreditAccount = invoice.RechargeAccounts?.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
+                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                {
+                    var isNewOrChanged = rechargeAcct.Id == 0
+                                         || existingCreditAccount == null
+                                         || !string.Equals(existingCreditAccount.FinancialSegmentString, rechargeAcct.FinancialSegmentString, StringComparison.OrdinalIgnoreCase);
+
+                    if(isNewOrChanged || string.IsNullOrWhiteSpace(rechargeAcct.EnteredByKerb))
+                    {
+                        SetEnteredBy(rechargeAcct, user);
+                    }
+                }                
             }
 
             // validate model
@@ -982,6 +1000,11 @@ namespace Payments.Mvc.Controllers
             return RedirectToAction("Index", "Invoices");
         }
 
+        private static void SetEnteredBy(RechargeAccount rechargeAccount, User user)
+        {
+            rechargeAccount.EnteredByKerb = user.CampusKerberos;
+            rechargeAccount.EnteredByName = $"{user.Name} ({user.Email})";
+        }
         private async Task<bool> CanEditCreditCardRechargeAccount(Team team)
         {
             var user = await _userManager.GetUserAsync(User);

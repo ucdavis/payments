@@ -177,13 +177,13 @@ namespace Payments.Mvc.Services
                 {
                     //Dynamic Chart String Support
                     //If more than one account is passed, we throw an exception.
-                    var AccountOverride = model.RechargeAccounts?.SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
+                    var AccountOverride = model.RechargeAccounts?.SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
                     if (AccountOverride != null)
                     {
-                        var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(AccountOverride.FinancialSegmentString, AccountOverride.Direction);
+                        var validationModel = await _aggieEnterpriseService.IsAccountValid(AccountOverride.FinancialSegmentString);
                         if (!validationModel.IsValid)
                         {
-                            throw new ArgumentException($"Recharge account '{AccountOverride.FinancialSegmentString}' is not valid");
+                            throw new ArgumentException($"Account override '{AccountOverride.FinancialSegmentString}' is not valid");
                         }
                         // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
                         if (validationModel.ChartString != AccountOverride.FinancialSegmentString)

@@ -194,9 +194,9 @@ export default class CreditCardRechargeAccountControl extends React.Component<
 
     try {
       const response = await fetch(
-        `/api/recharge/validate?chartString=${encodeURIComponent(
+        `/api/financial-accounts/validate?chartString=${encodeURIComponent(
           chartString
-        )}&direction=0`,
+        )}`,
         {
           method: 'GET',
           headers: {
@@ -253,6 +253,8 @@ export default class CreditCardRechargeAccountControl extends React.Component<
       financialSegmentString: trimmed,
       amount: this.props.invoiceTotal,
       percentage: 100,
+      enteredByKerb: this.props.rechargeAccount?.enteredByKerb,
+      enteredByName: this.props.rechargeAccount?.enteredByName,
       notes: this.props.rechargeAccount?.notes || ''
     };
   };
