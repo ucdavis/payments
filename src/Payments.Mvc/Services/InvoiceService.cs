@@ -34,6 +34,11 @@ namespace Payments.Mvc.Services
             var account = await _dbContext.FinancialAccounts
                 .FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.Id == model.AccountId);
 
+            if(account == null && model.UseDefaultAccount)
+            {
+                account = await _dbContext.FinancialAccounts.FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.IsDefault && a.IsActive);
+            }
+
             if (account == null && model.Type != Invoice.InvoiceTypes.Recharge)
             {
                 throw new ArgumentException("Account Id not found for this team.", nameof(model.AccountId));

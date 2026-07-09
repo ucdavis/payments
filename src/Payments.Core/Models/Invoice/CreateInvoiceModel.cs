@@ -10,6 +10,8 @@ namespace Payments.Core.Models.Invoice
     {
         public int AccountId { get; set; }
 
+        public bool UseDefaultAccount { get; set; } = false;
+
         /// <summary>
         /// One or many customers to assign an invoice to. Multiple customers will create multiple invoices
         /// </summary>
@@ -54,7 +56,7 @@ namespace Payments.Core.Models.Invoice
         /// </summary>
         [Required]
         [ValidInvoiceType]
-        public string Type { get; set; } //New invoice type
+        public string Type { get; set; } = "CC";
 
         /// <summary>
         /// Optional due date for invoice

@@ -159,6 +159,11 @@ namespace Payments.Mvc.Controllers
         {
             var team = await GetAuthorizedTeam();
 
+            if (string.IsNullOrWhiteSpace(model.Type))
+            {
+                model.Type = Invoice.InvoiceTypes.CreditCard;
+            }
+
             if (model.Type == Invoice.InvoiceTypes.CreditCard)
             {
                 if (team.AllowedInvoiceType == Team.AllowedInvoiceTypes.Recharge)
