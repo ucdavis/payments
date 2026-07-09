@@ -173,6 +173,36 @@ namespace Payments.Mvc.Services
                         throw new ArgumentException("Total of debit recharge accounts must equal invoice total when supplied.", nameof(model.RechargeAccounts));
                     }
                 }
+                else
+                {
+                    //Dynamic Chart String Support
+                    //If more than one account is passed, we throw an exception.
+                    var AccountOverride = model.RechargeAccounts?.SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
+                    if (AccountOverride != null)
+                    {
+                        var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(AccountOverride.FinancialSegmentString, AccountOverride.Direction);
+                        if (!validationModel.IsValid)
+                        {
+                            throw new ArgumentException($"Recharge account '{AccountOverride.FinancialSegmentString}' is not valid");
+                        }
+                        // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
+                        if (validationModel.ChartString != AccountOverride.FinancialSegmentString)
+                        {
+                            AccountOverride.FinancialSegmentString = validationModel.ChartString;
+                            //log it?
+                        }
+                        invoice.RechargeAccounts.Add(new RechargeAccount()
+                        {
+                            Direction = AccountOverride.Direction,
+                            FinancialSegmentString = AccountOverride.FinancialSegmentString,
+                            Amount = invoice.CalculatedTotal,
+                            Percentage = 100.0m,
+                            EnteredByKerb = AccountOverride.EnteredByKerb,
+                            EnteredByName = AccountOverride.EnteredByName,
+                            Notes = AccountOverride.Notes,
+                        });
+                    }
+                }
 
 
 
