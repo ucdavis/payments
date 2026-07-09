@@ -466,17 +466,29 @@ namespace Payments.Mvc.Controllers
             else
             {
                 var existingCreditAccount = invoice.RechargeAccounts?.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
-                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                if (!await CanEditCreditCardRechargeAccount(invoice.Team))
                 {
-                    var isNewOrChanged = rechargeAcct.Id == 0
-                                         || existingCreditAccount == null
-                                         || !string.Equals(existingCreditAccount.FinancialSegmentString, rechargeAcct.FinancialSegmentString, StringComparison.OrdinalIgnoreCase);
+                    model.RechargeAccounts = new List<RechargeAccount>();
 
-                    if(isNewOrChanged || string.IsNullOrWhiteSpace(rechargeAcct.EnteredByKerb))
+                    if (existingCreditAccount != null)
                     {
-                        SetEnteredBy(rechargeAcct, user);
+                        model.RechargeAccounts.Add(existingCreditAccount);
                     }
-                }                
+                }
+                else
+                {
+                    foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                    {
+                        var isNewOrChanged = rechargeAcct.Id == 0
+                                             || existingCreditAccount == null
+                                             || !string.Equals(existingCreditAccount.FinancialSegmentString, rechargeAcct.FinancialSegmentString, StringComparison.OrdinalIgnoreCase);
+
+                        if(isNewOrChanged || string.IsNullOrWhiteSpace(rechargeAcct.EnteredByKerb))
+                        {
+                            SetEnteredBy(rechargeAcct, user);
+                        }
+                    }
+                }
             }
 
             // validate model

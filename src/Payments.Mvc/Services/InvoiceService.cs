@@ -350,6 +350,11 @@ namespace Payments.Mvc.Services
                 throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
             }
 
+            if (invoice.Type != Invoice.InvoiceTypes.Recharge)
+            {
+                await UpdateAccountOverride(invoice, model);
+            }
+
             if (invoice.Type == Invoice.InvoiceTypes.Recharge)
             {
 
@@ -368,6 +373,59 @@ namespace Payments.Mvc.Services
         }
 
 
+        private async Task UpdateAccountOverride(Invoice invoice, EditInvoiceModel model)
+        {
+            var existingAccountOverride = invoice.RechargeAccounts?
+                .FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
+            var accountOverride = model.RechargeAccounts?
+                .SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+
+            if (accountOverride == null)
+            {
+                if (existingAccountOverride != null)
+                {
+                    _dbContext.RechargeAccounts.Remove(existingAccountOverride);
+                    invoice.RechargeAccounts.Remove(existingAccountOverride);
+                }
+
+                return;
+            }
+
+            var validationModel = await _aggieEnterpriseService.IsAccountValid(accountOverride.FinancialSegmentString);
+            if (!validationModel.IsValid)
+            {
+                throw new ArgumentException($"Account override '{accountOverride.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
+            }
+
+            if (validationModel.ChartString != accountOverride.FinancialSegmentString)
+            {
+                accountOverride.FinancialSegmentString = validationModel.ChartString;
+            }
+
+            if (existingAccountOverride == null)
+            {
+                invoice.RechargeAccounts.Add(new RechargeAccount()
+                {
+                    Direction = RechargeAccount.CreditDebit.Credit,
+                    FinancialSegmentString = accountOverride.FinancialSegmentString,
+                    Amount = invoice.CalculatedTotal,
+                    InvoiceId = invoice.Id,
+                    Percentage = 100.0m,
+                    EnteredByKerb = accountOverride.EnteredByKerb,
+                    EnteredByName = accountOverride.EnteredByName,
+                    Notes = accountOverride.Notes,
+                });
+
+                return;
+            }
+
+            existingAccountOverride.FinancialSegmentString = accountOverride.FinancialSegmentString;
+            existingAccountOverride.Amount = invoice.CalculatedTotal;
+            existingAccountOverride.Percentage = 100.0m;
+            existingAccountOverride.EnteredByKerb = accountOverride.EnteredByKerb;
+            existingAccountOverride.EnteredByName = accountOverride.EnteredByName;
+            existingAccountOverride.Notes = accountOverride.Notes;
+        }
         public async Task SendInvoice(Invoice invoice, SendInvoiceModel model)
         {
             // don't reset the key if it's already live

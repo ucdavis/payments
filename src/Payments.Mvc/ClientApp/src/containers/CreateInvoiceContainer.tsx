@@ -15,7 +15,7 @@ import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
-import CreditCardRechargeAccountControl from '../components/creditCardRechargeAccountControl';
+import CreditCardAccountOverrideControl from '../components/creditCardAccountOverrideControl';
 import Alert from '../components/alert';
 import AttachmentsControl from '../components/attachmentsControl';
 import DueDateControl from '../components/dueDateControl';
@@ -62,7 +62,7 @@ export default class CreateInvoiceContainer extends React.Component<
 > {
   private _formRef: HTMLFormElement;
   private _rechargeAccountsRef: RechargeAccountsControl;
-  private _creditCardRechargeAccountRef: CreditCardRechargeAccountControl;
+  private _creditCardAccountOverrideRef: CreditCardAccountOverrideControl;
 
   constructor(props: IProps) {
     super(props);
@@ -208,9 +208,9 @@ export default class CreateInvoiceContainer extends React.Component<
             </div>
           )}
           {invoiceType !== 'Recharge' && team.canEditCreditCardRechargeAccount && (
-            <CreditCardRechargeAccountControl
+            <CreditCardAccountOverrideControl
               ref={r => {
-                this._creditCardRechargeAccountRef = r;
+                this._creditCardAccountOverrideRef = r;
               }}
               rechargeAccount={this.getCreditCardRechargeAccount()}
               invoiceTotal={invoiceTotal}
@@ -468,7 +468,7 @@ export default class CreateInvoiceContainer extends React.Component<
 
     if (
       this.state.invoiceType !== 'Recharge' &&
-      this._creditCardRechargeAccountRef?.hasValidationErrors()
+      this._creditCardAccountOverrideRef?.hasValidationErrors()
     ) {
       this.setState({
         errorMessage:
@@ -653,7 +653,7 @@ export default class CreateInvoiceContainer extends React.Component<
 
     if (
       this.state.invoiceType !== 'Recharge' &&
-      this._creditCardRechargeAccountRef?.hasValidationErrors()
+      this._creditCardAccountOverrideRef?.hasValidationErrors()
     ) {
       this.setState({
         errorMessage:

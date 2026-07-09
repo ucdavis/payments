@@ -18,7 +18,7 @@ interface IState {
   hasValidationError: boolean;
 }
 
-export default class CreditCardRechargeAccountControl extends React.Component<
+export default class CreditCardAccountOverrideControl extends React.Component<
   IProps,
   IState
 > {
@@ -68,7 +68,7 @@ export default class CreditCardRechargeAccountControl extends React.Component<
     const chartString = rechargeAccount?.financialSegmentString || '';
 
     return (
-      <div className='form-group credit-card-recharge-account-control'>
+      <div className='form-group credit-card-account-override-control'>
         <label>Income Account Override</label>
         <div className='input-group'>
           <input
