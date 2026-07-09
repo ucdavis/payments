@@ -55,6 +55,40 @@ namespace Payments.Mvc.Controllers
 
 
         /// <summary>
+        /// Fetch the minimal invoice details needed by API clients.
+        /// </summary>
+        /// <param name="id">Invoice identifier.</param>
+        /// <returns>A simplified invoice response.</returns>
+        [HttpGet("{id}/simple")]
+        [ProducesResponseType(typeof(SimpleInvoiceResult), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<SimpleInvoiceResult>> GetSimple(int id)
+        {
+            var team = await GetAuthorizedTeam();
+
+            var invoice = await _dbContext.Invoices
+                .AsNoTracking()
+                .Where(i => i.Id == id && i.Team.Id == team.Id)
+                .Select(i => new SimpleInvoiceResult
+                {
+                    Id = i.Id,
+                    Status = i.Status,
+                    Type = i.Type,
+                    LinkId = i.LinkId,
+                    CustomerEmail = i.CustomerEmail,
+                    TotalAmount = i.CalculatedTotal.ToString("F2")
+                })
+                .FirstOrDefaultAsync();
+
+            if (invoice == null)
+            {
+                return NotFound(new { });
+            }
+
+            return invoice;
+        }
+
+        /// <summary>
         /// Mark Invoice as Deleted.
         /// Invoice must be in the drafted state or not paid or refunded
         /// </summary>
