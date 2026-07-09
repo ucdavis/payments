@@ -398,11 +398,12 @@ namespace Payments.Mvc.Controllers
                     modelState = ModelState
                 });
             }
+            var actor = $"{user.Name} ({user.Email})";
 
             IReadOnlyList<Invoice> invoices;
             try
             {
-                invoices = await _invoiceService.CreateInvoices(model, team);
+                invoices = await _invoiceService.CreateInvoices(model, team, actor);
             }
             catch (ArgumentException ex)
             {
@@ -505,7 +506,8 @@ namespace Payments.Mvc.Controllers
 
             try
             {
-                await _invoiceService.UpdateInvoice(invoice, model);
+                var actor = $"{user.Name} ({user.Email})";
+                await _invoiceService.UpdateInvoice(invoice, model, actor);
             }
             catch (ArgumentException ex)
             {

@@ -50,6 +50,8 @@ namespace Payments.Core.Models.History
 
         public static readonly IHistoryActionType InvoiceCopied = new InvoiceCopiedHistoryActionType();
 
+        public static readonly IHistoryActionType AccountOverrideChanged = new AccountOverrideChangedHistoryActionType();
+
         private static StringComparison _comparer = StringComparison.OrdinalIgnoreCase;
 
         private static readonly IHistoryActionType[] AllTypes = new[]
@@ -76,6 +78,7 @@ namespace Payments.Core.Models.History
             RechargeRejected,
             RechargeCompletedInSloth,
             InvoiceCopied,
+            AccountOverrideChanged,
         };
 
         public static IHistoryActionType GetHistoryActionType(string actionType)

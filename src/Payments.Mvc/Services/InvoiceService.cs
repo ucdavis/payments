@@ -27,7 +27,7 @@ namespace Payments.Mvc.Services
             _aggieEnterpriseService = aggieEnterpriseService;
         }
 
-        public async Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team)
+        public async Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team, string actor = "API")
         {
             //Account isn't really used or needed for recharge invoices, but keep doing this until we can see if it breaks anything.
             // find account
@@ -191,7 +191,7 @@ namespace Payments.Mvc.Services
                             AccountOverride.FinancialSegmentString = validationModel.ChartString;
                             //log it?
                         }
-                        invoice.RechargeAccounts.Add(new RechargeAccount()
+                        var accountOverride = new RechargeAccount()
                         {
                             Direction = AccountOverride.Direction,
                             FinancialSegmentString = AccountOverride.FinancialSegmentString,
@@ -200,7 +200,14 @@ namespace Payments.Mvc.Services
                             EnteredByKerb = AccountOverride.EnteredByKerb,
                             EnteredByName = AccountOverride.EnteredByName,
                             Notes = AccountOverride.Notes,
-                        });
+                        };
+                        invoice.RechargeAccounts.Add(accountOverride);
+                        AddAccountOverrideHistory(
+                            invoice,
+                            actor,
+                            AccountOverrideChangedHistoryActionType.ChangeActions.Added,
+                            null,
+                            accountOverride.FinancialSegmentString);
                     }
                 }
 
@@ -214,7 +221,7 @@ namespace Payments.Mvc.Services
             return invoices;
         }
 
-        public async Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model)
+        public async Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model, string actor = "API")
         {
             // get team out of invoice
             var team = invoice.Team;
@@ -352,7 +359,7 @@ namespace Payments.Mvc.Services
 
             if (invoice.Type != Invoice.InvoiceTypes.Recharge)
             {
-                await UpdateAccountOverride(invoice, model);
+                await UpdateAccountOverride(invoice, model, actor);
             }
 
             if (invoice.Type == Invoice.InvoiceTypes.Recharge)
@@ -373,7 +380,7 @@ namespace Payments.Mvc.Services
         }
 
 
-        private async Task UpdateAccountOverride(Invoice invoice, EditInvoiceModel model)
+        private async Task UpdateAccountOverride(Invoice invoice, EditInvoiceModel model, string actor)
         {
             var existingAccountOverride = invoice.RechargeAccounts?
                 .FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
@@ -384,8 +391,15 @@ namespace Payments.Mvc.Services
             {
                 if (existingAccountOverride != null)
                 {
+                    var previousChartString = existingAccountOverride.FinancialSegmentString;
                     _dbContext.RechargeAccounts.Remove(existingAccountOverride);
                     invoice.RechargeAccounts.Remove(existingAccountOverride);
+                    AddAccountOverrideHistory(
+                        invoice,
+                        actor,
+                        AccountOverrideChangedHistoryActionType.ChangeActions.Removed,
+                        previousChartString,
+                        null);
                 }
 
                 return;
@@ -415,9 +429,21 @@ namespace Payments.Mvc.Services
                     EnteredByName = accountOverride.EnteredByName,
                     Notes = accountOverride.Notes,
                 });
+                AddAccountOverrideHistory(
+                    invoice,
+                    actor,
+                    AccountOverrideChangedHistoryActionType.ChangeActions.Added,
+                    null,
+                    accountOverride.FinancialSegmentString);
 
                 return;
             }
+
+            var previousAccountOverrideChartString = existingAccountOverride.FinancialSegmentString;
+            var accountOverrideChanged = !string.Equals(
+                previousAccountOverrideChartString,
+                accountOverride.FinancialSegmentString,
+                StringComparison.OrdinalIgnoreCase);
 
             existingAccountOverride.FinancialSegmentString = accountOverride.FinancialSegmentString;
             existingAccountOverride.Amount = invoice.CalculatedTotal;
@@ -425,7 +451,45 @@ namespace Payments.Mvc.Services
             existingAccountOverride.EnteredByKerb = accountOverride.EnteredByKerb;
             existingAccountOverride.EnteredByName = accountOverride.EnteredByName;
             existingAccountOverride.Notes = accountOverride.Notes;
+
+            if (accountOverrideChanged)
+            {
+                AddAccountOverrideHistory(
+                    invoice,
+                    actor,
+                    AccountOverrideChangedHistoryActionType.ChangeActions.Changed,
+                    previousAccountOverrideChartString,
+                    existingAccountOverride.FinancialSegmentString);
+            }
         }
+
+        private static void AddAccountOverrideHistory(
+            Invoice invoice,
+            string actor,
+            string action,
+            string previousChartString,
+            string newChartString)
+        {
+            var historyActionType = new AccountOverrideChangedHistoryActionType();
+            invoice.History.Add(new History()
+            {
+                Type = HistoryActionTypes.AccountOverrideChanged.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = NormalizeHistoryActor(actor),
+                Data = historyActionType.SerializeData(new AccountOverrideChangedHistoryActionType.DataType()
+                {
+                    Action = action,
+                    PreviousChartString = previousChartString,
+                    NewChartString = newChartString,
+                })
+            });
+        }
+
+        private static string NormalizeHistoryActor(string actor)
+        {
+            return string.IsNullOrWhiteSpace(actor) ? "System" : actor;
+        }
+
         public async Task SendInvoice(Invoice invoice, SendInvoiceModel model)
         {
             // don't reset the key if it's already live
@@ -699,9 +763,9 @@ namespace Payments.Mvc.Services
 
     public interface IInvoiceService
     {
-        Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team);
+        Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team, string actor = "System");
 
-        Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
+        Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model, string actor = "System");
 
         Task<Invoice> CopyInvoice(Invoice invoice, Team team, User user);
 
