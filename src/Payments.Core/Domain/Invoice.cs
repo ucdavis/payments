@@ -260,11 +260,11 @@ namespace Payments.Core.Domain
 
             builder.Entity<Invoice>().HasIndex(a => a.Type);
             builder.Entity<Invoice>().HasIndex(a => a.LinkId);
-            
-            //builder.Entity<Invoice>().HasIndex(a => a.ExternalIdentifier);
-            //builder.Entity<Invoice>().HasIndex(a => a.ExternalId);
 
-            builder.Entity<Invoice>().HasIndex(a => new { a.Team.Id, a.ExternalIdentifier, a.ExternalId });
+            builder.Entity<Invoice>().HasIndex(
+                "TeamId",
+                nameof(Invoice.ExternalIdentifier),
+                nameof(Invoice.ExternalId));
 
         }
 
