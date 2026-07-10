@@ -183,7 +183,7 @@ export default class CreateInvoiceContainer extends React.Component<
               ref={r => { this._rechargeAccountsRef = r; }}
               rechargeAccounts={rechargeAccounts}
               invoiceTotal={invoiceTotal}
-              onChange={v => this.updateProperty('rechargeAccounts', v)}
+              onChange={this.updateRechargeAccounts}
               showCreditAccounts={true}
             />
           </div>
@@ -388,6 +388,14 @@ export default class CreateInvoiceContainer extends React.Component<
       [name]: value
     } as unknown) as IState);
   };
+
+  private updateRechargeAccounts = (
+    rechargeAccounts: InvoiceRechargeItem[]
+  ) => {
+    this.setState(state =>
+      state.invoiceType === 'Recharge' ? { rechargeAccounts } : null
+    );
+  };
   private normalizeRechargeDirection = (direction: any): 'Credit' | 'Debit' => {
     if (direction === 0 || direction === '0') {
       return 'Credit';
@@ -423,7 +431,7 @@ export default class CreateInvoiceContainer extends React.Component<
   };
 
   private handleInvoiceTypeChange = () => {
-    const { invoiceType } = this.state;
+    const { invoiceType, rechargeAccounts } = this.state;
     const newInvoiceType = invoiceType === 'CC' ? 'Recharge' : 'CC';
 
     // When switching to Recharge, clear tax and coupon
@@ -436,7 +444,23 @@ export default class CreateInvoiceContainer extends React.Component<
         }
       });
     } else {
-      this.setState({ invoiceType: newInvoiceType });
+      const hasEnteredRechargeAccounts =
+        this._rechargeAccountsRef?.hasEnteredAccounts() ??
+        rechargeAccounts.length > 0;
+
+      if (
+        hasEnteredRechargeAccounts &&
+        !window.confirm(
+          'Switching to Credit Card will remove all entered recharge accounts. Do you want to continue?'
+        )
+      ) {
+        return;
+      }
+
+      this.setState({
+        invoiceType: newInvoiceType,
+        rechargeAccounts: []
+      });
     }
   };
 
