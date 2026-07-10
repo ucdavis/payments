@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Net;
 using System.Text;
 
 namespace Payments.Core.Models.History
@@ -40,12 +41,12 @@ namespace Payments.Core.Models.History
             var sb = new StringBuilder();
             if (!string.IsNullOrWhiteSpace(d.PreviousChartString))
             {
-                sb.Append($"&nbsp;&nbsp;Previous: {d.PreviousChartString}<br/>");
+                sb.Append($"&nbsp;&nbsp;Previous: {WebUtility.HtmlEncode(d.PreviousChartString)}<br/>");
             }
 
             if (!string.IsNullOrWhiteSpace(d.NewChartString))
             {
-                sb.Append($"&nbsp;&nbsp;New: {d.NewChartString}<br/>");
+                sb.Append($"&nbsp;&nbsp;New: {WebUtility.HtmlEncode(d.NewChartString)}<br/>");
             }
 
             return sb.ToString().TrimEnd();
