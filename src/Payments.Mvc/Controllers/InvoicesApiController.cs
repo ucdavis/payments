@@ -76,7 +76,10 @@ namespace Payments.Mvc.Controllers
                     Type = i.Type,
                     LinkId = i.LinkId,
                     CustomerEmail = i.CustomerEmail,
-                    TotalAmount = i.CalculatedTotal.ToString("F2")
+                    TotalAmount = i.CalculatedTotal.ToString("F2"),
+                    ExternalIdentifier = i.ExternalIdentifier,
+                    ExternalId = i.ExternalId,
+                    ExternalLink = i.ExternalLink
                 })
                 .FirstOrDefaultAsync();
 
@@ -86,6 +89,44 @@ namespace Payments.Mvc.Controllers
             }
 
             return invoice;
+        }
+
+        [HttpGet("external/{externalIdentifier}/{externalId}")]
+        [ProducesResponseType(typeof(List<SimpleInvoiceResult>), 200)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<SimpleInvoiceResult>>> GetByExternal(string externalIdentifier, string externalId)
+        {
+            if (string.IsNullOrWhiteSpace(externalIdentifier) || string.IsNullOrWhiteSpace(externalId))
+            {
+                return BadRequest("Both externalIdentifier and externalId are required.");
+            }
+
+            var team = await GetAuthorizedTeam();
+
+            var invoices = await _dbContext.Invoices
+                .AsNoTracking()
+                .Where(i => i.Team.Id == team.Id && i.ExternalIdentifier == externalIdentifier && i.ExternalId == externalId)
+                .Select(i => new SimpleInvoiceResult
+                {
+                    Id = i.Id,
+                    Status = i.Status,
+                    Type = i.Type,
+                    LinkId = i.LinkId,
+                    CustomerEmail = i.CustomerEmail,
+                    TotalAmount = i.CalculatedTotal.ToString("F2"),
+                    ExternalIdentifier = i.ExternalIdentifier,
+                    ExternalId = i.ExternalId,
+                    ExternalLink = i.ExternalLink
+                })
+                .ToListAsync();
+
+            if (!invoices.Any())
+            {
+                return NotFound(new { });
+            }
+
+            return invoices;
         }
 
         /// <summary>
