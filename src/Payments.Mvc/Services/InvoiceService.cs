@@ -72,7 +72,7 @@ namespace Payments.Mvc.Services
                     var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
                     if(!validationModel.IsValid)
                     {
-                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
+                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
                     }
                     // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
                     if(validationModel.ChartString != ra.FinancialSegmentString)
@@ -188,7 +188,7 @@ namespace Payments.Mvc.Services
                         var validationModel = await _aggieEnterpriseService.IsAccountValid(AccountOverride.FinancialSegmentString);
                         if (!validationModel.IsValid)
                         {
-                            throw new ArgumentException($"Account override '{AccountOverride.FinancialSegmentString}' is not valid");
+                            throw new ArgumentException($"Account override '{AccountOverride.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
                         }
                         // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
                         if (validationModel.ChartString != AccountOverride.FinancialSegmentString)
