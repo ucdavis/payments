@@ -734,25 +734,19 @@ namespace Payments.Mvc.Services
                 };
                 invoice.Items.Add(newItem);
             }
-            if(invoiceToCopy.Type == Invoice.InvoiceTypes.CreditCard && invoiceToCopy.RechargeAccounts != null)
+            var rechargeAccounts = invoiceToCopy.RechargeAccounts;
+            if(invoiceToCopy.Type == Invoice.InvoiceTypes.CreditCard && rechargeAccounts != null)
             {
                 //I only want the first or null
-                var accountOverride = invoiceToCopy.RechargeAccounts.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
-                invoiceToCopy.RechargeAccounts = new List<RechargeAccount>();
-                if (accountOverride != null)
-                {
-                    invoiceToCopy.RechargeAccounts.Add(accountOverride);
-                }
-                else
-                {
-                    invoiceToCopy.RechargeAccounts = null;
-                }
+                //This will also prevent and debit recharge accounts from being copied over if they are there for a credit card.
+                var accountOverride = rechargeAccounts.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+                rechargeAccounts = accountOverride != null ? new List<RechargeAccount> { accountOverride } : null;
             }
 
             //Recharge accounts
-            if (invoiceToCopy.RechargeAccounts != null)
+            if (rechargeAccounts != null)
             {
-                foreach(var ra in invoiceToCopy.RechargeAccounts)
+                foreach(var ra in rechargeAccounts)
                 {
                     var isCreditCardAccountOverride = invoiceToCopy.Type == Invoice.InvoiceTypes.CreditCard &&
                                                       ra.Direction == RechargeAccount.CreditDebit.Credit;
