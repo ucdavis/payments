@@ -7,6 +7,7 @@ import {
 
 interface IProps {
   rechargeAccount?: InvoiceRechargeItem;
+  teamSlug: string;
   invoiceTotal: number;
   canEdit: boolean;
   onChange: (rechargeAccount?: InvoiceRechargeItem) => void;
@@ -212,7 +213,9 @@ export default class CreditCardAccountOverrideControl extends React.Component<
 
     try {
       const response = await fetch(
-        `/api/financial-accounts/validate?chartString=${encodeURIComponent(
+        `/${encodeURIComponent(
+          this.props.teamSlug
+        )}/api/financial-accounts/validate?chartString=${encodeURIComponent(
           chartString
         )}`,
         {

@@ -218,6 +218,7 @@ export default class EditInvoiceContainer extends React.Component<
                   this._creditCardAccountOverrideRef = r;
                 }}
                 rechargeAccount={this.getCreditCardRechargeAccount()}
+                teamSlug={team.slug}
                 invoiceTotal={invoiceTotal}
                 canEdit={team.canEditAccountOverride}
                 onChange={this.updateCreditCardRechargeAccount}
