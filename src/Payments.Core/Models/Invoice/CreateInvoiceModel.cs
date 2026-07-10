@@ -62,6 +62,24 @@ namespace Payments.Core.Models.Invoice
         /// Optional due date for invoice
         /// </summary>
         public DateTime? DueDate { get; set; }
+
+        /// <summary>
+        /// Optional name or identifier for the external system.
+        /// </summary>
+        [MaxLength(20)]
+        public string ExternalIdentifier { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Optional identifier of the related record in the external system.
+        /// </summary>
+        [MaxLength(128)]
+        public string ExternalId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Optional link to the related record in the external system.
+        /// </summary>
+        [MaxLength(256)]
+        public string ExternalLink { get; set; } = string.Empty;
     }
 
     public class CreateInvoiceCustomerModel
