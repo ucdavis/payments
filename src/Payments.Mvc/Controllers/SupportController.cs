@@ -11,7 +11,7 @@ namespace Payments.Mvc.Controllers
         public IActionResult Index()
         {
             ViewBag.TeamSlug = TeamSlug;
-            ViewBag.Version = typeof(SupportController).Assembly.GetName().Version?.ToString(3);
+            ViewBag.Version = typeof(SupportController).Assembly.GetName().Version?.ToString(3) ?? "Unavailable";
             return View();
         }
 
