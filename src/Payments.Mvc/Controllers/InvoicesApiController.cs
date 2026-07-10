@@ -148,10 +148,18 @@ namespace Payments.Mvc.Controllers
         }
 
         /// <summary>
-        /// Create invoice
+        /// Create one or more invoices
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// A separate invoice is created for each customer in the request.
+        ///
+        /// Invoice type must be CC (credit card) or Recharge. For a CC invoice,
+        /// accountId must identify an account belonging to the authorized team. When
+        /// useDefaultAccount is true, the team's active default account is used only
+        /// when the supplied accountId is not found; it does not replace a valid account.
+        /// </remarks>
+        /// <param name="model">Invoice details.</param>
+        /// <returns>The identifiers of the created invoices.</returns>
         [HttpPost]
         [ProducesResponseType(typeof(CreateInvoiceResult), 200)]
         [ProducesResponseType(400)]
