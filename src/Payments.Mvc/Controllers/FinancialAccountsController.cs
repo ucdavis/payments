@@ -598,7 +598,14 @@ namespace Payments.Mvc.Controllers
         {
             var result = await _aggieEnterpriseService.IsAccountValid(chartString);
 
-            return new JsonResult(result);
+            return new JsonResult(new
+            {
+                isValid = result.IsValid,
+                chartString = result.ChartString ?? chartString,
+                messages = string.IsNullOrWhiteSpace(result.Message) ? Array.Empty<string>() : new[] { result.Message },
+                warnings = result.Warnings.Select(warning => new { key = warning.Key, value = warning.Value }).ToArray(),
+                details = result.Details.Select(detail => new { key = detail.Key, value = detail.Value }).ToArray()
+            });
         }
     }
 }
