@@ -23,6 +23,8 @@ export default class CreditCardAccountOverrideControl extends React.Component<
   IState
 > {
   private inputRef: HTMLInputElement | null = null;
+  private validationAbortController?: AbortController;
+  private isComponentMounted = false;
 
   constructor(props: IProps) {
     super(props);
@@ -35,10 +37,18 @@ export default class CreditCardAccountOverrideControl extends React.Component<
   }
 
   async componentDidMount() {
+    this.isComponentMounted = true;
+
     const chartString = this.props.rechargeAccount?.financialSegmentString;
     if (this.props.canEdit && chartString && chartString.trim()) {
       await this.validateChartString(chartString);
     }
+  }
+
+  componentWillUnmount() {
+    this.isComponentMounted = false;
+    this.validationAbortController?.abort();
+    this.validationAbortController = undefined;
   }
 
   componentDidUpdate(prevProps: IProps) {
@@ -186,6 +196,14 @@ export default class CreditCardAccountOverrideControl extends React.Component<
   };
 
   private validateChartString = async (chartString: string) => {
+    if (!this.isComponentMounted) {
+      return;
+    }
+
+    this.validationAbortController?.abort();
+    const abortController = new AbortController();
+    this.validationAbortController = abortController;
+
     this.setState({
       isValidating: true,
       hasValidationError: false
@@ -201,7 +219,8 @@ export default class CreditCardAccountOverrideControl extends React.Component<
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          signal: abortController.signal
         }
       );
 
@@ -211,6 +230,10 @@ export default class CreditCardAccountOverrideControl extends React.Component<
 
       const validationResult: AccountValidationModel = await response.json();
       const normalizedChartString = validationResult.chartString || chartString;
+
+      if (!this.isComponentMounted || abortController.signal.aborted) {
+        return;
+      }
 
       if (normalizedChartString !== chartString) {
         this.props.onChange(this.createRechargeAccount(normalizedChartString));
@@ -223,6 +246,10 @@ export default class CreditCardAccountOverrideControl extends React.Component<
       });
       this.setChartStringCustomValidity(validationResult.isValid);
     } catch (error) {
+      if (!this.isComponentMounted || abortController.signal.aborted) {
+        return;
+      }
+
       console.error('Error validating chart string:', error);
       this.setState({
         validationResult: {
@@ -236,6 +263,10 @@ export default class CreditCardAccountOverrideControl extends React.Component<
         hasValidationError: true
       });
       this.setChartStringCustomValidity(false);
+    } finally {
+      if (this.validationAbortController === abortController) {
+        this.validationAbortController = undefined;
+      }
     }
   };
 
