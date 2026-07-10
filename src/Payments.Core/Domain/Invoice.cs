@@ -124,6 +124,12 @@ namespace Payments.Core.Domain
         [StringLength(10)]
         public string Type { get; set; } = InvoiceTypes.CreditCard; // CC or Recharge
 
+        [MaxLength(128)]
+        public string ExternalIdentifier { get; set; } = string.Empty; // For external systems to link to this invoice (put in URL to system)
+
+        [MaxLength(128)]
+        public string ExternalId { get; set; } = string.Empty; // For external systems to link to this invoice (put in ID to related record in external system)
+
         // ----------------------
         // Calculated Values
         // ----------------------
@@ -251,6 +257,11 @@ namespace Payments.Core.Domain
 
             builder.Entity<Invoice>().HasIndex(a => a.Type);
             builder.Entity<Invoice>().HasIndex(a => a.LinkId);
+            
+            //builder.Entity<Invoice>().HasIndex(a => a.ExternalIdentifier);
+            //builder.Entity<Invoice>().HasIndex(a => a.ExternalId);
+
+            builder.Entity<Invoice>().HasIndex(a => new { a.Team.Id, a.ExternalIdentifier, a.ExternalId });
 
         }
 
