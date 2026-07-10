@@ -122,6 +122,7 @@ namespace Payments.Jobs.MoneyMovement
             services.Configure<FinanceSettings>(Configuration.GetSection("Finance"));
             services.Configure<PaymentsApiSettings>(Configuration.GetSection("PaymentsApi")); //Using this for the base url
             services.Configure<SlothSettings>(Configuration.GetSection("Sloth"));
+            services.Configure<AggieEnterpriseOptions>(Configuration.GetSection("AggieEnterprise"));
 
             // db service
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -130,6 +131,7 @@ namespace Payments.Jobs.MoneyMovement
 
             // required services
             services.AddTransient<INotificationService, NotificationService>();
+            services.AddTransient<IAggieEnterpriseService, AggieEnterpriseService>();
             services.AddTransient<ISlothService, SlothService>();
 
             services.AddSingleton<MoneyMovementJob>();
