@@ -124,6 +124,7 @@ namespace Payments.Mvc.Swagger
         public decimal Amount { get; set; }
 
         /// <summary>Percentage of the invoice total allocated to this financial segment.</summary>
+        [Range(0, 100)]
         public decimal Percentage { get; set; }
 
         /// <summary>Optional notes for this financial segment.</summary>
