@@ -122,6 +122,9 @@ namespace Payments.Mvc.Services
                     Status = Invoice.StatusCodes.Draft,
                     Sent = false,
                     Type = model.Type,
+                    ExternalIdentifier = model.ExternalIdentifier,
+                    ExternalId = model.ExternalId,
+                    ExternalLink = model.ExternalLink,
                 };
 
                 // add line items

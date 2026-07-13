@@ -32,6 +32,12 @@
     var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
     var accountOverride = Model.RechargeAccounts?.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
 
+    var hasExternalDetails = !string.IsNullOrWhiteSpace(Model.ExternalIdentifier)
+                             || !string.IsNullOrWhiteSpace(Model.ExternalId)
+                             || !string.IsNullOrWhiteSpace(Model.ExternalLink);
+    var hasExternalLink = Uri.TryCreate(Model.ExternalLink, UriKind.Absolute, out var externalLink)
+                          && (externalLink.Scheme == Uri.UriSchemeHttp || externalLink.Scheme == Uri.UriSchemeHttps);
+
     var editableStatusCodes = new List<string>
     {
         Invoice.StatusCodes.Draft,
@@ -535,6 +541,43 @@
         }
     </div>
 </div>
+
+@if (hasExternalDetails)
+{
+    <div class="card">
+        <div class="card-header">
+            <h2>External Details</h2>
+        </div>
+        <div class="card-body invoice-details">
+            <dl class="row">
+                @if (!string.IsNullOrWhiteSpace(Model.ExternalIdentifier))
+                {
+                    <dt class="col-2 text-end">External Identifier</dt>
+                    <dd class="col-10">@Model.ExternalIdentifier</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.ExternalId))
+                {
+                    <dt class="col-2 text-end">External ID</dt>
+                    <dd class="col-10">@Model.ExternalId</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.ExternalLink))
+                {
+                    <dt class="col-2 text-end">External Link</dt>
+                    <dd class="col-10">
+                        @if (hasExternalLink)
+                        {
+                            <a href="@externalLink.AbsoluteUri" target="_blank" rel="noopener noreferrer">@Model.ExternalLink</a>
+                        }
+                        else
+                        {
+                            @Model.ExternalLink
+                        }
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
 
 @if (Model.Paid && Model.Type != InvoiceTypes.Recharge)
 {

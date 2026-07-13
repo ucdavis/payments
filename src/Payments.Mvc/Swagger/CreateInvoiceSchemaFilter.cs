@@ -33,6 +33,12 @@ namespace Payments.Mvc.Swagger
             Describe(schema, nameof(CreateInvoiceModel.Attachments),
                 "Previously uploaded invoice attachments, identified by the value returned from the upload API.");
             Describe(schema, nameof(CreateInvoiceModel.DueDate), "Optional invoice due date.");
+            Describe(schema, nameof(CreateInvoiceModel.ExternalIdentifier),
+                "Optional name or identifier for the external system.");
+            Describe(schema, nameof(CreateInvoiceModel.ExternalId),
+                "Optional identifier of the related record in the external system.");
+            Describe(schema, nameof(CreateInvoiceModel.ExternalLink),
+                "Optional link to the related record in the external system.");
 
             var useDefaultAccount = FindProperty(schema, nameof(CreateInvoiceModel.UseDefaultAccount));
             if (useDefaultAccount != null)
