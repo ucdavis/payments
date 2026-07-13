@@ -18,6 +18,8 @@ namespace Payments.Mvc.Controllers
     [Route("api/invoices")]
     public class InvoicesApiController : ApiController
     {
+        private const int MaxExternalIdsPerRequest = 1000;
+
         private readonly IInvoiceService _invoiceService;
         private readonly IStorageService _storageService;
 
@@ -148,6 +150,11 @@ namespace Payments.Mvc.Controllers
                 model.ExternalIds.Any(string.IsNullOrWhiteSpace))
             {
                 return BadRequest("externalIdentifier and at least one externalId are required.");
+            }
+
+            if (model.ExternalIds.Length > MaxExternalIdsPerRequest)
+            {
+                return BadRequest($"A maximum of {MaxExternalIdsPerRequest} externalIds can be requested per batch.");
             }
 
             var team = await GetAuthorizedTeam();
