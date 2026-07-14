@@ -227,6 +227,7 @@
         <tbody class="subtotal-body">
             @if (Model.CalculatedDiscount > 0)
             {
+                var discountLabel = Model.Coupon == null ? "Discount" : $"Discount ({Model.Coupon.Name})";
                 <tr class="summary">
                     <td colspan="3"></td>
                     <td class="text-end text-label">Subtotal</td>
@@ -234,7 +235,7 @@
                 </tr>
                 <tr class="summary">
                     <td colspan="3"></td>
-                    <td class="text-end text-label">Discount (@Model.Coupon.Name)</td>
+                    <td class="text-end text-label">@discountLabel</td>
                     <td class="text-end">-@Model.CalculatedDiscount.ToString("C")</td>
                 </tr>
             }
