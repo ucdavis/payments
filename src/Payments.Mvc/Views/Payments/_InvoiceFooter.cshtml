@@ -4,7 +4,7 @@
 {
     <div class="pay-footer">
         <span>
-            If you have any questions, see <a href="@Model.ExternalReferenceUrl" target="_blank" rel="noopener noreferrer">@Model.ExternalReferenceLabel</a>.
+            If you have any questions, see <a href="@Model.ExternalReferenceUrl" target="_blank" rel="noopener noreferrer">@(string.IsNullOrWhiteSpace(Model.ExternalReferenceLabel) ? Model.ExternalReferenceUrl : Model.ExternalReferenceLabel)</a>.
         </span>
     </div>
 }
