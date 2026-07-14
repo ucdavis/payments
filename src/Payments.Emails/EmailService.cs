@@ -61,6 +61,7 @@ namespace Payments.Emails
         {
             var viewbag = GetViewData();
             viewbag["Team"] = invoice.Team;
+            viewbag["Invoice"] = invoice;
 
             var model = new InvoiceViewModel
             {
@@ -108,6 +109,7 @@ namespace Payments.Emails
         {
             var viewbag = GetViewData();
             viewbag["Team"] = invoice.Team;
+            viewbag["Invoice"] = invoice;
 
             var model = new ReceiptViewModel
             {
@@ -176,6 +178,7 @@ namespace Payments.Emails
         {
             var viewbag = GetViewData();
             viewbag["Team"] = invoice.Team;
+            viewbag["Invoice"] = invoice;
             viewbag["Slug"] = invoice.Team.Slug;
 
             var model = new RefundRequestViewModel()
@@ -210,6 +213,7 @@ namespace Payments.Emails
         {
             var viewbag = GetViewData();
             viewbag["Team"] = invoice.Team;
+            viewbag["Invoice"] = invoice;
             viewbag["DaysToAutoApprove"] = _financeSettings.RechargeAutoApproveDays;
 
             var model = new InvoiceViewModel
@@ -263,6 +267,7 @@ namespace Payments.Emails
         {
             var viewbag = GetViewData();
             viewbag["Team"] = invoice.Team;
+            viewbag["Invoice"] = invoice;
 
             var model = new ReceiptViewModel
             {

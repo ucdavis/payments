@@ -1,0 +1,14 @@
+@model Payments.Mvc.Models.PaymentViewModels.BaseInvoiceViewModel
+
+@if (!string.IsNullOrWhiteSpace(Model.ExternalReferenceUrl))
+{
+    <div class="pay-footer">
+        <span>
+            If you have any questions, see <a href="@Model.ExternalReferenceUrl" target="_blank" rel="noopener noreferrer">@Model.ExternalReferenceLabel</a>.
+        </span>
+    </div>
+}
+else
+{
+    <partial name="_Footer" model="@Model.Team" />
+}

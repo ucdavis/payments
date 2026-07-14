@@ -2,6 +2,7 @@ import * as React from 'react';
 import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { formatCurrencyLocale } from '../utils/currency';
+import InvoiceContact from '../components/invoiceContact';
 
 declare var antiForgeryToken: string;
 
@@ -22,6 +23,8 @@ export interface RechargeInvoiceModel {
   debitRechargeAccounts: InvoiceRechargeItem[]; // Accounts that can be edited/approved
   displayDebitRechargeAccounts: InvoiceRechargeItem[]; // Read-only accounts
   canApprove: boolean;
+  externalReferenceUrl: string | null;
+  externalReferenceLabel: string | null;
   message?: string;
   errorMessage?: string;
 }
@@ -473,28 +476,11 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
             )}
           </div>
 
-          <div className='pay-footer'>
-            <span>
-              If you have any questions, contact us
-              {invoice.team.contactEmail && (
-                <>
-                  {' at '}
-                  <a href={`mailto:${invoice.team.contactEmail}`}>
-                    {invoice.team.contactEmail}
-                  </a>
-                </>
-              )}
-              {invoice.team.contactEmail &&
-                invoice.team.contactPhoneNumber &&
-                ' or'}
-              {invoice.team.contactPhoneNumber && (
-                <> call at {invoice.team.contactPhoneNumber}</>
-              )}
-              {!invoice.team.contactEmail &&
-                !invoice.team.contactPhoneNumber &&
-                '.'}
-            </span>
-          </div>
+          <InvoiceContact
+            team={invoice.team}
+            externalReferenceUrl={invoice.externalReferenceUrl}
+            externalReferenceLabel={invoice.externalReferenceLabel}
+          />
         </div>
 
         {/* Reject Dialog */}
