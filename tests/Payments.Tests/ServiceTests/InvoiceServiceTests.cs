@@ -8,6 +8,7 @@ using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Models.Validation;
+using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Emails;
 using Payments.Mvc.Services;
@@ -101,6 +102,78 @@ namespace payments.Tests.ServiceTests
                 () => service.CreateInvoices(model, new Team { Id = 1 }));
 
             Assert.Equal(nameof(model.RechargeAccounts), exception.ParamName);
+        }
+
+        [Fact]
+        public async Task SendInvoice_ZeroCreditCardInvoice_MarksInvoiceCompleted()
+        {
+            var invoice = new Invoice
+            {
+                Status = Invoice.StatusCodes.Draft,
+                Type = Invoice.InvoiceTypes.CreditCard,
+                ManualDiscount = 10,
+                Items = new List<LineItem>
+                {
+                    new LineItem { Total = 10 },
+                },
+            };
+            invoice.UpdateCalculatedValues();
+
+            var dbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
+            dbContext
+                .Setup(context => context.InvoiceLinks)
+                .Returns(new Mock<DbSet<InvoiceLink>>().Object);
+            var emailService = new Mock<IEmailService>();
+            var service = new InvoiceService(
+                dbContext.Object,
+                emailService.Object,
+                new Mock<IAggieEnterpriseService>().Object);
+
+            await service.SendInvoice(invoice, new SendInvoiceModel());
+
+            Assert.Equal(Invoice.StatusCodes.Completed, invoice.Status);
+            Assert.True(invoice.Sent);
+            Assert.True(invoice.Paid);
+            Assert.NotNull(invoice.PaidAt);
+            Assert.Equal(PaymentTypes.Manual, invoice.PaymentType);
+            Assert.Contains(invoice.History, history => history.Type == "mark-paid");
+            emailService.Verify(
+                service => service.SendInvoice(invoice, null, null),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task SendInvoice_CouponZeroedCreditCardInvoice_PreservesCouponDiscount()
+        {
+            var invoice = new Invoice
+            {
+                Status = Invoice.StatusCodes.Draft,
+                Type = Invoice.InvoiceTypes.CreditCard,
+                Coupon = new Coupon { DiscountAmount = 10 },
+                Items = new List<LineItem>
+                {
+                    new LineItem { Total = 10 },
+                },
+            };
+            invoice.UpdateCalculatedValues();
+
+            var dbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
+            dbContext
+                .Setup(context => context.InvoiceLinks)
+                .Returns(new Mock<DbSet<InvoiceLink>>().Object);
+            var service = new InvoiceService(
+                dbContext.Object,
+                new Mock<IEmailService>().Object,
+                new Mock<IAggieEnterpriseService>().Object);
+
+            await service.SendInvoice(invoice, new SendInvoiceModel());
+            invoice.UpdateCalculatedValues();
+
+            Assert.Equal(Invoice.StatusCodes.Completed, invoice.Status);
+            Assert.True(invoice.Paid);
+            Assert.Equal(10, invoice.ManualDiscount);
+            Assert.Equal(0, invoice.CalculatedTotal);
+            Assert.Equal(PaymentTypes.Coupon, invoice.PaymentType);
         }
     }
 }

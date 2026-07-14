@@ -5,6 +5,7 @@ using Payments.Core.Helpers;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Models.Validation;
+using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Emails;
 using System;
@@ -151,13 +152,18 @@ namespace Payments.Mvc.Services
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
 
-                if (invoice.CalculatedTotal <= 0)
+                if (invoice.CalculatedTotal < 0)
                 {
-                    throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
+                    throw new ArgumentException("Invoice total must be greater than or equal to 0.", nameof(model));
                 }
 
                 if (model.Type == Invoice.InvoiceTypes.Recharge)
                 {
+                    if(invoice.CalculatedTotal <= 0)
+                    {
+                        throw new ArgumentException("Invoice total must be greater than 0 for recharge invoices.", nameof(model));
+                    }
+
                     var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
                     {
                         Direction = a.Direction,
@@ -360,9 +366,9 @@ namespace Payments.Mvc.Services
 
             invoice.UpdateCalculatedValues();
 
-            if (invoice.CalculatedTotal <= 0)
+            if (invoice.CalculatedTotal < 0)
             {
-                throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
+                throw new ArgumentException("Invoice total must be greater than or equal to 0.", nameof(model));
             }
 
             if (invoice.Type != Invoice.InvoiceTypes.Recharge)
@@ -372,6 +378,10 @@ namespace Payments.Mvc.Services
 
             if (invoice.Type == Invoice.InvoiceTypes.Recharge)
             {
+                if(invoice.CalculatedTotal <=0)
+                {
+                    throw new ArgumentException("Invoice total must be greater than 0 for recharge invoices.", nameof(model));
+                }
 
                 if (invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit).Sum(a => a.Amount))
                 {
@@ -529,6 +539,27 @@ namespace Payments.Mvc.Services
                 {
                     invoice.Status = Invoice.StatusCodes.Sent;
                 }
+            }
+            else if (invoice.CalculatedTotal == 0)
+            {
+                // Preserve a coupon discount before setting Paid because paid invoices use ManualDiscount.
+                if (invoice.Coupon != null)
+                {
+                    invoice.ManualDiscount = invoice.GetDiscountAmount();
+                }
+
+                invoice.Status = Invoice.StatusCodes.Completed;
+                invoice.Paid = true;
+                invoice.PaidAt = DateTime.UtcNow;
+                invoice.PaymentType = invoice.Coupon == null ? PaymentTypes.Manual : PaymentTypes.Coupon;
+
+                invoice.History.Add(new History()
+                {
+                    Type = HistoryActionTypes.MarkPaid.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = "System",
+                    Data = "Invoice had a zero balance when sent and was marked as Paid/Complete",
+                });
             }
             else
             {
