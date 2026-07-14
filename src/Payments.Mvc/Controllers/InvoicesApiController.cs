@@ -78,7 +78,7 @@ namespace Payments.Mvc.Controllers
                     Type = i.Type,
                     LinkId = i.LinkId,
                     CustomerEmail = i.CustomerEmail,
-                    TotalAmount = i.CalculatedTotal.ToString("F2"),
+                    TotalAmount = i.CalculatedTotal,
                     ExternalIdentifier = i.ExternalIdentifier,
                     ExternalId = i.ExternalId,
                     ExternalLink = i.ExternalLink
@@ -116,7 +116,7 @@ namespace Payments.Mvc.Controllers
                     Type = i.Type,
                     LinkId = i.LinkId,
                     CustomerEmail = i.CustomerEmail,
-                    TotalAmount = i.CalculatedTotal.ToString("F2"),
+                    TotalAmount = i.CalculatedTotal,
                     ExternalIdentifier = i.ExternalIdentifier,
                     ExternalId = i.ExternalId,
                     ExternalLink = i.ExternalLink
@@ -172,7 +172,7 @@ namespace Payments.Mvc.Controllers
                     Type = i.Type,
                     LinkId = i.LinkId,
                     CustomerEmail = i.CustomerEmail,
-                    TotalAmount = i.CalculatedTotal.ToString("F2"),
+                    TotalAmount = i.CalculatedTotal,
                     ExternalIdentifier = i.ExternalIdentifier,
                     ExternalId = i.ExternalId,
                     ExternalLink = i.ExternalLink
