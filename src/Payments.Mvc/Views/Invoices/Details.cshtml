@@ -210,7 +210,7 @@
                     }
                     
                     <span class="history-date">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy @ h:mm tt")</span>
-                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.RefundCancelled) && !string.IsNullOrWhiteSpace(action.Data))
+                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.RefundCancelled || actionType == HistoryActionTypes.InvoiceDeleted) && !string.IsNullOrWhiteSpace(action.Data))
                     {
                         
                         <span class="text-muted">Reason: @action.Data</span>
@@ -1108,6 +1108,10 @@ else
                     <p>
                         Continuing will close this invoice and delete. This is irreversible!
                     </p>
+                    <label for="deleteReason" class="control-label">Reason (optional)</label>
+                    <div class="form-group">
+                        <textarea id="deleteReason" name="deleteReason" class="form-control"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>

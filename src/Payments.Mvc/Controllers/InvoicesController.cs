@@ -962,7 +962,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string deleteReason)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -1000,6 +1000,7 @@ namespace Payments.Mvc.Controllers
                 Type = HistoryActionTypes.InvoiceDeleted.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
                 Actor = user.Name,
+                Data = deleteReason,
             };
             invoice.History.Add(action);
 
