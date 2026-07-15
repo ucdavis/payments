@@ -1,0 +1,27 @@
+@using Payments.Core.Domain
+@model Payments.Emails.Models.FinancialApprovalRejectedViewModel
+
+@{
+    Layout = "_EmailLayout";
+    var team = (Team)ViewData["Team"];
+    var invoice = Model.Invoice;
+    var invoiceHref = $"{ViewData["BaseUrl"]}/recharge/pay/{invoice.LinkId}";
+    var pdfHref = $"{ViewData["BaseUrl"]}/download/{invoice.LinkId}";
+}
+
+<mj-text align="center">
+    <h1>Recharge invoice rejected</h1>
+    <h3>Invoice # @invoice.GetFormattedId() from @team.Name</h3>
+</mj-text>
+
+<mj-text>
+    <p>A financial approver rejected this invoice.</p>
+    <p style="font-weight: bold">Reason:</p>
+    <p>@Model.RejectionReason</p>
+</mj-text>
+
+<mj-button href="@invoiceHref" background-color="#004987">View this Invoice</mj-button>
+
+@{ await Html.PartialAsync("_EmailSummary", invoice); }
+
+<mj-button href="@pdfHref" background-color="#004987">Download as PDF</mj-button>

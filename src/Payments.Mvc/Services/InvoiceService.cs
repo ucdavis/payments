@@ -8,6 +8,7 @@ using Payments.Core.Models.Validation;
 using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Emails;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -658,6 +659,38 @@ namespace Payments.Mvc.Services
             return model;
         }
 
+        public async Task SendFinancialApprovalRejected(Invoice invoice, string rejectionReason, User financialApprover)
+        {
+            try
+            {
+                await _emailService.SendFinancialApprovalRejectedCustomer(invoice, rejectionReason, financialApprover);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "Failed to send financial approval rejection email to the customer for invoice {InvoiceId}", invoice.Id);
+            }
+
+            try
+            {
+                var editors = await _dbContext.TeamPermissions
+                    .Where(permission => permission.TeamId == invoice.Team.Id && permission.Role.Name == TeamRole.Codes.Editor)
+                    .Select(permission => permission.User)
+                    .ToListAsync();
+
+                var distinctEditors = editors
+                    .Where(editor => !string.IsNullOrWhiteSpace(editor.Email))
+                    .GroupBy(editor => editor.Email, StringComparer.OrdinalIgnoreCase)
+                    .Select(group => group.First())
+                    .ToArray();
+
+                await _emailService.SendFinancialApprovalRejectedEditors(invoice, rejectionReason, distinctEditors);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "Failed to send financial approval rejection email to team editors for invoice {InvoiceId}", invoice.Id);
+            }
+        }
+
         private async Task<SendApprovalModel> GetInvoiceApprovers(Invoice invoice)
         {
             if(invoice.RechargeAccounts == null || !invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Debit))
@@ -845,6 +878,8 @@ namespace Payments.Mvc.Services
         Task SendRechargeReceipt(Invoice invoice);
 
         Task<SendApprovalModel> SendFinancialApproverEmail(Invoice invoice, SendApprovalModel model);
+
+        Task SendFinancialApprovalRejected(Invoice invoice, string rejectionReason, User financialApprover);
 
         Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user);
 

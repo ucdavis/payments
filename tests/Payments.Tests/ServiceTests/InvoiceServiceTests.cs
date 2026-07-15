@@ -175,5 +175,127 @@ namespace payments.Tests.ServiceTests
             Assert.Equal(0, invoice.CalculatedTotal);
             Assert.Equal(PaymentTypes.Coupon, invoice.PaymentType);
         }
+
+        [Fact]
+        public async Task SendFinancialApprovalRejected_SendsCustomerAndDistinctTeamEditors()
+        {
+            var team = new Team { Id = 7, Name = "Test Team", Slug = "test-team" };
+            var invoice = new Invoice
+            {
+                Id = 42,
+                Team = team,
+                CustomerEmail = "customer@example.com",
+                CustomerName = "Customer",
+            };
+            var approver = new User
+            {
+                Id = "approver",
+                Email = "approver@example.com",
+                Name = "Financial Approver",
+            };
+            var editorRole = new TeamRole { Name = TeamRole.Codes.Editor };
+            var permissions = new List<TeamPermission>
+            {
+                new TeamPermission
+                {
+                    TeamId = team.Id,
+                    Role = editorRole,
+                    User = new User { Id = "editor-1", Email = "editor1@example.com", Name = "Editor One" },
+                },
+                new TeamPermission
+                {
+                    TeamId = team.Id,
+                    Role = editorRole,
+                    User = new User { Id = "duplicate-editor", Email = "EDITOR1@example.com", Name = "Duplicate Editor" },
+                },
+                new TeamPermission
+                {
+                    TeamId = team.Id,
+                    Role = editorRole,
+                    User = new User { Id = "editor-2", Email = "editor2@example.com", Name = "Editor Two" },
+                },
+                new TeamPermission
+                {
+                    TeamId = team.Id,
+                    Role = new TeamRole { Name = TeamRole.Codes.Admin },
+                    User = new User { Id = "admin", Email = "admin@example.com", Name = "Admin" },
+                },
+                new TeamPermission
+                {
+                    TeamId = 99,
+                    Role = editorRole,
+                    User = new User { Id = "other-team", Email = "other@example.com", Name = "Other Team Editor" },
+                },
+            };
+            var dbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
+            dbContext
+                .Setup(context => context.TeamPermissions)
+                .Returns(permissions.AsQueryable().MockAsyncDbSet().Object);
+            var emailService = new Mock<IEmailService>();
+            var service = new InvoiceService(
+                dbContext.Object,
+                emailService.Object,
+                new Mock<IAggieEnterpriseService>().Object);
+
+            await service.SendFinancialApprovalRejected(invoice, "Incorrect account", approver);
+
+            emailService.Verify(
+                email => email.SendFinancialApprovalRejectedCustomer(invoice, "Incorrect account", approver),
+                Times.Once);
+            emailService.Verify(
+                email => email.SendFinancialApprovalRejectedEditors(
+                    invoice,
+                    "Incorrect account",
+                    It.Is<IReadOnlyCollection<User>>(editors =>
+                        editors.Count == 2 &&
+                        editors.Any(editor => editor.Email == "editor1@example.com") &&
+                        editors.Any(editor => editor.Email == "editor2@example.com"))),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task SendFinancialApprovalRejected_CustomerFailureStillAttemptsEditorsAndDoesNotThrow()
+        {
+            var team = new Team { Id = 7 };
+            var invoice = new Invoice { Id = 42, Team = team };
+            var approver = new User { Email = "approver@example.com", Name = "Financial Approver" };
+            var editor = new User { Email = "editor@example.com", Name = "Editor" };
+            var permissions = new List<TeamPermission>
+            {
+                new TeamPermission
+                {
+                    TeamId = team.Id,
+                    Role = new TeamRole { Name = TeamRole.Codes.Editor },
+                    User = editor,
+                },
+            };
+            var dbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
+            dbContext
+                .Setup(context => context.TeamPermissions)
+                .Returns(permissions.AsQueryable().MockAsyncDbSet().Object);
+            var emailService = new Mock<IEmailService>();
+            emailService
+                .Setup(email => email.SendFinancialApprovalRejectedCustomer(invoice, "Incorrect account", approver))
+                .ThrowsAsync(new InvalidOperationException("SMTP unavailable"));
+            emailService
+                .Setup(email => email.SendFinancialApprovalRejectedEditors(
+                    invoice,
+                    "Incorrect account",
+                    It.IsAny<IReadOnlyCollection<User>>()))
+                .ThrowsAsync(new InvalidOperationException("SMTP unavailable"));
+            var service = new InvoiceService(
+                dbContext.Object,
+                emailService.Object,
+                new Mock<IAggieEnterpriseService>().Object);
+
+            await service.SendFinancialApprovalRejected(invoice, "Incorrect account", approver);
+
+            emailService.Verify(
+                email => email.SendFinancialApprovalRejectedEditors(
+                    invoice,
+                    "Incorrect account",
+                    It.Is<IReadOnlyCollection<User>>(editors => editors.Count == 1 && editors.Single() == editor)),
+                Times.Once);
+        }
     }
 }
