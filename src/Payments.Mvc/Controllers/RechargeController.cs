@@ -502,11 +502,9 @@ namespace Payments.Mvc.Controllers
                     Data = rejectReason
                 };
                 invoice.History.Add(actionEntry);
-                //_dbContext.Invoices.Update(invoice);
                 await _dbContext.SaveChangesAsync();
 
-                //Send rejection email?
-
+                await _invoiceService.SendFinancialApprovalRejected(invoice, rejectReason, user);
 
                 return Ok();
             }

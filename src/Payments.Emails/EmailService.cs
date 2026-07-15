@@ -22,6 +22,10 @@ namespace Payments.Emails
 
         Task SendFinancialApprove(Invoice invoice, SendApprovalModel approvalModel);
 
+        Task SendFinancialApprovalRejectedCustomer(Invoice invoice, string rejectionReason, User financialApprover);
+
+        Task SendFinancialApprovalRejectedEditors(Invoice invoice, string rejectionReason, IReadOnlyCollection<User> editors);
+
         Task SendReceipt(Invoice invoice, PaymentEvent payment);
 
         Task SendRechargeReceipt(Invoice invoice, SendApprovalModel approvalModel);
@@ -251,6 +255,68 @@ namespace Payments.Emails
                 }
 
                 // ship it
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
+            }
+        }
+
+        public async Task SendFinancialApprovalRejectedCustomer(Invoice invoice, string rejectionReason, User financialApprover)
+        {
+            var viewbag = GetViewData();
+            viewbag["Team"] = invoice.Team;
+            viewbag["Invoice"] = invoice;
+
+            var model = new FinancialApprovalRejectedViewModel
+            {
+                Invoice = invoice,
+                RejectionReason = rejectionReason,
+            };
+
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/FinancialApprovalRejectedCustomer.cshtml", model, viewbag);
+            var mjml = await _mjmlServices.Render(prehtml);
+
+            using (var message = new MailMessage { From = _fromAddress, Subject = $"Recharge invoice {invoice.GetFormattedId()} rejected" })
+            {
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+                message.To.Add(new MailAddress(invoice.CustomerEmail, invoice.CustomerName));
+                message.CC.Add(new MailAddress(financialApprover.Email, financialApprover.Name));
+
+                await _client.SendMailAsync(message);
+                Log.Information("Sent Email");
+            }
+        }
+
+        public async Task SendFinancialApprovalRejectedEditors(Invoice invoice, string rejectionReason, IReadOnlyCollection<User> editors)
+        {
+            if (editors == null || editors.Count == 0)
+            {
+                return;
+            }
+
+            var viewbag = GetViewData();
+            viewbag["Team"] = invoice.Team;
+            viewbag["Invoice"] = invoice;
+
+            var model = new FinancialApprovalRejectedViewModel
+            {
+                Invoice = invoice,
+                RejectionReason = rejectionReason,
+            };
+
+            var prehtml = await RazorTemplateEngine.RenderAsync("/Views/FinancialApprovalRejectedEditors.cshtml", model, viewbag);
+            var mjml = await _mjmlServices.Render(prehtml);
+
+            using (var message = new MailMessage { From = _fromAddress, Subject = $"Recharge invoice {invoice.GetFormattedId()} rejected" })
+            {
+                message.Body = mjml.Html;
+                message.IsBodyHtml = true;
+
+                foreach (var editor in editors)
+                {
+                    message.To.Add(new MailAddress(editor.Email, editor.Name));
+                }
+
                 await _client.SendMailAsync(message);
                 Log.Information("Sent Email");
             }
