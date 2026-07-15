@@ -60,5 +60,9 @@ namespace Payments.Mvc.Models.PaymentViewModels
 
         public string Message { get; set; }
         public string ErrorMessage { get; set; }
+
+        public string ExternalReferenceUrl { get; set; }
+
+        public string ExternalReferenceLabel { get; set; }
     }
 }

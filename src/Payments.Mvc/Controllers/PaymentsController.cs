@@ -412,6 +412,8 @@ namespace Payments.Mvc.Controllers
 
             invoice.UpdateCalculatedValues();
 
+            invoice.TryGetExternalReference(out var externalReferenceUrl, out var externalReferenceLabel);
+
             var model = new PreviewInvoiceViewModel()
             {
                 Id               = invoice.GetFormattedId(),
@@ -432,6 +434,8 @@ namespace Payments.Mvc.Controllers
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt.ToPacificTime(),
                 Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
+                ExternalReferenceUrl = externalReferenceUrl,
+                ExternalReferenceLabel = externalReferenceLabel,
             };
 
             return View(model);
@@ -760,6 +764,8 @@ namespace Payments.Mvc.Controllers
 
         private PaymentInvoiceViewModel CreateInvoicePaymentViewModel(Invoice invoice)
         {
+            invoice.TryGetExternalReference(out var externalReferenceUrl, out var externalReferenceLabel);
+
             var model = new PaymentInvoiceViewModel()
             {
                 Id               = invoice.GetFormattedId(),
@@ -781,6 +787,8 @@ namespace Payments.Mvc.Controllers
                 Paid             = invoice.Paid,
                 PaidDate         = invoice.PaidAt.ToPacificTime(),
                 Team             = new PaymentInvoiceTeamViewModel(invoice.Team),
+                ExternalReferenceUrl = externalReferenceUrl,
+                ExternalReferenceLabel = externalReferenceLabel,
             };
 
             return model;

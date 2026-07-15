@@ -3,6 +3,7 @@ import { RechargeInvoiceModel } from './PayInvoiceContainer';
 import RechargeAccountsControl from '../components/rechargeAccountsControl';
 import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { formatCurrencyLocale } from '../utils/currency';
+import InvoiceContact from '../components/invoiceContact';
 
 interface IProps {
   invoice: RechargeInvoiceModel;
@@ -228,28 +229,11 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
               </a>
             </div>
 
-            <div className='pay-footer'>
-              <span>
-                If you have any questions, contact us
-                {invoice.team.contactEmail && (
-                  <>
-                    {' at '}
-                    <a href={`mailto:${invoice.team.contactEmail}`}>
-                      {invoice.team.contactEmail}
-                    </a>
-                  </>
-                )}
-                {invoice.team.contactEmail &&
-                  invoice.team.contactPhoneNumber &&
-                  ' or'}
-                {invoice.team.contactPhoneNumber && (
-                  <> call at {invoice.team.contactPhoneNumber}</>
-                )}
-                {!invoice.team.contactEmail &&
-                  !invoice.team.contactPhoneNumber &&
-                  '.'}
-              </span>
-            </div>
+            <InvoiceContact
+              team={invoice.team}
+              externalReferenceUrl={invoice.externalReferenceUrl}
+              externalReferenceLabel={invoice.externalReferenceLabel}
+            />
           </div>
         </div>
       </>

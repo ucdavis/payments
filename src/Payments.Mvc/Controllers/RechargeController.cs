@@ -152,6 +152,8 @@ namespace Payments.Mvc.Controllers
 
         private static RechargeInvoiceViewModel CreateRechargeInvoiceViewModel(Invoice invoice)
         {
+            invoice.TryGetExternalReference(out var externalReferenceUrl, out var externalReferenceLabel);
+
             var model = new RechargeInvoiceViewModel()
             {
                 Id = invoice.GetFormattedId(),
@@ -175,6 +177,8 @@ namespace Payments.Mvc.Controllers
                 Team = new PaymentInvoiceTeamViewModel(invoice.Team),
                 Status = invoice.Status,
                 DebitRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).ToList(),
+                ExternalReferenceUrl = externalReferenceUrl,
+                ExternalReferenceLabel = externalReferenceLabel,
             };
             return model;
         }

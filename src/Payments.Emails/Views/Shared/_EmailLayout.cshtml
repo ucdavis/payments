@@ -1,7 +1,12 @@
 @using Payments.Core.Domain
+@using Payments.Core.Extensions
 
 @{
     var team = (Team) ViewData["Team"];
+    var invoice = ViewData["Invoice"] as Invoice;
+    string externalReferenceUrl = null;
+    string externalReferenceLabel = null;
+    var hasExternalReference = invoice != null && invoice.TryGetExternalReference(out externalReferenceUrl, out externalReferenceLabel);
 }
 
 <mjml lang="en-us">
@@ -21,7 +26,14 @@
         <mj-section>
             <mj-column>
                 <mj-text align="center">
-                    <p>If you have any questions, contact us at <a href="mailto:@team.ContactEmail">@team.ContactEmail</a> or call at <a href="tel:@team.ContactPhoneNumber">@team.ContactPhoneNumber</a></p>
+                    @if (hasExternalReference)
+                    {
+                        <p>If you have any questions, see <a href="@externalReferenceUrl">@externalReferenceLabel</a>.</p>
+                    }
+                    else
+                    {
+                        <p>If you have any questions, contact us at <a href="mailto:@team.ContactEmail">@team.ContactEmail</a> or call at <a href="tel:@team.ContactPhoneNumber">@team.ContactPhoneNumber</a></p>
+                    }
                 </mj-text>
             </mj-column>
         </mj-section>
