@@ -181,6 +181,7 @@ namespace Payments.Mvc
                 c.IncludeXmlComments(xmlFilePath);
                 c.EnableAnnotations();
                 c.SchemaFilter<CreateInvoiceSchemaFilter>();
+                c.SchemaFilter<InvoiceSchemaFilter>();
 
                 var securityScheme = new OpenApiSecurityScheme
                 {
