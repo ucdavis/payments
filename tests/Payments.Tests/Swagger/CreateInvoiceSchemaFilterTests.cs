@@ -28,11 +28,15 @@ namespace Payments.Tests.Swagger
             var type = FindProperty(invoiceSchema, nameof(CreateInvoiceModel.Type));
             var useDefaultAccount = FindProperty(invoiceSchema, nameof(CreateInvoiceModel.UseDefaultAccount));
             var rechargeAccounts = FindProperty(invoiceSchema, nameof(CreateInvoiceModel.RechargeAccounts));
+            var externalIdentifier = FindProperty(invoiceSchema, nameof(CreateInvoiceModel.ExternalIdentifier));
+            var externalLink = FindProperty(invoiceSchema, nameof(CreateInvoiceModel.ExternalLink));
             var rechargeAccountSchema = repository.Schemas[nameof(CreateInvoiceRechargeAccountRequest)];
 
             Assert.Equal(new[] { "CC", "Recharge" },
                 type.Enum.Cast<OpenApiString>().Select(value => value.Value));
             Assert.Contains("only if accountId does not identify an account", useDefaultAccount.Description);
+            Assert.Contains("shown to customers in place of the team's contact information", externalIdentifier.Description);
+            Assert.Contains("shown to customers in place of the team's contact information", externalLink.Description);
             Assert.Equal(nameof(CreateInvoiceRechargeAccountRequest), rechargeAccounts.Items.Reference.Id);
             Assert.Equal(
                 new[] { "amount", "direction", "financialSegmentString", "notes", "percentage" },

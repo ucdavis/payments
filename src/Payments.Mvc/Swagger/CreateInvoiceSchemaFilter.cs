@@ -34,11 +34,11 @@ namespace Payments.Mvc.Swagger
                 "Previously uploaded invoice attachments, identified by the value returned from the upload API.");
             Describe(schema, nameof(CreateInvoiceModel.DueDate), "Optional invoice due date.");
             Describe(schema, nameof(CreateInvoiceModel.ExternalIdentifier),
-                "Optional name or identifier for the external system.");
+                "Optional name or identifier for the external system. Warning: when used with an externalLink containing a valid HTTP or HTTPS URL, that URL is shown to customers in place of the team's contact information.");
             Describe(schema, nameof(CreateInvoiceModel.ExternalId),
                 "Optional identifier of the related record in the external system.");
             Describe(schema, nameof(CreateInvoiceModel.ExternalLink),
-                "Optional link to the related record in the external system.");
+                "Optional link to the related record in the external system. Warning: when used with externalIdentifier and this value is a valid HTTP or HTTPS URL, the URL is shown to customers in place of the team's contact information.");
 
             var useDefaultAccount = FindProperty(schema, nameof(CreateInvoiceModel.UseDefaultAccount));
             if (useDefaultAccount != null)
