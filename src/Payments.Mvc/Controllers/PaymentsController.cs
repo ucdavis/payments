@@ -101,6 +101,32 @@ namespace Payments.Mvc.Controllers
 
             invoice.UpdateCalculatedValues();
 
+            if (invoice.Type != Invoice.InvoiceTypes.Recharge &&
+                invoice.Status == Invoice.StatusCodes.Sent &&
+                invoice.CalculatedTotal == 0)
+            {
+                // Preserve a coupon discount before setting Paid because paid invoices use ManualDiscount.
+                if (invoice.Coupon != null)
+                {
+                    invoice.ManualDiscount = invoice.GetDiscountAmount();
+                }
+
+                invoice.Status = Invoice.StatusCodes.Completed;
+                invoice.Paid = true;
+                invoice.PaidAt = DateTime.UtcNow;
+                invoice.PaymentType = invoice.Coupon == null ? PaymentTypes.Manual : PaymentTypes.Coupon;
+
+                invoice.History.Add(new History()
+                {
+                    Type = HistoryActionTypes.MarkPaid.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = "System",
+                    Data = "Invoice had a zero balance when the payment page was viewed and was marked as Paid/Complete",
+                });
+
+                await _dbContext.SaveChangesAsync();
+            }
+
             var model = CreateInvoicePaymentViewModel(invoice);
 
             if (invoice.Status == Invoice.StatusCodes.Sent)
