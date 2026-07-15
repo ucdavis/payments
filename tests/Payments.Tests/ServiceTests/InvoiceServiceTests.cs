@@ -177,7 +177,7 @@ namespace payments.Tests.ServiceTests
         }
 
         [Fact]
-        public async Task SendFinancialApprovalRejected_SendsCustomerAndDistinctTeamEditors()
+        public async Task SendFinancialApprovalRejected_SendsCustomerAndDistinctTeamEditorsAndAdmins()
         {
             var team = new Team { Id = 7, Name = "Test Team", Slug = "test-team" };
             var invoice = new Invoice
@@ -205,7 +205,7 @@ namespace payments.Tests.ServiceTests
                 new TeamPermission
                 {
                     TeamId = team.Id,
-                    Role = editorRole,
+                    Role = new TeamRole { Name = TeamRole.Codes.Admin },
                     User = new User { Id = "duplicate-editor", Email = "EDITOR1@example.com", Name = "Duplicate Editor" },
                 },
                 new TeamPermission
@@ -247,9 +247,10 @@ namespace payments.Tests.ServiceTests
                     invoice,
                     "Incorrect account",
                     It.Is<IReadOnlyCollection<User>>(editors =>
-                        editors.Count == 2 &&
+                        editors.Count == 3 &&
                         editors.Any(editor => editor.Email == "editor1@example.com") &&
-                        editors.Any(editor => editor.Email == "editor2@example.com"))),
+                        editors.Any(editor => editor.Email == "editor2@example.com") &&
+                        editors.Any(editor => editor.Email == "admin@example.com"))),
                 Times.Once);
         }
 

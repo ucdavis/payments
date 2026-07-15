@@ -672,18 +672,19 @@ namespace Payments.Mvc.Services
 
             try
             {
-                var editors = await _dbContext.TeamPermissions
-                    .Where(permission => permission.TeamId == invoice.Team.Id && permission.Role.Name == TeamRole.Codes.Editor)
+                var recipients = await _dbContext.TeamPermissions
+                    .Where(permission => permission.TeamId == invoice.Team.Id &&
+                                         (permission.Role.Name == TeamRole.Codes.Editor || permission.Role.Name == TeamRole.Codes.Admin))
                     .Select(permission => permission.User)
                     .ToListAsync();
 
-                var distinctEditors = editors
-                    .Where(editor => !string.IsNullOrWhiteSpace(editor.Email))
-                    .GroupBy(editor => editor.Email, StringComparer.OrdinalIgnoreCase)
+                var distinctRecipients = recipients
+                    .Where(recipient => !string.IsNullOrWhiteSpace(recipient.Email))
+                    .GroupBy(recipient => recipient.Email, StringComparer.OrdinalIgnoreCase)
                     .Select(group => group.First())
                     .ToArray();
 
-                await _emailService.SendFinancialApprovalRejectedEditors(invoice, rejectionReason, distinctEditors);
+                await _emailService.SendFinancialApprovalRejectedEditors(invoice, rejectionReason, distinctRecipients);
             }
             catch (Exception exception)
             {
