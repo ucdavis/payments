@@ -220,7 +220,7 @@ namespace Payments.Mvc.Controllers
             }
 
 
-            var canEditCreditCardChartStrings = await CanEditAccountOverride(team);
+            var canEditCreditCardChartStrings = await CanEditAccountOverride(team, user);
             var copiedInvoice = await _invoiceService.CopyInvoice(invoice, team, user, canEditCreditCardChartStrings);
 
             var historyAction = new History()
@@ -370,9 +370,19 @@ namespace Payments.Mvc.Controllers
                     ModelState.AddModelError("Type", "This team is not allowed to create credit card invoices.");
                 }
 
-                foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                if(model.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit))
                 {
-                    SetEnteredBy(rechargeAcct, user);
+                    if(await CanEditAccountOverride(team, user) == false)
+                    {
+                        ModelState.AddModelError("RechargeAccounts", "Account Override not allowed for this user.");
+                    }
+                    else
+                    {
+                        foreach (var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                        {
+                            SetEnteredBy(rechargeAcct, user);
+                        }
+                    }
                 }
             }
             if(model.Type == Invoice.InvoiceTypes.Recharge)
@@ -468,7 +478,7 @@ namespace Payments.Mvc.Controllers
             else
             {
                 var existingCreditAccount = invoice.RechargeAccounts?.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
-                if (!await CanEditAccountOverride(invoice.Team))
+                if (!await CanEditAccountOverride(invoice.Team, user))
                 {
                     model.RechargeAccounts = new List<RechargeAccount>();
 
@@ -1021,9 +1031,9 @@ namespace Payments.Mvc.Controllers
             rechargeAccount.EnteredByKerb = user.CampusKerberos;
             rechargeAccount.EnteredByName = $"{user.Name} ({user.Email})";
         }
-        private async Task<bool> CanEditAccountOverride(Team team)
+        private async Task<bool> CanEditAccountOverride(Team team, User user = null)
         {
-            var user = await _userManager.GetUserAsync(User);
+            user ??= await _userManager.GetUserAsync(User);
             return User.IsInRole(ApplicationRoleCodes.Admin)
                    || user?.TeamPermissions.Any(a => a.TeamId == team.Id &&
                                                       (a.Role.Name == TeamRole.Codes.Admin ||
