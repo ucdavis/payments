@@ -152,7 +152,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.AllowedInvoiceType, CanEditAccountOverride = await CanEditAccountOverride(team) };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -220,7 +220,8 @@ namespace Payments.Mvc.Controllers
             }
 
 
-            var copiedInvoice = await _invoiceService.CopyInvoice(invoice, team, user);
+            var canEditCreditCardChartStrings = await CanEditAccountOverride(team, user);
+            var copiedInvoice = await _invoiceService.CopyInvoice(invoice, team, user, canEditCreditCardChartStrings);
 
             var historyAction = new History()
             {
@@ -282,7 +283,7 @@ namespace Payments.Mvc.Controllers
                 .Include(t => t.Coupons)
                 .FirstOrDefaultAsync(t => t.Slug == TeamSlug);
 
-            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType };
+            ViewBag.Team = new { team.Id, team.Name, team.Slug, team.ContactEmail, team.ContactPhoneNumber, team.AllowedInvoiceType, CanEditAccountOverride = await CanEditAccountOverride(team) };
 
             ViewBag.Accounts = team.Accounts
                 .Where(a => a.IsActive)
@@ -368,6 +369,21 @@ namespace Payments.Mvc.Controllers
                 {
                     ModelState.AddModelError("Type", "This team is not allowed to create credit card invoices.");
                 }
+
+                if(model.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                {
+                    if(await CanEditAccountOverride(team, user) == false)
+                    {
+                        ModelState.AddModelError("RechargeAccounts", "Account Override not allowed for this user.");
+                    }
+                    else
+                    {
+                        foreach (var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                        {
+                            SetEnteredBy(rechargeAcct, user);
+                        }
+                    }
+                }
             }
             if(model.Type == Invoice.InvoiceTypes.Recharge)
             {
@@ -377,8 +393,7 @@ namespace Payments.Mvc.Controllers
                 }
                 foreach(var rechargeAcct in model.RechargeAccounts)
                 {
-                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
-                    rechargeAcct.EnteredByName = $"{user.Name} ({user.Email})"; 
+                    SetEnteredBy(rechargeAcct, user);
                 }
             }
 
@@ -394,11 +409,12 @@ namespace Payments.Mvc.Controllers
                     modelState = ModelState
                 });
             }
+            var actor = $"{user.Name} ({user.Email})";
 
             IReadOnlyList<Invoice> invoices;
             try
             {
-                invoices = await _invoiceService.CreateInvoices(model, team);
+                invoices = await _invoiceService.CreateInvoices(model, team, actor);
             }
             catch (ArgumentException ex)
             {
@@ -455,9 +471,35 @@ namespace Payments.Mvc.Controllers
             if(invoice.Type == Invoice.InvoiceTypes.Recharge)
             {
                 foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Id == 0))
-                {                    
-                    rechargeAcct.EnteredByKerb = user.CampusKerberos;
-                    rechargeAcct.EnteredByName = $"{user.Name} ({user.Email})";            
+                {
+                    SetEnteredBy(rechargeAcct, user);
+                }
+            }
+            else
+            {
+                var existingCreditAccount = invoice.RechargeAccounts?.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
+                if (!await CanEditAccountOverride(invoice.Team, user))
+                {
+                    model.RechargeAccounts = new List<RechargeAccount>();
+
+                    if (existingCreditAccount != null)
+                    {
+                        model.RechargeAccounts.Add(existingCreditAccount);
+                    }
+                }
+                else
+                {
+                    foreach(var rechargeAcct in model.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit))
+                    {
+                        var isNewOrChanged = rechargeAcct.Id == 0
+                                             || existingCreditAccount == null
+                                             || !string.Equals(existingCreditAccount.FinancialSegmentString, rechargeAcct.FinancialSegmentString, StringComparison.OrdinalIgnoreCase);
+
+                        if(isNewOrChanged || string.IsNullOrWhiteSpace(rechargeAcct.EnteredByKerb))
+                        {
+                            SetEnteredBy(rechargeAcct, user);
+                        }
+                    }
                 }
             }
 
@@ -475,7 +517,8 @@ namespace Payments.Mvc.Controllers
 
             try
             {
-                await _invoiceService.UpdateInvoice(invoice, model);
+                var actor = $"{user.Name} ({user.Email})";
+                await _invoiceService.UpdateInvoice(invoice, model, actor);
             }
             catch (ArgumentException ex)
             {
@@ -929,7 +972,7 @@ namespace Payments.Mvc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string deleteReason)
         {
             // find item
             var invoice = await _dbContext.Invoices
@@ -967,6 +1010,7 @@ namespace Payments.Mvc.Controllers
                 Type = HistoryActionTypes.InvoiceDeleted.TypeCode,
                 ActionDateTime = DateTime.UtcNow,
                 Actor = user.Name,
+                Data = deleteReason,
             };
             invoice.History.Add(action);
 
@@ -982,6 +1026,19 @@ namespace Payments.Mvc.Controllers
             return RedirectToAction("Index", "Invoices");
         }
 
+        private static void SetEnteredBy(RechargeAccount rechargeAccount, User user)
+        {
+            rechargeAccount.EnteredByKerb = user.CampusKerberos;
+            rechargeAccount.EnteredByName = $"{user.Name} ({user.Email})";
+        }
+        private async Task<bool> CanEditAccountOverride(Team team, User user = null)
+        {
+            user ??= await _userManager.GetUserAsync(User);
+            return User.IsInRole(ApplicationRoleCodes.Admin)
+                   || user?.TeamPermissions.Any(a => a.TeamId == team.Id &&
+                                                      (a.Role.Name == TeamRole.Codes.Admin ||
+                                                       a.Role.Name == TeamRole.Codes.FinanceOfficer)) == true;
+        }
         private InvoiceFilterViewModel GetInvoiceFilter()
         {
             var filter = HttpContext.Session.GetObjectFromJson<InvoiceFilterViewModel>("InvoiceFilter");

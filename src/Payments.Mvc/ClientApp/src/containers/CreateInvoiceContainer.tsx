@@ -15,6 +15,7 @@ import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
+import CreditCardAccountOverrideControl from '../components/creditCardAccountOverrideControl';
 import Alert from '../components/alert';
 import AttachmentsControl from '../components/attachmentsControl';
 import DueDateControl from '../components/dueDateControl';
@@ -61,6 +62,7 @@ export default class CreateInvoiceContainer extends React.Component<
 > {
   private _formRef: HTMLFormElement;
   private _rechargeAccountsRef: RechargeAccountsControl;
+  private _creditCardAccountOverrideRef: CreditCardAccountOverrideControl;
 
   constructor(props: IProps) {
     super(props);
@@ -132,6 +134,7 @@ export default class CreateInvoiceContainer extends React.Component<
       invoiceType,
       rechargeAccounts
     } = this.state;
+    const invoiceTotal = calculateTotal(items, discount, taxPercent);
 
     return (
       <InvoiceForm
@@ -179,8 +182,8 @@ export default class CreateInvoiceContainer extends React.Component<
             <RechargeAccountsControl
               ref={r => { this._rechargeAccountsRef = r; }}
               rechargeAccounts={rechargeAccounts}
-              invoiceTotal={calculateTotal(items, discount, taxPercent)}
-              onChange={v => this.updateProperty('rechargeAccounts', v)}
+              invoiceTotal={invoiceTotal}
+              onChange={this.updateRechargeAccounts}
               showCreditAccounts={true}
             />
           </div>
@@ -203,6 +206,18 @@ export default class CreateInvoiceContainer extends React.Component<
                 onChange={a => this.updateProperty('accountId', a)}
               />
             </div>
+          )}
+          {invoiceType !== 'Recharge' && team.canEditAccountOverride && (
+            <CreditCardAccountOverrideControl
+              ref={r => {
+                this._creditCardAccountOverrideRef = r;
+              }}
+              rechargeAccount={this.getCreditCardRechargeAccount()}
+              teamSlug={team.slug}
+              invoiceTotal={invoiceTotal}
+              canEdit={true}
+              onChange={this.updateCreditCardRechargeAccount}
+            />
           )}
         </div>
         <div className='card-body invoice-attachments'>
@@ -374,8 +389,49 @@ export default class CreateInvoiceContainer extends React.Component<
     } as unknown) as IState);
   };
 
+  private updateRechargeAccounts = (
+    rechargeAccounts: InvoiceRechargeItem[]
+  ) => {
+    this.setState(state =>
+      state.invoiceType === 'Recharge' ? { rechargeAccounts } : null
+    );
+  };
+  private normalizeRechargeDirection = (direction: any): 'Credit' | 'Debit' => {
+    if (direction === 0 || direction === '0') {
+      return 'Credit';
+    }
+
+    if (direction === 1 || direction === '1') {
+      return 'Debit';
+    }
+
+    return direction as 'Credit' | 'Debit';
+  };
+
+  private getCreditCardRechargeAccount = () => {
+    return this.state.rechargeAccounts.find(
+      account => this.normalizeRechargeDirection(account.direction) === 'Credit'
+    );
+  };
+
+  private updateCreditCardRechargeAccount = (
+    rechargeAccount?: InvoiceRechargeItem
+  ) => {
+    this.setState(prevState => {
+      const otherRechargeAccounts = prevState.rechargeAccounts.filter(
+        account => this.normalizeRechargeDirection(account.direction) !== 'Credit'
+      );
+
+      return ({
+        rechargeAccounts: rechargeAccount
+          ? [...otherRechargeAccounts, rechargeAccount]
+          : otherRechargeAccounts
+      } as unknown) as IState;
+    });
+  };
+
   private handleInvoiceTypeChange = () => {
-    const { invoiceType } = this.state;
+    const { invoiceType, rechargeAccounts } = this.state;
     const newInvoiceType = invoiceType === 'CC' ? 'Recharge' : 'CC';
 
     // When switching to Recharge, clear tax and coupon
@@ -388,7 +444,23 @@ export default class CreateInvoiceContainer extends React.Component<
         }
       });
     } else {
-      this.setState({ invoiceType: newInvoiceType });
+      const hasEnteredRechargeAccounts =
+        this._rechargeAccountsRef?.hasEnteredAccounts() ??
+        rechargeAccounts.length > 0;
+
+      if (
+        hasEnteredRechargeAccounts &&
+        !window.confirm(
+          'Switching to Credit Card will remove all entered recharge accounts. Do you want to continue?'
+        )
+      ) {
+        return;
+      }
+
+      this.setState({
+        invoiceType: newInvoiceType,
+        rechargeAccounts: []
+      });
     }
   };
 
@@ -419,6 +491,17 @@ export default class CreateInvoiceContainer extends React.Component<
       }
     }
 
+    if (
+      this.state.invoiceType !== 'Recharge' &&
+      this._creditCardAccountOverrideRef?.hasValidationErrors()
+    ) {
+      this.setState({
+        errorMessage:
+          'Please fix the income chart string validation errors before saving.',
+        modelErrors: []
+      });
+      return false;
+    }
     const { slug } = this.props.team;
     const {
       accountId,
@@ -593,6 +676,17 @@ export default class CreateInvoiceContainer extends React.Component<
       }
     }
 
+    if (
+      this.state.invoiceType !== 'Recharge' &&
+      this._creditCardAccountOverrideRef?.hasValidationErrors()
+    ) {
+      this.setState({
+        errorMessage:
+          'Please fix the income chart string validation errors before sending.',
+        modelErrors: []
+      });
+      return;
+    }
     this.setState({
       isSendModalOpen: true
     });

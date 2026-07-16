@@ -327,6 +327,18 @@ namespace Payments.Core.Migrations
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ExternalIdentifier")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ExternalLink")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<string>("KfsTrackingNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -392,6 +404,8 @@ namespace Payments.Core.Migrations
                     b.HasIndex("TeamId");
 
                     b.HasIndex("Type");
+
+                    b.HasIndex("TeamId", "ExternalIdentifier", "ExternalId");
 
                     b.ToTable("Invoices");
                 });

@@ -1,7 +1,25 @@
 
 @{
     ViewData["Title"] = "Support";
+    const string whatsNewVersion = "2026-07-16";
 }
+
+<div class="alert alert-info alert-dismissible fade show d-none"
+     data-whats-new-version="@whatsNewVersion"
+     role="status"
+     hidden>
+    <i class="fas fa-bullhorn fa-lg" aria-hidden="true"></i>
+    <span class="ms-2">
+        <a class="alert-link ms-1"
+           href="https://computing.caes.ucdavis.edu/documentation/payments/change-log"
+           target="_blank"
+           rel="noopener noreferrer">See what's new in Payments. What's New <i class="fas fa-external-link-alt ms-1" aria-hidden="true"></i></a>
+    </span>
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Dismiss What's New notification"></button>
+</div>
 
 <div class="card">
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
@@ -22,5 +40,55 @@
                 <a href=@($"https://caeshelp.ucdavis.edu/?appname=Payments&team={ViewBag.TeamSlug}") target="_blank">Contact Us <i class="fas fa-external-link-alt ms-1"></i></a>
             </li>
         </ul>
+
+        <div class="text-end text-muted small">Version @ViewBag.Version</div>
     </div>
 </div>
+
+@section scripts
+{
+    <script asp-add-nonce="true">
+        (function () {
+            "use strict";
+
+            const alert = document.querySelector("[data-whats-new-version]");
+
+            if (!alert) {
+                return;
+            }
+
+            const storageKey = "payments.whatsNew.dismissedVersion";
+            const version = alert.dataset.whatsNewVersion;
+
+            if (!version) {
+                return;
+            }
+
+            try {
+                if (window.localStorage.getItem(storageKey) === version) {
+                    alert.remove();
+                    return;
+                }
+            } catch {
+                // Keep the notification visible when local storage is unavailable.
+            }
+
+            alert.classList.remove("d-none");
+            alert.hidden = false;
+
+            const dismissButton = alert.querySelector('[data-bs-dismiss="alert"]');
+
+            if (!dismissButton) {
+                return;
+            }
+
+            dismissButton.addEventListener("click", function () {
+                try {
+                    window.localStorage.setItem(storageKey, version);
+                } catch {
+                    // Dismiss the notification for this page even if it cannot be remembered.
+                }
+            }, { once: true });
+        })();
+    </script>
+}

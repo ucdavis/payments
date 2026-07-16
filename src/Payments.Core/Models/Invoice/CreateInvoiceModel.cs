@@ -10,6 +10,8 @@ namespace Payments.Core.Models.Invoice
     {
         public int AccountId { get; set; }
 
+        public bool UseDefaultAccount { get; set; } = false;
+
         /// <summary>
         /// One or many customers to assign an invoice to. Multiple customers will create multiple invoices
         /// </summary>
@@ -54,12 +56,30 @@ namespace Payments.Core.Models.Invoice
         /// </summary>
         [Required]
         [ValidInvoiceType]
-        public string Type { get; set; } //New invoice type
+        public string Type { get; set; } = "CC";
 
         /// <summary>
         /// Optional due date for invoice
         /// </summary>
         public DateTime? DueDate { get; set; }
+
+        /// <summary>
+        /// Optional name or identifier for the external system.
+        /// </summary>
+        [MaxLength(20)]
+        public string ExternalIdentifier { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Optional identifier of the related record in the external system.
+        /// </summary>
+        [MaxLength(128)]
+        public string ExternalId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Optional link to the related record in the external system.
+        /// </summary>
+        [MaxLength(256)]
+        public string ExternalLink { get; set; } = string.Empty;
     }
 
     public class CreateInvoiceCustomerModel

@@ -143,6 +143,31 @@ namespace payments.Tests.ControllerTests
             InvoiceData[0].History.ShouldNotBeNull();
             InvoiceData[0].History.Count.ShouldBe(0);
         }
+
+        [Theory]
+        [InlineData("Created by mistake")]
+        [InlineData(null)]
+        public async Task TestDeleteStoresOptionalReasonInHistory(string deleteReason)
+        {
+            // Arrange
+            InvoiceData[0].Status = Invoice.StatusCodes.Draft;
+
+            // Act
+            await Controller.Delete(1, deleteReason);
+
+            // Assert
+            MockDbContext.Verify(a => a.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            InvoiceData[0].Status.ShouldBe(Invoice.StatusCodes.Deleted);
+            InvoiceData[0].Deleted.ShouldBeTrue();
+            InvoiceData[0].DeletedAt.ShouldNotBeNull();
+
+            InvoiceData[0].History.ShouldNotBeNull();
+            InvoiceData[0].History.Count.ShouldBe(1);
+            InvoiceData[0].History[0].Actor.ShouldBe("FirstName2 LastName2");
+            InvoiceData[0].History[0].Type.ShouldBe(HistoryActionTypes.InvoiceDeleted.TypeCode);
+            InvoiceData[0].History[0].Data.ShouldBe(deleteReason);
+            InvoiceData[0].History[0].ActionDateTime.ShouldNotBe(default);
+        }
     }
 
     [Trait("Category", "Controller Reflection")]

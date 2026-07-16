@@ -16,6 +16,7 @@ import { InvoiceRechargeItem } from '../models/InvoiceRechargeItem';
 import { Team } from '../models/Team';
 
 import AccountSelectControl from '../components/accountSelectControl';
+import CreditCardAccountOverrideControl from '../components/creditCardAccountOverrideControl';
 import Alert from '../components/alert';
 import AttachmentsControl from '../components/attachmentsControl';
 import CustomerControl from '../components/customerControl';
@@ -63,6 +64,7 @@ export default class EditInvoiceContainer extends React.Component<
 > {
   private _formRef: HTMLFormElement;
   private _rechargeAccountsRef: RechargeAccountsControl;
+  private _creditCardAccountOverrideRef: CreditCardAccountOverrideControl;
 
   constructor(props: IProps) {
     super(props);
@@ -127,6 +129,7 @@ export default class EditInvoiceContainer extends React.Component<
       loading,
       validate
     } = this.state;
+    const invoiceTotal = calculateTotal(items, discount, taxPercent);
 
     return (
       <InvoiceForm
@@ -182,7 +185,7 @@ export default class EditInvoiceContainer extends React.Component<
                 this._rechargeAccountsRef = r;
               }}
               rechargeAccounts={rechargeAccounts}
-              invoiceTotal={calculateTotal(items, discount, taxPercent)}
+              invoiceTotal={invoiceTotal}
               onChange={v => this.updateProperty('rechargeAccounts', v)}
               showCreditAccounts={true}
             />
@@ -207,6 +210,20 @@ export default class EditInvoiceContainer extends React.Component<
               />
             </div>
           )}
+          {type !== 'Recharge' &&
+            (team.canEditAccountOverride ||
+              this.getCreditCardRechargeAccount()) && (
+              <CreditCardAccountOverrideControl
+                ref={r => {
+                  this._creditCardAccountOverrideRef = r;
+                }}
+                rechargeAccount={this.getCreditCardRechargeAccount()}
+                teamSlug={team.slug}
+                invoiceTotal={invoiceTotal}
+                canEdit={team.canEditAccountOverride}
+                onChange={this.updateCreditCardRechargeAccount}
+              />
+            )}
         </div>
         <div className='card-body invoice-attachments'>
           <h2>Attachments</h2>
@@ -265,7 +282,6 @@ export default class EditInvoiceContainer extends React.Component<
       type,
       rechargeAccounts
     } = this.state;
-
     return (
       <SendModal
         isModalOpen={isSendModalOpen}
@@ -312,6 +328,39 @@ export default class EditInvoiceContainer extends React.Component<
       [name]: value
     } as unknown) as IState);
   };
+  private normalizeRechargeDirection = (direction: any): 'Credit' | 'Debit' => {
+    if (direction === 0 || direction === '0') {
+      return 'Credit';
+    }
+
+    if (direction === 1 || direction === '1') {
+      return 'Debit';
+    }
+
+    return direction as 'Credit' | 'Debit';
+  };
+
+  private getCreditCardRechargeAccount = () => {
+    return this.state.rechargeAccounts.find(
+      account => this.normalizeRechargeDirection(account.direction) === 'Credit'
+    );
+  };
+
+  private updateCreditCardRechargeAccount = (
+    rechargeAccount?: InvoiceRechargeItem
+  ) => {
+    this.setState(prevState => {
+      const otherRechargeAccounts = prevState.rechargeAccounts.filter(
+        account => this.normalizeRechargeDirection(account.direction) !== 'Credit'
+      );
+
+      return ({
+        rechargeAccounts: rechargeAccount
+          ? [...otherRechargeAccounts, rechargeAccount]
+          : otherRechargeAccounts
+      } as unknown) as IState;
+    });
+  };
 
   private onCancel = () => {
     window.history.go(-1);
@@ -340,6 +389,17 @@ export default class EditInvoiceContainer extends React.Component<
       }
     }
 
+    if (
+      this.state.type !== 'Recharge' &&
+      this._creditCardAccountOverrideRef?.hasValidationErrors()
+    ) {
+      this.setState({
+        errorMessage:
+          'Please fix the income chart string validation errors before saving.',
+        modelErrors: []
+      });
+      return false;
+    }
     const { id } = this.props;
     const { slug } = this.props.team;
     const {
@@ -471,6 +531,17 @@ export default class EditInvoiceContainer extends React.Component<
       }
     }
 
+    if (
+      this.state.type !== 'Recharge' &&
+      this._creditCardAccountOverrideRef?.hasValidationErrors()
+    ) {
+      this.setState({
+        errorMessage:
+          'Please fix the income chart string validation errors before sending.',
+        modelErrors: []
+      });
+      return;
+    }
     this.setState({
       isSendModalOpen: true
     });

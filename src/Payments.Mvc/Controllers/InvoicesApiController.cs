@@ -18,6 +18,8 @@ namespace Payments.Mvc.Controllers
     [Route("api/invoices")]
     public class InvoicesApiController : ApiController
     {
+        private const int MaxExternalIdsPerRequest = 1000;
+
         private readonly IInvoiceService _invoiceService;
         private readonly IStorageService _storageService;
 
@@ -53,6 +55,137 @@ namespace Payments.Mvc.Controllers
             return invoice;
         }
 
+
+        /// <summary>
+        /// Fetch the minimal invoice details needed by API clients.
+        /// </summary>
+        /// <param name="id">Invoice identifier.</param>
+        /// <returns>A simplified invoice response.</returns>
+        [HttpGet("{id}/simple")]
+        [ProducesResponseType(typeof(SimpleInvoiceResult), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<SimpleInvoiceResult>> GetSimple(int id)
+        {
+            var team = await GetAuthorizedTeam();
+
+            var invoice = await _dbContext.Invoices
+                .AsNoTracking()
+                .Where(i => i.Id == id && i.Team.Id == team.Id)
+                .Select(i => new SimpleInvoiceResult
+                {
+                    Id = i.Id,
+                    Status = i.Status,
+                    Type = i.Type,
+                    LinkId = i.LinkId,
+                    CustomerEmail = i.CustomerEmail,
+                    TotalAmount = i.CalculatedTotal,
+                    ExternalIdentifier = i.ExternalIdentifier,
+                    ExternalId = i.ExternalId,
+                    ExternalLink = i.ExternalLink
+                })
+                .FirstOrDefaultAsync();
+
+            if (invoice == null)
+            {
+                return NotFound(new { });
+            }
+
+            return invoice;
+        }
+
+        [HttpGet("external/{externalIdentifier}/{externalId}")]
+        [ProducesResponseType(typeof(List<SimpleInvoiceResult>), 200)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<SimpleInvoiceResult>>> GetByExternal(string externalIdentifier, string externalId)
+        {
+            if (string.IsNullOrWhiteSpace(externalIdentifier) || string.IsNullOrWhiteSpace(externalId))
+            {
+                return BadRequest("Both externalIdentifier and externalId are required.");
+            }
+
+            var team = await GetAuthorizedTeam();
+
+            var invoices = await _dbContext.Invoices
+                .AsNoTracking()
+                .Where(i => i.Team.Id == team.Id && i.ExternalIdentifier == externalIdentifier && i.ExternalId == externalId)
+                .Select(i => new SimpleInvoiceResult
+                {
+                    Id = i.Id,
+                    Status = i.Status,
+                    Type = i.Type,
+                    LinkId = i.LinkId,
+                    CustomerEmail = i.CustomerEmail,
+                    TotalAmount = i.CalculatedTotal,
+                    ExternalIdentifier = i.ExternalIdentifier,
+                    ExternalId = i.ExternalId,
+                    ExternalLink = i.ExternalLink
+                })
+                .ToListAsync();
+
+            if (!invoices.Any())
+            {
+                return NotFound(new { });
+            }
+
+            return invoices;
+        }
+
+        /// <summary>
+        /// Fetch minimal invoice details for multiple external IDs.
+        /// </summary>
+        /// <param name="model">The external system identifier and external invoice IDs to retrieve.</param>
+        /// <returns>Simplified invoice responses matching the supplied external IDs.</returns>
+        [HttpPost("external")]
+        [ProducesResponseType(typeof(SimpleInvoiceResult[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<SimpleInvoiceResult[]>> GetByExternal(
+            [FromBody] GetInvoicesByExternalIdsRequest model)
+        {
+            if (model == null ||
+                string.IsNullOrWhiteSpace(model.ExternalIdentifier) ||
+                model.ExternalIds == null ||
+                model.ExternalIds.Length == 0 ||
+                model.ExternalIds.Any(string.IsNullOrWhiteSpace))
+            {
+                return BadRequest("externalIdentifier and at least one externalId are required.");
+            }
+
+            if (model.ExternalIds.Length > MaxExternalIdsPerRequest)
+            {
+                return BadRequest($"A maximum of {MaxExternalIdsPerRequest} externalIds can be requested per batch.");
+            }
+
+            var team = await GetAuthorizedTeam();
+            var externalIds = model.ExternalIds.Distinct().ToArray();
+
+            var invoices = await _dbContext.Invoices
+                .AsNoTracking()
+                .Where(i => i.Team.Id == team.Id &&
+                            i.ExternalIdentifier == model.ExternalIdentifier &&
+                            externalIds.Contains(i.ExternalId))
+                .Select(i => new SimpleInvoiceResult
+                {
+                    Id = i.Id,
+                    Status = i.Status,
+                    Type = i.Type,
+                    LinkId = i.LinkId,
+                    CustomerEmail = i.CustomerEmail,
+                    TotalAmount = i.CalculatedTotal,
+                    ExternalIdentifier = i.ExternalIdentifier,
+                    ExternalId = i.ExternalId,
+                    ExternalLink = i.ExternalLink
+                })
+                .ToArrayAsync();
+
+            if (invoices.Length == 0)
+            {
+                return NotFound(new { });
+            }
+
+            return invoices;
+        }
 
         /// <summary>
         /// Mark Invoice as Deleted.
@@ -114,16 +247,29 @@ namespace Payments.Mvc.Controllers
         }
 
         /// <summary>
-        /// Create invoice
+        /// Create one or more invoices
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// A separate invoice is created for each customer in the request.
+        ///
+        /// Invoice type must be CC (credit card) or Recharge. For a CC invoice,
+        /// accountId must identify an account belonging to the authorized team. When
+        /// useDefaultAccount is true, the team's active default account is used only
+        /// when the supplied accountId is not found; it does not replace a valid account.
+        /// </remarks>
+        /// <param name="model">Invoice details.</param>
+        /// <returns>The identifiers of the created invoices.</returns>
         [HttpPost]
         [ProducesResponseType(typeof(CreateInvoiceResult), 200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> Create([FromBody] CreateInvoiceModel model)
         {
             var team = await GetAuthorizedTeam();
+
+            if (string.IsNullOrWhiteSpace(model.Type))
+            {
+                model.Type = Invoice.InvoiceTypes.CreditCard;
+            }
 
             if (model.Type == Invoice.InvoiceTypes.CreditCard)
             {

@@ -152,6 +152,8 @@ namespace Payments.Mvc.Controllers
 
         private static RechargeInvoiceViewModel CreateRechargeInvoiceViewModel(Invoice invoice)
         {
+            invoice.TryGetExternalReference(out var externalReferenceUrl, out var externalReferenceLabel);
+
             var model = new RechargeInvoiceViewModel()
             {
                 Id = invoice.GetFormattedId(),
@@ -175,6 +177,8 @@ namespace Payments.Mvc.Controllers
                 Team = new PaymentInvoiceTeamViewModel(invoice.Team),
                 Status = invoice.Status,
                 DebitRechargeAccounts = invoice.RechargeAccounts.Where(ra => ra.Direction == RechargeAccount.CreditDebit.Debit).ToList(),
+                ExternalReferenceUrl = externalReferenceUrl,
+                ExternalReferenceLabel = externalReferenceLabel,
             };
             return model;
         }
@@ -498,11 +502,9 @@ namespace Payments.Mvc.Controllers
                     Data = rejectReason
                 };
                 invoice.History.Add(actionEntry);
-                //_dbContext.Invoices.Update(invoice);
                 await _dbContext.SaveChangesAsync();
 
-                //Send rejection email?
-
+                await _invoiceService.SendFinancialApprovalRejected(invoice, rejectReason, user);
 
                 return Ok();
             }

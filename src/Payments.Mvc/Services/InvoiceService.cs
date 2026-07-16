@@ -5,8 +5,10 @@ using Payments.Core.Helpers;
 using Payments.Core.Models.History;
 using Payments.Core.Models.Invoice;
 using Payments.Core.Models.Validation;
+using Payments.Core.Resources;
 using Payments.Core.Services;
 using Payments.Emails;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,12 +29,17 @@ namespace Payments.Mvc.Services
             _aggieEnterpriseService = aggieEnterpriseService;
         }
 
-        public async Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team)
+        public async Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team, string actor = "API")
         {
             //Account isn't really used or needed for recharge invoices, but keep doing this until we can see if it breaks anything.
             // find account
             var account = await _dbContext.FinancialAccounts
                 .FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.Id == model.AccountId);
+
+            if(account == null && model.UseDefaultAccount)
+            {
+                account = await _dbContext.FinancialAccounts.FirstOrDefaultAsync(a => a.Team.Id == team.Id && a.IsDefault && a.IsActive);
+            }
 
             if (account == null && model.Type != Invoice.InvoiceTypes.Recharge)
             {
@@ -67,7 +74,7 @@ namespace Payments.Mvc.Services
                     var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
                     if(!validationModel.IsValid)
                     {
-                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
+                        throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
                     }
                     // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
                     if(validationModel.ChartString != ra.FinancialSegmentString)
@@ -117,6 +124,9 @@ namespace Payments.Mvc.Services
                     Status = Invoice.StatusCodes.Draft,
                     Sent = false,
                     Type = model.Type,
+                    ExternalIdentifier = model.ExternalIdentifier,
+                    ExternalId = model.ExternalId,
+                    ExternalLink = model.ExternalLink,
                 };
 
                 // add line items
@@ -143,13 +153,18 @@ namespace Payments.Mvc.Services
                 // start tracking for db
                 invoice.UpdateCalculatedValues();
 
-                if (invoice.CalculatedTotal <= 0)
+                if (invoice.CalculatedTotal < 0)
                 {
-                    throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
+                    throw new ArgumentException("Invoice total must be greater than or equal to 0.", nameof(model));
                 }
 
                 if (model.Type == Invoice.InvoiceTypes.Recharge)
                 {
+                    if(invoice.CalculatedTotal <= 0)
+                    {
+                        throw new ArgumentException("Invoice total must be greater than 0 for recharge invoices.", nameof(model));
+                    }
+
                     var rechargeAccounts = model.RechargeAccounts.Select(a => new RechargeAccount()
                     {
                         Direction = a.Direction,
@@ -173,6 +188,43 @@ namespace Payments.Mvc.Services
                         throw new ArgumentException("Total of debit recharge accounts must equal invoice total when supplied.", nameof(model.RechargeAccounts));
                     }
                 }
+                else
+                {
+                    //Dynamic Chart String Support
+                    //If more than one account is passed, we throw an exception.
+                    var AccountOverride = model.RechargeAccounts?.SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+                    if (AccountOverride != null)
+                    {
+                        var validationModel = await _aggieEnterpriseService.IsAccountValid(AccountOverride.FinancialSegmentString);
+                        if (!validationModel.IsValid)
+                        {
+                            throw new ArgumentException($"Account override '{AccountOverride.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
+                        }
+                        // Ok, this could be called from an API, so we need to replace and chart strings that may get changed.
+                        if (validationModel.ChartString != AccountOverride.FinancialSegmentString)
+                        {
+                            AccountOverride.FinancialSegmentString = validationModel.ChartString;
+                            //log it?
+                        }
+                        var accountOverride = new RechargeAccount()
+                        {
+                            Direction = AccountOverride.Direction,
+                            FinancialSegmentString = AccountOverride.FinancialSegmentString,
+                            Amount = invoice.CalculatedTotal,
+                            Percentage = 100.0m,
+                            EnteredByKerb = AccountOverride.EnteredByKerb,
+                            EnteredByName = AccountOverride.EnteredByName,
+                            Notes = AccountOverride.Notes,
+                        };
+                        invoice.RechargeAccounts.Add(accountOverride);
+                        AddAccountOverrideHistory(
+                            invoice,
+                            actor,
+                            AccountOverrideChangedHistoryActionType.ChangeActions.Added,
+                            null,
+                            accountOverride.FinancialSegmentString);
+                    }
+                }
 
 
 
@@ -184,7 +236,7 @@ namespace Payments.Mvc.Services
             return invoices;
         }
 
-        public async Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model)
+        public async Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model, string actor = "API")
         {
             // get team out of invoice
             var team = invoice.Team;
@@ -315,13 +367,22 @@ namespace Payments.Mvc.Services
 
             invoice.UpdateCalculatedValues();
 
-            if (invoice.CalculatedTotal <= 0)
+            if (invoice.CalculatedTotal < 0)
             {
-                throw new ArgumentException("Invoice total must be greater than 0.", nameof(model));
+                throw new ArgumentException("Invoice total must be greater than or equal to 0.", nameof(model));
+            }
+
+            if (invoice.Type != Invoice.InvoiceTypes.Recharge)
+            {
+                await UpdateAccountOverride(invoice, model, actor);
             }
 
             if (invoice.Type == Invoice.InvoiceTypes.Recharge)
             {
+                if(invoice.CalculatedTotal <=0)
+                {
+                    throw new ArgumentException("Invoice total must be greater than 0 for recharge invoices.", nameof(model));
+                }
 
                 if (invoice.CalculatedTotal != invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Credit).Sum(a => a.Amount))
                 {
@@ -337,6 +398,116 @@ namespace Payments.Mvc.Services
             return invoice;
         }
 
+
+        private async Task UpdateAccountOverride(Invoice invoice, EditInvoiceModel model, string actor)
+        {
+            var existingAccountOverride = invoice.RechargeAccounts?
+                .FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit);
+            var accountOverride = model.RechargeAccounts?
+                .SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+
+            if (accountOverride == null)
+            {
+                if (existingAccountOverride != null)
+                {
+                    var previousChartString = existingAccountOverride.FinancialSegmentString;
+                    _dbContext.RechargeAccounts.Remove(existingAccountOverride);
+                    invoice.RechargeAccounts.Remove(existingAccountOverride);
+                    AddAccountOverrideHistory(
+                        invoice,
+                        actor,
+                        AccountOverrideChangedHistoryActionType.ChangeActions.Removed,
+                        previousChartString,
+                        null);
+                }
+
+                return;
+            }
+
+            var validationModel = await _aggieEnterpriseService.IsAccountValid(accountOverride.FinancialSegmentString);
+            if (!validationModel.IsValid)
+            {
+                throw new ArgumentException($"Account override '{accountOverride.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
+            }
+
+            if (validationModel.ChartString != accountOverride.FinancialSegmentString)
+            {
+                accountOverride.FinancialSegmentString = validationModel.ChartString;
+            }
+
+            if (existingAccountOverride == null)
+            {
+                invoice.RechargeAccounts.Add(new RechargeAccount()
+                {
+                    Direction = RechargeAccount.CreditDebit.Credit,
+                    FinancialSegmentString = accountOverride.FinancialSegmentString,
+                    Amount = invoice.CalculatedTotal,
+                    InvoiceId = invoice.Id,
+                    Percentage = 100.0m,
+                    EnteredByKerb = accountOverride.EnteredByKerb,
+                    EnteredByName = accountOverride.EnteredByName,
+                    Notes = accountOverride.Notes,
+                });
+                AddAccountOverrideHistory(
+                    invoice,
+                    actor,
+                    AccountOverrideChangedHistoryActionType.ChangeActions.Added,
+                    null,
+                    accountOverride.FinancialSegmentString);
+
+                return;
+            }
+
+            var previousAccountOverrideChartString = existingAccountOverride.FinancialSegmentString;
+            var accountOverrideChanged = !string.Equals(
+                previousAccountOverrideChartString,
+                accountOverride.FinancialSegmentString,
+                StringComparison.OrdinalIgnoreCase);
+
+            existingAccountOverride.FinancialSegmentString = accountOverride.FinancialSegmentString;
+            existingAccountOverride.Amount = invoice.CalculatedTotal;
+            existingAccountOverride.Percentage = 100.0m;
+            existingAccountOverride.EnteredByKerb = accountOverride.EnteredByKerb;
+            existingAccountOverride.EnteredByName = accountOverride.EnteredByName;
+            existingAccountOverride.Notes = accountOverride.Notes;
+
+            if (accountOverrideChanged)
+            {
+                AddAccountOverrideHistory(
+                    invoice,
+                    actor,
+                    AccountOverrideChangedHistoryActionType.ChangeActions.Changed,
+                    previousAccountOverrideChartString,
+                    existingAccountOverride.FinancialSegmentString);
+            }
+        }
+
+        private static void AddAccountOverrideHistory(
+            Invoice invoice,
+            string actor,
+            string action,
+            string previousChartString,
+            string newChartString)
+        {
+            var historyActionType = new AccountOverrideChangedHistoryActionType();
+            invoice.History.Add(new History()
+            {
+                Type = HistoryActionTypes.AccountOverrideChanged.TypeCode,
+                ActionDateTime = DateTime.UtcNow,
+                Actor = NormalizeHistoryActor(actor),
+                Data = historyActionType.SerializeData(new AccountOverrideChangedHistoryActionType.DataType()
+                {
+                    Action = action,
+                    PreviousChartString = previousChartString,
+                    NewChartString = newChartString,
+                })
+            });
+        }
+
+        private static string NormalizeHistoryActor(string actor)
+        {
+            return string.IsNullOrWhiteSpace(actor) ? "System" : actor;
+        }
 
         public async Task SendInvoice(Invoice invoice, SendInvoiceModel model)
         {
@@ -369,6 +540,27 @@ namespace Payments.Mvc.Services
                 {
                     invoice.Status = Invoice.StatusCodes.Sent;
                 }
+            }
+            else if (invoice.CalculatedTotal == 0)
+            {
+                // Preserve a coupon discount before setting Paid because paid invoices use ManualDiscount.
+                if (invoice.Coupon != null)
+                {
+                    invoice.ManualDiscount = invoice.GetDiscountAmount();
+                }
+
+                invoice.Status = Invoice.StatusCodes.Completed;
+                invoice.Paid = true;
+                invoice.PaidAt = DateTime.UtcNow;
+                invoice.PaymentType = invoice.Coupon == null ? PaymentTypes.Manual : PaymentTypes.Coupon;
+
+                invoice.History.Add(new History()
+                {
+                    Type = HistoryActionTypes.MarkPaid.TypeCode,
+                    ActionDateTime = DateTime.UtcNow,
+                    Actor = "System",
+                    Data = "Invoice had a zero balance when sent and was marked as Paid/Complete",
+                });
             }
             else
             {
@@ -467,6 +659,39 @@ namespace Payments.Mvc.Services
             return model;
         }
 
+        public async Task SendFinancialApprovalRejected(Invoice invoice, string rejectionReason, User financialApprover)
+        {
+            try
+            {
+                await _emailService.SendFinancialApprovalRejectedCustomer(invoice, rejectionReason, financialApprover);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "Failed to send financial approval rejection email to the customer for invoice {InvoiceId}", invoice.Id);
+            }
+
+            try
+            {
+                var recipients = await _dbContext.TeamPermissions
+                    .Where(permission => permission.TeamId == invoice.Team.Id &&
+                                         (permission.Role.Name == TeamRole.Codes.Editor || permission.Role.Name == TeamRole.Codes.Admin))
+                    .Select(permission => permission.User)
+                    .ToListAsync();
+
+                var distinctRecipients = recipients
+                    .Where(recipient => !string.IsNullOrWhiteSpace(recipient.Email))
+                    .GroupBy(recipient => recipient.Email, StringComparer.OrdinalIgnoreCase)
+                    .Select(group => group.First())
+                    .ToArray();
+
+                await _emailService.SendFinancialApprovalRejectedEditors(invoice, rejectionReason, distinctRecipients);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "Failed to send financial approval rejection email to team editors for invoice {InvoiceId}", invoice.Id);
+            }
+        }
+
         private async Task<SendApprovalModel> GetInvoiceApprovers(Invoice invoice)
         {
             if(invoice.RechargeAccounts == null || !invoice.RechargeAccounts.Any(a => a.Direction == RechargeAccount.CreditDebit.Debit))
@@ -506,7 +731,7 @@ namespace Payments.Mvc.Services
 
         }
 
-        public async Task<Invoice> CopyInvoice(Invoice invoiceToCopy, Team team, User user)
+        public async Task<Invoice> CopyInvoice(Invoice invoiceToCopy, Team team, User user, bool canEditCreditCardChartStrings)
         {            
             //This assumes the team or other validation has happened
             var invoice = new Invoice()
@@ -577,11 +802,33 @@ namespace Payments.Mvc.Services
                 };
                 invoice.Items.Add(newItem);
             }
-            //Recharge accounts
-            if(invoiceToCopy.RechargeAccounts != null)
+            var rechargeAccounts = invoiceToCopy.RechargeAccounts;
+            if(invoiceToCopy.Type == Invoice.InvoiceTypes.CreditCard && rechargeAccounts != null)
             {
-                foreach(var ra in invoiceToCopy.RechargeAccounts)
+                //I only want the first or null
+                //This will also prevent and debit recharge accounts from being copied over if they are there for a credit card.
+                var accountOverride = rechargeAccounts.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+                rechargeAccounts = accountOverride != null ? new List<RechargeAccount> { accountOverride } : null;
+            }
+
+            //Recharge accounts
+            if (rechargeAccounts != null)
+            {
+                foreach(var ra in rechargeAccounts)
                 {
+                    var isCreditCardAccountOverride = invoiceToCopy.Type == Invoice.InvoiceTypes.CreditCard &&
+                                                      ra.Direction == RechargeAccount.CreditDebit.Credit;
+                    if (isCreditCardAccountOverride && !canEditCreditCardChartStrings)
+                    {
+                        AddAccountOverrideHistory(
+                            invoice,
+                            user.Name,
+                            AccountOverrideChangedHistoryActionType.ChangeActions.NotCopiedDueToPermissions,
+                            ra.FinancialSegmentString,
+                            null);
+                        continue;
+                    }
+
                     var newRa = new RechargeAccount()
                     {
                         Direction = ra.Direction,
@@ -596,6 +843,16 @@ namespace Payments.Mvc.Services
                     };                    
 
                     invoice.RechargeAccounts.Add(newRa);
+
+                    if (isCreditCardAccountOverride)
+                    {
+                        AddAccountOverrideHistory(
+                            invoice,
+                            user.Name,
+                            AccountOverrideChangedHistoryActionType.ChangeActions.Added,
+                            null,
+                            newRa.FinancialSegmentString);
+                    }
                 }
             }
             //Possibly attachments, but probably more pain then it's worth to copy those.
@@ -611,17 +868,19 @@ namespace Payments.Mvc.Services
 
     public interface IInvoiceService
     {
-        Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team);
+        Task<IReadOnlyList<Invoice>> CreateInvoices(CreateInvoiceModel model, Team team, string actor = "API");
 
-        Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model);
+        Task<Invoice> UpdateInvoice(Invoice invoice, EditInvoiceModel model, string actor = "API");
 
-        Task<Invoice> CopyInvoice(Invoice invoice, Team team, User user);
+        Task<Invoice> CopyInvoice(Invoice invoice, Team team, User user, bool canEditCreditCardChartStrings);
 
         Task SendInvoice(Invoice invoice, SendInvoiceModel model);
 
         Task SendRechargeReceipt(Invoice invoice);
 
         Task<SendApprovalModel> SendFinancialApproverEmail(Invoice invoice, SendApprovalModel model);
+
+        Task SendFinancialApprovalRejected(Invoice invoice, string rejectionReason, User financialApprover);
 
         Task RefundInvoice(Invoice invoice, PaymentEvent payment, string refundReason, User user);
 

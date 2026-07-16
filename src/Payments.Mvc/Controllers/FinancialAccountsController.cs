@@ -584,12 +584,28 @@ namespace Payments.Mvc.Controllers
             return _context.FinancialAccounts.Any(e => e.Id == id);
         }
 
-        [HttpGet("financial/info")]
+        [HttpGet("{team}/financial/info")]
         public async Task<string> GetAccountInfo(string chart, string account, string subAccount)
         {
             var result = await _financialService.GetAccountName(chart, account, subAccount);
 
             return result;
+        }
+
+        [Authorize(Policy = PolicyCodes.FinancialOfficer)]
+        [HttpGet("{team}/api/financial-accounts/validate")]
+        public async Task<IActionResult> ValidateFinancialSegmentString(string chartString)
+        {
+            var result = await _aggieEnterpriseService.IsAccountValid(chartString);
+
+            return new JsonResult(new
+            {
+                isValid = result.IsValid,
+                chartString = result.ChartString ?? chartString,
+                messages = string.IsNullOrWhiteSpace(result.Message) ? Array.Empty<string>() : new[] { result.Message },
+                warnings = result.Warnings.Select(warning => new { key = warning.Key, value = warning.Value }).ToArray(),
+                details = result.Details.Select(detail => new { key = detail.Key, value = detail.Value }).ToArray()
+            });
         }
     }
 }

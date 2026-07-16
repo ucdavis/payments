@@ -3,6 +3,8 @@
 
 @{
     Layout = null;
+
+    var hasExternalReference = Model.TryGetExternalReference(out var externalReferenceUrl, out var externalReferenceLabel);
 }
 
 <!DOCTYPE html>
@@ -110,13 +112,20 @@
     <div id="invoiceInfo" class="row justify-content-between">
         <div class="col">
             <span class="text-label">Contact Info</span><br />
-            <span class="">University of California, Davis</span><br />
-            <span class="">@Model.Team.Name</span><br />
-            <span class="address">
-                @Model.Team.ContactName<br />
-                @Model.Team.ContactEmail<br />
-                @Model.Team.ContactPhoneNumber
-            </span>
+            @if (hasExternalReference)
+            {
+                <a href="@externalReferenceUrl" target="_blank" rel="noopener noreferrer">@externalReferenceLabel</a>
+            }
+            else
+            {
+                <span class="">University of California, Davis</span><br />
+                <span class="">@Model.Team.Name</span><br />
+                <span class="address">
+                    @Model.Team.ContactName<br />
+                    @Model.Team.ContactEmail<br />
+                    @Model.Team.ContactPhoneNumber
+                </span>
+            }
         </div>
         <div class="col-3">
             <div class="row">

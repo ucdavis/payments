@@ -3,6 +3,7 @@ export interface Team {
   name: string;
   slug: string;
   allowedInvoiceType: string;
+  canEditAccountOverride: boolean;
 
   contactEmail: string;
   contactPhoneNumber: string;

@@ -30,6 +30,13 @@
     var userPermissions = user.TeamPermissions.Where(p => p.Team.Slug == teamSlug).Select(p => p.Role.Name);
 
     var anyTaxExempt = Model.Items.Any(i => i.TaxExempt);
+    var accountOverride = Model.RechargeAccounts?.FirstOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+
+    var hasExternalDetails = !string.IsNullOrWhiteSpace(Model.ExternalIdentifier)
+                             || !string.IsNullOrWhiteSpace(Model.ExternalId)
+                             || !string.IsNullOrWhiteSpace(Model.ExternalLink);
+    var hasExternalLink = Uri.TryCreate(Model.ExternalLink, UriKind.Absolute, out var externalLink)
+                          && (externalLink.Scheme == Uri.UriSchemeHttp || externalLink.Scheme == Uri.UriSchemeHttps);
 
     var editableStatusCodes = new List<string>
     {
@@ -203,7 +210,7 @@
                     }
                     
                     <span class="history-date">@action.ActionDateTime.ToPacificTime().ToString("MMM dd, yyyy @ h:mm tt")</span>
-                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.RefundCancelled) && !string.IsNullOrWhiteSpace(action.Data))
+                    @if ((actionType == HistoryActionTypes.RefundRequested || actionType == HistoryActionTypes.MarkPaid || actionType == HistoryActionTypes.RefundCancelled || actionType == HistoryActionTypes.InvoiceDeleted) && !string.IsNullOrWhiteSpace(action.Data))
                     {
                         
                         <span class="text-muted">Reason: @action.Data</span>
@@ -535,6 +542,43 @@
     </div>
 </div>
 
+@if (hasExternalDetails)
+{
+    <div class="card">
+        <div class="card-header">
+            <h2>External Details</h2>
+        </div>
+        <div class="card-body invoice-details">
+            <dl class="row">
+                @if (!string.IsNullOrWhiteSpace(Model.ExternalIdentifier))
+                {
+                    <dt class="col-2 text-end">External Identifier</dt>
+                    <dd class="col-10">@Model.ExternalIdentifier</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.ExternalId))
+                {
+                    <dt class="col-2 text-end">External ID</dt>
+                    <dd class="col-10">@Model.ExternalId</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.ExternalLink))
+                {
+                    <dt class="col-2 text-end">External Link</dt>
+                    <dd class="col-10">
+                        @if (hasExternalLink)
+                        {
+                            <a href="@externalLink.AbsoluteUri" target="_blank" rel="noopener noreferrer">@Model.ExternalLink</a>
+                        }
+                        else
+                        {
+                            @Model.ExternalLink
+                        }
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+
 @if (Model.Paid && Model.Type != InvoiceTypes.Recharge)
 {
     <div class="card">
@@ -734,6 +778,15 @@ else
                 <dt class="col-2 text-end">Financial Segment String</dt>
                 <dd class="col-10">
                     @Model.Account.FinancialSegmentString
+                </dd>
+            }
+            @if (accountOverride != null)
+            {
+                <dt class="col-2 text-end">Income Account Override</dt>
+                <dd class="col-10">
+                    <a href="https://finjector.ucdavis.edu/details/@accountOverride.FinancialSegmentString" target="_blank" rel="noopener noreferrer">
+                        @accountOverride.FinancialSegmentString
+                    </a>
                 </dd>
             }
         </dl>
@@ -1055,6 +1108,10 @@ else
                     <p>
                         Continuing will close this invoice and delete. This is irreversible!
                     </p>
+                    <label for="deleteReason" class="control-label">Reason (optional)</label>
+                    <div class="form-group">
+                        <textarea id="deleteReason" name="deleteReason" class="form-control"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>

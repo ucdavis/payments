@@ -80,6 +80,18 @@ namespace Payments.Tests.DatabaseTests
 
             expectedFields.Add(new NameAndType("DraftCount", "System.Int32", new List<string>()));
             expectedFields.Add(new NameAndType("DueDate", "System.Nullable`1[System.DateTime]", new List<string>()));
+            expectedFields.Add(new NameAndType("ExternalId", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)128)]",
+            }));
+            expectedFields.Add(new NameAndType("ExternalIdentifier", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)20)]",
+            }));
+            expectedFields.Add(new NameAndType("ExternalLink", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.MaxLengthAttribute((Int32)256)]",
+            }));
             expectedFields.Add(new NameAndType("History", "System.Collections.Generic.IList`1[Payments.Core.Domain.History]", new List<string>
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",

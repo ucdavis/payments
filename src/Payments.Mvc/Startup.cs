@@ -180,6 +180,8 @@ namespace Payments.Mvc
                 var xmlFilePath = Path.Combine(AppContext.BaseDirectory, "Payments.Mvc.xml");
                 c.IncludeXmlComments(xmlFilePath);
                 c.EnableAnnotations();
+                c.SchemaFilter<CreateInvoiceSchemaFilter>();
+                c.SchemaFilter<InvoiceSchemaFilter>();
 
                 var securityScheme = new OpenApiSecurityScheme
                 {

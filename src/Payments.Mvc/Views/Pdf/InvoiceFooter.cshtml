@@ -1,4 +1,9 @@
 @model Invoice
+@using Payments.Core.Extensions
+
+@{
+    var hasExternalReference = Model.TryGetExternalReference(out var externalReferenceUrl, out var externalReferenceLabel);
+}
 
 <!DOCTYPE html>
 <html>
@@ -79,7 +84,14 @@
         </div>
         <div class="row">
             <div class="col">
-                <p><span class="text-strong">Questions?</span> Call @Model.Team.Name at @(Model.Team.ContactPhoneNumber).</p>
+                @if (hasExternalReference)
+                {
+                    <p><span class="text-strong">Questions?</span> See <a href="@externalReferenceUrl">@externalReferenceLabel</a>.</p>
+                }
+                else
+                {
+                    <p><span class="text-strong">Questions?</span> Call @Model.Team.Name at @(Model.Team.ContactPhoneNumber).</p>
+                }
             </div>
             <div class="col" style="text-align: right;">
                 <p>

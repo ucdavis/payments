@@ -47,5 +47,9 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public bool Paid { get; set; }
 
         public DateTime? PaidDate { get; set; }
+
+        public string ExternalReferenceUrl { get; set; }
+
+        public string ExternalReferenceLabel { get; set; }
     }
 }

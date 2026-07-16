@@ -34,6 +34,15 @@ export default class RechargeAccountsControl extends React.Component<
     [key: string]: HTMLInputElement | null;
   } = {};
 
+  public hasEnteredAccounts = (): boolean =>
+    [...this.state.creditAccounts, ...this.state.debitAccounts].some(
+      account =>
+        !!account.financialSegmentString?.trim() ||
+        account.amount !== 0 ||
+        account.percentage !== 0 ||
+        !!account.notes?.trim()
+    );
+
   // Helper function to normalize direction values from server
   private normalizeDirection = (direction: any): 'Credit' | 'Debit' => {
     // Handle integer enum values: 0 = Credit, 1 = Debit

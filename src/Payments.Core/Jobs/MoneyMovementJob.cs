@@ -24,14 +24,16 @@ namespace Payments.Core.Jobs
         private readonly ApplicationDbContext _dbContext;
 
         private readonly ISlothService _slothService;
+        private readonly IAggieEnterpriseService _aggieEnterpriseService;
         private readonly INotificationService _notificationService;
         private readonly FinanceSettings _financeSettings;
         private readonly PaymentsApiSettings _paymentsApiSettings;
 
-        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService, INotificationService notificationService, IOptions<FinanceSettings> financeSettings, IOptions<PaymentsApiSettings> paymentsApiSettings)
+        public MoneyMovementJob(ApplicationDbContext dbContext, ISlothService slothService, IAggieEnterpriseService aggieEnterpriseService, INotificationService notificationService, IOptions<FinanceSettings> financeSettings, IOptions<PaymentsApiSettings> paymentsApiSettings)
         {
             _dbContext = dbContext;
             _slothService = slothService;
+            _aggieEnterpriseService = aggieEnterpriseService;
             _notificationService = notificationService;
             _paymentsApiSettings = paymentsApiSettings.Value;
 
@@ -50,6 +52,7 @@ namespace Payments.Core.Jobs
             var invoices = _dbContext.Invoices
                 .Where(i => i.Status == Invoice.StatusCodes.Paid && i.Type != Invoice.InvoiceTypes.Recharge)
                 .Include(i => i.Account)
+                .Include(i => i.RechargeAccounts)
                 .Include(i => i.Team)
                 .ThenInclude(t => t.Accounts)
                 .ToList();
@@ -120,9 +123,28 @@ namespace Payments.Core.Jobs
 
                     if (invoice.Account != null && !string.IsNullOrWhiteSpace(invoice.Account.FinancialSegmentString) && invoice.Account.IsActive)
                     {
-                        //Validate? here and if invalid use the team default?                            
                         // the invoice has a specified account, use it instead of the team's default
                         incomeAeAccount = invoice.Account.FinancialSegmentString;
+                    }
+
+                    var accountOverride = invoice.RechargeAccounts?
+                        .SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
+                    if (accountOverride != null)
+                    {
+                        //Do we want to validate? Sloth will validate (based on the current config setting in prod), but we can do it here to avoid a failed transaction. This is a bit of a judgement call. If we don't validate, the transaction will fail and the invoice will stay in paid status. If we do validate, the invoice will be rejected and the user will have to fix it.
+                        var validationResult = await _aggieEnterpriseService.IsAccountValid(accountOverride.FinancialSegmentString);
+                        if (validationResult.IsValid)
+                        {
+                            incomeAeAccount = validationResult.ChartString ?? accountOverride.FinancialSegmentString;
+                        }
+                        else
+                        {
+                            log.Warning(
+                                "Invoice {id} account override {accountOverride} is invalid. Using normal account {normalAccount}.",
+                                invoice.Id,
+                                accountOverride.FinancialSegmentString,
+                                incomeAeAccount);
+                        }
                     }
 
                     // Populate transfers with financial segment strings
