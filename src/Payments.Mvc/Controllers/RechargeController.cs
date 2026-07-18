@@ -221,7 +221,7 @@ namespace Payments.Mvc.Controllers
             }
 
             // validation:
-            if (model.Sum(ra => ra.Amount) != invoice.CalculatedTotal)
+            if (!RechargeTotalMatchesInvoice(model, invoice.CalculatedTotal))
             {
                 return BadRequest("The total of the recharge accounts does not match the invoice total. Please review and try again.");
             }
@@ -324,7 +324,9 @@ namespace Payments.Mvc.Controllers
             };
             invoice.History.Add(action);
 
-            if (invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit).Sum(a => a.Amount) != invoice.CalculatedTotal)
+            if (!RechargeTotalMatchesInvoice(
+                    invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit),
+                    invoice.CalculatedTotal))
             {
                 return BadRequest("The total of the recharge accounts does not match the invoice total after saving. Please review and try again.");
             }
@@ -377,6 +379,14 @@ namespace Payments.Mvc.Controllers
 
             return Ok();
 
+        }
+
+        private static bool RechargeTotalMatchesInvoice(IEnumerable<RechargeAccount> rechargeAccounts, decimal invoiceTotal)
+        {
+            var rechargeTotal = rechargeAccounts.Sum(account => account.Amount);
+
+            return Math.Round(rechargeTotal, 2, MidpointRounding.AwayFromZero) ==
+                   Math.Round(invoiceTotal, 2, MidpointRounding.AwayFromZero);
         }
 
 
