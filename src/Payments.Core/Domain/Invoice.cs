@@ -187,7 +187,7 @@ namespace Payments.Core.Domain
                 return Coupon.DiscountAmount ?? 0;
             }
 
-            var subTotal = Items.Sum(i => i.Total);
+            var subTotal = Items.Sum(i => i.Quantity * i.Amount);
             if (Coupon.DiscountPercent.HasValue)
             {
                 return Coupon.DiscountPercent * subTotal ?? 0;
@@ -198,11 +198,11 @@ namespace Payments.Core.Domain
 
         public decimal GetTaxableTotal()
         {
-            var subtotal = Items.Sum(i => i.Total);
+            var subtotal = Items.Sum(i => i.Quantity * i.Amount);
             var discount = GetDiscountAmount();
 
             // remove tax exempt items, apply proportional part of discount, then calculate tax
-            var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Total);
+            var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Quantity * i.Amount);
             var taxableDiscount = discount * (taxableAmount / subtotal);
             return (taxableAmount - taxableDiscount);
         }
@@ -210,12 +210,12 @@ namespace Payments.Core.Domain
         public decimal GetTaxAmount()
         {
             var taxableTotal = GetTaxableTotal();
-            return taxableTotal * TaxPercent;
+            return Math.Round(taxableTotal * TaxPercent, 2, MidpointRounding.AwayFromZero);
         }
 
         public void UpdateCalculatedValues()
         {
-            CalculatedSubtotal = Items.Sum(i => i.Total);
+            CalculatedSubtotal = Items.Sum(i => i.Quantity * i.Amount);
 
             CalculatedDiscount = GetDiscountAmount();
 

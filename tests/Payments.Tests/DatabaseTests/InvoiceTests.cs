@@ -183,9 +183,9 @@ namespace Payments.Tests.DatabaseTests
         {
             // Arrange
             var invoice = new Invoice();
-            invoice.Items.Add(new LineItem() { Total = 1.23m });
-            invoice.Items.Add(new LineItem() { Total = 1.24m });
-            invoice.Items.Add(new LineItem() { Total = 1.25m });
+            invoice.Items.Add(new LineItem() { Amount = 1.23m, Quantity = 1, Total = 1.23m });
+            invoice.Items.Add(new LineItem() { Amount = 1.24m, Quantity = 1, Total = 1.24m });
+            invoice.Items.Add(new LineItem() { Amount = 1.25m, Quantity = 1, Total = 1.25m });
 
 
             // Act
@@ -195,23 +195,42 @@ namespace Payments.Tests.DatabaseTests
             invoice.CalculatedSubtotal.ShouldBe(3.72m);
         }
 
+        [Fact]
+        public void TestUpdateCalculatedValuesUsesUnroundedLineItemTotalsAndRoundedTax()
+        {
+            // Arrange
+            var invoice = new Invoice();
+            invoice.Items.Add(new LineItem() { Amount = 155.74m, Quantity = 0.06m, Total = 9.34m });
+            invoice.Items.Add(new LineItem() { Amount = 155.74m, Quantity = 0.06m, Total = 9.34m });
+            invoice.Items.Add(new LineItem() { Amount = 155.74m, Quantity = 0.06m, Total = 9.34m });
+            invoice.TaxPercent = 0.07m;
+
+            // Act
+            invoice.UpdateCalculatedValues();
+
+            // Assert
+            invoice.CalculatedSubtotal.ShouldBe(28.0332m);
+            invoice.CalculatedTaxAmount.ShouldBe(1.96m);
+            invoice.CalculatedTotal.ShouldBe(29.99m);
+        }
+
         [Theory]
         [InlineData(0, 0, 0)]
         [InlineData(1, 0, 0)]
         [InlineData(2, 0, 0)]
-        [InlineData(0, 0.15, 0.558)]
-        [InlineData(0, 0.10, 0.372)]
-        [InlineData(1, 0.15, 0.408)]
-        [InlineData(1, 0.10, 0.272)]
-        [InlineData(1.5, 0.15, 0.333)]
-        [InlineData(1.5, 0.10, 0.222)]
+        [InlineData(0, 0.15, 0.56)]
+        [InlineData(0, 0.10, 0.37)]
+        [InlineData(1, 0.15, 0.41)]
+        [InlineData(1, 0.10, 0.27)]
+        [InlineData(1.5, 0.15, 0.33)]
+        [InlineData(1.5, 0.10, 0.22)]
         public void TestUpdateCalculatedValuesUpdatesTaxAmount(decimal discount, decimal taxPercent, decimal expectedValue)
         {
             // Arrange
             var invoice = new Invoice();
-            invoice.Items.Add(new LineItem() { Total = 1.23m });
-            invoice.Items.Add(new LineItem() { Total = 1.24m });
-            invoice.Items.Add(new LineItem() { Total = 1.25m });
+            invoice.Items.Add(new LineItem() { Amount = 1.23m, Quantity = 1, Total = 1.23m });
+            invoice.Items.Add(new LineItem() { Amount = 1.24m, Quantity = 1, Total = 1.24m });
+            invoice.Items.Add(new LineItem() { Amount = 1.25m, Quantity = 1, Total = 1.25m });
             invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
@@ -226,18 +245,18 @@ namespace Payments.Tests.DatabaseTests
         [InlineData(0, 0, 0)]
         [InlineData(1, 0, 0)]
         [InlineData(2, 0, 0)]
-        [InlineData(0, 0.15, 0.372)]
-        [InlineData(0, 0.10, 0.248)]
-        [InlineData(1, 0.15, 0.272)]
-        [InlineData(1.5, 0.15, 0.222)]
-        [InlineData(1.5, 0.10, 0.148)]
+        [InlineData(0, 0.15, 0.37)]
+        [InlineData(0, 0.10, 0.25)]
+        [InlineData(1, 0.15, 0.27)]
+        [InlineData(1.5, 0.15, 0.22)]
+        [InlineData(1.5, 0.10, 0.15)]
         public void TestUpdateCalculatedValuesWithTaxExemptUpdatesTaxAmount(decimal discount, decimal taxPercent, decimal expectedValue)
         {
             // Arrange
             var invoice = new Invoice();
-            invoice.Items.Add(new LineItem() { Total = 1.23m });
-            invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
-            invoice.Items.Add(new LineItem() { Total = 1.25m });
+            invoice.Items.Add(new LineItem() { Amount = 1.23m, Quantity = 1, Total = 1.23m });
+            invoice.Items.Add(new LineItem() { Amount = 1.24m, Quantity = 1, Total = 1.24m, TaxExempt = true });
+            invoice.Items.Add(new LineItem() { Amount = 1.25m, Quantity = 1, Total = 1.25m });
             invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
@@ -262,9 +281,9 @@ namespace Payments.Tests.DatabaseTests
         {
             // Arrange
             var invoice = new Invoice();
-            invoice.Items.Add(new LineItem() { Total = 1.23m });
-            invoice.Items.Add(new LineItem() { Total = 1.24m });
-            invoice.Items.Add(new LineItem() { Total = 1.25m });
+            invoice.Items.Add(new LineItem() { Amount = 1.23m, Quantity = 1, Total = 1.23m });
+            invoice.Items.Add(new LineItem() { Amount = 1.24m, Quantity = 1, Total = 1.24m });
+            invoice.Items.Add(new LineItem() { Amount = 1.25m, Quantity = 1, Total = 1.25m });
             invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
@@ -288,9 +307,9 @@ namespace Payments.Tests.DatabaseTests
         {
             // Arrange
             var invoice = new Invoice();
-            invoice.Items.Add(new LineItem() { Total = 1.23m });
-            invoice.Items.Add(new LineItem() { Total = 1.24m, TaxExempt = true });
-            invoice.Items.Add(new LineItem() { Total = 1.25m });
+            invoice.Items.Add(new LineItem() { Amount = 1.23m, Quantity = 1, Total = 1.23m });
+            invoice.Items.Add(new LineItem() { Amount = 1.24m, Quantity = 1, Total = 1.24m, TaxExempt = true });
+            invoice.Items.Add(new LineItem() { Amount = 1.25m, Quantity = 1, Total = 1.25m });
             invoice.ManualDiscount = discount;
             invoice.TaxPercent = taxPercent;
 
