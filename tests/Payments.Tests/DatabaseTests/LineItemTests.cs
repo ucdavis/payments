@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Payments.Core.Domain;
+using Shouldly;
 using TestHelpers.Helpers;
 using Xunit;
 
@@ -43,6 +44,14 @@ namespace Payments.Tests.DatabaseTests
             #endregion Arrange
 
             AttributeAndFieldValidation.ValidateFieldsAndAttributes(expectedFields, typeof(LineItem));
+        }
+
+        [Theory]
+        [InlineData(0.5, 0.01, 0.01)]
+        [InlineData(0.5, -0.01, -0.01)]
+        public void CalculateTotalRoundsMidpointsAwayFromZero(decimal quantity, decimal amount, decimal expected)
+        {
+            LineItem.CalculateTotal(quantity, amount).ShouldBe(expected);
         }
     }
 }
