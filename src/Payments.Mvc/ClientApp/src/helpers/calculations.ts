@@ -14,9 +14,13 @@ export function calculatePercentageAmount(total: number, percentage: number) {
     return roundCurrency((percentage / 100) * total);
 }
 
+export function calculateLineItemTotal(quantity: number, amount: number) {
+    return roundCurrency(quantity * amount);
+}
+
 export function calculateSubTotal(items: InvoiceItem[]) {
     const sum = items.reduce((prev, item) => {
-        return prev + (item.quantity * item.amount);
+        return prev + calculateLineItemTotal(item.quantity, item.amount);
     }, 0);
 
     return sum;
@@ -28,7 +32,7 @@ export function calculateTaxableSubTotal(items: InvoiceItem[]) {
             return prev;
         }
 
-        return prev + (item.quantity * item.amount);
+        return prev + calculateLineItemTotal(item.quantity, item.amount);
     }, 0);
 
     return sum;
@@ -69,7 +73,7 @@ export function calculateTaxAmount(items: InvoiceItem[], discount: InvoiceDiscou
     const totalDiscount = calculateDiscount(items, discount);
 
     const taxableSub = calculateTaxableSubTotal(items);
-    if (taxableSub <= 0) {
+    if (sub === 0 || taxableSub <= 0) {
         return 0;
     }
 

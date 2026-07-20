@@ -136,7 +136,7 @@ namespace Payments.Mvc.Services
                     Description = i.Description,
                     Quantity = i.Quantity,
                     TaxExempt = i.TaxExempt,
-                    Total = i.Quantity * i.Amount,
+                    Total = LineItem.CalculateTotal(i.Quantity, i.Amount),
                 });
                 invoice.Items = items.ToList();
 
@@ -290,7 +290,7 @@ namespace Payments.Mvc.Services
                 Description = i.Description,
                 Quantity = i.Quantity,
                 TaxExempt = i.TaxExempt,
-                Total = i.Quantity * i.Amount,
+                Total = LineItem.CalculateTotal(i.Quantity, i.Amount),
             });
             invoice.Items = items.ToList();
 
@@ -797,7 +797,7 @@ namespace Payments.Mvc.Services
                     Description = item.Description,
                     Quantity = item.Quantity,
                     Amount = item.Amount,
-                    Total = item.Total,
+                    Total = LineItem.CalculateTotal(item.Quantity, item.Amount),
                     TaxExempt = item.TaxExempt,                    
                 };
                 invoice.Items.Add(newItem);

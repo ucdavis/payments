@@ -26,5 +26,10 @@ namespace Payments.Core.Domain
         public decimal Total { get; set; }
 
         public bool TaxExempt { get; set; }
+
+        public static decimal CalculateTotal(decimal quantity, decimal amount)
+        {
+            return Math.Round(quantity * amount, 2, MidpointRounding.AwayFromZero);
+        }
     }
 }

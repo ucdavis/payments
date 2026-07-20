@@ -6,6 +6,7 @@ import { InvoiceItem } from '../models/InvoiceItem';
 
 import {
   calculateDiscount,
+  calculateLineItemTotal,
   calculateSubTotal,
   calculateTaxAmount,
   calculateTotal
@@ -272,7 +273,7 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
             </div>
           </div>
         </td>
-        <td>{formatCurrencyLocale(quantity * amount)}</td>
+        <td>{formatCurrencyLocale(calculateLineItemTotal(quantity, amount))}</td>
         <td>
           <button
             className='btn btn-danger btn-icon'
@@ -355,9 +356,8 @@ export default class EditItemsTable extends React.Component<IProps, IState> {
     const item = {
       ...this.state.items.byHash[id]
     };
-    item.total = item.amount * item.quantity;
-
     item[name] = value;
+    item.total = calculateLineItemTotal(item.quantity, item.amount);
     this.updateItem(id, item);
   };
 

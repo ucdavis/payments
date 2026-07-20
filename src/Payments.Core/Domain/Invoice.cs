@@ -187,7 +187,7 @@ namespace Payments.Core.Domain
                 return Coupon.DiscountAmount ?? 0;
             }
 
-            var subTotal = Items.Sum(i => i.Quantity * i.Amount);
+            var subTotal = Items.Sum(i => LineItem.CalculateTotal(i.Quantity, i.Amount));
             if (Coupon.DiscountPercent.HasValue)
             {
                 return Coupon.DiscountPercent * subTotal ?? 0;
@@ -198,11 +198,16 @@ namespace Payments.Core.Domain
 
         public decimal GetTaxableTotal()
         {
-            var subtotal = Items.Sum(i => i.Quantity * i.Amount);
+            var subtotal = Items.Sum(i => LineItem.CalculateTotal(i.Quantity, i.Amount));
             var discount = GetDiscountAmount();
 
+            if (subtotal == 0)
+            {
+                return 0;
+            }
+
             // remove tax exempt items, apply proportional part of discount, then calculate tax
-            var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => i.Quantity * i.Amount);
+            var taxableAmount = Items.Where(i => !i.TaxExempt).Sum(i => LineItem.CalculateTotal(i.Quantity, i.Amount));
             var taxableDiscount = discount * (taxableAmount / subtotal);
             return (taxableAmount - taxableDiscount);
         }
@@ -215,7 +220,12 @@ namespace Payments.Core.Domain
 
         public void UpdateCalculatedValues()
         {
-            CalculatedSubtotal = Items.Sum(i => i.Quantity * i.Amount);
+            foreach (var item in Items)
+            {
+                item.Total = LineItem.CalculateTotal(item.Quantity, item.Amount);
+            }
+
+            CalculatedSubtotal = Items.Sum(i => i.Total);
 
             CalculatedDiscount = GetDiscountAmount();
 
@@ -223,7 +233,6 @@ namespace Payments.Core.Domain
 
             CalculatedTaxAmount = GetTaxAmount();
 
-            //Now that we sum everything, now we round the total
             CalculatedTotal = Math.Round(Math.Max(CalculatedSubtotal - CalculatedDiscount + CalculatedTaxAmount, 0m), 2, MidpointRounding.AwayFromZero);
         }
 

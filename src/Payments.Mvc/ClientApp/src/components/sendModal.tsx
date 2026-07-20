@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import {
   calculateDiscount,
+  calculateLineItemTotal,
   calculateSubTotal,
   calculateTaxAmount,
   calculateTotal
@@ -145,7 +146,7 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
           description: item.description,
           quantity: item.quantity,
           amount: item.amount,
-          total: item.amount * item.quantity
+          total: calculateLineItemTotal(item.quantity, item.amount)
         })),
         attachments: attachments.map((att, index) => ({
           id: index, // Use index as placeholder ID for preview

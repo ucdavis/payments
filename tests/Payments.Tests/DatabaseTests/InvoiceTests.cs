@@ -196,7 +196,7 @@ namespace Payments.Tests.DatabaseTests
         }
 
         [Fact]
-        public void TestUpdateCalculatedValuesUsesUnroundedLineItemTotalsAndRoundedTax()
+        public void TestUpdateCalculatedValuesRoundsEachLineItemBeforeSummingAndRoundsTax()
         {
             // Arrange
             var invoice = new Invoice();
@@ -209,9 +209,28 @@ namespace Payments.Tests.DatabaseTests
             invoice.UpdateCalculatedValues();
 
             // Assert
-            invoice.CalculatedSubtotal.ShouldBe(28.0332m);
+            invoice.CalculatedSubtotal.ShouldBe(28.02m);
+            invoice.Items.ShouldAllBe(i => i.Total == 9.34m);
             invoice.CalculatedTaxAmount.ShouldBe(1.96m);
-            invoice.CalculatedTotal.ShouldBe(29.99m);
+            invoice.CalculatedTotal.ShouldBe(29.98m);
+        }
+
+        [Fact]
+        public void TestUpdateCalculatedValuesDoesNotDivideByZeroWhenSubtotalIsZero()
+        {
+            // Arrange
+            var invoice = new Invoice();
+            invoice.Items.Add(new LineItem() { Amount = 10m, Quantity = 0m });
+            invoice.TaxPercent = 0.0725m;
+
+            // Act
+            invoice.UpdateCalculatedValues();
+
+            // Assert
+            invoice.CalculatedSubtotal.ShouldBe(0m);
+            invoice.CalculatedTaxableAmount.ShouldBe(0m);
+            invoice.CalculatedTaxAmount.ShouldBe(0m);
+            invoice.CalculatedTotal.ShouldBe(0m);
         }
 
         [Theory]
