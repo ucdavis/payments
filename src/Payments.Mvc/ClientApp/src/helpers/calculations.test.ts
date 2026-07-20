@@ -1,5 +1,6 @@
 import {
   calculatePercentageAmount,
+  calculateTaxAmount,
   calculateTotal,
   roundCurrency
 } from './calculations';
@@ -58,6 +59,21 @@ describe('currency calculations', () => {
     ];
 
     expect(calculateTotal(items, { hasDiscount: false }, 0)).toBe(9.35);
+  });
+
+  it('rounds tax before calculating the invoice total', () => {
+    const items = [1, 2, 3].map(id => ({
+      id,
+      description: 'Taxable item',
+      quantity: 0.06,
+      amount: 155.74,
+      taxExempt: false,
+      total: 9.34
+    }));
+    const discount = { hasDiscount: false };
+
+    expect(calculateTaxAmount(items, discount, 0.07)).toBe(1.96);
+    expect(calculateTotal(items, discount, 0.07)).toBe(29.99);
   });
 
   it.each([

@@ -75,7 +75,7 @@ export function calculateTaxAmount(items: InvoiceItem[], discount: InvoiceDiscou
 
     const taxableDiscount = totalDiscount * (taxableSub / sub);
 
-    return (taxableSub - taxableDiscount) * taxPercent;
+    return roundCurrency((taxableSub - taxableDiscount) * taxPercent);
 }
 
 export function calculateTotal(items: InvoiceItem[], discount: InvoiceDiscount, taxPercent: number) {

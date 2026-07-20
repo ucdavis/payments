@@ -210,7 +210,7 @@ namespace Payments.Core.Domain
         public decimal GetTaxAmount()
         {
             var taxableTotal = GetTaxableTotal();
-            return taxableTotal * TaxPercent;
+            return Math.Round(taxableTotal * TaxPercent, 2, MidpointRounding.AwayFromZero);
         }
 
         public void UpdateCalculatedValues()
