@@ -252,12 +252,12 @@ namespace Payments.Tests.DatabaseTests
         [InlineData(0, 0, 3.72)]
         [InlineData(1, 0, 2.72)]
         [InlineData(2, 0, 1.72)]
-        [InlineData(0, 0.15, 4.278)]
-        [InlineData(0, 0.10, 4.092)]
-        [InlineData(1, 0.15, 3.128)]
-        [InlineData(1, 0.10, 2.992)]
-        [InlineData(1.5, 0.15, 2.553)]
-        [InlineData(1.5, 0.10, 2.442)]
+        [InlineData(0, 0.15, 4.28)]
+        [InlineData(0, 0.10, 4.09)]
+        [InlineData(1, 0.15, 3.13)]
+        [InlineData(1, 0.10, 2.99)]
+        [InlineData(1.5, 0.15, 2.55)]
+        [InlineData(1.5, 0.10, 2.44)]
         public void TestUpdateCalculatedValuesUpdatesTotal(decimal discount, decimal taxPercent, decimal expectedValue)
         {
             // Arrange
@@ -279,11 +279,11 @@ namespace Payments.Tests.DatabaseTests
         [InlineData(0, 0, 3.72)]
         [InlineData(1, 0, 2.72)]
         [InlineData(2, 0, 1.72)]
-        [InlineData(0, 0.15, 4.092)]
-        [InlineData(0, 0.10, 3.968)]
-        [InlineData(1, 0.15, 2.992)]
-        [InlineData(1.5, 0.15, 2.442)]
-        [InlineData(1.5, 0.10, 2.368)]
+        [InlineData(0, 0.15, 4.09)]
+        [InlineData(0, 0.10, 3.97)]
+        [InlineData(1, 0.15, 2.99)]
+        [InlineData(1.5, 0.15, 2.44)]
+        [InlineData(1.5, 0.10, 2.37)]
         public void TestUpdateCalculatedValuesWithTaxExemptUpdatesTotal(decimal discount, decimal taxPercent, decimal expectedValue)
         {
             // Arrange
