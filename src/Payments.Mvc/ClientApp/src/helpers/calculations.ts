@@ -3,6 +3,17 @@ import { isAfter } from 'date-fns';
 import { InvoiceDiscount } from "../models/InvoiceDiscount";
 import { InvoiceItem } from "../models/InvoiceItem";
 
+export function roundCurrency(value: number) {
+    const absoluteValue = Math.abs(value);
+    const roundedValue = Math.round((absoluteValue + Number.EPSILON) * 100) / 100;
+
+    return Math.sign(value) * roundedValue;
+}
+
+export function calculatePercentageAmount(total: number, percentage: number) {
+    return roundCurrency((percentage / 100) * total);
+}
+
 export function calculateSubTotal(items: InvoiceItem[]) {
     const sum = items.reduce((prev, item) => {
         return prev + (item.quantity * item.amount);
@@ -72,5 +83,5 @@ export function calculateTotal(items: InvoiceItem[], discount: InvoiceDiscount, 
     const totalDiscount = calculateDiscount(items, discount);
     const sub = calculateSubTotal(items);
     const tax = calculateTaxAmount(items, discount, taxPercent);
-    return sub - totalDiscount + tax;
+    return roundCurrency(Math.max(sub - totalDiscount + tax, 0));
 }

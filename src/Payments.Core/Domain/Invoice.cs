@@ -223,7 +223,8 @@ namespace Payments.Core.Domain
 
             CalculatedTaxAmount = GetTaxAmount();
 
-            CalculatedTotal = Math.Max(CalculatedSubtotal - CalculatedDiscount + CalculatedTaxAmount, 0);
+            //Now that we sum everything, now we round the total
+            CalculatedTotal = Math.Round(Math.Max(CalculatedSubtotal - CalculatedDiscount + CalculatedTaxAmount, 0m), 2, MidpointRounding.AwayFromZero);
         }
 
         protected internal static void OnModelCreating(ModelBuilder builder)

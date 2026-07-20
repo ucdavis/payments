@@ -298,5 +298,97 @@ namespace payments.Tests.ServiceTests
                     It.Is<IReadOnlyCollection<User>>(editors => editors.Count == 1 && editors.Single() == editor)),
                 Times.Once);
         }
+
+        [Theory]
+        [InlineData(0.06, 155.50, 9.33)]
+        [InlineData(0.06, 155.83, 9.35)]
+        [InlineData(0.06, 155.74, 9.34)]
+        [InlineData(0.25, 10.02, 2.51)]
+        [InlineData(0.01, 10.50, 0.11)]
+        public async Task CreateInvoices_AcceptsCreditRechargeTotalRoundedToDisplayedCurrencyAmount(
+            decimal quantity,
+            decimal unitPrice,
+            decimal expectedTotal)
+        {
+            var (service, model, team) = CreateRechargeInvoiceServiceTest(quantity, unitPrice, expectedTotal);
+
+            var invoices = await service.CreateInvoices(model, team);
+
+            var invoice = Assert.Single(invoices);
+            Assert.Equal(expectedTotal, invoice.CalculatedTotal);
+            Assert.Equal(expectedTotal, Assert.Single(invoice.RechargeAccounts).Amount);
+        }
+
+        [Fact]
+        public async Task CreateInvoices_RejectsCreditRechargeTotalThatDiffersByOneCent()
+        {
+            var (service, model, team) = CreateRechargeInvoiceServiceTest(0.06m, 155.83m, 9.34m);
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(
+                () => service.CreateInvoices(model, team));
+
+            Assert.Equal(nameof(model.RechargeAccounts), exception.ParamName);
+            Assert.Contains("Total of credit recharge accounts must equal invoice total.", exception.Message);
+        }
+
+        private static (InvoiceService service, CreateInvoiceModel model, Team team) CreateRechargeInvoiceServiceTest(
+            decimal quantity,
+            decimal unitPrice,
+            decimal rechargeAmount)
+        {
+            const string chartString = "valid-chart-string";
+            var dbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
+            dbContext
+                .Setup(context => context.FinancialAccounts)
+                .Returns(new List<FinancialAccount>().AsQueryable().MockAsyncDbSet().Object);
+            dbContext
+                .Setup(context => context.Invoices)
+                .Returns(new Mock<DbSet<Invoice>>().Object);
+
+            var aggieEnterpriseService = new Mock<IAggieEnterpriseService>();
+            aggieEnterpriseService
+                .Setup(service => service.IsRechargeAccountValid(
+                    chartString, RechargeAccount.CreditDebit.Credit, true))
+                .ReturnsAsync(new AccountValidationModel
+                {
+                    IsValid = true,
+                    ChartString = chartString,
+                });
+
+            var service = new InvoiceService(
+                dbContext.Object,
+                new Mock<IEmailService>().Object,
+                aggieEnterpriseService.Object);
+            var model = new CreateInvoiceModel
+            {
+                Type = Invoice.InvoiceTypes.Recharge,
+                Customers = new List<CreateInvoiceCustomerModel>
+                {
+                    new CreateInvoiceCustomerModel { Email = "customer@example.com" },
+                },
+                Items = new List<CreateInvoiceItemModel>
+                {
+                    new CreateInvoiceItemModel
+                    {
+                        Description = "Reported rounding case",
+                        Quantity = quantity,
+                        Amount = unitPrice,
+                    },
+                },
+                Attachments = new List<CreateInvoiceAttachmentModel>(),
+                RechargeAccounts = new List<RechargeAccount>
+                {
+                    new RechargeAccount
+                    {
+                        Direction = RechargeAccount.CreditDebit.Credit,
+                        FinancialSegmentString = chartString,
+                        Amount = rechargeAmount,
+                        Percentage = 100m,
+                    },
+                },
+            };
+
+            return (service, model, new Team { Id = 1 });
+        }
     }
 }
