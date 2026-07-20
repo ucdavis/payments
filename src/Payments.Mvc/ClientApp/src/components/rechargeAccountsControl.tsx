@@ -8,6 +8,10 @@ import {
 import CurrencyControl from './currencyControl';
 import NumberControl from './numberControl';
 import { formatCurrencyLocale } from '../utils/currency';
+import {
+  calculatePercentageAmount,
+  roundCurrency
+} from '../helpers/calculations';
 
 interface IProps {
   rechargeAccounts: InvoiceRechargeItem[];
@@ -771,10 +775,9 @@ export default class RechargeAccountsControl extends React.Component<
           };
         } else if (field === 'percentage' && value >= 0 && value <= 100) {
           // Calculate amount when percentage changes
-          const amount = (value / 100) * this.props.invoiceTotal;
           updatedAccounts[index] = {
             ...updatedAccounts[index],
-            amount: parseFloat(amount.toFixed(2))
+            amount: calculatePercentageAmount(this.props.invoiceTotal, value)
           };
         }
 
@@ -838,10 +841,9 @@ export default class RechargeAccountsControl extends React.Component<
           };
         } else if (field === 'percentage' && value >= 0 && value <= 100) {
           // Calculate amount when percentage changes
-          const amount = (value / 100) * this.props.invoiceTotal;
           updatedAccounts[index] = {
             ...updatedAccounts[index],
-            amount: parseFloat(amount.toFixed(2))
+            amount: calculatePercentageAmount(this.props.invoiceTotal, value)
           };
         }
 
@@ -955,16 +957,12 @@ export default class RechargeAccountsControl extends React.Component<
 
   private calculateTotal = (accounts: InvoiceRechargeItem[]): number => {
     const total = accounts.reduce((sum, account) => sum + account.amount, 0);
-    // Round to 2 decimal places to handle floating point precision issues
-    return parseFloat(total.toFixed(2));
+    return roundCurrency(total);
   };
 
   // Helper method to compare monetary amounts with proper rounding
   private isTotalEqual = (total: number, expected: number): boolean => {
-    // Round both values to 2 decimal places before comparison
-    const roundedTotal = parseFloat(total.toFixed(2));
-    const roundedExpected = parseFloat(expected.toFixed(2));
-    return roundedTotal === roundedExpected;
+    return roundCurrency(total) === roundCurrency(expected);
   };
 
   private renderValidationMessages = (account: InvoiceRechargeItem) => {
