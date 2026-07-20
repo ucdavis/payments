@@ -13,6 +13,11 @@ button {
 }
 .alert {
   padding: $card-padding;
+
+  &.alert-dismissible {
+    padding-right: 3rem;
+  }
+
   p {
     margin-bottom: 0px;
     color: $secondary-font;
