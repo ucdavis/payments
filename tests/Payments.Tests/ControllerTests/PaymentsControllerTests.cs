@@ -42,7 +42,7 @@ namespace payments.Tests.ControllerTests
                 Coupon = new Coupon { DiscountAmount = 10 },
                 Items = new List<LineItem>
                 {
-                    new LineItem { Total = 10 },
+                    new LineItem { Amount = 10, Quantity = 1, Total = 10 },
                 },
             };
 
