@@ -43,7 +43,7 @@
     "@vitest/ui": "^3.0.0",
     "cross-env": "^7.0.3",
     "eslint-config-prettier": "^8.3.0",
-    "isomorphic-fetch": "2.2.1",
+    "isomorphic-fetch": "3.0.0",
     "jsdom": "^25.0.0",
     "prettier": "2.0.5",
     "sass": "^1.49.9",
