@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Routing
 @using Payments.Core.Extensions
+@using Payments.Mvc.Models.Roles
 @model Payments.Mvc.Models.SearchViewModels.SearchResultsViewModel
 @inject IHttpContextAccessor HttpContextAccessor
 @{
@@ -45,51 +46,54 @@
                 <tbody>
                 @foreach (var invoice in Model.Invoices)
                 {
+                    var invoiceTeamSlug = string.IsNullOrWhiteSpace(teamSlug) && User.IsInRole(ApplicationRoleCodes.Admin)
+                        ? invoice.Team.Slug
+                        : teamSlug;
                     <tr data-id="@invoice.Id">
                         <td class="invoices-id-col">
-                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@invoiceTeamSlug" asp-route-id="@invoice.Id">
                                 <div>
                                     @invoice.Id
                                 </div>
                             </a>
                         </td>
                         <td class="invoices-status-col">
-                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@invoiceTeamSlug" asp-route-id="@invoice.Id">
                                 <div>
                                     <span class="badge @Invoice.StatusCodes.GetBadgeClass(invoice.Status)" data-level="@invoice.Status">@invoice.Status</span>
                                 </div>
                             </a>
                         </td>
                         <td class="invoices-customer-col">
-                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@invoiceTeamSlug" asp-route-id="@invoice.Id">
                                 <div>
                                     @invoice.CustomerEmail
                                 </div>
                             </a>
                         </td>
                         <td class="text-end" data-sort="@invoice.CalculatedTotal">
-                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@invoiceTeamSlug" asp-route-id="@invoice.Id">
                                 <div>
                                     $@invoice.CalculatedTotal.ToString("F2")
                                 </div>
                             </a>
                         </td>
                         <td data-sort="@(invoice.SentAt.ToPacificTime()?.Ticks ?? 0)">
-                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@invoiceTeamSlug" asp-route-id="@invoice.Id">
                                 <div>
                                     @(invoice.SentAt.HasValue ? invoice.SentAt.Value.ToPacificTime().ToString("d") : "")
                                 </div>
                             </a>
                         </td>
                         <td data-sort="@invoice.CreatedAt.ToPacificTime().Ticks">
-                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@invoiceTeamSlug" asp-route-id="@invoice.Id">
                                 <div>
                                     @invoice.CreatedAt.ToPacificTime().ToString("d")
                                 </div>
                             </a>
                         </td>
                         <td class="text-center">
-                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@teamSlug" asp-route-id="@invoice.Id" class="btn btn-outline-primary">
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-team="@invoiceTeamSlug" asp-route-id="@invoice.Id" class="btn btn-outline-primary">
                                 <div>View</div>
                             </a>
                         </td>

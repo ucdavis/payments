@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Models.SearchViewModels;
 
 namespace Payments.Mvc.Controllers
@@ -25,15 +26,20 @@ namespace Payments.Mvc.Controllers
             if (string.IsNullOrWhiteSpace(q))
             {
                 ViewBag.ErrorMessage = "No search value entered";
-                return View(new SearchResultsViewModel(){Invoices = new List<Invoice>()});
+                return View(new SearchResultsViewModel() { Invoices = new List<Invoice>() });
             }
 
             q = q.Trim();
             // get all invoices for team
-            var query = _dbContext.Invoices
+            IQueryable<Invoice> query = _dbContext.Invoices
                 .AsQueryable()
                 .Include(i => i.Items)
-                .Where(i => i.Team.Slug == TeamSlug);
+                .Include(i => i.Team);
+
+            if (!string.IsNullOrWhiteSpace(TeamSlug) || !User.IsInRole(ApplicationRoleCodes.Admin))
+            {
+                query = query.Where(i => i.Team.Slug == TeamSlug);
+            }
 
             if (q.Contains("@"))
             {
