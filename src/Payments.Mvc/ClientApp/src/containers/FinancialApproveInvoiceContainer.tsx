@@ -385,6 +385,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                         <tr key={account.id}>
                           <td>
                             <a
+                              className='chart-string'
                               href={`https://finjector.ucdavis.edu/details/${account.financialSegmentString}`}
                               target='_blank'
                               rel='noopener noreferrer'
