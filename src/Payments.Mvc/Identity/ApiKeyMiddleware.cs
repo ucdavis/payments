@@ -3,8 +3,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
 using Payments.Core.Data;
+using Payments.Mvc.Controllers;
 
 namespace Payments.Mvc.Identity
 {
@@ -24,6 +26,18 @@ namespace Payments.Mvc.Identity
 
         public Task Invoke(HttpContext context, ApplicationDbContext dbContext)
         {
+            var isTeamEndpoint = context.GetEndpoint()?.Metadata
+                .GetMetadata<ControllerActionDescriptor>()?.ControllerTypeInfo.AsType() == typeof(TeamsApiController);
+
+            // The team lookup requires an API key even when the caller has a login cookie.
+            // Explicit empty responses bypass the HTML status-code handler.
+            if (isTeamEndpoint && string.IsNullOrWhiteSpace(context.Request.Headers[HeaderKey].FirstOrDefault()))
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentLength = 0;
+                return Task.CompletedTask;
+            }
+
             // check for header
             if (!context.Request.Headers.ContainsKey(HeaderKey))
             {
@@ -37,6 +51,13 @@ namespace Payments.Mvc.Identity
 
             if (team == null || !team.IsActive)
             {
+                if (isTeamEndpoint)
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentLength = 0;
+                    return Task.CompletedTask;
+                }
+
                 return _next(context);
             }
 
