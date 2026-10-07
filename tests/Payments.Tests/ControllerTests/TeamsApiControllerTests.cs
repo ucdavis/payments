@@ -1,12 +1,15 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,7 +58,13 @@ namespace payments.Tests.ControllerTests
         [InlineData("beta-test-key", "Beta Team", "beta")]
         public async Task GetReturnsTheTeamAssociatedWithTheApiKey(string apiKey, string name, string slug)
         {
-            var httpContext = await AuthenticateApiKey(apiKey);
+            var nextCalled = false;
+            var httpContext = await AuthenticateApiKey(apiKey, _ =>
+            {
+                nextCalled = true;
+                return Task.CompletedTask;
+            });
+            Assert.True(nextCalled);
             Assert.True(await IsAuthorized(httpContext.User));
             var controller = CreateController(httpContext);
 
@@ -67,13 +76,78 @@ namespace payments.Tests.ControllerTests
         }
 
         [Theory]
-        [InlineData(null)]
-        [InlineData("invalid-test-key")]
-        [InlineData("inactive-test-key")]
-        public async Task ApiKeyPolicyRejectsMissingInvalidOrInactiveKeys(string apiKey)
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        [InlineData(" ", false)]
+        [InlineData("invalid-test-key", false)]
+        [InlineData("inactive-test-key", false)]
+        [InlineData(null, true)]
+        [InlineData("", true)]
+        [InlineData(" ", true)]
+        [InlineData("invalid-test-key", true)]
+        [InlineData("inactive-test-key", true)]
+        public async Task TeamEndpointRejectsUnusableKeysWithoutLoginFallback(string apiKey, bool signedIn)
         {
+            var nextCalled = false;
+            var context = CreateHttpContext(typeof(TeamsApiController));
+            if (signedIn)
+            {
+                context.User = new ClaimsPrincipal(new ClaimsIdentity(
+                    new[] { new Claim(ClaimTypes.NameIdentifier, "cookie-user") }, "Cookies"));
+            }
+            var httpContext = await AuthenticateApiKey(apiKey, _ =>
+            {
+                nextCalled = true;
+                return Task.CompletedTask;
+            }, context);
+
+            Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
+            Assert.Equal(0L, httpContext.Response.ContentLength);
+            Assert.False(httpContext.Response.Headers.ContainsKey("Location"));
+            Assert.False(nextCalled);
+            Assert.False(await IsAuthorized(httpContext.User));
+        }
+
+        [Theory]
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        [InlineData(" ", false)]
+        [InlineData("invalid-test-key", false)]
+        [InlineData("inactive-test-key", false)]
+        [InlineData(null, true)]
+        [InlineData("", true)]
+        [InlineData(" ", true)]
+        [InlineData("invalid-test-key", true)]
+        [InlineData("inactive-test-key", true)]
+        public async Task OtherEndpointsKeepLoginFallback(string apiKey, bool hasControllerEndpoint)
+        {
+            var nextCalled = false;
+            var context = CreateHttpContext(hasControllerEndpoint ? typeof(InvoicesApiController) : null);
+
+            var httpContext = await AuthenticateApiKey(apiKey, nextContext =>
+            {
+                nextCalled = true;
+                nextContext.Response.Redirect("/Account/Login");
+                return Task.CompletedTask;
+            }, context);
+
+            Assert.True(nextCalled);
+            Assert.Equal(StatusCodes.Status302Found, httpContext.Response.StatusCode);
+            Assert.Equal("/Account/Login", httpContext.Response.Headers["Location"].ToString());
+            Assert.False(await IsAuthorized(httpContext.User));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task BlankStoredKeyCannotAuthorizeTheTeamEndpoint(string apiKey)
+        {
+            _dbContext.Teams.Single(team => team.Id == 1).ApiKey = apiKey;
+            await _dbContext.SaveChangesAsync();
+
             var httpContext = await AuthenticateApiKey(apiKey);
 
+            Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
             Assert.False(await IsAuthorized(httpContext.User));
         }
 
@@ -128,6 +202,7 @@ namespace payments.Tests.ControllerTests
             var operation = swagger.Paths["/api/team"].Operations[OperationType.Get];
             Assert.Contains("team name and slug", operation.Summary);
             Assert.Contains("Authorization header", operation.Description);
+            Assert.Contains("401 Unauthorized without redirecting to login", operation.Description);
             Assert.Empty(operation.Parameters);
             Assert.Contains("200", operation.Responses.Keys);
             Assert.Contains("404", operation.Responses.Keys);
@@ -147,16 +222,36 @@ namespace payments.Tests.ControllerTests
             Assert.Contains("URL slug", schema.Properties["slug"].Description);
         }
 
-        private async Task<DefaultHttpContext> AuthenticateApiKey(string apiKey)
+        private async Task<DefaultHttpContext> AuthenticateApiKey(
+            string apiKey, RequestDelegate next = null, DefaultHttpContext context = null)
         {
-            var context = new DefaultHttpContext();
+            context ??= CreateHttpContext(typeof(TeamsApiController));
             if (apiKey != null)
             {
                 context.Request.Headers[ApiKeyMiddleware.HeaderKey] = apiKey;
             }
 
-            var middleware = new ApiKeyMiddleware(_ => Task.CompletedTask, NullLoggerFactory.Instance);
-            await middleware.Invoke(context, _dbContext);
+            using var provider = new ServiceCollection().BuildServiceProvider();
+            var app = new ApplicationBuilder(provider);
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+            app.Use(nextMiddleware => httpContext =>
+                new ApiKeyMiddleware(nextMiddleware, NullLoggerFactory.Instance).Invoke(httpContext, _dbContext));
+            app.Run(next ?? (_ => Task.CompletedTask));
+            await app.Build()(context);
+            return context;
+        }
+
+        private static DefaultHttpContext CreateHttpContext(Type controllerType)
+        {
+            var context = new DefaultHttpContext();
+            if (controllerType != null)
+            {
+                context.SetEndpoint(new Endpoint(_ => Task.CompletedTask,
+                    new EndpointMetadataCollection(new ControllerActionDescriptor
+                    {
+                        ControllerTypeInfo = controllerType.GetTypeInfo()
+                    }), controllerType.Name));
+            }
             return context;
         }
 

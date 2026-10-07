@@ -18,6 +18,7 @@ namespace Payments.Mvc.Controllers
         /// </summary>
         /// <remarks>
         /// Supply the team's API key in the Authorization header.
+        /// Missing, invalid, or inactive API keys return 401 Unauthorized without redirecting to login.
         /// </remarks>
         /// <returns>The authorized team's name and slug.</returns>
         [HttpGet]
