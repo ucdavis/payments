@@ -26,12 +26,13 @@ namespace Payments.Mvc.Identity
 
         public Task Invoke(HttpContext context, ApplicationDbContext dbContext)
         {
-            var isTeamEndpoint = context.GetEndpoint()?.Metadata
-                .GetMetadata<ControllerActionDescriptor>()?.ControllerTypeInfo.AsType() == typeof(TeamsApiController);
+            var controllerType = context.GetEndpoint()?.Metadata
+                .GetMetadata<ControllerActionDescriptor>()?.ControllerTypeInfo.AsType();
+            var requiresApiKey = controllerType == typeof(TeamsApiController) || controllerType == typeof(ChartStringsApiController);
 
-            // The team lookup requires an API key even when the caller has a login cookie.
+            // These endpoints require an API key even when the caller has a login cookie.
             // Explicit empty responses bypass the HTML status-code handler.
-            if (isTeamEndpoint && string.IsNullOrWhiteSpace(context.Request.Headers[HeaderKey].FirstOrDefault()))
+            if (requiresApiKey && string.IsNullOrWhiteSpace(context.Request.Headers[HeaderKey].FirstOrDefault()))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.ContentLength = 0;
@@ -51,7 +52,7 @@ namespace Payments.Mvc.Identity
 
             if (team == null || !team.IsActive)
             {
-                if (isTeamEndpoint)
+                if (requiresApiKey)
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     context.Response.ContentLength = 0;
