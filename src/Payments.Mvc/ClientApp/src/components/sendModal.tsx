@@ -160,6 +160,7 @@ export default class SendModal extends React.PureComponent<IProps, IState> {
         paid: false,
         paidDate: null,
         team: {
+          slug: team.slug,
           name: team.name,
           contactName: '',
           contactEmail: team.contactEmail,

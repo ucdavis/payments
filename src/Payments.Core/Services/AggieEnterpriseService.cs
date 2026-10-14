@@ -3,6 +3,7 @@ using AggieEnterpriseApi.Extensions;
 using AggieEnterpriseApi.Types;
 using AggieEnterpriseApi.Validation;
 using Microsoft.Extensions.Options;
+using Payments.Core.Domain;
 using Payments.Core.Models.Configuration;
 using Payments.Core.Models.Validation;
 using Serilog;
@@ -16,9 +17,9 @@ namespace Payments.Core.Services
 {
     public interface IAggieEnterpriseService
     {
-        Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true);
+        Task<AccountValidationModel> IsAccountValid(string financialSegmentString, Team team, bool validateCVRs = true);
 
-        Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, bool validateCVRs = true);
+        Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, Team team, bool validateCVRs = true);
 
         Task<IReadOnlyDictionary<string, string>> SearchNaturalAccounts(string query);
 
@@ -255,7 +256,7 @@ namespace Payments.Core.Services
             return accountValidationModel;
         }
 
-        public async Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true)
+        public async Task<AccountValidationModel> IsAccountValid(string financialSegmentString, Team team, bool validateCVRs = true)
         {
             var rtValue = new AccountValidationModel();
 
@@ -343,7 +344,7 @@ namespace Payments.Core.Services
             return rtValue;
         }
 
-        public async Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, bool validateCVRs = true)
+        public async Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, Team team, bool validateCVRs = true)
         {
             var rtValue = new AccountValidationModel();
 

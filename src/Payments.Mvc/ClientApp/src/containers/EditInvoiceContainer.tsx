@@ -181,6 +181,7 @@ export default class EditInvoiceContainer extends React.Component<
         {type === 'Recharge' && (
           <div className='card-body invoice-recharge-accounts'>
             <RechargeAccountsControl
+              teamSlug={team.slug}
               ref={r => {
                 this._rechargeAccountsRef = r;
               }}

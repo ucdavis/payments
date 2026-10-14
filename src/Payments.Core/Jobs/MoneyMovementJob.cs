@@ -132,7 +132,7 @@ namespace Payments.Core.Jobs
                     if (accountOverride != null)
                     {
                         //Do we want to validate? Sloth will validate (based on the current config setting in prod), but we can do it here to avoid a failed transaction. This is a bit of a judgement call. If we don't validate, the transaction will fail and the invoice will stay in paid status. If we do validate, the invoice will be rejected and the user will have to fix it.
-                        var validationResult = await _aggieEnterpriseService.IsAccountValid(accountOverride.FinancialSegmentString);
+                        var validationResult = await _aggieEnterpriseService.IsAccountValid(accountOverride.FinancialSegmentString, team);
                         if (validationResult.IsValid)
                         {
                             incomeAeAccount = validationResult.ChartString ?? accountOverride.FinancialSegmentString;
