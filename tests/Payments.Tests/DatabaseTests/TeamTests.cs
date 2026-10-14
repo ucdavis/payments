@@ -70,6 +70,10 @@ namespace Payments.Tests.DatabaseTests
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
             }));
+            expectedFields.Add(new NameAndType("RechargeDebitNaturalAccount", "System.String", new List<string>
+            {
+                "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)6)]",
+            }));
             expectedFields.Add(new NameAndType("SlothAutoApprove", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("Slug", "System.String", new List<string>
             {
@@ -78,6 +82,7 @@ namespace Payments.Tests.DatabaseTests
                 "[System.ComponentModel.DataAnnotations.RequiredAttribute()]",
                 "[System.ComponentModel.DataAnnotations.StringLengthAttribute((Int32)40, MinimumLength = 3, ErrorMessage = \"Slug must be between 3 and 40 characters\")]",
             }));
+            expectedFields.Add(new NameAndType("UseCustomAccountValidation", "System.Boolean", new List<string>()));
             expectedFields.Add(new NameAndType("WebHookApiKey", "System.String", new List<string>
             {
                 "[Newtonsoft.Json.JsonIgnoreAttribute()]",
