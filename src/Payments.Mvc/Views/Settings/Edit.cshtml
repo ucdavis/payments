@@ -6,7 +6,16 @@
     ViewData["Title"] = "Edit Team";
 }
 
-<div class="card">
+@section AdditionalStyles {
+    <style asp-add-nonce="true">
+        #naturalAccountResults {
+            max-height: 16rem;
+            overflow-y: auto;
+        }
+    </style>
+}
+
+<div class="card overflow-visible">
     <div class="card-header card-header-primary d-flex justify-content-between align-items-start">
         <h1>@ViewBag.Title</h1>
         <a asp-action="Index">Back</a>
@@ -87,6 +96,31 @@
                         {
                             <div class="form-group">
                                 <div class="form-check">
+                                    <input asp-for="UseCustomAccountValidation" class="form-check-input" />
+                                    <label asp-for="UseCustomAccountValidation" class="form-check-label ms-2"></label>
+                                </div>
+                                <span asp-validation-for="UseCustomAccountValidation" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RechargeDebitNaturalAccount" class="control-label"></label>
+                                <div id="naturalAccountLookup" class="position-relative">
+                                    <input asp-for="RechargeDebitNaturalAccount" class="form-control" autocomplete="off"
+                                           maxlength="100" placeholder="Search by name or exact account code"
+                                           disabled="@(!Model.UseCustomAccountValidation)" aria-describedby="naturalAccountHelp naturalAccountStatus"
+                                           role="combobox" aria-autocomplete="list" aria-controls="naturalAccountResults" aria-expanded="false" />
+                                    <div id="naturalAccountResults" class="dropdown-menu top-100 start-0 w-100 shadow"
+                                         role="listbox" aria-label="Natural account search results"></div>
+                                </div>
+                                <span asp-validation-for="RechargeDebitNaturalAccount" class="text-danger"></span>
+                                <div id="naturalAccountStatus" class="text-muted small" role="status" aria-live="polite"></div>
+                                <div id="naturalAccountHelp" class="text-muted small">
+                                    Optional. Search and select an account, or leave blank to remove the override.
+                                    Turning off custom account validation clears this override.
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-check">
                                     <input asp-for="SlothAutoApprove" class="form-check-input" disabled="@(!isAdmin)" />
                                     <label asp-for="SlothAutoApprove" class="@labelClass"></label>
                                 </div>
@@ -144,6 +178,169 @@
                         var slug = $('#Slug').val();
                         $('#slugUrl').text("https://payments.ucdavis.edu/" + slug);
                     }
+
+                    var customValidation = $('#UseCustomAccountValidation');
+                    if (!customValidation.length) {
+                        return;
+                    }
+
+                    var naturalAccount = $('#RechargeDebitNaturalAccount');
+                    var lookup = $('#naturalAccountLookup');
+                    var results = $('#naturalAccountResults');
+                    var status = $('#naturalAccountStatus');
+                    var searchUrl = '@Url.Action("SearchNaturalAccounts", "Settings", new { team = Model.Slug })';
+                    var searchTimer;
+                    var searchRequest;
+                    var searchVersion = 0;
+                    var activeResult = -1;
+                    var dropdownDismissed = false;
+
+                    function hideResults() {
+                        results.removeClass('show');
+                        results.children().removeClass('active').attr('aria-selected', 'false');
+                        naturalAccount.attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
+                        activeResult = -1;
+                        dropdownDismissed = true;
+                    }
+
+                    function showResults() {
+                        if (results.children().length) {
+                            results.addClass('show');
+                            naturalAccount.attr('aria-expanded', 'true');
+                        }
+                    }
+
+                    function resetSearch() {
+                        clearTimeout(searchTimer);
+                        searchVersion++;
+                        if (searchRequest) {
+                            searchRequest.abort();
+                            searchRequest = null;
+                        }
+                        hideResults();
+                        results.empty();
+                        dropdownDismissed = false;
+                    }
+
+                    function updateNaturalAccountControls() {
+                        resetSearch();
+                        var enabled = customValidation.prop('checked');
+                        naturalAccount.prop('disabled', !enabled);
+                        if (!enabled) {
+                            naturalAccount.val('');
+                        }
+                        status.text(enabled ? 'Enter at least 3 characters to search Aggie Enterprise.' : 'Enable custom account validation to select an account.');
+
+                        var code = naturalAccount.val().trim();
+                        if (enabled && /^[0-9A-Z]{6}$/.test(code)) {
+                            var version = searchVersion;
+                            status.text('Loading natural account name...');
+                            searchRequest = $.getJSON(searchUrl, { query: code })
+                                .done(function (accounts) {
+                                    if (version !== searchVersion) {
+                                        return;
+                                    }
+                                    var account = accounts.find(function (item) { return item.code === code; });
+                                    status.text(account ? 'Selected: ' + account.code + ' — ' + account.name
+                                        : 'This natural account could not be found or is no longer eligible.');
+                                })
+                                .fail(function (_, textStatus) {
+                                    if (textStatus !== 'abort' && version === searchVersion) {
+                                        status.text('Unable to load the natural account name. Search again to retry.');
+                                    }
+                                });
+                        }
+                    }
+
+                    customValidation.on('change', updateNaturalAccountControls);
+                    naturalAccount.on('focus', function () {
+                        dropdownDismissed = false;
+                        showResults();
+                    });
+                    lookup.on('focusout', function (event) {
+                        if (!lookup[0].contains(event.relatedTarget)) {
+                            hideResults();
+                        }
+                    });
+                    $(document).on('pointerdown', function (event) {
+                        if (!lookup[0].contains(event.target)) {
+                            hideResults();
+                        }
+                    });
+                    results.on('mousedown', 'button', function (event) {
+                        event.preventDefault();
+                    });
+                    naturalAccount.on('keydown', function (event) {
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            hideResults();
+                        }
+                        else if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && results.children().length) {
+                            event.preventDefault();
+                            dropdownDismissed = false;
+                            showResults();
+                            var options = results.children();
+                            activeResult = event.key === 'ArrowDown'
+                                ? (activeResult + 1) % options.length
+                                : (activeResult <= 0 ? options.length - 1 : activeResult - 1);
+                            options.removeClass('active').attr('aria-selected', 'false');
+                            var option = options.eq(activeResult).addClass('active').attr('aria-selected', 'true');
+                            naturalAccount.attr('aria-activedescendant', option.attr('id'));
+                            option[0].scrollIntoView({ block: 'nearest' });
+                        }
+                        else if (event.key === 'Enter' && results.hasClass('show') && activeResult >= 0) {
+                            event.preventDefault();
+                            results.children().eq(activeResult).trigger('click');
+                        }
+                    });
+                    naturalAccount.on('input', function () {
+                        resetSearch();
+                        var query = naturalAccount.val().trim();
+                        if (!query) {
+                            naturalAccount.val('').valid();
+                            status.text('No override selected. Enter at least 3 characters to search.');
+                            return;
+                        }
+                        if (query.length < 3) {
+                            status.text('Enter at least 3 characters to search Aggie Enterprise.');
+                            return;
+                        }
+
+                        var version = searchVersion;
+                        status.text('Searching Aggie Enterprise...');
+                        searchTimer = setTimeout(function () {
+                            searchRequest = $.getJSON(searchUrl, { query: query })
+                                .done(function (accounts) {
+                                    if (version !== searchVersion) {
+                                        return;
+                                    }
+                                    status.text(accounts.length ? 'Select a natural account from the dropdown.' : 'No eligible natural accounts found.');
+                                    accounts.forEach(function (account, index) {
+                                        $('<button>', {
+                                            type: 'button', class: 'dropdown-item text-wrap py-2',
+                                            id: 'naturalAccountOption' + index, role: 'option', tabindex: -1, 'aria-selected': 'false'
+                                        })
+                                            .text(account.code + ' — ' + account.name)
+                                            .on('click', function () {
+                                                resetSearch();
+                                                naturalAccount.val(account.code).trigger('focus');
+                                                status.text('Selected: ' + account.code + ' — ' + account.name);
+                                                naturalAccount.valid();
+                                            })
+                                            .appendTo(results);
+                                    });
+                                    if (naturalAccount.is(':focus') && !dropdownDismissed) {
+                                        showResults();
+                                    }
+                                })
+                                .fail(function (_, textStatus) {
+                                    if (textStatus !== 'abort' && version === searchVersion) {
+                                        status.text('Unable to search Aggie Enterprise. Please try again.');
+                                    }
+                                });
+                        }, 300);
+                    });
+                    updateNaturalAccountControls();
                 });
         </script>
     }

@@ -36,6 +36,12 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "Sloth Recharge Auto Approve")]
         public bool SlothAutoApprove { get; set; }
 
+        [Display(Name = "Use Custom Account Validation")]
+        public bool UseCustomAccountValidation { get; set; }
+
+        [Display(Name = "Recharge Debit Natural Account")]
+        public string RechargeDebitNaturalAccount { get; set; }
+
         public IList<FinancialAccount> Accounts { get; set; }
 
         public IList<TeamPermission> Permissions { get; set; }

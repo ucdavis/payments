@@ -19,6 +19,10 @@ namespace Payments.Core.Services
         Task<AccountValidationModel> IsAccountValid(string financialSegmentString, bool validateCVRs = true);
 
         Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, bool validateCVRs = true);
+
+        Task<IReadOnlyDictionary<string, string>> SearchNaturalAccounts(string query);
+
+        Task<bool> IsNaturalAccountValid(string naturalAccount);
     }
     public class AggieEnterpriseService : IAggieEnterpriseService
     {
@@ -33,6 +37,42 @@ namespace Payments.Core.Services
             _aggieClient = GraphQlClient.Get(_aeSettings.GraphQlUrl, _aeSettings.TokenEndpoint, _aeSettings.ConsumerKey, _aeSettings.ConsumerSecret, $"{_aeSettings.ScopeApp}-{_aeSettings.ScopeEnv}");
             
         } 
+
+        public async Task<IReadOnlyDictionary<string, string>> SearchNaturalAccounts(string query)
+        {
+            var filter = new ErpAccountFilterInput
+            {
+                Name = new StringFilterInput { Contains = query.Trim().Replace(" ", "%") }
+            };
+            var result = await _aggieClient.ErpAccountSearch.ExecuteAsync(filter, query.Trim().ToUpperInvariant());
+            var data = result.ReadData();
+            var accounts = data.ErpAccountSearch.Data
+                .Where(account => account.EligibleForUse)
+                .GroupBy(account => account.Code)
+                .ToDictionary(group => group.Key, group => group.First().Name);
+
+            if (data.ErpAccount?.EligibleForUse == true)
+            {
+                accounts[data.ErpAccount.Code] = data.ErpAccount.Name;
+            }
+
+            return accounts;
+        }
+
+        public async Task<bool> IsNaturalAccountValid(string naturalAccount)
+        {
+            if (string.IsNullOrWhiteSpace(naturalAccount) || naturalAccount.Length != 6
+                || naturalAccount.Any(character => !(character >= '0' && character <= '9')
+                    && !(character >= 'A' && character <= 'Z')))
+            {
+                return false;
+            }
+
+            var result = await _aggieClient.ErpAccountSearch.ExecuteAsync(
+                new ErpAccountFilterInput { Code = new StringFilterInput { Eq = naturalAccount } }, naturalAccount);
+            var account = result.ReadData().ErpAccount;
+            return account?.EligibleForUse == true && account.Code == naturalAccount;
+        }
 
         //TODO: Change this to return invalid reasons
 
