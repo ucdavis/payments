@@ -101,23 +101,26 @@
                                 </div>
                                 <span asp-validation-for="UseCustomAccountValidation" class="text-danger"></span>
                             </div>
-                            <div class="form-group">
-                                <label asp-for="RechargeDebitNaturalAccount" class="control-label"></label>
-                                <div id="naturalAccountLookup" class="position-relative">
-                                    <input asp-for="RechargeDebitNaturalAccount" class="form-control" autocomplete="off"
-                                           maxlength="100" placeholder="Search by name or exact account code"
-                                           disabled="@(!Model.UseCustomAccountValidation)" aria-describedby="naturalAccountHelp naturalAccountStatus"
-                                           role="combobox" aria-autocomplete="list" aria-controls="naturalAccountResults" aria-expanded="false" />
-                                    <div id="naturalAccountResults" class="dropdown-menu top-100 start-0 w-100 shadow"
-                                         role="listbox" aria-label="Natural account search results"></div>
+                            @if (Model.ShowRechargeDebitNaturalAccount)
+                            {
+                                <div class="form-group">
+                                    <label asp-for="RechargeDebitNaturalAccount" class="control-label"></label>
+                                    <div id="naturalAccountLookup" class="position-relative">
+                                        <input asp-for="RechargeDebitNaturalAccount" class="form-control" autocomplete="off"
+                                               maxlength="100" placeholder="Search by name or exact account code"
+                                               disabled="@(!Model.UseCustomAccountValidation)" aria-describedby="naturalAccountHelp naturalAccountStatus"
+                                               role="combobox" aria-autocomplete="list" aria-controls="naturalAccountResults" aria-expanded="false" />
+                                        <div id="naturalAccountResults" class="dropdown-menu top-100 start-0 w-100 shadow"
+                                             role="listbox" aria-label="Natural account search results"></div>
+                                    </div>
+                                    <span asp-validation-for="RechargeDebitNaturalAccount" class="text-danger"></span>
+                                    <div id="naturalAccountStatus" class="text-muted small" role="status" aria-live="polite"></div>
+                                    <div id="naturalAccountHelp" class="text-muted small">
+                                        Optional. Search and select an account, or leave blank to remove the override.
+                                        Turning off custom account validation clears this override.
+                                    </div>
                                 </div>
-                                <span asp-validation-for="RechargeDebitNaturalAccount" class="text-danger"></span>
-                                <div id="naturalAccountStatus" class="text-muted small" role="status" aria-live="polite"></div>
-                                <div id="naturalAccountHelp" class="text-muted small">
-                                    Optional. Search and select an account, or leave blank to remove the override.
-                                    Turning off custom account validation clears this override.
-                                </div>
-                            </div>
+                            }
 
                             <div class="form-group">
                                 <div class="form-check">
@@ -180,11 +183,11 @@
                     }
 
                     var customValidation = $('#UseCustomAccountValidation');
-                    if (!customValidation.length) {
+                    var naturalAccount = $('#RechargeDebitNaturalAccount');
+                    if (!customValidation.length || !naturalAccount.length) {
                         return;
                     }
 
-                    var naturalAccount = $('#RechargeDebitNaturalAccount');
                     var lookup = $('#naturalAccountLookup');
                     var results = $('#naturalAccountResults');
                     var status = $('#naturalAccountStatus');

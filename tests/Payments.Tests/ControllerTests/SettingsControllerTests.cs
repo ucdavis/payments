@@ -7,17 +7,21 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using Payments.Core.Data;
 using Payments.Core.Domain;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 using Payments.Mvc.Controllers;
+using Payments.Mvc.Identity;
 using Payments.Mvc.Models.Roles;
 using Payments.Mvc.Models.TeamViewModels;
 using Xunit;
@@ -57,15 +61,93 @@ namespace payments.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditLoadsTheStoredCustomAccountSettings()
+        public void RechargeDebitNaturalAccountIsDisabledByDefault()
         {
-            var controller = CreateController();
+            Assert.False(new FinanceSettings().EnableRechargeDebitNaturalAccount);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task EditLoadsTheStoredCustomAccountSettingsAndConfiguredVisibility(bool featureEnabled)
+        {
+            var controller = CreateController(enableRechargeDebitNaturalAccount: featureEnabled);
 
             var result = await controller.Edit();
 
             var model = Assert.IsType<EditTeamViewModel>(Assert.IsType<ViewResult>(result).Model);
             Assert.True(model.UseCustomAccountValidation);
             Assert.Equal("123456", model.RechargeDebitNaturalAccount);
+            Assert.Equal(featureEnabled, model.ShowRechargeDebitNaturalAccount);
+            _aggieEnterpriseService.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task DetailsLoadsTheConfiguredAccountVisibility(bool featureEnabled)
+        {
+            var userManager = new Mock<ApplicationUserManager>(
+                Mock.Of<IUserStore<User>>(), Options.Create(new IdentityOptions()),
+                null, null, null, null, null, null, null);
+            userManager.Setup(manager => manager.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(new User());
+            var controller = CreateController(
+                enableRechargeDebitNaturalAccount: featureEnabled, userManager: userManager.Object);
+
+            var result = await controller.Index();
+
+            var model = Assert.IsType<TeamDetailsModel>(Assert.IsType<ViewResult>(result).Model);
+            Assert.Equal(featureEnabled, model.ShowRechargeDebitNaturalAccount);
+            Assert.Equal("123456", model.RechargeDebitNaturalAccount);
+            _aggieEnterpriseService.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData(true, null)]
+        [InlineData(true, "654321")]
+        [InlineData(true, "invalid-account")]
+        [InlineData(false, null)]
+        [InlineData(false, "invalid-account")]
+        public async Task DisabledFeaturePreservesTheAccountAndIgnoresSubmittedValuesAndErrors(
+            bool useCustomAccountValidation, string submittedAccount)
+        {
+            var controller = CreateController(enableRechargeDebitNaturalAccount: false);
+            var model = CreateModel();
+            model.UseCustomAccountValidation = useCustomAccountValidation;
+            model.RechargeDebitNaturalAccount = submittedAccount;
+            model.ShowRechargeDebitNaturalAccount = true;
+            ValidateModel(controller, model);
+            controller.ModelState.AddModelError(nameof(model.RechargeDebitNaturalAccount), "Submitted account error.");
+
+            var result = await controller.Edit(model);
+
+            Assert.IsType<RedirectToActionResult>(result);
+            var stored = await ReadTeam();
+            Assert.Equal(model.Name, stored.Name);
+            Assert.Equal(useCustomAccountValidation, stored.UseCustomAccountValidation);
+            Assert.Equal("123456", stored.RechargeDebitNaturalAccount);
+            Assert.False(model.ShowRechargeDebitNaturalAccount);
+            Assert.False(controller.ModelState.ContainsKey(nameof(model.RechargeDebitNaturalAccount)));
+            _aggieEnterpriseService.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task InvalidEditUsesConfiguredVisibilityInsteadOfThePostedValue(bool featureEnabled)
+        {
+            var controller = CreateController(enableRechargeDebitNaturalAccount: featureEnabled);
+            var model = CreateModel();
+            model.ShowRechargeDebitNaturalAccount = !featureEnabled;
+            controller.ModelState.AddModelError(nameof(model.Name), "Team name is required.");
+
+            var result = await controller.Edit(model);
+
+            Assert.Same(model, Assert.IsType<ViewResult>(result).Model);
+            Assert.Equal(featureEnabled, model.ShowRechargeDebitNaturalAccount);
+            Assert.NotEmpty(controller.ModelState[nameof(model.Name)].Errors);
+            await AssertOriginalTeamIsUnchanged();
             _aggieEnterpriseService.VerifyNoOtherCalls();
         }
 
@@ -245,6 +327,19 @@ namespace payments.Tests.ControllerTests
 
         [Theory]
         [InlineData(null)]
+        [InlineData("12")]
+        [InlineData("travel")]
+        public async Task DisabledFeatureRejectsSearchWithoutCallingAggieEnterprise(string query)
+        {
+            var result = await CreateController(enableRechargeDebitNaturalAccount: false)
+                .SearchNaturalAccounts(query);
+
+            Assert.IsType<NotFoundResult>(result);
+            _aggieEnterpriseService.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData(null)]
         [InlineData("")]
         [InlineData("   ")]
         [InlineData("12")]
@@ -298,14 +393,21 @@ namespace payments.Tests.ControllerTests
             _aggieEnterpriseService.VerifyNoOtherCalls();
         }
 
-        private SettingsController CreateController(bool isSystemUser = true)
+        private SettingsController CreateController(
+            bool isSystemUser = true, bool enableRechargeDebitNaturalAccount = true,
+            ApplicationUserManager userManager = null)
         {
             var claims = isSystemUser
                 ? new[] { new Claim(ClaimTypes.Role, ApplicationRoleCodes.Admin) }
                 : Array.Empty<Claim>();
             var routeData = new RouteData();
             routeData.Values.Add("team", "alpha");
-            return new SettingsController(_dbContext, null, null, null, null, _aggieEnterpriseService.Object)
+            var financeSettings = Options.Create(new FinanceSettings
+            {
+                EnableRechargeDebitNaturalAccount = enableRechargeDebitNaturalAccount,
+            });
+            return new SettingsController(_dbContext, null, null, null, userManager,
+                _aggieEnterpriseService.Object, financeSettings)
             {
                 ControllerContext = new ControllerContext
                 {

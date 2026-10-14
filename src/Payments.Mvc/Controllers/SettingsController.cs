@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 using Payments.Emails;
 using Payments.Mvc.Identity;
@@ -31,6 +33,7 @@ namespace Payments.Mvc.Controllers
         private readonly IEmailService _emailService;
         private readonly ApplicationUserManager _userManager;
         private readonly IAggieEnterpriseService _aggieEnterpriseService;
+        private readonly FinanceSettings _financeSettings;
 
         public SettingsController(
             ApplicationDbContext context,
@@ -38,7 +41,8 @@ namespace Payments.Mvc.Controllers
             INotificationService notificationService,
             IEmailService emailService,
             ApplicationUserManager userManager,
-            IAggieEnterpriseService aggieEnterpriseService)
+            IAggieEnterpriseService aggieEnterpriseService,
+            IOptions<FinanceSettings> financeSettings)
         {
             _context = context;
             _directorySearchService = directorySearchService;
@@ -46,6 +50,7 @@ namespace Payments.Mvc.Controllers
             _emailService = emailService;
             _userManager = userManager;
             _aggieEnterpriseService = aggieEnterpriseService;
+            _financeSettings = financeSettings.Value;
         }
 
         /// <summary>
@@ -79,6 +84,7 @@ namespace Payments.Mvc.Controllers
                 SlothAutoApprove = team.SlothAutoApprove,
                 UseCustomAccountValidation = team.UseCustomAccountValidation,
                 RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount,
+                ShowRechargeDebitNaturalAccount = _financeSettings.EnableRechargeDebitNaturalAccount,
             };
 
             return View(model);
@@ -109,6 +115,7 @@ namespace Payments.Mvc.Controllers
                 SlothAutoApprove = team.SlothAutoApprove,
                 UseCustomAccountValidation = team.UseCustomAccountValidation,
                 RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount,
+                ShowRechargeDebitNaturalAccount = _financeSettings.EnableRechargeDebitNaturalAccount,
             };
 
             return View(model);
@@ -133,11 +140,18 @@ namespace Payments.Mvc.Controllers
             }
 
             var isSystemUser = User.IsInRole(ApplicationRoleCodes.Admin);
+            model.ShowRechargeDebitNaturalAccount = _financeSettings.EnableRechargeDebitNaturalAccount;
+            ModelState.Remove(nameof(model.ShowRechargeDebitNaturalAccount));
             if (!isSystemUser)
             {
                 model.UseCustomAccountValidation = team.UseCustomAccountValidation;
                 model.RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount;
                 ModelState.Remove(nameof(model.UseCustomAccountValidation));
+                ModelState.Remove(nameof(model.RechargeDebitNaturalAccount));
+            }
+            else if (!_financeSettings.EnableRechargeDebitNaturalAccount)
+            {
+                model.RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount;
                 ModelState.Remove(nameof(model.RechargeDebitNaturalAccount));
             }
             else if (!model.UseCustomAccountValidation)
@@ -183,8 +197,11 @@ namespace Payments.Mvc.Controllers
                 team.AllowedInvoiceType = model.AllowedInvoiceType;
                 team.SlothAutoApprove = model.SlothAutoApprove;
                 team.UseCustomAccountValidation = model.UseCustomAccountValidation;
-                team.RechargeDebitNaturalAccount = string.IsNullOrWhiteSpace(model.RechargeDebitNaturalAccount)
-                    ? null : model.RechargeDebitNaturalAccount;
+                if (_financeSettings.EnableRechargeDebitNaturalAccount)
+                {
+                    team.RechargeDebitNaturalAccount = string.IsNullOrWhiteSpace(model.RechargeDebitNaturalAccount)
+                        ? null : model.RechargeDebitNaturalAccount;
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -196,6 +213,11 @@ namespace Payments.Mvc.Controllers
         [Authorize(Roles = ApplicationRoleCodes.Admin)]
         public async Task<IActionResult> SearchNaturalAccounts(string query)
         {
+            if (!_financeSettings.EnableRechargeDebitNaturalAccount)
+            {
+                return NotFound();
+            }
+
             query = query?.Trim();
             if (string.IsNullOrEmpty(query) || query.Length < 3 || query.Length > 100)
             {

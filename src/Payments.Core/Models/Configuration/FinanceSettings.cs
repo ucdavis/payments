@@ -30,6 +30,8 @@ namespace Payments.Core.Models.Configuration
 
         public bool ValidateRechargeFinancialSegmentString { get; set; } = true; 
 
+        public bool EnableRechargeDebitNaturalAccount { get; set; } = false;
+
         public int RechargeAutoApproveDays { get; set; } = 7;
     }
 }

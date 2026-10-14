@@ -42,6 +42,8 @@ namespace Payments.Mvc.Models.TeamViewModels
         [Display(Name = "Recharge Debit Natural Account")]
         public string RechargeDebitNaturalAccount { get; set; }
 
+        public bool ShowRechargeDebitNaturalAccount { get; set; }
+
         public IList<FinancialAccount> Accounts { get; set; }
 
         public IList<TeamPermission> Permissions { get; set; }

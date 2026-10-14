@@ -124,19 +124,22 @@
                     <dd>
                         @(Model.UseCustomAccountValidation ? "Enabled" : "Disabled")
                     </dd>
-                    <dt>
-                        @Html.DisplayNameFor(model => model.RechargeDebitNaturalAccount)
-                    </dt>
-                    <dd>
-                        @if (string.IsNullOrWhiteSpace(Model.RechargeDebitNaturalAccount))
-                        {
-                            <span>Not Set</span>
-                        }
-                        else
-                        {
-                            <span id="rechargeDebitNaturalAccount" data-code="@Model.RechargeDebitNaturalAccount">@Model.RechargeDebitNaturalAccount</span>
-                        }
-                    </dd>
+                    @if (Model.ShowRechargeDebitNaturalAccount)
+                    {
+                        <dt>
+                            @Html.DisplayNameFor(model => model.RechargeDebitNaturalAccount)
+                        </dt>
+                        <dd>
+                            @if (string.IsNullOrWhiteSpace(Model.RechargeDebitNaturalAccount))
+                            {
+                                <span>Not Set</span>
+                            }
+                            else
+                            {
+                                <span id="rechargeDebitNaturalAccount" data-code="@Model.RechargeDebitNaturalAccount">@Model.RechargeDebitNaturalAccount</span>
+                            }
+                        </dd>
+                    }
                 }
             </dl>
         </div>
