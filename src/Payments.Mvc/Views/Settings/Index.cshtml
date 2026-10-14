@@ -122,7 +122,14 @@
                         @Html.DisplayNameFor(model => model.UseCustomAccountValidation)
                     </dt>
                     <dd>
-                        @(Model.UseCustomAccountValidation ? "Enabled" : "Disabled")
+                        @if (Model.UseCustomAccountValidation)
+                        {
+                            <span class="badge bg-success">Enabled</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Disabled</span>
+                        }
                     </dd>
                     @if (Model.ShowRechargeDebitNaturalAccount)
                     {
