@@ -20,25 +20,32 @@ the same reusable CI workflow, then deploys that artifact without rebuilding it.
 `/health` is anonymous, uncached, and returns only `Healthy` / HTTP 200 or
 `Unhealthy` / HTTP 503 after a read-only database connection check with a five-second
 cancellation deadline. It does not inspect or mutate invoices. A successful deployment
-requires two successful health checks and a matching deployed commit.
+requires two consecutive checks that each report healthy and match the expected commit.
 
 For local validation, install .NET 6 and Node 22, run `npm ci --legacy-peer-deps`
 in `src/Payments.Mvc/ClientApp`, run `npm run test:run` there, then run
+`python3 -m unittest discover -s tests/deployment -v`,
 `dotnet test Payments.sln --configuration Release` and
 `bash scripts/deployment/package.sh` from the repository root. Packaging requires
-`zip`, a fresh `artifacts/payments.zip` path, and restored frontend dependencies.
+`zip`, `shasum`, a fresh `artifacts/payments.zip` path, and restored frontend dependencies.
+The deployment readiness tests require Python 3, Bash and `jq`.
 
-## One-time test access
+## Test access
 
-Create a user-assigned managed identity `id-payments-test-deploy` in resource group
-`payments-test`, subscription `105dede4-4731-492e-8c28-5121226319b0`.
-Trust issuer `https://token.actions.githubusercontent.com`, audience
+The test identity and GitHub environment already exist. Keep cloud configuration
+unchanged and `TEST_DEPLOYMENT_READY=false` through code validation and PR review.
+Recheck the existing configuration below during the post-merge handover.
+
+Use the user-assigned managed identity `id-payments-test-deploy` in resource group
+`payments-test`, subscription `105dede4-4731-492e-8c28-5121226319b0`. Its OIDC trust
+must use issuer `https://token.actions.githubusercontent.com`, audience
 `api://AzureADTokenExchange`, and subject `repo:ucdavis/payments:environment:test`.
 The repository currently uses that default, non-immutable OIDC subject format;
-recheck it before provisioning. Grant Website Contributor only on this App Service.
+recheck it at handover. Keep Website Contributor scoped only to this App Service.
 Do not grant production, SQL, shared-plan or subscription-wide access.
 
-Create a GitHub environment named `test`, restricted to the `master` branch, with:
+Verify that the existing GitHub environment named `test` is restricted to the
+`master` branch, with:
 
 | Variable | Value |
 | --- | --- |
@@ -47,7 +54,7 @@ Create a GitHub environment named `test`, restricted to the `master` branch, wit
 | `AZURE_SUBSCRIPTION_ID` | `105dede4-4731-492e-8c28-5121226319b0` |
 | `RESOURCE_GROUP` | `payments-test` |
 | `WEB_APP_NAME` | `payments-test` |
-| `TEST_DEPLOYMENT_READY` | `false` until the handover checklist is complete |
+| `TEST_DEPLOYMENT_READY` | `false`; enable only at handover step 5 |
 
 Application secrets and connection strings stay in Azure. Preserve Windows hosting,
 32-bit worker configuration, Always On, schedules, domains, certificates and
@@ -102,8 +109,8 @@ check `Finance:RechargeAutoApprove`, so that setting is not a job-disable switch
 Email and webhook delivery require approved test recipients. Never send real
 notifications merely to validate deployment.
 
-Stop after step 5. Automatic GitHub deployment, branch-protection changes and production
-migration are separate follow-up decisions. If sign-in, test fixtures or a scheduled
+Stop after functional acceptance. Automatic GitHub deployment, branch-protection changes
+and production migration are separate follow-up decisions. If sign-in, test fixtures or a scheduled
 run are unavailable, report the missing evidence instead of declaring acceptance.
 
 ## Recovery
