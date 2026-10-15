@@ -28,12 +28,14 @@ namespace Payments.Core.Services
     public class AggieEnterpriseService : IAggieEnterpriseService
     {
         private readonly AggieEnterpriseOptions _aeSettings;
+        private readonly FinanceSettings _financeSettings;
         private IAggieEnterpriseClient _aggieClient;
         private const string FiscalOfficer = "Fiscal Officer Approver";
 
-        public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> aeSettings)
+        public AggieEnterpriseService(IOptions<AggieEnterpriseOptions> aeSettings, IOptions<FinanceSettings> financeSettings)
         {
             _aeSettings = aeSettings.Value;
+            _financeSettings = financeSettings.Value;
             //_aggieClient = GraphQlClient.Get(options.Value.GraphQlUrl, options.Value.Token);
             _aggieClient = GraphQlClient.Get(_aeSettings.GraphQlUrl, _aeSettings.TokenEndpoint, _aeSettings.ConsumerKey, _aeSettings.ConsumerSecret, $"{_aeSettings.ScopeApp}-{_aeSettings.ScopeEnv}");
             
@@ -262,6 +264,16 @@ namespace Payments.Core.Services
 
             rtValue = await CommonAccountValidation(rtValue, financialSegmentString, validateCVRs);
 
+            if (team == null)
+            {
+                Log.Error("Team is null in IsAccountValid");
+            }
+
+            if (team != null && team.UseCustomAccountValidation)
+            {
+                return rtValue; //If the team is using custom account validation, we don't want to do any further checks
+            }
+
             if (rtValue.CoaChartType == FinancialChartStringType.Gl)
             {
 
@@ -346,9 +358,19 @@ namespace Payments.Core.Services
 
         public async Task<AccountValidationModel> IsRechargeAccountValid(string financialSegmentString, CreditDebit direction, Team team, bool validateCVRs = true)
         {
+            if(team == null)
+            {
+                Log.Error("Team is null in IsRechargeAccountValid");
+            }
+            var debitNaturalAccount = "770006";
+            if(_financeSettings.EnableRechargeDebitNaturalAccount && team.UseCustomAccountValidation && !string.IsNullOrWhiteSpace(team.RechargeDebitNaturalAccount))
+            {
+                debitNaturalAccount = team.RechargeDebitNaturalAccount;
+            }
+
             var rtValue = new AccountValidationModel();
 
-            var newChartString = ReplaceNaturalAccount(financialSegmentString, direction == CreditDebit.Credit ? "775000" : "770006");
+            var newChartString = ReplaceNaturalAccount(financialSegmentString, direction == CreditDebit.Credit ? "775000" : debitNaturalAccount);
             var chartStringUpdated = newChartString != financialSegmentString;
             financialSegmentString = newChartString;
 
@@ -361,8 +383,14 @@ namespace Payments.Core.Services
                 if(chartStringUpdated)
                 {
                     //Add a warning that we changed the natural account for them. Otherwise, they may not notice if it would have been valid except for the change
-                    rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", direction == CreditDebit.Credit ? "The Natural Account/Expenditure Type segment has been changed to 775000." : "The Natural Account/Expenditure Type segment has been changed to 770006."));
+                    rtValue.Warnings.Add(new KeyValuePair<string, string>("Natural Account", direction == CreditDebit.Credit ? "The Natural Account/Expenditure Type segment has been changed to 775000." : $"The Natural Account/Expenditure Type segment has been changed to {debitNaturalAccount}."));
                 }
+                return rtValue;
+            }
+
+            if(team?.UseCustomAccountValidation == true)
+            {
+                rtValue = await MinimumCustomValidationChecks(direction, chartStringUpdated, direction == CreditDebit.Credit ? "775000" : debitNaturalAccount, rtValue);
                 return rtValue;
             }
 
@@ -459,6 +487,59 @@ namespace Payments.Core.Services
 //                Email = "jsylvestre@ucdavis.edu",
 //            });
 //#endif
+
+            return rtValue;
+        }
+
+        /// <summary>
+        /// For Recharge Accounts
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <param name="rtValue"></param>
+        /// <returns></returns>
+        private async Task<AccountValidationModel> MinimumCustomValidationChecks(CreditDebit direction, bool chartStringUpdated, string naturalAccountToUse, AccountValidationModel rtValue)
+        {
+            if (chartStringUpdated)
+            {
+                var segmentName = rtValue.CoaChartType == FinancialChartStringType.Ppm
+                    ? "Expenditure Type"
+                    : "Natural Account";
+
+                rtValue.Warnings.Add(new KeyValuePair<string, string>(
+                    segmentName,
+                    $"The {segmentName} segment has been changed to {naturalAccountToUse}."));
+            }
+
+            if (direction == CreditDebit.Credit)
+            {
+                //For credit, we don't need to do anything else. The custom validation is enough.
+            }
+            else //Debit
+            {
+                if (rtValue.CoaChartType == FinancialChartStringType.Gl)
+                {
+                    if (rtValue.IsValid)
+                    {
+                        var result = await _aggieClient.ErpDepartmentApprovers.ExecuteAsync(rtValue.GlSegments.Department);
+                        var data = result.ReadData();
+                        if (data != null)
+                        {
+                            if (data.ErpFinancialDepartment != null && data.ErpFinancialDepartment.Approvers != null)
+                            {
+                                foreach (var approver in data.ErpFinancialDepartment.Approvers.Where(a => a.ApproverType == FiscalOfficer))
+                                {
+                                    rtValue.Approvers.Add(new Approver
+                                    {
+                                        FirstName = approver.FirstName,
+                                        LastName = approver.LastName,
+                                        Email = approver.EmailAddress,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             return rtValue;
         }

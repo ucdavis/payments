@@ -30,6 +30,9 @@ namespace Payments.Core.Models.Configuration
 
         public bool ValidateRechargeFinancialSegmentString { get; set; } = true; 
 
+        /// <summary>
+        /// Feature flag to turn on team level natural account replacement of debit natural account (vs. hard coded value)
+        /// </summary>
         public bool EnableRechargeDebitNaturalAccount { get; set; } = false;
 
         public int RechargeAutoApproveDays { get; set; } = 7;
