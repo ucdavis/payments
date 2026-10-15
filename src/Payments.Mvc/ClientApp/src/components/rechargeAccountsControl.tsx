@@ -14,6 +14,7 @@ import {
 } from '../helpers/calculations';
 
 interface IProps {
+  teamSlug: string;
   rechargeAccounts: InvoiceRechargeItem[];
   invoiceTotal: number;
   onChange: (rechargeAccounts: InvoiceRechargeItem[]) => void;
@@ -363,7 +364,9 @@ export default class RechargeAccountsControl extends React.Component<
       const response = await fetch(
         `/api/recharge/validate?chartString=${encodeURIComponent(
           chartString
-        )}&direction=${directionValue}&checkApprover=${checkApprover}`,
+        )}&direction=${directionValue}&checkApprover=${checkApprover}&teamSlug=${encodeURIComponent(
+          this.props.teamSlug
+        )}`,
         {
           method: 'GET',
           headers: {

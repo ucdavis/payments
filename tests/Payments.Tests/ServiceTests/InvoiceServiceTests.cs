@@ -69,6 +69,7 @@ namespace payments.Tests.ServiceTests
         [Fact]
         public async Task CreateInvoices_InvalidRechargeAccount_IdentifiesRechargeAccountsParameter()
         {
+            var team = new Team { Id = 1 };
             var dbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
             dbContext
                 .Setup(context => context.FinancialAccounts)
@@ -77,7 +78,7 @@ namespace payments.Tests.ServiceTests
             var aggieEnterpriseService = new Mock<IAggieEnterpriseService>();
             aggieEnterpriseService
                 .Setup(service => service.IsRechargeAccountValid(
-                    "invalid-chart-string", RechargeAccount.CreditDebit.Credit, true))
+                    "invalid-chart-string", RechargeAccount.CreditDebit.Credit, team, true))
                 .ReturnsAsync(new AccountValidationModel { IsValid = false });
 
             var service = new InvoiceService(
@@ -99,7 +100,7 @@ namespace payments.Tests.ServiceTests
             };
 
             var exception = await Assert.ThrowsAsync<ArgumentException>(
-                () => service.CreateInvoices(model, new Team { Id = 1 }));
+                () => service.CreateInvoices(model, team));
 
             Assert.Equal(nameof(model.RechargeAccounts), exception.ParamName);
         }
@@ -337,6 +338,7 @@ namespace payments.Tests.ServiceTests
             decimal rechargeAmount)
         {
             const string chartString = "valid-chart-string";
+            var team = new Team { Id = 1 };
             var dbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
             dbContext
                 .Setup(context => context.FinancialAccounts)
@@ -348,7 +350,7 @@ namespace payments.Tests.ServiceTests
             var aggieEnterpriseService = new Mock<IAggieEnterpriseService>();
             aggieEnterpriseService
                 .Setup(service => service.IsRechargeAccountValid(
-                    chartString, RechargeAccount.CreditDebit.Credit, true))
+                    chartString, RechargeAccount.CreditDebit.Credit, team, true))
                 .ReturnsAsync(new AccountValidationModel
                 {
                     IsValid = true,
@@ -388,7 +390,7 @@ namespace payments.Tests.ServiceTests
                 },
             };
 
-            return (service, model, new Team { Id = 1 });
+            return (service, model, team);
         }
     }
 }

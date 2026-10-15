@@ -45,6 +45,7 @@ export interface InvoiceAttachmentModel {
 }
 
 export interface InvoiceTeam {
+  slug: string;
   name: string;
   contactName: string;
   contactEmail: string;
@@ -347,6 +348,7 @@ export default class FinancialApproveInvoiceContainer extends React.Component<
                 can be modified.
               </p>
               <RechargeAccountsControl
+                teamSlug={invoice.team.slug}
                 ref={r => {
                   this._rechargeAccountsRef = r;
                 }}

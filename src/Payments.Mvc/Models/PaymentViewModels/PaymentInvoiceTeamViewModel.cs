@@ -10,6 +10,7 @@ namespace Payments.Mvc.Models.PaymentViewModels
         public PaymentInvoiceTeamViewModel(Team team)
         {
             Name               = team.Name;
+            Slug               = team.Slug;
             ContactName        = team.ContactName;
             ContactEmail       = team.ContactEmail;
             ContactPhoneNumber = team.ContactPhoneNumber;
@@ -19,6 +20,8 @@ namespace Payments.Mvc.Models.PaymentViewModels
         [Display(Name = "Team Name")]
         [Required]
         public string Name { get; set; }
+
+        public string Slug { get; set; }
 
         [StringLength(128)]
         [Display(Name = "Contact Name")]
