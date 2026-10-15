@@ -47,14 +47,14 @@ Do not grant production, SQL, shared-plan or subscription-wide access.
 Verify that the existing GitHub environment named `test` is restricted to the
 `master` branch, with:
 
-| Variable | Value |
-| --- | --- |
-| `AZURE_CLIENT_ID` | Client ID of the test deployment identity |
-| `AZURE_TENANT_ID` | `a8046f64-66c0-4f00-9046-c8daf92ff62b` |
-| `AZURE_SUBSCRIPTION_ID` | `105dede4-4731-492e-8c28-5121226319b0` |
-| `RESOURCE_GROUP` | `payments-test` |
-| `WEB_APP_NAME` | `payments-test` |
-| `TEST_DEPLOYMENT_READY` | `false`; enable only at handover step 5 |
+| Variable                | Value                                     |
+| ----------------------- | ----------------------------------------- |
+| `AZURE_CLIENT_ID`       | Client ID of the test deployment identity |
+| `AZURE_TENANT_ID`       | `a8046f64-66c0-4f00-9046-c8daf92ff62b`    |
+| `AZURE_SUBSCRIPTION_ID` | `105dede4-4731-492e-8c28-5121226319b0`    |
+| `RESOURCE_GROUP`        | `payments-test`                           |
+| `WEB_APP_NAME`          | `payments-test`                           |
+| `TEST_DEPLOYMENT_READY` | `false`; enable only at handover step 5   |
 
 Application secrets and connection strings stay in Azure. Preserve Windows hosting,
 32-bit worker configuration, Always On, schedules, domains, certificates and
