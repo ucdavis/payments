@@ -1,0 +1,192 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment to deploy.
+        required: true
+        type: environment
+        default: test
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.environment }}
+    # Only test is enabled during this migration. Production stays in Azure Pipelines.
+    if: github.ref == 'refs/heads/master' && inputs.environment == 'test'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: azure-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      APP_HEALTH_TIMEOUT_SECONDS: ${{ vars.APP_HEALTH_TIMEOUT_SECONDS || '60' }}
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
+      WEB_APP_NAME: ${{ vars.WEB_APP_NAME }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate deployment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID RESOURCE_GROUP WEB_APP_NAME; do
+            if [[ -z "${!name}" ]]; then
+              echo "Missing required GitHub Environment variable: $name"
+              exit 1
+            fi
+          done
+          if [[ ! "$APP_HEALTH_TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]]; then
+            echo "APP_HEALTH_TIMEOUT_SECONDS must be a positive integer."
+            exit 1
+          fi
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: src/Payments.Mvc/ClientApp/package-lock.json
+
+      - name: Restore frontend dependencies
+        working-directory: src/Payments.Mvc/ClientApp
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        working-directory: src/Payments.Mvc/ClientApp
+        run: npm run build
+
+      - name: Test frontend
+        working-directory: src/Payments.Mvc/ClientApp
+        run: npm run test:run
+
+      - name: Restore .NET projects
+        run: dotnet restore Payments.sln
+
+      - name: Build .NET projects
+        run: dotnet build Payments.sln --configuration Release --no-restore
+
+      - name: Test .NET projects
+        run: dotnet test Payments.sln --configuration Release --no-build
+
+      - name: Publish app
+        run: dotnet publish src/Payments.Mvc/Payments.Mvc.csproj --configuration Release -p:FrontendDependenciesRestored=true --output "$PWD/publish/web"
+
+      - name: Publish WebJobs
+        run: |
+          dotnet publish src/Payments.Jobs.MoneyMovement/Payments.Jobs.MoneyMovement.csproj --configuration Release --output "$PWD/publish/web/app_data/jobs/triggered/Payments.Jobs.MoneyMovement"
+          dotnet publish src/Payments.Jobs.AutoApprove/Payments.Jobs.AutoApprove.csproj --configuration Release --output "$PWD/publish/web/app_data/jobs/triggered/Payments.Jobs.AutoApprove"
+
+      - name: Package app
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p publish
+          cd publish/web
+          zip -qr ../webapp.zip .
+
+      - name: Azure login
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify existing App Service
+        run: az webapp show --resource-group "$RESOURCE_GROUP" --name "$WEB_APP_NAME" --output none
+
+      - name: Check SCM readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          scm_url="https://${WEB_APP_NAME}.scm.azurewebsites.net/api/settings"
+          ready_count=0
+
+          for attempt in {1..12}; do
+            scm_status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 10 "$scm_url" || true)"
+
+            if [[ "$scm_status" == "200" || "$scm_status" == "401" ]]; then
+              ((ready_count += 1))
+              if (( ready_count == 2 )); then
+                echo "SCM is ready for package deployment."
+                exit 0
+              fi
+            else
+              ready_count=0
+            fi
+
+            if (( attempt < 12 )); then
+              sleep 5
+            fi
+          done
+
+          echo "SCM is not ready for package deployment."
+          exit 1
+
+      - name: Deploy app package
+        uses: azure/webapps-deploy@02a81bead70021f5284939794bcec79c271ab383 # v3
+        with:
+          app-name: ${{ env.WEB_APP_NAME }}
+          package: publish/webapp.zip
+
+      - name: Verify application health
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          app_url="https://${WEB_APP_NAME}.azurewebsites.net/health"
+          start_time=$SECONDS
+          deadline=$((start_time + APP_HEALTH_TIMEOUT_SECONDS))
+          ready_count=0
+          attempt=0
+
+          while (( SECONDS < deadline )); do
+            ((attempt += 1))
+            remaining=$((deadline - SECONDS))
+            if (( remaining <= 0 )); then
+              break
+            fi
+
+            request_timeout=$((remaining < 10 ? remaining : 10))
+            app_status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time "$request_timeout" "$app_url" || true)"
+            elapsed=$((SECONDS - start_time))
+
+            if [[ "$app_status" == "200" ]]; then
+              ((ready_count += 1))
+              if (( ready_count == 2 )); then
+                echo "The deployed application is healthy after ${elapsed} seconds."
+                exit 0
+              fi
+            else
+              ready_count=0
+              echo "Health check attempt $attempt returned HTTP ${app_status:-000} after ${elapsed} seconds."
+            fi
+
+            remaining=$((deadline - SECONDS))
+            if (( remaining <= 0 )); then
+              break
+            fi
+
+            sleep_seconds=$((remaining < 5 ? remaining : 5))
+            sleep "$sleep_seconds"
+          done
+
+          echo "The package was deployed, but the application did not become healthy within ${APP_HEALTH_TIMEOUT_SECONDS} seconds."
+          exit 1

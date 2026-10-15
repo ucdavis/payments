@@ -5,53 +5,50 @@ on:
     branches: [master]
   push:
     branches: [master]
-  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
   validate:
-    name: Validate and package
+    name: Validate
     runs-on: ubuntu-22.04
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: 6.0.x
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.x
           cache: npm
           cache-dependency-path: src/Payments.Mvc/ClientApp/package-lock.json
-      - name: Test deployment readiness checks
-        run: python3 -m unittest discover -s tests/deployment -v
-      - name: Restore frontend
+
+      - name: Restore frontend dependencies
         working-directory: src/Payments.Mvc/ClientApp
         run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        working-directory: src/Payments.Mvc/ClientApp
+        run: npm run build
+
       - name: Test frontend
         working-directory: src/Payments.Mvc/ClientApp
         run: npm run test:run
-      - name: Test server
-        run: dotnet test Payments.sln --configuration Release --logger trx --results-directory artifacts/test-results
-      - name: Publish website and WebJobs
-        run: bash scripts/deployment/package.sh
-      - name: Retain deployment package
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: payments-${{ github.sha }}
-          path: |
-            artifacts/payments.zip
-            artifacts/payments.zip.sha256
-          if-no-files-found: error
-          retention-days: 90
-      - name: Retain server test results
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: server-test-results-${{ github.sha }}
-          path: artifacts/test-results
-          if-no-files-found: ignore
+
+      - name: Restore .NET projects
+        run: dotnet restore Payments.sln
+
+      - name: Build .NET projects
+        run: dotnet build Payments.sln --configuration Release --no-restore
+
+      - name: Test .NET projects
+        run: dotnet test Payments.sln --configuration Release --no-build

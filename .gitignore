@@ -224,5 +224,3 @@ src/\.vscode/
 
 #  Ignore test  coverage output
 coverage/
-# Python deployment checks
-__pycache__/
