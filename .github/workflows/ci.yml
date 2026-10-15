@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: src/Payments.Mvc/ClientApp/package-lock.json
+
+      - name: Restore frontend dependencies
+        working-directory: src/Payments.Mvc/ClientApp
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        working-directory: src/Payments.Mvc/ClientApp
+        run: npm run build
+
+      - name: Test frontend
+        working-directory: src/Payments.Mvc/ClientApp
+        run: npm run test:run
+
+      - name: Restore .NET projects
+        run: dotnet restore Payments.sln
+
+      - name: Build .NET projects
+        run: dotnet build Payments.sln --configuration Release --no-restore
+
+      - name: Test .NET projects
+        run: dotnet test Payments.sln --configuration Release --no-build
