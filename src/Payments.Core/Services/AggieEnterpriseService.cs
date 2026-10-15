@@ -363,7 +363,7 @@ namespace Payments.Core.Services
                 Log.Error("Team is null in IsRechargeAccountValid");
             }
             var debitNaturalAccount = "770006";
-            if(_financeSettings.EnableRechargeDebitNaturalAccount && team.UseCustomAccountValidation && !string.IsNullOrWhiteSpace(team.RechargeDebitNaturalAccount))
+            if(_financeSettings.EnableRechargeDebitNaturalAccount && team != null && team.UseCustomAccountValidation && !string.IsNullOrWhiteSpace(team.RechargeDebitNaturalAccount))
             {
                 debitNaturalAccount = team.RechargeDebitNaturalAccount;
             }
