@@ -1,0 +1,86 @@
+name: Deploy test
+
+# The pilot is manual. Production remains in Azure Pipelines.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: payments-test-deployment
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+  deploy:
+    name: Deploy payments-test
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    environment: test
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
+      WEB_APP_NAME: ${{ vars.WEB_APP_NAME }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify pilot configuration
+        env:
+          TEST_DEPLOYMENT_READY: ${{ vars.TEST_DEPLOYMENT_READY }}
+        run: |
+          set -euo pipefail
+          test "$TEST_DEPLOYMENT_READY" = true
+          test "$AZURE_SUBSCRIPTION_ID" = 105dede4-4731-492e-8c28-5121226319b0
+          test "$AZURE_TENANT_ID" = a8046f64-66c0-4f00-9046-c8daf92ff62b
+          test "$RESOURCE_GROUP" = payments-test
+          test "$WEB_APP_NAME" = payments-test
+          test -n "$AZURE_CLIENT_ID"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: payments-${{ github.sha }}
+          path: artifacts
+      - name: Verify package checksum and revision
+        run: |
+          set -euo pipefail
+          (cd artifacts && sha256sum --check payments.zip.sha256)
+          test "$(unzip -p artifacts/payments.zip wwwroot/release.json | jq -r .commit)" = "$GITHUB_SHA"
+      - uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      - name: Verify existing Windows App Service
+        run: |
+          set -euo pipefail
+          az webapp show --resource-group "$RESOURCE_GROUP" --name "$WEB_APP_NAME" > artifacts/target.json
+          jq -e '.name == "payments-test" and .reserved == false' artifacts/target.json
+      - name: Check SCM readiness
+        run: |
+          set -euo pipefail
+          for attempt in {1..12}; do
+            echo "SCM readiness attempt $attempt"
+            status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 10 https://payments-test.scm.azurewebsites.net/api/settings || true)"
+            if [[ "$status" == 200 || "$status" == 401 ]]; then exit 0; fi
+            sleep 5
+          done
+          exit 1
+      - name: Deploy website and WebJobs
+        uses: azure/webapps-deploy@02a81bead70021f5284939794bcec79c271ab383 # v3
+        with:
+          app-name: payments-test
+          package: artifacts/payments.zip
+      - name: Verify application readiness and deployed revision
+        run: bash scripts/deployment/verify-test.sh "$GITHUB_SHA"

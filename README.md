@@ -6,3 +6,7 @@
 [![forthebadge](https://forthebadge.com/images/badges/uses-html.svg)](https://forthebadge.com)
 
 Accept and process credit card payments for CA&ES
+
+## Deployment
+
+See [the test deployment runbook](docs/test-deployment.md) for the GitHub Actions pilot, handover checks, and rollback. Production continues through Azure Pipelines.
