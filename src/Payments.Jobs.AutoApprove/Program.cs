@@ -95,7 +95,7 @@ namespace Payments.Jobs.MoneyMovement
                         var approvers = new List<EmailRecipient>();
                         foreach (var ra in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
                         {
-                            if (ra.ApprovedByKerb == null || ra.ApprovedByKerb == "System")
+                            if (ra.ApprovedByKerb == null || ra.ApprovedByKerb == "System" || ra.ApprovedByKerb == "Automated")
                             {
                                 continue;
                             }
