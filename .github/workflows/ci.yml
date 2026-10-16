@@ -1,10 +1,20 @@
-name: CI
+name: CI/CD
 
 on:
   pull_request:
     branches: [master]
   push:
     branches: [master]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment to deploy.
+        required: true
+        type: choice
+        default: test
+        options:
+          - test
+          - prod
 
 permissions:
   contents: read
@@ -12,6 +22,7 @@ permissions:
 jobs:
   validate:
     name: Validate
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-22.04
     timeout-minutes: 25
     steps:
@@ -52,3 +63,36 @@ jobs:
 
       - name: Test .NET projects
         run: dotnet test Payments.sln --configuration Release --no-build
+
+  deploy_test:
+    name: Deploy test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: test
+
+  deploy_prod:
+    name: Deploy production
+    needs: deploy_test
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/master' &&
+      needs.deploy_test.result == 'success'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: prod
+
+  deploy_manual:
+    name: Deploy ${{ inputs.environment }}
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: ${{ inputs.environment }}
