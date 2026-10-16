@@ -10,4 +10,4 @@ Accept and process credit card payments for CA&ES
 
 ## Deployment
 
-See [the deployment runbook](docs/test-deployment.md) for automatic test deployment, approval-gated production deployment, verification, and rollback.
+See [the deployment runbook](docs/test-deployment.md) for automatic test deployment followed by production approval in the same workflow run, verification, and rollback.

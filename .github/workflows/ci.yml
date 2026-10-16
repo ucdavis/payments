@@ -74,6 +74,19 @@ jobs:
     with:
       environment: test
 
+  deploy_prod:
+    name: Deploy production
+    needs: deploy_test
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/master' &&
+      needs.deploy_test.result == 'success'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: prod
+
   deploy_manual:
     name: Deploy ${{ inputs.environment }}
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'

@@ -3,16 +3,22 @@
 The `CI/CD` workflow follows the [web-app-template workflow pattern](https://github.com/ucdavis/web-app-template/blob/main/.github/workflows/ci-cd.yml)
 and calls the shared `Deploy` workflow.
 
-| Trigger                                            | Result                                                        |
-| -------------------------------------------------- | ------------------------------------------------------------- |
-| Pull request to `master`                           | Build and test, without deployment                            |
-| Push to `master`, including a merge                | Build, test, and deploy to `test`                             |
-| Manual `CI/CD` run on `master`, environment `test` | Build, test, and deploy to test                               |
-| Manual `CI/CD` run on `master`, environment `prod` | Wait for approval, then build, test, and deploy to production |
+| Trigger                                            | Result                                                                                 |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Pull request to `master`                           | Build and test, without deployment                                                     |
+| Push to `master`, including a merge                | Deploy to `test`; after success, wait for approval to deploy the same commit to `prod` |
+| Manual `CI/CD` run on `master`, environment `test` | Build, test, and deploy to test                                                        |
+| Manual `CI/CD` run on `master`, environment `prod` | Wait for approval, then build, test, and deploy to production                          |
 
-Production is requested separately; a successful test deployment does not start
-a production deployment. Both environments allow only the `master` branch.
-Deployments are serialized per environment, without cancelling an active run.
+After a merge, production waits for approval in the same workflow run once test
+deployment and its health checks succeed. A failed or cancelled test deployment
+prevents that run from reaching production. No separate manual run is needed.
+Both stages build the workflow's commit, even if `master` advances while approval
+is pending. Both environments allow only the `master` branch.
+
+Manual runs remain available for targeted retries. A manual `test` run deploys
+only test; a manual `prod` run still requires approval. Deployments are serialized
+per environment, without cancelling an active deployment.
 
 ## Build and publish
 
@@ -95,10 +101,14 @@ between hourly job runs and outside the daily AutoApprove window.
    Check configuration and migrations; application startup runs database
    migrations. Verify test evidence for the intended revision and agree a release
    window outside scheduled job activity.
-3. Request a manual `CI/CD` run from `master` with environment `prod`. Confirm
-   the run's commit is the intended release and that it is waiting for approval.
-   The reviewer must approve that deployment explicitly. If the wrong revision
-   was selected, cancel the request and select the intended release again.
+3. Open the merge's `CI/CD` run after test deployment succeeds. Confirm its
+   commit is the intended release and production is waiting for approval.
+   Click **Review deployments**, select `prod`, then **Approve and deploy**.
+   Approval starts the production build, tests, and deployment for that run's
+   commit. Reject obsolete pending production deployments; approving an older
+   run releases its older commit. For a separate production retry, manually run
+   `CI/CD` from `master`, choose `prod`, and approve that run after reviewing its
+   commit and test evidence.
 4. After approval, watch deployment and health checks to completion. Inspect
    deployed files and WebJob contracts, then observe natural scheduled runs.
    ZIP deployment differs from the old MSDeploy task's extra-file removal and
