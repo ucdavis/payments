@@ -1,13 +1,12 @@
 name: Deploy
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       environment:
         description: GitHub Environment to deploy.
         required: true
-        type: environment
-        default: test
+        type: string
 
 permissions:
   contents: read
@@ -16,8 +15,11 @@ permissions:
 jobs:
   deploy:
     name: Deploy ${{ inputs.environment }}
-    # Only test is enabled during this migration. Production stays in Azure Pipelines.
-    if: github.ref == 'refs/heads/master' && inputs.environment == 'test'
+    if: >-
+      github.ref == 'refs/heads/master' &&
+      ((github.event_name == 'push' && inputs.environment == 'test') ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.environment == 'test' || inputs.environment == 'prod')))
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     environment: ${{ inputs.environment }}
