@@ -1255,7 +1255,7 @@ else
         // Recharge account validation functions
         function validateChartString(chartString, direction) {
             const directionValue = direction === 'Credit' ? 0 : 1;
-            return fetch(`/api/recharge/validate?chartString=${encodeURIComponent(chartString)}&direction=${directionValue}`, {
+            return fetch(`/api/recharge/validate?chartString=${encodeURIComponent(chartString)}&direction=${directionValue}&teamSlug=@teamSlug`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

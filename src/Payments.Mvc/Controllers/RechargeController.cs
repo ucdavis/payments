@@ -36,9 +36,15 @@ namespace Payments.Mvc.Controllers
 
         [HttpGet]
         [Route("api/recharge/validate")]
-        public async Task<IActionResult> ValidateChartString(string chartString, CreditDebit direction, bool checkApprover = false)
+        public async Task<IActionResult> ValidateChartString(string chartString, CreditDebit direction, string teamSlug, bool checkApprover = false)
         {
-            var result = await _aggieEnterpriseService.IsRechargeAccountValid(chartString, direction);
+            var team = await _dbContext.Teams.SingleOrDefaultAsync(t => t.Slug == teamSlug);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var result = await _aggieEnterpriseService.IsRechargeAccountValid(chartString, direction, team);
 
             //This may not need to return the entire result object
 
@@ -229,7 +235,7 @@ namespace Payments.Mvc.Controllers
             var savedApprovers = new List<Approver>();
             foreach (var item in model)
             {
-                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit, invoice.Team);
                 if (!validationResult.IsValid)
                 {
                     return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
@@ -531,7 +537,7 @@ namespace Payments.Mvc.Controllers
                 }
 
                 //We don't really care about checking if they changed the chart string, we will just pass whatever is in the model and validate/save that.
-                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit);
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(item.FinancialSegmentString, RechargeAccount.CreditDebit.Debit, invoice.Team);
                 if (!validationResult.IsValid)
                 {
                     return BadRequest($"The chart string {item.FinancialSegmentString} is not valid: {validationResult.Message}");
@@ -618,7 +624,7 @@ namespace Payments.Mvc.Controllers
 
             foreach (var ra in invoice.RechargeAccounts.Where(ra => ra.Direction == CreditDebit.Debit))
             {
-                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, CreditDebit.Debit);
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, CreditDebit.Debit, invoice.Team);
                 if (validationResult.Approvers != null && validationResult.Approvers.Count > 0)
                 {
                     if (IsUserAnApprover(validationResult.Approvers, user, additionalEmails))

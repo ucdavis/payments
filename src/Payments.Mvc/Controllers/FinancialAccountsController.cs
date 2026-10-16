@@ -195,7 +195,7 @@ namespace Payments.Mvc.Controllers
             }
             if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString) )
             {
-                financialAccount.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                financialAccount.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString, team);
                 if (!financialAccount.AeValidationModel.IsValid)
                 {
                     ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {financialAccount.AeValidationModel.Message}");
@@ -290,7 +290,7 @@ namespace Payments.Mvc.Controllers
             if (!String.IsNullOrWhiteSpace(financialAccount.FinancialSegmentString))
             {
                 //TODO: Extra payments account validation (income, etc.)
-                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                var validationResult = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString, team);
                 if (!validationResult.IsValid)
                 {
                     ModelState.AddModelError("FinancialSegmentString", $"Financial Segment String is not valid. {validationResult.Message}");
@@ -359,7 +359,7 @@ namespace Payments.Mvc.Controllers
             }
 
             var model = new FinancialAccountEditModel { FinancialAccount = financialAccount, ShowCoa = _financeSettings.ShowCoa, UseCoa = _financeSettings.UseCoa };
-            model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+            model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString, team);
             model.AllowCoaEdit = string.IsNullOrWhiteSpace( financialAccount.FinancialSegmentString);
 
             return View(model);
@@ -410,7 +410,7 @@ namespace Payments.Mvc.Controllers
                 else
                 {
                     financialAccountToUpdate.FinancialSegmentString = financialAccount.FinancialSegmentString; //Only allow it to be updated once if it is empty.
-                    model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                    model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString, team);
                     if (!model.AeValidationModel.IsValid)
                     {
                         ModelState.AddModelError("FinancialAccount.FinancialSegmentString", $"Financial Segment String is not valid. {model.AeValidationModel.Message}");
@@ -484,7 +484,7 @@ namespace Payments.Mvc.Controllers
             {
                 model.KfsAccount = new KfsAccount();
                 model.ShowKfsAccount = false;
-                model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString);
+                model.AeValidationModel = await _aggieEnterpriseService.IsAccountValid(financialAccount.FinancialSegmentString, team);
                 model.IsAeAccountValid = model.AeValidationModel.IsValid;
                 model.AeValidationMessage = model.AeValidationModel.Message;
             }
@@ -596,7 +596,13 @@ namespace Payments.Mvc.Controllers
         [HttpGet("{team}/api/financial-accounts/validate")]
         public async Task<IActionResult> ValidateFinancialSegmentString(string chartString)
         {
-            var result = await _aggieEnterpriseService.IsAccountValid(chartString);
+            var team = await _context.Teams.SingleOrDefaultAsync(m => m.Slug == TeamSlug && m.IsActive);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var result = await _aggieEnterpriseService.IsAccountValid(chartString, team);
 
             return new JsonResult(new
             {

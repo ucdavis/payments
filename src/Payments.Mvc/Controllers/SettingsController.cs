@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Payments.Core.Data;
 using Payments.Core.Domain;
 using Payments.Core.Extensions;
+using Payments.Core.Models.Configuration;
 using Payments.Core.Services;
 using Payments.Emails;
 using Payments.Mvc.Identity;
@@ -30,19 +32,25 @@ namespace Payments.Mvc.Controllers
         private readonly INotificationService _notificationService;
         private readonly IEmailService _emailService;
         private readonly ApplicationUserManager _userManager;
+        private readonly IAggieEnterpriseService _aggieEnterpriseService;
+        private readonly FinanceSettings _financeSettings;
 
         public SettingsController(
             ApplicationDbContext context,
             IDirectorySearchService directorySearchService,
             INotificationService notificationService,
             IEmailService emailService,
-            ApplicationUserManager userManager)
+            ApplicationUserManager userManager,
+            IAggieEnterpriseService aggieEnterpriseService,
+            IOptions<FinanceSettings> financeSettings)
         {
             _context = context;
             _directorySearchService = directorySearchService;
             _notificationService = notificationService;
             _emailService = emailService;
             _userManager = userManager;
+            _aggieEnterpriseService = aggieEnterpriseService;
+            _financeSettings = financeSettings.Value;
         }
 
         /// <summary>
@@ -74,6 +82,9 @@ namespace Payments.Mvc.Controllers
                 WebHookApiKey = team.WebHookApiKey,
                 AllowedInvoiceType = team.AllowedInvoiceType,
                 SlothAutoApprove = team.SlothAutoApprove,
+                UseCustomAccountValidation = team.UseCustomAccountValidation,
+                RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount,
+                ShowRechargeDebitNaturalAccount = _financeSettings.EnableRechargeDebitNaturalAccount,
             };
 
             return View(model);
@@ -102,6 +113,9 @@ namespace Payments.Mvc.Controllers
                 WebHookApiKey = team.WebHookApiKey,
                 AllowedInvoiceType = team.AllowedInvoiceType,
                 SlothAutoApprove = team.SlothAutoApprove,
+                UseCustomAccountValidation = team.UseCustomAccountValidation,
+                RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount,
+                ShowRechargeDebitNaturalAccount = _financeSettings.EnableRechargeDebitNaturalAccount,
             };
 
             return View(model);
@@ -125,6 +139,44 @@ namespace Payments.Mvc.Controllers
                 ModelState.AddModelError("Slug", "Team Slug already used.");
             }
 
+            var isSystemUser = User.IsInRole(ApplicationRoleCodes.Admin);
+            model.ShowRechargeDebitNaturalAccount = _financeSettings.EnableRechargeDebitNaturalAccount;
+            ModelState.Remove(nameof(model.ShowRechargeDebitNaturalAccount));
+            if (!isSystemUser)
+            {
+                model.UseCustomAccountValidation = team.UseCustomAccountValidation;
+                model.RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount;
+                ModelState.Remove(nameof(model.UseCustomAccountValidation));
+                ModelState.Remove(nameof(model.RechargeDebitNaturalAccount));
+            }
+            else if (!_financeSettings.EnableRechargeDebitNaturalAccount)
+            {
+                model.RechargeDebitNaturalAccount = team.RechargeDebitNaturalAccount;
+                ModelState.Remove(nameof(model.RechargeDebitNaturalAccount));
+            }
+            else if (!model.UseCustomAccountValidation)
+            {
+                model.RechargeDebitNaturalAccount = null;
+                ModelState.Remove(nameof(model.RechargeDebitNaturalAccount));
+            }
+            else if (ModelState.IsValid && !string.IsNullOrWhiteSpace(model.RechargeDebitNaturalAccount))
+            {
+                try
+                {
+                    if (!await _aggieEnterpriseService.IsNaturalAccountValid(model.RechargeDebitNaturalAccount))
+                    {
+                        ModelState.AddModelError(nameof(model.RechargeDebitNaturalAccount),
+                            "Select an eligible natural account from Aggie Enterprise.");
+                    }
+                }
+                catch (Exception)
+                {
+                    Log.Warning("Aggie Enterprise natural account validation failed.");
+                    ModelState.AddModelError(nameof(model.RechargeDebitNaturalAccount),
+                        "Unable to validate the natural account with Aggie Enterprise. Please try again.");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -139,16 +191,49 @@ namespace Payments.Mvc.Controllers
             
 
             // only admins can change active
-            if (User.IsInRole(ApplicationRoleCodes.Admin))
+            if (isSystemUser)
             {
                 team.IsActive = model.IsActive;
                 team.AllowedInvoiceType = model.AllowedInvoiceType;
                 team.SlothAutoApprove = model.SlothAutoApprove;
+                team.UseCustomAccountValidation = model.UseCustomAccountValidation;
+                if (_financeSettings.EnableRechargeDebitNaturalAccount)
+                {
+                    team.RechargeDebitNaturalAccount = string.IsNullOrWhiteSpace(model.RechargeDebitNaturalAccount)
+                        ? null : model.RechargeDebitNaturalAccount;
+                }
             }
 
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index), new { team = team.Slug });
+        }
+
+        [HttpGet]
+        [Authorize(Roles = ApplicationRoleCodes.Admin)]
+        public async Task<IActionResult> SearchNaturalAccounts(string query)
+        {
+            if (!_financeSettings.EnableRechargeDebitNaturalAccount)
+            {
+                return NotFound();
+            }
+
+            query = query?.Trim();
+            if (string.IsNullOrEmpty(query) || query.Length < 3 || query.Length > 100)
+            {
+                return BadRequest("Enter between 3 and 100 characters to search for a natural account.");
+            }
+
+            try
+            {
+                var accounts = await _aggieEnterpriseService.SearchNaturalAccounts(query);
+                return Json(accounts.Select(account => new { code = account.Key, name = account.Value }));
+            }
+            catch (Exception)
+            {
+                Log.Warning("Aggie Enterprise natural account search failed.");
+                return StatusCode(503, "Unable to search Aggie Enterprise. Please try again.");
+            }
         }
 
         [Authorize(Policy = PolicyCodes.TeamEditor)]

@@ -71,7 +71,7 @@ namespace Payments.Mvc.Services
 
                 foreach(var ra in model.RechargeAccounts)
                 {
-                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction, team);
                     if(!validationModel.IsValid)
                     {
                         throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
@@ -195,7 +195,7 @@ namespace Payments.Mvc.Services
                     var AccountOverride = model.RechargeAccounts?.SingleOrDefault(a => a.Direction == RechargeAccount.CreditDebit.Credit && !string.IsNullOrWhiteSpace(a.FinancialSegmentString));
                     if (AccountOverride != null)
                     {
-                        var validationModel = await _aggieEnterpriseService.IsAccountValid(AccountOverride.FinancialSegmentString);
+                        var validationModel = await _aggieEnterpriseService.IsAccountValid(AccountOverride.FinancialSegmentString, team);
                         if (!validationModel.IsValid)
                         {
                             throw new ArgumentException($"Account override '{AccountOverride.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
@@ -335,7 +335,7 @@ namespace Payments.Mvc.Services
 
                 foreach (var ra in invoice.RechargeAccounts)
                 {
-                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction, team);
                     if (!validationModel.IsValid)
                     {
                         throw new ArgumentException($"Recharge account '{ra.FinancialSegmentString}' is not valid");
@@ -424,7 +424,7 @@ namespace Payments.Mvc.Services
                 return;
             }
 
-            var validationModel = await _aggieEnterpriseService.IsAccountValid(accountOverride.FinancialSegmentString);
+            var validationModel = await _aggieEnterpriseService.IsAccountValid(accountOverride.FinancialSegmentString, invoice.Team);
             if (!validationModel.IsValid)
             {
                 throw new ArgumentException($"Account override '{accountOverride.FinancialSegmentString}' is not valid", nameof(model.RechargeAccounts));
@@ -522,7 +522,7 @@ namespace Payments.Mvc.Services
             {
                 foreach (var ra in invoice.RechargeAccounts)
                 {
-                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                    var validationModel = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction, invoice.Team);
                     if (!validationModel.IsValid)
                     {
                         //This will throw an uncontrolled exception, but that is probably better than sending an invoice with invalid accounts.
@@ -702,7 +702,7 @@ namespace Payments.Mvc.Services
             var approvers = new List<Approver>();
             foreach(var ra in invoice.RechargeAccounts.Where(a => a.Direction == RechargeAccount.CreditDebit.Debit))
             {
-                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction);
+                var validationResult = await _aggieEnterpriseService.IsRechargeAccountValid(ra.FinancialSegmentString, ra.Direction, invoice.Team);
                 if(validationResult.Approvers != null)
                 {
                     approvers.AddRange(validationResult.Approvers);

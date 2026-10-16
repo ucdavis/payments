@@ -78,6 +78,23 @@ namespace Payments.Core.Domain
 
         public bool SlothAutoApprove { get; set; } = false;
 
+        /// <summary>
+        /// This will be a system admin setting.
+        /// It will relax the rules for Aggie Enterprise chart string validation.
+        /// The idea is that an application using the API will determine what is valid or not.
+        /// 
+        /// Possibly we could have an invoice value that could be specified instead if we wanted to get that fancy.
+        /// </summary>
+        public bool UseCustomAccountValidation { get; set; } = false;
+
+        /// <summary>
+        /// This will be a system admin setting.
+        /// This may be used if UseCustomAccountValidation is true.
+        /// If it is, the recharge debit natural account/expenditure type will be replaced
+        /// </summary>
+        [StringLength(6)]
+        public string RechargeDebitNaturalAccount { get; set; }
+
         [NotMapped]
         public FinancialAccount DefaultAccount {
             get {

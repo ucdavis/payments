@@ -98,7 +98,7 @@ namespace payments.Tests.JobTests
 
             var aggieEnterpriseService = new Mock<IAggieEnterpriseService>();
             aggieEnterpriseService
-                .Setup(service => service.IsAccountValid("override-chart-string", true))
+                .Setup(service => service.IsAccountValid("override-chart-string", team, true))
                 .ReturnsAsync(new AccountValidationModel
                 {
                     IsValid = overrideIsValid,
@@ -125,7 +125,7 @@ namespace payments.Tests.JobTests
                             && transfer.Description == "Funds Distribution");
             Assert.Equal(expectedChartString, incomeTransfer.FinancialSegmentString);
             aggieEnterpriseService.Verify(
-                service => service.IsAccountValid("override-chart-string", true),
+                service => service.IsAccountValid("override-chart-string", team, true),
                 Times.Once);
         }
     }
