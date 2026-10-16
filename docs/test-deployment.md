@@ -55,8 +55,8 @@ Each identity has Website Contributor scoped only to its App Service. The
 federated subjects are `repo:ucdavis/payments:environment:test` and
 `repo:ucdavis/payments:environment:prod`; production does not reuse test access.
 
-The `prod` environment requires approval from `srkirkland`. Self-approval is
-allowed, but administrator bypass is disabled. The shared deployment job binds
+The `prod` environment requires approval from `@ucdavis/caesdo-devs`.
+Self-approval is allowed, but administrator bypass is disabled. The shared deployment job binds
 to this environment, so it cannot start or obtain its Azure OIDC token before
 approval. A manual workflow request alone does not approve deployment.
 
