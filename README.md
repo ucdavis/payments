@@ -10,4 +10,4 @@ Accept and process credit card payments for CA&ES
 
 ## Deployment
 
-See [the test deployment runbook](docs/test-deployment.md) for the GitHub Actions pilot, handover checks, and rollback. Production continues through Azure Pipelines.
+See [the deployment runbook](docs/test-deployment.md) for automatic test deployment, approval-gated production deployment, verification, and rollback.
