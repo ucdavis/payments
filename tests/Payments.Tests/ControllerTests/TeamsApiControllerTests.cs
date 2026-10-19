@@ -76,20 +76,30 @@ namespace payments.Tests.ControllerTests
         }
 
         [Theory]
-        [InlineData(null, false)]
-        [InlineData("", false)]
-        [InlineData(" ", false)]
-        [InlineData("invalid-test-key", false)]
-        [InlineData("inactive-test-key", false)]
-        [InlineData(null, true)]
-        [InlineData("", true)]
-        [InlineData(" ", true)]
-        [InlineData("invalid-test-key", true)]
-        [InlineData("inactive-test-key", true)]
-        public async Task TeamEndpointRejectsUnusableKeysWithoutLoginFallback(string apiKey, bool signedIn)
+        [InlineData(null, false, typeof(TeamsApiController))]
+        [InlineData("", false, typeof(TeamsApiController))]
+        [InlineData(" ", false, typeof(TeamsApiController))]
+        [InlineData("invalid-test-key", false, typeof(TeamsApiController))]
+        [InlineData("inactive-test-key", false, typeof(TeamsApiController))]
+        [InlineData(null, true, typeof(TeamsApiController))]
+        [InlineData("", true, typeof(TeamsApiController))]
+        [InlineData(" ", true, typeof(TeamsApiController))]
+        [InlineData("invalid-test-key", true, typeof(TeamsApiController))]
+        [InlineData("inactive-test-key", true, typeof(TeamsApiController))]
+        [InlineData(null, false, typeof(ChartStringsApiController))]
+        [InlineData("", false, typeof(ChartStringsApiController))]
+        [InlineData(" ", false, typeof(ChartStringsApiController))]
+        [InlineData("invalid-test-key", false, typeof(ChartStringsApiController))]
+        [InlineData("inactive-test-key", false, typeof(ChartStringsApiController))]
+        [InlineData(null, true, typeof(ChartStringsApiController))]
+        [InlineData("", true, typeof(ChartStringsApiController))]
+        [InlineData(" ", true, typeof(ChartStringsApiController))]
+        [InlineData("invalid-test-key", true, typeof(ChartStringsApiController))]
+        [InlineData("inactive-test-key", true, typeof(ChartStringsApiController))]
+        public async Task ApiKeyOnlyEndpointsRejectUnusableKeysWithoutLoginFallback(string apiKey, bool signedIn, Type controllerType)
         {
             var nextCalled = false;
-            var context = CreateHttpContext(typeof(TeamsApiController));
+            var context = CreateHttpContext(controllerType);
             if (signedIn)
             {
                 context.User = new ClaimsPrincipal(new ClaimsIdentity(
@@ -106,6 +116,21 @@ namespace payments.Tests.ControllerTests
             Assert.False(httpContext.Response.Headers.ContainsKey("Location"));
             Assert.False(nextCalled);
             Assert.False(await IsAuthorized(httpContext.User));
+        }
+
+        [Fact]
+        public async Task ChartStringEndpointAcceptsAnActiveTeamsApiKey()
+        {
+            var nextCalled = false;
+            var context = CreateHttpContext(typeof(ChartStringsApiController));
+            var httpContext = await AuthenticateApiKey("alpha-test-key", _ =>
+            {
+                nextCalled = true;
+                return Task.CompletedTask;
+            }, context);
+
+            Assert.True(nextCalled);
+            Assert.True(await IsAuthorized(httpContext.User));
         }
 
         [Theory]
@@ -138,14 +163,16 @@ namespace payments.Tests.ControllerTests
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
-        public async Task BlankStoredKeyCannotAuthorizeTheTeamEndpoint(string apiKey)
+        [InlineData("", typeof(TeamsApiController))]
+        [InlineData(" ", typeof(TeamsApiController))]
+        [InlineData("", typeof(ChartStringsApiController))]
+        [InlineData(" ", typeof(ChartStringsApiController))]
+        public async Task BlankStoredKeyCannotAuthorizeApiKeyOnlyEndpoints(string apiKey, Type controllerType)
         {
             _dbContext.Teams.Single(team => team.Id == 1).ApiKey = apiKey;
             await _dbContext.SaveChangesAsync();
 
-            var httpContext = await AuthenticateApiKey(apiKey);
+            var httpContext = await AuthenticateApiKey(apiKey, context: CreateHttpContext(controllerType));
 
             Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
             Assert.False(await IsAuthorized(httpContext.User));
