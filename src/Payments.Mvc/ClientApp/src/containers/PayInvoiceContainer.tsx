@@ -43,6 +43,7 @@ export interface InvoiceAttachmentModel {
 }
 
 export interface InvoiceTeam {
+  slug: string;
   name: string;
   contactName: string;
   contactEmail: string;
@@ -318,6 +319,7 @@ export default class PayInvoiceContainer extends React.Component<
                 amount must match the invoice total.
               </p>
               <RechargeAccountsControl
+                teamSlug={invoice.team.slug}
                 ref={r => {
                   this._rechargeAccountsRef = r;
                 }}

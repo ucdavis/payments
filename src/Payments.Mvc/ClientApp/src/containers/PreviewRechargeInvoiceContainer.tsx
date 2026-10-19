@@ -172,6 +172,7 @@ export default class PreviewRechargeInvoiceContainer extends React.Component<
                 form works. Changes cannot be saved in preview mode.
               </p>
               <RechargeAccountsControl
+                teamSlug={invoice.team.slug}
                 ref={r => {
                   this._rechargeAccountsRef = r;
                 }}

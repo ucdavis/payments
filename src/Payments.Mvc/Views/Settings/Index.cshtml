@@ -118,6 +118,35 @@
                             <span class="badge bg-secondary">Disabled</span>
                         }
                     </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.UseCustomAccountValidation)
+                    </dt>
+                    <dd>
+                        @if (Model.UseCustomAccountValidation)
+                        {
+                            <span class="badge bg-success">Enabled</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Disabled</span>
+                        }
+                    </dd>
+                    @if (Model.ShowRechargeDebitNaturalAccount)
+                    {
+                        <dt>
+                            @Html.DisplayNameFor(model => model.RechargeDebitNaturalAccount)
+                        </dt>
+                        <dd>
+                            @if (string.IsNullOrWhiteSpace(Model.RechargeDebitNaturalAccount))
+                            {
+                                <span>Not Set</span>
+                            }
+                            else
+                            {
+                                <span id="rechargeDebitNaturalAccount" data-code="@Model.RechargeDebitNaturalAccount">@Model.RechargeDebitNaturalAccount</span>
+                            }
+                        </dd>
+                    }
                 }
             </dl>
         </div>
@@ -163,3 +192,23 @@
     <a class="btn btn-outline-primary" asp-controller="Teams" asp-action="Index"><i class="fas fa-chevron-left"></i>Back
         to List of Teams</a>
     </div>
+
+@section Scripts {
+    <script asp-add-nonce="true">
+        $(function () {
+            var account = $('#rechargeDebitNaturalAccount');
+            var code = account.attr('data-code');
+            if (!code) {
+                return;
+            }
+
+            $.getJSON('@Url.Action("SearchNaturalAccounts", "Settings", new { team = Model.Slug })', { query: code })
+                .done(function (accounts) {
+                    var match = accounts.find(function (item) { return item.code === code; });
+                    if (match) {
+                        account.text(code + ' — ' + match.name);
+                    }
+                });
+        });
+    </script>
+}

@@ -768,6 +768,10 @@ namespace Payments.Core.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<string>("RechargeDebitNaturalAccount")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
                     b.Property<bool>("SlothAutoApprove")
                         .HasColumnType("bit");
 
@@ -775,6 +779,9 @@ namespace Payments.Core.Migrations
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
+
+                    b.Property<bool>("UseCustomAccountValidation")
+                        .HasColumnType("bit");
 
                     b.Property<string>("WebHookApiKey")
                         .HasMaxLength(128)
